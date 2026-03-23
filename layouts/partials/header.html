@@ -18,36 +18,24 @@
 
   <nav id="site-nav" aria-label="Primary navigation">
     <ul class="site-nav">
+
+      <!-- Home is always first -->
       <li>
         <a href="{{ .Site.BaseURL }}"
           {{ if .IsHome }}class="active" aria-current="page"{{ end }}>
           Home
         </a>
       </li>
+
+      {{ range .Site.Menus.main }}
       <li>
-        <a href="{{ "categories/the-deep-end" | absURL }}"
-          {{ if eq .Section "the-deep-end" }}class="active" aria-current="page"{{ end }}>
-          The Deep End
+        <a href="{{ .URL }}"
+          {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }}>
+          {{ .Name }}
         </a>
       </li>
-      <li>
-        <a href="{{ "categories/friday-haul" | absURL }}"
-          {{ if eq .Section "friday-haul" }}class="active" aria-current="page"{{ end }}>
-          Friday Haul
-        </a>
-      </li>
-      <li>
-        <a href="{{ "about" | absURL }}"
-          {{ if eq .RelPermalink "/about/" }}class="active" aria-current="page"{{ end }}>
-          About
-        </a>
-      </li>
-      <li>
-        <a href="{{ "now" | absURL }}"
-          {{ if eq .RelPermalink "/now/" }}class="active" aria-current="page"{{ end }}>
-          Now
-        </a>
-      </li>
+      {{ end }}
+
     </ul>
   </nav>
 

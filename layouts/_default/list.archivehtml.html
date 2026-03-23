@@ -1,0 +1,34 @@
+{{ define "main" }}
+
+  <div class="archive-wrapper">
+
+    <header class="page-header" style="padding-left: 0; padding-right: 0;">
+      <h1 class="page-title">Archive</h1>
+    </header>
+
+    {{/* Group posts by year */}}
+    {{ $allPosts := where .Site.RegularPages "Type" "post" }}
+    {{ range ($allPosts.GroupByDate "2006") }}
+
+      <h2 class="archive-year">{{ .Key }}</h2>
+
+      {{ range .Pages }}
+        <a href="{{ .Permalink }}" class="archive-item">
+          <span class="archive-item-date">
+            {{ .Date.Format "Jan 2" }}
+          </span>
+          <span class="archive-item-title">
+            {{- if .Title -}}
+              {{ .Title }}
+            {{- else -}}
+              {{ .Summary | plainify | truncate 80 }}
+            {{- end -}}
+          </span>
+        </a>
+      {{ end }}
+
+    {{ end }}
+
+  </div>
+
+{{ end }}

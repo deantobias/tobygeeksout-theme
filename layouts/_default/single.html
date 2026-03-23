@@ -1,0 +1,72 @@
+{{ define "main" }}
+
+  <article>
+
+    {{/* ── Post header ── */}}
+    <header class="post-header">
+
+      <div class="post-header-eyebrow">
+        {{ if .Params.categories }}
+          {{ range .Params.categories }}
+            <span class="post-category">{{ . }}</span>
+          {{ end }}
+        {{ end }}
+      </div>
+
+      {{/* Title is optional — micro-posts have none */}}
+      {{ if .Title }}
+        <h1 class="post-header-title">{{ .Title }}</h1>
+      {{ end }}
+
+      <div class="post-header-meta">
+        <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+        {{ if .ReadingTime }}
+          <span>&middot; {{ .ReadingTime }} min read</span>
+        {{ end }}
+      </div>
+
+    </header>
+
+    {{/* ── Post body ── */}}
+    <div class="post-body">
+      {{ .Content }}
+    </div>
+
+  </article>
+
+  {{/* ── Micro.blog conversation (replies) ── */}}
+  {{ if .Site.Params.include_conversation }}
+    <div style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--page-pad) var(--space-2xl);">
+      <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
+    </div>
+  {{ end }}
+
+  {{/* ── Prev / Next navigation ── */}}
+  {{ $prev := .PrevInSection }}
+  {{ $next := .NextInSection }}
+  {{ if or $prev $next }}
+  <nav class="post-nav" aria-label="Post navigation">
+    {{ if $prev }}
+      <a href="{{ $prev.Permalink }}" class="post-nav-link post-nav-link--prev">
+        <p class="post-nav-label">← Previous</p>
+        <p class="post-nav-title">
+          {{ if $prev.Title }}{{ $prev.Title }}{{ else }}{{ $prev.Date.Format "January 2, 2006" }}{{ end }}
+        </p>
+      </a>
+    {{ else }}
+      <div></div>
+    {{ end }}
+    {{ if $next }}
+      <a href="{{ $next.Permalink }}" class="post-nav-link post-nav-link--next">
+        <p class="post-nav-label">Next →</p>
+        <p class="post-nav-title">
+          {{ if $next.Title }}{{ $next.Title }}{{ else }}{{ $next.Date.Format "January 2, 2006" }}{{ end }}
+        </p>
+      </a>
+    {{ end }}
+  </nav>
+  {{ end }}
+
+{{ end }}

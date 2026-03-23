@@ -1,0 +1,71 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>
+  {{- if .IsHome -}}
+    {{ .Site.Title }}
+  {{- else -}}
+    {{ .Title }} | {{ .Site.Title }}
+  {{- end -}}
+</title>
+
+<meta name="description" content="
+  {{- if .IsHome -}}
+    {{ .Site.Params.description | default "Toby Geeks Out!" }}
+  {{- else if .Description -}}
+    {{ .Description }}
+  {{- else if .Summary -}}
+    {{ .Summary | plainify | truncate 160 }}
+  {{- else -}}
+    {{ .Site.Params.description | default "Toby Geeks Out!" }}
+  {{- end -}}
+">
+
+<link rel="canonical" href="{{ .Permalink }}">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url"         content="{{ .Permalink }}">
+<meta property="og:title"       content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta property="og:site_name"   content="{{ .Site.Title }}">
+
+<!-- Twitter card -->
+<meta name="twitter:card"        content="summary">
+<meta name="twitter:title"       content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+
+<!-- RSS / JSON Feed -->
+{{ range .AlternativeOutputFormats -}}
+  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
+{{- end }}
+
+<!-- Google Fonts preconnect -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Theme stylesheet — query string busts Micro.blog cache on updates -->
+<link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ .Site.Params.theme_seconds }}">
+
+<!-- IndieWeb / Micro.blog required tags -->
+<link rel="me" href="https://micro.blog/{{ .Site.Author.username }}">
+{{ with .Site.Params.instagram_username }}
+<link rel="me" href="https://instagram.com/{{ . }}">
+{{ end }}
+<link rel="authorization_endpoint" href="https://micro.blog/indieauth/auth">
+<link rel="token_endpoint"         href="https://micro.blog/indieauth/token">
+<link rel="micropub"               href="https://micro.blog/micropub">
+<link rel="microsub"               href="https://micro.blog/microsub">
+<link rel="webmention"             href="https://micro.blog/webmention">
+<link rel="subscribe"              href="https://micro.blog/users/follow">
+
+<!-- Plugin CSS (Micro.blog plugins inject their stylesheets here) -->
+{{ range .Site.Params.plugins_css }}
+  <link rel="stylesheet" href="{{ . }}">
+{{ end }}
+
+<!-- Plugin HTML partials -->
+{{ range $filename := .Site.Params.plugins_html }}
+  {{ partial $filename $ }}
+{{ end }}

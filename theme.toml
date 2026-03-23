@@ -1,0 +1,12 @@
+name = "Toby Geeks Out!"
+license = "MIT"
+licenselink = "https://opensource.org/licenses/MIT"
+description = "A warm, editorial Micro.blog theme for Toby Geeks Out! — terracotta + navy, Playfair Display headlines, mobile-first."
+homepage = "https://micro.blog/tobygeeksout"
+tags = ["blog", "microblog", "minimal", "responsive"]
+features = ["author", "microblog"]
+min_version = 0.91
+
+[author]
+  name = "Toby Overstreet"
+  homepage = "https://micro.blog/tobygeeksout"

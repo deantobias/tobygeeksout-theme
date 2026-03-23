@@ -1,0 +1,54 @@
+<header class="site-header">
+
+  <a href="{{ .Site.BaseURL }}" class="site-logo" aria-label="{{ .Site.Title }} home">
+    Toby Geeks<span class="logo-accent"> Out!</span>
+  </a>
+
+  <!-- Hamburger toggle (mobile only — hidden via CSS on desktop) -->
+  <button
+    class="nav-toggle"
+    aria-controls="site-nav"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav id="site-nav" aria-label="Primary navigation">
+    <ul class="site-nav">
+      <li>
+        <a href="{{ .Site.BaseURL }}"
+          {{ if .IsHome }}class="active" aria-current="page"{{ end }}>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="{{ "categories/the-deep-end" | absURL }}"
+          {{ if eq .Section "the-deep-end" }}class="active" aria-current="page"{{ end }}>
+          The Deep End
+        </a>
+      </li>
+      <li>
+        <a href="{{ "categories/friday-haul" | absURL }}"
+          {{ if eq .Section "friday-haul" }}class="active" aria-current="page"{{ end }}>
+          Friday Haul
+        </a>
+      </li>
+      <li>
+        <a href="{{ "about" | absURL }}"
+          {{ if eq .RelPermalink "/about/" }}class="active" aria-current="page"{{ end }}>
+          About
+        </a>
+      </li>
+      <li>
+        <a href="{{ "now" | absURL }}"
+          {{ if eq .RelPermalink "/now/" }}class="active" aria-current="page"{{ end }}>
+          Now
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+</header>

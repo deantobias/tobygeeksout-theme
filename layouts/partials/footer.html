@@ -1,0 +1,21 @@
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-logo">
+      Toby Geeks<span> Out!</span>
+    </div>
+
+    <p class="footer-text">
+      Elkhorn City, KY &middot;
+      Published on <a href="https://micro.blog/{{ .Site.Author.username }}" rel="me noopener" target="_blank">Micro.blog</a>
+    </p>
+
+    <nav class="footer-nav" aria-label="Footer navigation">
+      <a href="{{ "about" | absURL }}">About</a>
+      <a href="{{ "now" | absURL }}">Now</a>
+      <a href="{{ "archive" | absURL }}">Archive</a>
+      <a href="{{ .Site.BaseURL }}feed.json">Feed</a>
+    </nav>
+
+  </div>
+</footer>

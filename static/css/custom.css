@@ -205,6 +205,10 @@ hr {
   padding: 0 var(--page-pad);
 }
 
+.site-header {
+  padding: 0 2rem;
+}
+
 .site-logo {
   font-family: var(--font-display);
   font-size: 1.125rem;

@@ -1,6 +1,6 @@
 {{ define "main" }}
 
-  {{ $allPosts := where .Site.RegularPages "Type" "post" }}
+  {{ $allPosts := .Site.RegularPages }}
   {{ $featured  := first 1 (where $allPosts ".Params.categories" "intersect" (slice "featured")) }}
   {{ if not $featured }}
     {{ $featured = first 1 $allPosts }}

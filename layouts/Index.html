@@ -1,8 +1,12 @@
 {{ define "main" }}
+
   <div class="featured-banner">
     <div class="featured-inner">
-      {{ range first 1 .Paginator.Pages }}
-        <p class="featured-eyebrow">Latest Post</p>
+      {{ $posts := where .Site.Pages.ByDate.Reverse "Type" "post" }}
+      {{ range first 1 $posts }}
+        <p class="featured-eyebrow">
+          {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Latest Post{{ end }}
+        </p>
         {{ if .Title }}
           <h1 class="featured-title">{{ .Title }}</h1>
         {{ end }}
@@ -18,9 +22,12 @@
       {{ end }}
     </div>
   </div>
+
   <div class="feed-wrapper">
     <p class="feed-label">Recent Posts</p>
-    {{ range .Paginator.Pages }}
+
+    {{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") }}
+    {{ range $paginator.Pages }}
       {{ if lt (len .Plain) 700 }}
         <div class="micro-card">
           <div class="post-date" aria-hidden="true">
@@ -33,6 +40,11 @@
               {{ .Content }}
             </div>
             <p class="micro-footer">
+              {{ if .Params.categories }}
+                {{ range first 1 .Params.categories }}
+                  <span class="micro-tag">{{ . }}</span> &middot;
+                {{ end }}
+              {{ end }}
               <a href="{{ .Permalink }}">
                 <time datetime="{{ .Date.Format "2006-01-02" }}">
                   {{ .Date.Format "Jan 2, 2006" }}
@@ -64,6 +76,8 @@
         </a>
       {{ end }}
     {{ end }}
-    {{ template "_internal/pagination.html" . }}
+
+    {{ partial "pagination.html" $paginator }}
   </div>
+
 {{ end }}

@@ -1697,4 +1697,23 @@ body.page .microblog_conversation {
   background: var(--color-terra-dark);
 }
 
+/* =====================================
+   32. BROWSE BY TOPIC
+   ==================================== */
+
+/* Browse by Topic */
+.browse-topics {
+  margin: 1.5rem 0 2rem;
+  padding: 0;
+}
+
+/* =====================================
+   33. INSTAGRAM SHORTCODES
+   ==================================== */
+
+/* Instagram - Feed card thumbnail */
+.ig-thumb-wrap {
+  position: relative;
+  display: block;
+}
 

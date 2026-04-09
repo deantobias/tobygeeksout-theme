@@ -1,83 +1,56 @@
 {{ define "main" }}
-
-  <div class="featured-banner">
-    <div class="featured-inner">
-      {{ $posts := where .Site.Pages.ByDate.Reverse "Type" "post" }}
-      {{ range first 1 $posts }}
-        <p class="featured-eyebrow">
-          {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Latest Post{{ end }}
-        </p>
-        {{ if .Title }}
-          <h1 class="featured-title">{{ .Title }}</h1>
+  <div class="archive-wrapper">
+    <header class="page-header">
+      {{ if .Title }}
+        <h1 class="page-title">{{ .Title }}</h1>
+      {{ end }}
+    </header>
+    <div class="feed-wrapper">
+      {{ range .Pages }}
+        {{ if and (not .Title) (lt (len .Plain) 300) }}
+          <div class="micro-card">
+            <div class="post-date" aria-hidden="true">
+              <span class="post-date-day">{{ .Date.Format "2" }}</span>
+              <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+            </div>
+            <div>
+              <div class="micro-body">{{ .Content }}</div>
+              <p class="micro-footer">
+                <a href="{{ .Permalink }}">
+                  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+                </a>
+              </p>
+            </div>
+          </div>
+        {{ else }}
+          <div class="post-card">
+            <div class="post-date" aria-hidden="true">
+              <span class="post-date-day">{{ .Date.Format "2" }}</span>
+              <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+            </div>
+            <div class="post-card-content">
+              {{ if .Params.categories }}
+            {{ range .Params.categories }}
+  <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+{{ end }}
+              {{ end }}
+              {{ if .Title }}
+                <div class="post-card-title">
+                  <a href="{{ .Permalink }}">{{ .Title }}</a>
+                </div>
+              {{ end }}
+              {{ if gt (len .Plain) 650 }}
+                <p class="post-card-excerpt">{{ .Plain | truncate 650 }}</p>
+                <div class="post-card-footer">
+                  <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+                </div>
+              {{ else }}
+                <div class="post-card-excerpt">{{ .Content | safeHTML }}</div>
+              {{ end }}
+            </div>
+          </div>
         {{ end }}
-        <p class="featured-excerpt">{{ .Summary | plainify | truncate 200 }}</p>
-        <div class="featured-meta">
-          <span class="featured-date">
-            <time datetime="{{ .Date.Format "2006-01-02" }}">
-              {{ .Date.Format "January 2, 2006" }}
-            </time>
-          </span>
-          <a href="{{ .Permalink }}" class="btn-featured">Read it →</a>
-        </div>
       {{ end }}
     </div>
   </div>
-
-  <div class="feed-wrapper">
-    <p class="feed-label">Recent Posts</p>
-
-    {{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") }}
-    {{ range $paginator.Pages }}
-      {{ if lt (len .Plain) 700 }}
-        <div class="micro-card">
-          <div class="post-date" aria-hidden="true">
-            <span class="post-date-day">{{ .Date.Format "2" }}</span>
-            <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-          </div>
-          <div>
-            <div class="micro-body">
-              {{ if .Title }}<strong>{{ .Title }}</strong><br>{{ end }}
-              {{ .Content }}
-            </div>
-            <p class="micro-footer">
-              {{ if .Params.categories }}
-                {{ range first 1 .Params.categories }}
-                  <span class="micro-tag">{{ . }}</span> &middot;
-                {{ end }}
-              {{ end }}
-              <a href="{{ .Permalink }}">
-                <time datetime="{{ .Date.Format "2006-01-02" }}">
-                  {{ .Date.Format "Jan 2, 2006" }}
-                </time>
-              </a>
-            </p>
-          </div>
-        </div>
-      {{ else }}
-        <a href="{{ .Permalink }}" class="post-card">
-          <div class="post-date" aria-hidden="true">
-            <span class="post-date-day">{{ .Date.Format "2" }}</span>
-            <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-          </div>
-          <div class="post-card-content">
-            {{ if .Params.categories }}
-              {{ range first 1 .Params.categories }}
-                <span class="post-category">{{ . }}</span>
-              {{ end }}
-            {{ end }}
-            {{ if .Title }}
-              <div class="post-card-title">{{ .Title }}</div>
-            {{ end }}
-            <p class="post-card-excerpt">{{ .Summary | plainify | truncate 200 }}</p>
-            <div class="post-card-footer">
-              <span class="read-more-link">Keep reading</span>
-            </div>
-          </div>
-        </a>
-      {{ end }}
-    {{ end }}
-
-    {{ partial "pagination.html" $paginator }}
-  </div>
-
 {{ end }}

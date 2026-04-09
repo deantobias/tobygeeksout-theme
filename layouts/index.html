@@ -1,81 +1,184 @@
 {{ define "main" }}
+{{ $longPosts := where (where .Site.Pages.ByDate.Reverse "Type" "post") ".Params.categories" "intersect" (slice "Long Read") }}
+{{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") 10 }}
 
-  <div class="featured-banner">
-    <div class="featured-inner">
-      {{ $posts := where .Site.Pages.ByDate.Reverse "Type" "post" }}
-      {{ range first 1 $posts }}
-        <p class="featured-eyebrow">
-          {{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Latest Post{{ end }}
-        </p>
-        {{ if .Title }}
-          <h1 class="featured-title">{{ .Title }}</h1>
+{{ if eq $paginator.PageNumber 1 }}
+<div class="featured-banner">
+  <div id="featured-carousel" class="splide" aria-label="Featured Posts">
+    <div class="splide__track">
+      <ul class="splide__list">
+        {{ range first 6 $longPosts }}
+          {{ if .Title }}
+          <li class="splide__slide">
+            <div class="featured-inner">
+              <div class="featured-eyebrow">
+                ★ Featured Post · <span class="post-category">{{ if .Params.categories }}{{ index .Params.categories 0 }}{{ else }}Long Read{{ end }}</span>
+              </div>
+              <h2 class="featured-title">{{ .Title }}</h2>
+              <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
+              <div class="featured-meta">
+                <span class="featured-date">
+                  <time datetime="{{ .Date.Format "2006-01-02" }}">
+                    {{ .Date.Format "January 2, 2006" }}
+                  </time>
+                </span>
+                <a href="{{ .Permalink }}" class="btn-featured">Read it →</a>
+              </div>
+            </div>
+          </li>
+          {{ end }}
         {{ end }}
-        <p class="featured-excerpt">{{ .Summary | plainify | truncate 200 }}</p>
-        <div class="featured-meta">
-          <span class="featured-date">
-            <time datetime="{{ .Date.Format "2006-01-02" }}">
-              {{ .Date.Format "January 2, 2006" }}
-            </time>
-          </span>
-          <a href="{{ .Permalink }}" class="btn-featured">Read it →</a>
-        </div>
-      {{ end }}
+      </ul>
     </div>
   </div>
+</div>
 
-  <div class="feed-wrapper">
+<style>
+  .splide__arrow { background: transparent !important; border: none !important; opacity: 0.9 !important; }
+  .splide__arrow svg { fill: #ffffff !important; width: 2rem !important; height: 2rem !important; }
+  .splide__arrow:hover { opacity: 1 !important; }
+  .splide__arrow--prev { left: 1.5rem !important; }
+  .splide__arrow--next { right: 1.5rem !important; }
+  .splide__pagination { position: relative !important; padding-top: 2rem !important; padding-bottom: 1.5rem !important; }
+  .splide__pagination__page { background: rgba(255,255,255,0.4) !important; }
+  .splide__pagination__page.is-active { background: #C4622D !important; transform: scale(1.2) !important; }
+  @media (max-width: 1024px) {
+    .splide__arrow { display: none !important; }
+    .featured-inner { padding-left: 1rem !important; padding-right: 1rem !important; }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var el = document.getElementById('featured-carousel');
+    if (el) {
+      new Splide(el, {
+        type: 'fade',
+        rewind: true,
+        arrows: true,
+        pagination: true,
+        autoplay: false,
+      }).mount();
+    }
+  });
+</script>
+
+<div class="about-strip">
+  <div class="about-text">
+    <strong>Toby Overstreet</strong>
+    Technogeek. Blogger since 2004. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
+    <br>
+    <div class="about-links">
+      <a href="https://tobygeeksout.micro.blog/about-me/">More about me</a>
+      <span>·</span>
+      <a href="https://tobygeeksout.micro.blog/now/">Now</a>
+      <span>·</span>
+      <a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
+    </div>
+  </div>
+</div>
+
+<div class="subscribe-strip">
+  <div class="subscribe-text">
+    <strong>Get it in your inbox</strong>
+    Posts on tech, home decor, and whatever has my attention — no noise.
+  </div>
+  <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
+</div>
+{{ end }}
+
+<div class="feed-wrapper">
+  {{ if eq $paginator.PageNumber 1 }}
     <p class="feed-label">Recent Posts</p>
-    {{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") }}
-    {{ range $paginator.Pages }}
-      {{ if lt (len .Plain) 700 }}
+  {{ else }}
+    <p class="feed-label">Posts — Page {{ $paginator.PageNumber }}</p>
+  {{ end }}
+
+  {{ range $paginator.Pages }}
+    {{ $isLongRead := false }}
+    {{ range .Params.categories }}
+      {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
+    {{ end }}
+
+    {{ if not $isLongRead }}
+      {{ if and (not .Title) (lt (len .Plain) 800) }}
         <div class="micro-card">
           <div class="post-date" aria-hidden="true">
             <span class="post-date-day">{{ .Date.Format "2" }}</span>
             <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
           </div>
-          <div>
-            <div class="micro-body">
-              {{ if .Title }}<strong>{{ .Title }}</strong><br>{{ end }}
+          <div class="micro-content">
+            {{ if .Params.categories }}
+              <div class="micro-categories">
+                {{ range .Params.categories }}
+                  <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+            <div class="p-summary">
               {{ .Content }}
             </div>
             <p class="micro-footer">
-              {{ if .Params.categories }}
-                {{ range first 1 .Params.categories }}
-                  <span class="micro-tag">{{ . }}</span> &middot;
-                {{ end }}
-              {{ end }}
-              <a href="{{ .Permalink }}">
-                <time datetime="{{ .Date.Format "2006-01-02" }}">
-                  {{ .Date.Format "Jan 2, 2006" }}
-                </time>
+              <a href="{{ .Permalink }}" class="u-url">
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
               </a>
             </p>
           </div>
         </div>
       {{ else }}
-        <a href="{{ .Permalink }}" class="post-card">
+        <div class="post-card">
           <div class="post-date" aria-hidden="true">
             <span class="post-date-day">{{ .Date.Format "2" }}</span>
             <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
           </div>
           <div class="post-card-content">
             {{ if .Params.categories }}
-              {{ range first 1 .Params.categories }}
-                <span class="post-category">{{ . }}</span>
-              {{ end }}
+              <div class="post-card-categories">
+                {{ range .Params.categories }}
+                  <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+                {{ end }}
+              </div>
             {{ end }}
             {{ if .Title }}
-              <div class="post-card-title">{{ .Title }}</div>
+              <div class="post-card-title">
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+              </div>
             {{ end }}
-            <p class="post-card-excerpt">{{ .Summary | plainify | truncate 200 }}</p>
-            <div class="post-card-footer">
-              <span class="read-more-link">Keep reading</span>
+            <div class="post-card-excerpt">
+              {{ if gt (len .Plain) 800 }}
+                {{ .Summary | htmlUnescape | safeHTML }}
+                <div class="post-card-footer">
+                  <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+                </div>
+              {{ else }}
+                {{ .Content }}
+              {{ end }}
             </div>
           </div>
-        </a>
+        </div>
       {{ end }}
     {{ end }}
-    {{ partial "pagination.html" $paginator }}
-  </div>
+  {{ end }}
 
+  {{ if gt $paginator.TotalPages 1 }}
+    <nav class="pagination" aria-label="Post navigation">
+      {{ if $paginator.HasPrev }}
+        <a href="{{ $paginator.Prev.URL }}" class="pagination-prev">← Newer</a>
+      {{ end }}
+      <span class="pagination-info">Page {{ $paginator.PageNumber }} of {{ $paginator.TotalPages }}</span>
+      {{ if $paginator.HasNext }}
+        <a href="{{ $paginator.Next.URL }}" class="pagination-next">Older →</a>
+      {{ end }}
+    </nav>
+  {{ end }}
+
+  <div class="homepage-search" style="padding: 2rem 1rem; text-align: center;">
+    <div class="homepage-search-inner" style="display: flex !important; align-items: center; max-width: 640px; margin: 0 auto; border: 2px solid #E5DDD5; border-radius: 6px; overflow: hidden; background: #FAF8F5;">
+      <input type="text" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" style="flex: 1; width: 100%; padding: 1.25rem 1.25rem; border: none; font-size: 1.2rem; outline: none;" />
+      <button onclick="var q=document.getElementById('homepage-search-input').value; if(q) window.location.href='/search/?q='+encodeURIComponent(q);" style="padding: 1.25rem 1.5rem; background: #C4622D; color: #fff; border: none; font-weight: 700; cursor: pointer;">Search</button>
+    </div>
+  </div>
+</div>
 {{ end }}
+
+

@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+<meta name="theme-color" content="#1E2D4A">
 <title>
   {{- if .IsHome -}}
     {{ .Site.Title }}
@@ -9,7 +9,6 @@
     {{ .Title }} | {{ .Site.Title }}
   {{- end -}}
 </title>
-
 <meta name="description" content="
   {{- if .IsHome -}}
     {{ .Site.Params.description | default "Toby Geeks Out!" }}
@@ -21,12 +20,11 @@
     {{ .Site.Params.description | default "Toby Geeks Out!" }}
   {{- end -}}
 ">
-
-<link rel="canonical" href="{{ .Permalink }}">
+{{ if .Permalink }}<link rel="canonical" href="{{ .Permalink }}">{{ end }}
 
 <!-- Open Graph -->
 <meta property="og:type"        content="{{ if .IsPage }}article{{ else }}website{{ end }}">
-<meta property="og:url"         content="{{ .Permalink }}">
+{{ if .Permalink }}<meta property="og:url" content="{{ .Permalink }}">{{ end }}
 <meta property="og:title"       content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
 <meta property="og:site_name"   content="{{ .Site.Title }}">
@@ -41,12 +39,47 @@
   <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
 {{- end }}
 
-<!-- Google Fonts preconnect -->
+<!-- Google Fonts — Updated to load Inter only -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Critical CSS: Inlined for Performance -->
+<style>
+  :root {
+    /* Your Bold Design Tokens */
+    --accent: #CC5533;       /* Terracotta */
+    --navy: #1E2D4A;         /* Navy */
+    --bg-warm: #FDFCFB;      /* Warm White */
+
+    /* Font Stacks */
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: Georgia, 'Times New Roman', serif;
+  }
+
+  body {
+    background-color: var(--bg-warm);
+    color: var(--navy);
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--navy);
+    text-wrap: balance;
+    margin-top: 1.5em;
+  }
+
+ </style>
 
 <!-- Theme stylesheet — query string busts Micro.blog cache on updates -->
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ .Site.Params.theme_seconds }}">
+
+<!-- Splide.js carousel -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
 
 <!-- IndieWeb / Micro.blog required tags -->
 <link rel="me" href="https://micro.blog/{{ .Site.Author.username }}">
@@ -54,13 +87,13 @@
 <link rel="me" href="https://instagram.com/{{ . }}">
 {{ end }}
 <link rel="authorization_endpoint" href="https://micro.blog/indieauth/auth">
-<link rel="token_endpoint"         href="https://micro.blog/indieauth/token">
-<link rel="micropub"               href="https://micro.blog/micropub">
-<link rel="microsub"               href="https://micro.blog/microsub">
-<link rel="webmention"             href="https://micro.blog/webmention">
-<link rel="subscribe"              href="https://micro.blog/users/follow">
+<link rel="token_endpoint"          href="https://micro.blog/indieauth/token">
+<link rel="micropub"                href="https://micro.blog/micropub">
+<link rel="microsub"                href="https://micro.blog/microsub">
+<link rel="webmention"              href="https://micro.blog/webmention">
+<link rel="subscribe"               href="https://micro.blog/users/follow">
 
-<!-- Plugin CSS (Micro.blog plugins inject their stylesheets here) -->
+<!-- Plugin CSS -->
 {{ range .Site.Params.plugins_css }}
   <link rel="stylesheet" href="{{ . }}">
 {{ end }}
@@ -69,3 +102,5 @@
 {{ range $filename := .Site.Params.plugins_html }}
   {{ partial $filename $ }}
 {{ end }}
+
+

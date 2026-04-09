@@ -3,38 +3,30 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-
-<body>
-
+<body class="{{ .Kind }}">
+  <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
-
   <main id="main-content">
     {{ block "main" . }}{{ end }}
   </main>
-
   {{ partial "footer.html" . }}
-
   <!-- Micro.blog: custom footer partial (plugins inject content here) -->
   {{ partial "custom_footer.html" . }}
-
   <!-- Micro.blog: plugin JavaScript -->
   {{ range .Site.Params.plugins_js }}
     <script src="{{ . }}"></script>
   {{ end }}
-
   <!-- Mobile nav toggle -->
   <script>
     (function () {
       var toggle = document.querySelector('.nav-toggle');
       var nav    = document.querySelector('.site-nav');
       if (!toggle || !nav) return;
-
       toggle.addEventListener('click', function () {
         var isOpen = nav.classList.toggle('open');
         toggle.classList.toggle('open', isOpen);
         toggle.setAttribute('aria-expanded', String(isOpen));
       });
-
       // Close when a nav link is tapped
       nav.querySelectorAll('a').forEach(function (link) {
         link.addEventListener('click', function () {
@@ -43,7 +35,6 @@
           toggle.setAttribute('aria-expanded', 'false');
         });
       });
-
       // Close on outside tap
       document.addEventListener('click', function (e) {
         if (!toggle.contains(e.target) && !nav.contains(e.target)) {
@@ -54,8 +45,19 @@
       });
     })();
   </script>
-
+  <!-- Scroll progress bar -->
+  <script>
+    (function () {
+      var bar = document.getElementById('scroll-progress');
+      if (!bar) return;
+      window.addEventListener('scroll', function () {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = pct + '%';
+      }, { passive: true });
+    })();
+  </script>
   {{ block "extra_scripts" . }}{{ end }}
-
 </body>
 </html>

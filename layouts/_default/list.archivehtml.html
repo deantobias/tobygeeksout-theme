@@ -1,34 +1,32 @@
 {{ define "main" }}
-
-  <div class="archive-wrapper">
-
-    <header class="page-header" style="padding-left: 0; padding-right: 0;">
-      <h1 class="page-title">Archive</h1>
-    </header>
-
-    {{/* Group posts by year */}}
-    {{ $allPosts := where .Site.RegularPages "Type" "post" }}
-    {{ range ($allPosts.GroupByDate "2006") }}
-
-      <h2 class="archive-year">{{ .Key }}</h2>
-
-      {{ range .Pages }}
-        <a href="{{ .Permalink }}" class="archive-item">
-          <span class="archive-item-date">
-            {{ .Date.Format "Jan 2" }}
-          </span>
-          <span class="archive-item-title">
-            {{- if .Title -}}
-              {{ .Title }}
-            {{- else -}}
-              {{ .Summary | plainify | truncate 80 }}
-            {{- end -}}
-          </span>
-        </a>
+  {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
+  {{ if gt (len $list) 0 }}
+    <div class="archive_categories">
+      {{ range $list }}
+        <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
       {{ end }}
-
+    </div>
+  {{ end }}
+  {{ $posts := where .Site.Pages "Type" "post" }}
+  <div class="archive-wrapper">
+    {{ range ($posts.GroupByDate "2006") }}
+    <section class="archive-year">
+      <h2 class="archive-year-heading">{{ .Key }}</h2>
+      {{ range (.Pages.GroupByDate "January 2006") }}
+      <section class="archive-month">
+        <h3 class="archive-month-heading">{{ .Key }}</h3>
+        <ul>
+          {{ range .Pages }}
+          <li class="archive-item">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time>
+            —
+            <a href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Summary | plainify | truncate 80 }}{{ end }}</a>
+          </li>
+          {{ end }}
+        </ul>
+      </section>
+      {{ end }}
+    </section>
     {{ end }}
-
   </div>
-
 {{ end }}

@@ -889,7 +889,7 @@ figcaption {
 
 @media (min-width: 640px) {
   .post-card img,
-  .micro-card img { width: 85%; }
+  .micro-card img { width: 75%; }
 }
 
 .post-body figure { margin: var(--space-xl) 0; }

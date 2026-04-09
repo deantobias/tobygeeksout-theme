@@ -502,8 +502,9 @@ figcaption {
   margin-bottom: var(--space-xl);
 }
 
+
 /* ------------------------------------------------------------
-   9. POST CARD & SMART MEDIA LOGIC
+   9. POST CARD (long-form in feed)
    ------------------------------------------------------------ */
 
 .post-card {
@@ -514,45 +515,8 @@ figcaption {
   border-bottom: 1px solid var(--color-border);
   text-decoration: none;
   color: inherit;
+  -webkit-tap-highlight-color: rgba(196, 98, 45, 0.08);
   overflow: hidden;
-}
-
-/* --- THE SMART GALLERY TRIGGER --- */
-/* If a post has more than one image, turn on Flexbox Masonry */
-.post-body:has(img + img), 
-.micro-body:has(img + img),
-.post-card-content:has(img + img) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-
-/* Gallery Styling (2+ Photos) */
-.post-body:has(img + img) img, 
-.micro-body:has(img + img) img,
-.post-card-content:has(img + img) img {
-  flex: 1 1 calc(33.333% - 12px); 
-  height: 300px;
-  object-fit: cover;
-  width: 100% !important;
-  margin: 0 !important;
-}
-
-/* Single Photo Rule (The 60% Card look) */
-.post-card img:only-of-type, 
-.micro-card img:only-of-type {
-  width: 60%;
-  margin: 1.5rem auto;
-  display: block;
-  border-radius: var(--radius);
-}
-
-@media (max-width: 600px) {
-  .post-body:has(img + img) img {
-    flex: 1 1 calc(50% - 12px); /* 2 columns on mobile */
-    height: 200px;
-  }
 }
 
 .post-card:active { opacity: 0.8; }
@@ -637,13 +601,6 @@ figcaption {
 }
 
 .post-card-footer { margin-top: var(--space-xs); }
-
-.post-body figcaption {
-  font-size: 0.8125rem;
-  color: var(--color-text-light);
-  text-align: center;
-  margin-top: var(--space-sm);
-}
 
 
 /* ------------------------------------------------------------
@@ -761,71 +718,24 @@ figcaption {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: var(--space-lg) var(--space-xl) var(--space-2xl);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
 }
 
-/* Rule for SINGLE images on their own page (100% Wide) */
-.post-body img:only-of-type {
-  flex: 0 0 100%;
-  width: 100%;
-  height: auto;
-  margin: 2rem 0;
-}
+@media (min-width: 640px) { .post-body { padding: var(--space-xl) var(--page-pad) var(--space-2xl); } }
 
-/* Default: Single image in the feed is 60% and centered */
-.p-summary img {
-  display: block !important;
-  width: 60% !important;
-  max-width: 600px !important;
-  margin: 20px auto !important;
-  height: auto !important;
-}
-
-/* Gallery Trigger: If there is more than one image */
-.p-summary:has(img ~ img) {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 15px !important;
-  justify-content: center !important;
-}
-
-/* Gallery Images: Override the 60% rule and sit side-by-side */
-.p-summary:has(img ~ img) img,
-.p-summary:has(img ~ img) p:has(img) {
-  flex: 1 1 300px !important; /* Forces side-by-side */
-  width: 100% !important;
-  max-width: 48% !important;
-  height: 350px !important;
-  object-fit: cover !important;
-  margin: 0 !important;
-}
-
-/* Text: Ensure descriptions stay full-width */
-.p-summary:has(img ~ img) p:not(:has(img)) {
-  flex: 1 0 100% !important;
-  text-align: center;
-}
-
-/* Text Protection: Forces your paragraphs and headers to be 100% width 
-      so they don't try to sit next to photos in "Flex" mode. */
-.post-body p, 
-.post-body h2, 
-.post-body h3, 
-.post-body ul, 
-.post-body ol,
-.post-body blockquote,
-.post-body pre {
-  flex: 0 0 100%; 
+.post-body p {
   font-size: 1.2rem;
   line-height: 1.8;
   color: var(--color-text);
   margin-bottom: var(--space-lg);
 }
 
-@media (min-width: 640px) { .post-body { padding: var(--space-xl) var(--page-pad) var(--space-2xl); } }
+.post-body h2 { font-size: 1.375rem; margin-top: var(--space-2xl); margin-bottom: var(--space-md); }
+.post-body h3 { font-size: 1.2rem; margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
+
+@media (min-width: 640px) {
+  .post-body h2 { font-size: 1.5rem; }
+  .post-body h3 { font-size: 1.25rem; }
+}
 
 .post-body ul,
 .post-body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
@@ -963,6 +873,32 @@ figcaption {
   font-style: italic;
   color: var(--color-terra-dark);
   margin-bottom: 0;
+}
+
+
+/* ------------------------------------------------------------
+   13. IMAGES
+   ------------------------------------------------------------ */
+
+.post-body img,
+.micro-body img,
+.post-card-content img { max-width: 100%; height: auto; }
+
+.post-card img,
+.micro-card img { width: 100%; display: block; margin: 0 auto; border-radius: 4px; }
+
+@media (min-width: 640px) {
+  .post-card img,
+  .micro-card img { width: 85%; }
+}
+
+.post-body figure { margin: var(--space-xl) 0; }
+
+.post-body figcaption {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+  text-align: center;
+  margin-top: var(--space-sm);
 }
 
 
@@ -1723,23 +1659,4 @@ body.page .microblog_conversation {
   background: var(--color-terra-dark);
 }
 
-/* =====================================
-   32. BROWSE BY TOPIC
-   ==================================== */
-
-/* Browse by Topic */
-.browse-topics {
-  margin: 1.5rem 0 2rem;
-  padding: 0;
-}
-
-/* =====================================
-   33. INSTAGRAM SHORTCODES
-   ==================================== */
-
-/* Instagram - Feed card thumbnail */
-.ig-thumb-wrap {
-  position: relative;
-  display: block;
-}
 

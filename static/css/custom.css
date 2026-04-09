@@ -767,7 +767,7 @@ figcaption {
   justify-content: center;
 }
 
-/* 1. Rule for SINGLE images on their own page (100% Wide) */
+/* Rule for SINGLE images on their own page (100% Wide) */
 .post-body img:only-of-type {
   flex: 0 0 100%;
   width: 100%;
@@ -775,15 +775,41 @@ figcaption {
   margin: 2rem 0;
 }
 
-/* 2. Rule for GALLERIES (The Masonry Look) */
-.post-body:has(img + img) img {
-  flex: 1 1 calc(33.333% - 12px);
-  height: 300px;
-  object-fit: cover;
+/* Default: Single image in the feed is 60% and centered */
+.p-summary img {
+  display: block !important;
+  width: 60% !important;
+  max-width: 600px !important;
+  margin: 20px auto !important;
+  height: auto !important;
+}
+
+/* Gallery Trigger: If there is more than one image */
+.p-summary:has(img ~ img) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 15px !important;
+  justify-content: center !important;
+}
+
+/* Gallery Images: Override the 60% rule and sit side-by-side */
+.p-summary:has(img ~ img) img,
+.p-summary:has(img ~ img) p:has(img) {
+  flex: 1 1 300px !important; /* Forces side-by-side */
+  width: 100% !important;
+  max-width: 48% !important;
+  height: 350px !important;
+  object-fit: cover !important;
   margin: 0 !important;
 }
 
-/* 3. Text Protection: Forces your paragraphs and headers to be 100% width 
+/* Text: Ensure descriptions stay full-width */
+.p-summary:has(img ~ img) p:not(:has(img)) {
+  flex: 1 0 100% !important;
+  text-align: center;
+}
+
+/* Text Protection: Forces your paragraphs and headers to be 100% width 
       so they don't try to sit next to photos in "Flex" mode. */
 .post-body p, 
 .post-body h2, 

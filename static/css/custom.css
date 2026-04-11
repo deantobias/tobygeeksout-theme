@@ -216,6 +216,7 @@ figcaption {
   text-decoration-color: var(--color-terra);
   text-underline-offset: 5.5px;
   transition: color 0.15s, text-decoration-color 0.15s;
+  font-size: 1rem !important;
 }
 
 .read-more-link::after { content: ' \2192'; }
@@ -619,6 +620,15 @@ figcaption {
   color: var(--color-text);
   line-height: 1.35;
   margin-bottom: 0.3rem;
+}
+
+.post-card-title a { 
+  text-decoration: none !important;
+}
+
+.post-card-title a:hover {
+  color: var(--color-terra-dark);
+  text-decoration-color: var(--color-terra-dark);
 }
 
 .post-card-categories {
@@ -1246,12 +1256,14 @@ font-size: 0.625rem;
   margin-top: var(--space-xl);
 }
 
-.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; white-space: nowrap;}
+.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s;  white-space: nowrap;}
 .pagination a:hover { color: var(--color-terra-dark); }
 .pagination .arrow { display: inline-block; }
 
 .pagination-info {
   white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
 }
 
 

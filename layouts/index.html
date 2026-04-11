@@ -72,7 +72,6 @@
   autoHeight: true,
 }).mount();
 
-      // Move pagination dots into carousel-controls so they sit between the arrows
       var pagination = el.querySelector('.splide__pagination');
       var controls = document.querySelector('.carousel-controls');
       if (pagination && controls) {
@@ -156,11 +155,13 @@
               {{ .Content }}
             {{ end }}
           </div>
-          <p class="post-card-footer">
-            <a href="{{ .Permalink }}" class="u-url">
-              <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
-            </a>
-          </p>
+          {{ if le (len .Plain) 800 }}
+            <p class="post-card-footer">
+              <a href="{{ .Permalink }}" class="u-url">
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
+              </a>
+            </p>
+          {{ end }}
         </div>
       </div>
     {{ end }}
@@ -178,11 +179,11 @@
     </nav>
   {{ end }}
 
-  <div class="homepage-search">
-    <div class="homepage-search-inner">
-      <input type="text" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" />
-      <button onclick="var q=document.getElementById('homepage-search-input').value; if(q) window.location.href='/search/?q='+encodeURIComponent(q);">Search</button>
-    </div>
+<div class="homepage-search" style="padding: 2rem 1rem; text-align: center;">
+  <div class="homepage-search-inner" style="display: flex !important; align-items: center; max-width: 640px; margin: 0 auto; border: 2px solid #E5DDD5; border-radius: 6px; overflow: hidden; background: #FAF8F5;">
+    <input type="text" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" style="flex: 1; width: 100%; padding: 1.25rem 1.25rem; border: none; font-size: 1.2rem; line-height: 1; color: #1A1A18; background: transparent; outline: none; -webkit-appearance: none; appearance: none; box-shadow: none;" />
+    <button onclick="var q=document.getElementById('homepage-search-input').value; if(q) window.location.href='/search/?q='+encodeURIComponent(q);" style="padding: 1.25rem 1.5rem; background: #C4622D; color: #fff; border: none; font-size: 0.875rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; white-space: nowrap; align-self: stretch;">Search</button>
   </div>
+</div>
 </div>
 {{ end }}

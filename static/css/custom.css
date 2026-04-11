@@ -1246,9 +1246,13 @@ font-size: 0.625rem;
   margin-top: var(--space-xl);
 }
 
-.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; }
+.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; white-space: nowrap;}
 .pagination a:hover { color: var(--color-terra-dark); }
 .pagination .arrow { display: inline-block; }
+
+.pagination-info {
+  white-space: nowrap;
+}
 
 
 /* ------------------------------------------------------------

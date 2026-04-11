@@ -178,7 +178,9 @@ figcaption {
 
 .post-body a,
 .page-body a,
-.micro-body a {
+.micro-body a,
+.post-card-content a,
+.post-card-excerpt a {
   color: var(--color-terra);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -188,7 +190,9 @@ figcaption {
 
 .post-body a:hover,
 .page-body a:hover,
-.micro-body a:hover {
+.micro-body a:hover,
+.post-card-content a:hover,
+.post-card-excerpt a:hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
 }
@@ -422,9 +426,9 @@ figcaption {
 
 .featured-banner {
   background-color: var(--color-navy);
-  padding: var(--space-xl) 2rem;
+  padding: var(--space-xl) 0 var(--space-sm);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .featured-banner::before {
@@ -439,7 +443,13 @@ figcaption {
   max-width: var(--max-width);
   margin: 0 auto;
   position: relative;
-  padding: 0 2rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .featured-banner { padding: var(--space-xl) 2rem var(--space-sm); }
+  .featured-inner  { padding: 0 2rem; }
+  .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem); }
 }
 
 .featured-eyebrow {
@@ -461,11 +471,6 @@ figcaption {
 }
 
 @media (min-width: 480px) { .featured-title { font-size: 1.75rem; } }
-
-@media (min-width: 640px) {
-  .featured-banner { padding: var(--space-xl) 2rem; }
-  .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem); }
-}
 
 .featured-excerpt {
   font-size: 1.2rem;
@@ -495,7 +500,6 @@ figcaption {
 }
 
 .btn-featured:hover { background-color: var(--color-terra-dark); color: #ffffff; }
-
 
 /* ------------------------------------------------------------
    8. FEED LAYOUT
@@ -1505,31 +1509,15 @@ body.page .microblog_conversation {
    30. FEATURED POST CAROUSEL
    ========================================================================== */
 
-.splide__arrow {
-  pointer-events: all;
-  background: transparent !important;
-  border: none !important;
-  opacity: 0.9;
-  transition: opacity 0.2s;
-  cursor: pointer;
+.featured-banner {
+  position: relative;
 }
 
-.splide__arrow:hover { opacity: 1; }
+.splide__track { z-index: 1; }
 
-.splide__arrow svg {
-  fill: #ffffff !important;
-  width: 2rem !important;
-  height: 2rem !important;
-}
-
-.splide__arrow--prev {
-  position: absolute;
-  left: 1.5rem !important;
-}
-
-.splide__arrow--next {
-  position: absolute;
-  right: 1.5rem !important;
+.featured-inner {
+  position: relative;
+  z-index: 1;
 }
 
 .splide__pagination {
@@ -1554,12 +1542,41 @@ body.page .microblog_conversation {
   transform: scale(1.2);
 }
 
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+ padding: 0.5rem 0 1rem;
+}
+
+.carousel-prev,
+.carousel-next {
+  position: static;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  opacity: 0.8;
+  transition: opacity 0.2s, background 0.2s;
+  padding: 0;
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.25);
+}
+
 @media (max-width: 1024px) {
-  .splide__arrow { display: none !important; }
-  .featured-inner {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
+  .carousel-prev,
+  .carousel-next { display: none; }
 }
 
 /* ------------------------------------------------------------

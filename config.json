@@ -1,10 +1,11 @@
 {
+  "paginate": 10,
   "params": {
     "site_title": "Toby Geeks Out!",
     "description": "Honest, unfiltered takes on tech, neurodivergence, home decor, food, and pop culture. By Toby Overstreet.",
     "microblog_username": "tobygeeksout",
     "instagram_username": "technogeek75",
     "include_conversation": true,
-    "theme_seconds": "1"
+    "theme_seconds": "20260411b"
   }
 }

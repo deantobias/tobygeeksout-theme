@@ -9,15 +9,17 @@
             Section 10 deleted (micro-card — replaced by unified post-card)
             Section 13 removed .micro-body img and .micro-card img references
             Section 30 rewritten for manual carousel controls
+            Font size housekeeping — removed redundant 1.2rem overrides on reading elements
    ============================================================ */
 
-
 /* ------------------------------------------------------------
-   1. GOOGLE FONTS
+   1. FONT DISPLAY
    ------------------------------------------------------------ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+}
 
 /* ------------------------------------------------------------
    2. DESIGN TOKENS
@@ -63,7 +65,7 @@
 }
 
 @media (min-width: 640px) {
-  html { font-size: 22px; }
+  html { font-size: 22px !important; }
 }
 
 
@@ -74,23 +76,27 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  font-size: 20px;
+  font-size: 20px !important;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
-body { color: var(--color-text);
+body {
+  font-size: 1rem !important;
+  color: var(--color-text);
   background-color: var(--color-bg);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body, p {
+p {
   font-family: var(--font-body);
-  font-size: 1.2rem;
   line-height: 1.7;
 }
-
 
 img, video { max-width: 100%; height: auto; }
 ul, ol { list-style: none; }
@@ -137,7 +143,7 @@ hr {
 
 hr::after {
   content: "✦ ✦ ✦";
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: var(--color-terra-dark);
 }
 
@@ -151,11 +157,9 @@ blockquote {
 
 blockquote p {
   font-family: var(--font-display);
-  font-size: 1.2rem !important;
   font-style: italic;
   color: var(--color-terra-dark);
   margin-bottom: 0;
-  line-height: 1.65;
   padding: var(--space-sm) 0;
   line-height: 1.7;
 }
@@ -197,7 +201,6 @@ figcaption {
 .read-more-link {
   display: inline;
   color: var(--color-terra);
-  font-size: 1.2rem;
   font-weight: 500;
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -245,6 +248,7 @@ figcaption {
 .site-logo .logo-accent:hover { color: var(--color-terra) !important; }
 
 @media (min-width: 600px) { .site-logo { font-size: 2.5rem; } }
+@media (max-width: 599px) { .site-logo { font-size: 1.75rem; } }
 
 .nav-toggle {
   display: flex;
@@ -450,13 +454,24 @@ figcaption {
 }
 
 .featured-eyebrow {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--color-terra);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
+
+.featured-eyebrow .post-category {
+  display: inline-block;
+  margin-top: var(--space-sm);
+}
+
+.featured-eyebrow br {
+  display: block;
+  content: '';
+}
+
 
 .featured-title {
   font-family: var(--font-display);
@@ -470,7 +485,6 @@ figcaption {
 @media (min-width: 480px) { .featured-title { font-size: 1.75rem; } }
 
 .featured-excerpt {
-  font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.75;
   margin-bottom: var(--space-lg);
@@ -497,6 +511,7 @@ figcaption {
 }
 
 .btn-featured:hover { background-color: var(--color-terra-dark); color: #ffffff; }
+
 
 /* ------------------------------------------------------------
    8. FEED LAYOUT
@@ -536,17 +551,13 @@ figcaption {
   border-bottom: 1px solid var(--color-border);
   text-decoration: none;
   color: inherit;
-  -webkit-tap-highlight-color: rgba(196, 98, 45, 0.08);
   overflow: hidden;
 }
-
-.post-card:active { opacity: 0.8; }
 
 @media (min-width: 480px) { .post-card { grid-template-columns: 52px 1fr; gap: 0 var(--space-md); } }
 
 @media (min-width: 640px) {
   .post-card { grid-template-columns: 60px 1fr; gap: 0 var(--space-lg); padding: var(--space-lg) 0; }
-  .post-card:hover { opacity: 0.82; }
 }
 
 .post-date { text-align: right; padding-top: 2px; flex-shrink: 0; }
@@ -604,7 +615,6 @@ figcaption {
 @media (min-width: 640px) { .post-card-title { font-size: 2rem; } }
 
 .post-card-excerpt {
-  font-size: 1.2rem;
   color: var(--color-text-muted);
   line-height: 1.65;
   margin-bottom: var(--space-sm);
@@ -614,7 +624,7 @@ figcaption {
 .post-card-excerpt h2,
 .post-card-excerpt h3,
 .post-card-excerpt h4 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-xs) 0;
@@ -692,10 +702,7 @@ figcaption {
 .post-body ul,
 .post-body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
 
-.post-body li { font-size: 1rem; line-height: 1.8; margin-bottom: var(--space-xs); }
-@media (min-width: 640px) { .post-body li { font-size: 1.0625rem; } }
-
-@media (min-width: 640px) { .post-body blockquote p { font-size: 1.2rem !important; } }
+.post-body li { line-height: 1.8; margin-bottom: var(--space-xs); }
 
 .post-body code {
   font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
@@ -792,7 +799,7 @@ figcaption {
 .page-body ul,
 .page-body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
 
-.page-body li { font-size: 1.2rem !important; line-height: 1.8; margin-bottom: var(--space-xs); }
+.page-body li { line-height: 1.8; margin-bottom: var(--space-xs); }
 
 
 /* ------------------------------------------------------------
@@ -871,7 +878,6 @@ figcaption {
   display: block;
   padding: 8px 0;
   border-bottom: 1px solid var(--color-border-light);
-  font-size: 1.2rem !important;
   line-height: 1.5;
 }
 
@@ -880,10 +886,9 @@ figcaption {
   font-weight: 500;
   text-decoration: none;
   margin-right: 0.5rem;
-  font-size: 1.2rem !important;
 }
 
-.archive_posts .h-entry .p-summary { color: var(--color-text); font-size: 1.2rem; }
+.archive_posts .h-entry .p-summary { color: var(--color-text); }
 .archive_posts .h-entry .u-url:hover { color: var(--color-terra); }
 
 .archive-wrapper { max-width: 720px; margin: 0 auto; padding: 0 1rem; }
@@ -1001,11 +1006,11 @@ figcaption {
 }
 
 .about-avatar { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
-.about-text { font-size: 1.2rem; color: #444; line-height: 1.6; }
+.about-text { color: #444; line-height: 1.6; }
 .about-text strong { display: block; font-size: 2rem; color: #1a2540; margin-bottom: 6px; }
 .about-text a { color: #c95f2a; text-decoration: none; font-weight: 700; }
 .about-links { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
-.about-links a { font-size: 1.2rem; color: #c95f2a; text-decoration: none; font-weight: 700; }
+.about-links a { color: #c95f2a; text-decoration: none; font-weight: 700; }
 .about-links span { color: #c95f2a; font-size: 1rem; }
 
 .subscribe-strip {
@@ -1020,7 +1025,7 @@ figcaption {
   border-radius: 4px;
 }
 
-.subscribe-text { font-size: 1.2rem; color: #a8b4cc; line-height: 1.5; }
+.subscribe-text { color: #a8b4cc; line-height: 1.5; }
 .subscribe-text strong { display: block; font-size: 1.4rem; color: #fff; margin-bottom: 2px; }
 
 .btn-subscribe {
@@ -1065,7 +1070,6 @@ figcaption {
 
 .related-posts-label {
   font-family: var(--font-body);
-  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -1088,14 +1092,13 @@ figcaption {
 
 .related-post-date {
   font-family: var(--font-body);
-  font-size: 1.2rem;
   color: var(--color-text-light);
   white-space: nowrap;
   padding-top: 2px;
 }
 
-.related-post-title { font-family: var(--font-body); font-size: 1.2rem; }
-.related-post-excerpt { font-family: var(--font-body); font-size: 1.2rem; color: var(--color-text-light); line-height: 1.4; }
+.related-post-title { font-family: var(--font-body); }
+.related-post-excerpt { font-family: var(--font-body); color: var(--color-text-light); line-height: 1.4; }
 
 
 /* ------------------------------------------------------------
@@ -1198,7 +1201,7 @@ figcaption {
   width: 100% !important;
   height: auto !important;
   font-family: var(--font-body) !important;
-  font-size: 1.2rem !important;
+  font-size: 1rem !important;
   padding: 0.75rem 1rem !important;
   border: 2px solid var(--color-border) !important;
   border-radius: var(--radius) !important;
@@ -1227,7 +1230,7 @@ figcaption {
   margin-top: var(--space-xl);
 }
 
-.pagination a { color: var(--color-terra); font-weight: 700; font-size: 1.2rem; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; }
+.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; }
 .pagination a:hover { color: var(--color-terra-dark); }
 .pagination .arrow { display: inline-block; }
 
@@ -1315,12 +1318,6 @@ figcaption {
   transition: width 0.1s linear;
 }
 
-/* @media (min-width: 768px) {
-  #scroll-progress {
-    background-color: #F5C842;
-  }
-} */
-
 
 /* ------------------------------------------------------------
    27. TABLE OF CONTENTS (desktop only, Long Read posts)
@@ -1383,7 +1380,7 @@ figcaption {
   .toc-sidebar ol li a {
     color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 0.875rem;
     font-weight: 700;
     line-height: 1.4;
     display: block;
@@ -1497,7 +1494,7 @@ body.page .microblog_conversation {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
- padding: 0.5rem 0 1rem;
+  padding: 0.5rem 0 1rem;
 }
 
 .carousel-prev,
@@ -1528,6 +1525,18 @@ body.page .microblog_conversation {
   .carousel-prev,
   .carousel-next { display: none; }
 }
+
+@media (max-width: 639px) {
+  .featured-banner { padding-bottom: 0; }
+  .splide__pagination {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    margin-top: 0;
+  }
+  .featured-excerpt { margin-bottom: 0.75rem; }
+  .featured-meta { margin-bottom: 0.5rem; }
+}
+
 
 /* ------------------------------------------------------------
    31. HOMEPAGE SEARCH
@@ -1589,5 +1598,3 @@ body.page .microblog_conversation {
 .homepage-search-inner button:hover {
   background: var(--color-terra-dark);
 }
-
-

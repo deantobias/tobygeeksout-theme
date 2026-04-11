@@ -23,9 +23,9 @@
 {{ if .Permalink }}<link rel="canonical" href="{{ .Permalink }}">{{ end }}
 
 <!-- Open Graph -->
-<meta property="og:type"        content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:type"         content="{{ if .IsPage }}article{{ else }}website{{ end }}">
 {{ if .Permalink }}<meta property="og:url" content="{{ .Permalink }}">{{ end }}
-<meta property="og:title"       content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:title"        content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
 <meta property="og:site_name"   content="{{ .Site.Title }}">
 
@@ -44,15 +44,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
+
 <!-- Critical CSS: Inlined for Performance -->
 <style>
   :root {
-    /* Your Bold Design Tokens */
-    --accent: #CC5533;       /* Terracotta */
-    --navy: #1E2D4A;         /* Navy */
-    --bg-warm: #FDFCFB;      /* Warm White */
-
-    /* Font Stacks */
+    --accent: #CC5533;
+    --navy: #1E2D4A;
+    --bg-warm: #FDFCFB;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: Georgia, 'Times New Roman', serif;
   }
@@ -72,14 +70,14 @@
     text-wrap: balance;
     margin-top: 1.5em;
   }
-
- </style>
+</style>
 
 <!-- Theme stylesheet — query string busts Micro.blog cache on updates -->
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ .Site.Params.theme_seconds }}">
 
 <!-- Splide.js carousel -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
 
 <!-- IndieWeb / Micro.blog required tags -->
 <link rel="me" href="https://micro.blog/{{ .Site.Author.username }}">
@@ -102,5 +100,3 @@
 {{ range $filename := .Site.Params.plugins_html }}
   {{ partial $filename $ }}
 {{ end }}
-
-

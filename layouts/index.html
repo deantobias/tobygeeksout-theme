@@ -40,19 +40,48 @@
       </ul>
     </div>
   </div>
+  <div class="carousel-controls">
+    <button class="carousel-prev" id="carousel-prev" aria-label="Previous slide">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+        <path d="M25 8 L13 20 L25 32" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="carousel-next" id="carousel-next" aria-label="Next slide">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+        <path d="M15 8 L27 20 L15 32" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('featured-carousel');
     if (el) {
-      new Splide(el, {
+      var isMobile = window.matchMedia('(max-width: 1024px)').matches;
+      var splide = new Splide(el, {
         type: 'fade',
         rewind: true,
-        arrows: true,
+        arrows: false,
         pagination: true,
         autoplay: false,
+        drag: isMobile,
       }).mount();
+
+      // Move pagination dots into carousel-controls so they sit between the arrows
+      var pagination = el.querySelector('.splide__pagination');
+      var controls = document.querySelector('.carousel-controls');
+      if (pagination && controls) {
+        var nextBtn = document.getElementById('carousel-next');
+        controls.insertBefore(pagination, nextBtn);
+      }
+
+      document.getElementById('carousel-prev').addEventListener('click', function () {
+        splide.go('<');
+      });
+      document.getElementById('carousel-next').addEventListener('click', function () {
+        splide.go('>');
+      });
     }
   });
 </script>

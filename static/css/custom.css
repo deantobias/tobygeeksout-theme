@@ -3,15 +3,12 @@
    Mobile-first. Scales up to tablet and desktop.
    Palette: Terracotta + Navy + Warm White
    Fonts: Georgia (headlines) + Inter (body)
-   Last updated: April 9, 2026
-   Changes: Section 6a breakpoints updated to 1024px (Gemini)
-            Section 9 post-card overflow + post-card-content added
-            Section 22 #search-page form selector added
-            Section 28 body.page wider layout restored from Drive
-            Section 29 corrupt duplicate content removed + cleaned
-            Section 30 carousel styles added (Gemini)
-            Section 31 homepage search added (Gemini)
-            Sections 32-33 moved to Edit CSS / Design
+   Last updated: April 11, 2026
+   Changes: Section 5 added .post-card-content a and .post-card-excerpt a
+            Section 7 fixed .featured-banner padding, removed duplicate .featured-inner
+            Section 10 deleted (micro-card — replaced by unified post-card)
+            Section 13 removed .micro-body img and .micro-card img references
+            Section 30 rewritten for manual carousel controls
    ============================================================ */
 
 
@@ -625,53 +622,6 @@ figcaption {
 }
 
 .post-card-footer { margin-top: var(--space-xs); }
-
-
-/* ------------------------------------------------------------
-   10. MICRO CARD (short posts in feed)
-   ------------------------------------------------------------ */
-
-.micro-card {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 0 0.875rem;
-  padding: var(--space-md) 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-@media (min-width: 480px) { .micro-card { grid-template-columns: 52px 1fr; gap: 0 var(--space-md); } }
-
-@media (min-width: 640px) {
-  .micro-card {
-    grid-template-columns: 60px 1fr;
-    gap: 0 var(--space-lg);
-    padding: var(--space-lg) 0;
-  }
-}
-
-.micro-body {
-  color: var(--color-text);
-  line-height: 1.75;
-}
-
-.micro-body p { margin-bottom: var(--space-sm); }
-.micro-body p:last-child { margin-bottom: 0; }
-
-.micro-footer {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--color-text-light);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.micro-footer .micro-tag {
-  white-space: nowrap;
-  color: var(--color-terra);
-  font-weight: 500;
-}
 
 
 /* ------------------------------------------------------------

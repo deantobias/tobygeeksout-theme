@@ -10,9 +10,6 @@
             Section 13 removed .micro-body img and .micro-card img references
             Section 30 rewritten for manual carousel controls
             Font size housekeeping — removed redundant 1.2rem overrides on reading elements
-			Section 9 added .post-card-categories margin-bottom via Design → Custom CSS
-         	Section 9 added .post-category text-decoration: none via Design → Custom CSS
-         	index.html feed label updated "Recent Posts" → "Recent Geekouts" and pagination label fixed
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -557,7 +554,7 @@ figcaption {
 
 .post-card {
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 56px 1fr;
   gap: 0 0.875rem;
   padding: var(--space-md) 0;
   border-bottom: 1px solid var(--color-border);
@@ -566,10 +563,10 @@ figcaption {
   overflow: hidden;
 }
 
-@media (min-width: 480px) { .post-card { grid-template-columns: 52px 1fr; gap: 0 var(--space-md); } }
+@media (min-width: 480px) { .post-card { grid-template-columns: 64px 1fr; gap: 0 var(--space-md); } }
 
 @media (min-width: 640px) {
-  .post-card { grid-template-columns: 60px 1fr; gap: 0 var(--space-lg); padding: var(--space-lg) 0; }
+  .post-card { grid-template-columns: 76px 1fr; gap: 0 var(--space-lg); padding: var(--space-lg) 0;}
 }
 
 .post-date { text-align: right; padding-top: 2px; flex-shrink: 0; }
@@ -577,7 +574,7 @@ figcaption {
 .post-date-day {
   display: block;
   font-family: var(--font-display);
-  font-size: 3.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
   color: var(--color-terra);
   line-height: 1;

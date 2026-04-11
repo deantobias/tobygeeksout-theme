@@ -116,9 +116,9 @@
 
 <div class="feed-wrapper">
   {{ if eq $paginator.PageNumber 1 }}
-    <p class="feed-label">Recent Posts</p>
+    <p class="feed-label">Recent Geekouts</p>
   {{ else }}
-    <p class="feed-label">Posts — Page {{ $paginator.PageNumber }}</p>
+    <p class="feed-label">Geeksouts — Page {{ $paginator.PageNumber }}</p>
   {{ end }}
 
   {{ range $paginator.Pages }}
@@ -156,9 +156,9 @@
               {{ .Content }}
             {{ end }}
           </div>
-          <p class="micro-footer">
+          <p class="post-card-footer">
             <a href="{{ .Permalink }}" class="u-url">
-              <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+              <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
             </a>
           </p>
         </div>

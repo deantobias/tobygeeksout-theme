@@ -1505,45 +1505,37 @@ body.page .microblog_conversation {
    30. FEATURED POST CAROUSEL
    ========================================================================== */
 
-.splide__arrows {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 100%;
-  left: 0;
-  pointer-events: none;
-}
-
 .splide__arrow {
   pointer-events: all;
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 2rem;
-  cursor: pointer;
-  opacity: 0.8;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0.9;
   transition: opacity 0.2s;
+  cursor: pointer;
 }
 
-.splide__arrow:hover {
-  opacity: 1;
-}
+.splide__arrow:hover { opacity: 1; }
 
 .splide__arrow svg {
-  fill: #ffffff;
+  fill: #ffffff !important;
+  width: 2rem !important;
+  height: 2rem !important;
 }
 
 .splide__arrow--prev {
   position: absolute;
-  left: 1rem;
+  left: 1.5rem !important;
 }
 
 .splide__arrow--next {
   position: absolute;
-  right: 1rem;
+  right: 1.5rem !important;
 }
 
 .splide__pagination {
+  position: relative !important;
+  padding-top: 2rem !important;
+  padding-bottom: 1.5rem !important;
   margin-top: var(--space-md);
 }
 
@@ -1562,6 +1554,13 @@ body.page .microblog_conversation {
   transform: scale(1.2);
 }
 
+@media (max-width: 1024px) {
+  .splide__arrow { display: none !important; }
+  .featured-inner {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
 
 /* ------------------------------------------------------------
    31. HOMEPAGE SEARCH

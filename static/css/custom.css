@@ -10,6 +10,9 @@
             Section 13 removed .micro-body img and .micro-card img references
             Section 30 rewritten for manual carousel controls
             Font size housekeeping — removed redundant 1.2rem overrides on reading elements
+			Section 9 added .post-card-categories margin-bottom via Design → Custom CSS
+         	Section 9 added .post-category text-decoration: none via Design → Custom CSS
+         	index.html feed label updated "Recent Posts" → "Recent Geekouts" and pagination label fixed
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -66,6 +69,16 @@
 
 @media (min-width: 640px) {
   html { font-size: 22px !important; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  html {
+    font-size: 14px !important;
+  }
+
+  @media (min-width: 640px) {
+    html { font-size: 16px !important; }
+  }
 }
 
 
@@ -247,7 +260,8 @@ figcaption {
 .site-logo:hover { color: var(--color-terra-light) !important; text-decoration: none !important; }
 .site-logo .logo-accent:hover { color: var(--color-terra) !important; }
 
-@media (min-width: 600px) { .site-logo { font-size: 2.5rem; } }
+@media (min-width: 600px) { .site-logo { font-size: 2rem; } }
+@media (min-width: 1024px) { .site-logo { font-size: 2.5rem; } }
 @media (max-width: 599px) { .site-logo { font-size: 1.75rem; } }
 
 .nav-toggle {
@@ -341,22 +355,21 @@ figcaption {
 /* ------------------------------------------------------------
    6a. SITE-NAV-PRIMARY — mid-screen "More" overflow menu
    ------------------------------------------------------------ */
-
 .site-nav-primary { display: none; }
-
 @media (min-width: 768px) and (max-width: 1023px) {
   .site-nav { display: none !important; }
+  #site-nav { margin-left: auto; }
   .site-nav-primary {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.8rem;
     list-style: none;
-    padding: 0 1.5rem 0 0;
+   padding: 0 0.5rem 0 0;
     margin-left: auto;
   }
   .site-nav-primary > li > a {
-    font-size: 1.0625rem;
+    font-size: 1.0625rem
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -367,7 +380,7 @@ figcaption {
   .site-nav-primary > li > a:hover,
   .site-nav-primary > li > a.active { color: var(--color-terra); }
   .nav-more-btn {
-    font-size: 1.0625rem;
+    font-size: 0.875rem;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -417,7 +430,6 @@ figcaption {
     background-color: rgba(255, 255, 255, 0.05);
   }
 }
-
 @media (min-width: 1024px) { .site-nav-primary { display: none; } }
 
 
@@ -590,6 +602,7 @@ figcaption {
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
+  text-decoration: none !important;
   color: var(--color-terra-dark);
   background-color: var(--color-terra-light);
   padding: 2px 7px;
@@ -609,6 +622,10 @@ figcaption {
   color: var(--color-text);
   line-height: 1.35;
   margin-bottom: 0.3rem;
+}
+
+.post-card-categories {
+  margin-bottom: 0.75rem;
 }
 
 @media (min-width: 480px) { .post-card-title { font-size: 1.5rem; } }
@@ -631,7 +648,9 @@ figcaption {
   font-style: italic;
 }
 
-.post-card-footer { margin-top: var(--space-xs); }
+.post-card-footer { margin-top: var(--space-xs); 
+font-size: 0.625rem;
+}
 
 
 /* ------------------------------------------------------------

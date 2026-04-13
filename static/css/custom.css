@@ -575,6 +575,7 @@ figcaption {
   font-weight: 700;
   color: var(--color-terra);
   line-height: 1;
+  margin-bottom: 4px;
 }
 
 @media (min-width: 640px) { .post-date-day { font-size: 3.5rem; } }
@@ -587,6 +588,16 @@ figcaption {
   text-transform: uppercase;
   color: var(--color-text-light);
   margin-top: 2px;
+}
+
+.post-date-year {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-top: 1px;
 }
 
 .post-category {

@@ -95,7 +95,7 @@
     Technogeek. Blogger since 2004. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
     <br>
     <div class="about-links">
-      <a href="https://tobygeeksout.micro.blog/about-me/">More about me</a>
+      <a href="https://tobygeeksout.micro.blog/about-me/">About</a>
       <span>·</span>
       <a href="https://tobygeeksout.micro.blog/now/">Now</a>
       <span>·</span>
@@ -129,8 +129,9 @@
     {{ if not $isLongRead }}
       <div class="post-card">
         <div class="post-date" aria-hidden="true">
-          <span class="post-date-day">{{ .Date.Format "2" }}</span>
-          <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+         <span class="post-date-day">{{ .Date.Format "2" }}</span>
+         <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+         <span class="post-date-year">{{ .Date.Format "2006" }}</span>
         </div>
         <div class="post-card-content">
           {{ if .Params.categories }}
@@ -157,8 +158,7 @@
           </div>
           {{ if le (len .Plain) 800 }}
             <p class="post-card-footer">
-              <a href="{{ .Permalink }}" class="u-url">
-                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
+             <a href="{{ .Permalink }}" class="u-url">Permalink</a> ∞
               </a>
             </p>
           {{ end }}

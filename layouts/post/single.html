@@ -1,0 +1,233 @@
+{{ define "main" }}
+<article>
+  <header class="post-header">
+    <div class="post-header-eyebrow">
+      {{ if .Params.categories }}
+        {{ range .Params.categories }}
+          <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+        {{ end }}
+      {{ end }}
+    </div>
+    {{ if .Title }}
+      <h1 class="post-header-title">{{ .Title }}</h1>
+    {{ end }}
+    <div class="post-header-meta">
+      <time datetime="{{ .Date.Format `2006-01-02` }}">
+        {{ .Date.Format "January 2, 2006" }}
+      </time>
+      {{ if .ReadingTime }}
+        <span class="read-time-pill">{{ .ReadingTime }} min read</span>
+      {{ end }}
+    </div>
+  </header>
+
+  {{ $isLongRead := false }}
+  {{ range .Params.categories }}
+    {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
+  {{ end }}
+
+  <div class="{{ if $isLongRead }}post-layout{{ end }}">
+    <div class="post-body">
+      {{ .Content }}
+    </div>
+    {{ if $isLongRead }}
+      <aside class="toc-sidebar" id="toc-sidebar" aria-label="Table of contents">
+        <p class="toc-title">In this post</p>
+        <ol id="toc-list"></ol>
+      </aside>
+    {{ end }}
+  </div>
+
+  <div class="reply-email-wrap">
+    {{ partial "reply-by-email.html" . }}
+  </div>
+
+  {{ if and .Permalink .Params.categories (ne .Title "Short Stack") }}
+    {{ $currentPermalink := .Permalink }}
+    {{ $currentCats := .Params.categories }}
+
+    {{ $scoredTitled := slice }}
+    {{ $scoredMicro := slice }}
+    {{ $unscoredTitled := slice }}
+
+    {{ range .Site.RegularPages }}
+      {{ if and (ne .Permalink $currentPermalink) .Params.categories }}
+        {{ $score := 0 }}
+        {{ $candidateCats := .Params.categories }}
+        {{ range $currentCats }}
+          {{ $thisCat := . }}
+          {{ if and (ne $thisCat "Long Read") (ne $thisCat "Short Stack") (ne $thisCat "The Friday Haul") }}
+            {{ range $candidateCats }}
+              {{ if eq . $thisCat }}
+                {{ $score = add $score 1 }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
+        {{ if gt $score 0 }}
+          {{ if .Title }}
+            {{ $scoredTitled = $scoredTitled | append . }}
+          {{ else }}
+            {{ $scoredMicro = $scoredMicro | append . }}
+          {{ end }}
+        {{ else }}
+          {{ if .Title }}
+            {{ $unscoredTitled = $unscoredTitled | append . }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+
+    {{ $top := slice }}
+
+    {{/* Slot 1: first scored titled post */}}
+    {{ range $scoredTitled }}
+      {{ if lt (len $top) 1 }}
+        {{ $top = $top | append . }}
+      {{ end }}
+    {{ end }}
+
+    {{/* Slots 2-3: up to 2 scored microposts */}}
+    {{ range $scoredMicro }}
+      {{ if lt (len $top) 3 }}
+        {{ $top = $top | append . }}
+      {{ end }}
+    {{ end }}
+
+    {{/* Fill any remaining slots with random titled posts */}}
+    {{ range $unscoredTitled }}
+      {{ if lt (len $top) 3 }}
+        {{ $top = $top | append . }}
+      {{ end }}
+    {{ end }}
+
+    {{/* Last resort: more scored titled posts if still not 3 */}}
+    {{ range $scoredTitled }}
+      {{ if lt (len $top) 3 }}
+        {{ $alreadyIn := false }}
+        {{ range $top }}
+          {{ if eq .Permalink $.Permalink }}
+            {{ $alreadyIn = true }}
+          {{ end }}
+        {{ end }}
+        {{ if not $alreadyIn }}
+          {{ $top = $top | append . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+
+    {{ if $top }}
+      <div class="related-posts">
+        <p class="related-posts-label">Keep reading</p>
+        {{ range $top }}
+          <a href="{{ .Permalink }}" class="related-post-link">
+            <span class="related-post-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+            <div class="related-post-info">
+              {{ if .Title }}
+                <span class="related-post-title"><strong>{{ .Title }}</strong></span>
+              {{ end }}
+              <span class="related-post-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 100 "..." }}</span>
+            </div>
+          </a>
+        {{ end }}
+      </div>
+    {{ end }}
+  {{ end }}
+
+  <div class="surprise-wrap">
+    <a href="https://tobygeeksout.micro.blog/surprise-me/" class="btn-surprise">Surprise me →</a>
+  </div>
+</article>
+
+{{ if .Site.Params.include_conversation }}
+  <div style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-xl) var(--space-2xl);">
+    <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-xl); margin-top: var(--space-xl);">
+      <p style="font-family: var(--font-body); font-size: 0.875rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-text-light); margin-bottom: var(--space-md);">Join the conversation</p>
+      {{ if .Permalink }}
+        <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}
+
+{{ if eq .Type "post" }}
+  {{ $prev := .PrevInSection }}
+  {{ $next := .NextInSection }}
+  {{ if or $prev $next }}
+    <nav class="post-nav" aria-label="Post navigation">
+      {{ if $prev }}
+        <a href="{{ $prev.Permalink }}" class="post-nav-link post-nav-link--prev">
+          <p class="post-nav-label">← Previous</p>
+          <p class="post-nav-title">
+            {{ if $prev.Title }}{{ $prev.Title }}{{ else }}{{ $prev.Date.Format "January 2, 2006" }}{{ end }}
+          </p>
+        </a>
+      {{ else }}
+        <div></div>
+      {{ end }}
+      {{ if $next }}
+        <a href="{{ $next.Permalink }}" class="post-nav-link post-nav-link--next">
+          <p class="post-nav-label">Next →</p>
+          <p class="post-nav-title">
+            {{ if $next.Title }}{{ $next.Title }}{{ else }}{{ $next.Date.Format "January 2, 2006" }}{{ end }}
+          </p>
+        </a>
+      {{ end }}
+    </nav>
+  {{ end }}
+{{ end }}
+
+{{ if $isLongRead }}
+<script>
+  (function () {
+    var sidebar = document.getElementById('toc-sidebar');
+    var list = document.getElementById('toc-list');
+    if (!sidebar || !list) return;
+    var headings = document.querySelectorAll('.post-body h2');
+    if (headings.length < 3) {
+      sidebar.style.display = 'none';
+      var layout = document.querySelector('.post-layout');
+      if (layout) layout.classList.remove('post-layout');
+      return;
+    }
+    var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 90;
+    var offset = headerH + 24;
+
+    var postBody = document.querySelector('.post-body');
+    if (postBody && sidebar) {
+      var bodyTop = postBody.getBoundingClientRect().top + window.scrollY;
+      var sidebarTop = sidebar.getBoundingClientRect().top + window.scrollY;
+      var diff = bodyTop - sidebarTop;
+      if (diff > 0) sidebar.style.marginTop = diff + 'px';
+    }
+
+    headings.forEach(function (h, i) {
+      if (!h.id) h.id = 'section-' + i;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var top = h.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      });
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    window.addEventListener('scroll', function () {
+      var scrollY = window.scrollY + offset + 10;
+      var active = null;
+      headings.forEach(function (h) {
+        if (h.offsetTop <= scrollY) active = h.id;
+      });
+      list.querySelectorAll('a').forEach(function (a) {
+        a.classList.toggle('toc-active', a.getAttribute('href') === '#' + active);
+      });
+    }, { passive: true });
+  })();
+</script>
+{{ end }}
+
+{{ end }}

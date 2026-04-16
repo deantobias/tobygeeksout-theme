@@ -3,13 +3,10 @@
    Mobile-first. Scales up to tablet and desktop.
    Palette: Terracotta + Navy + Warm White
    Fonts: Georgia (headlines) + Inter (body)
-   Last updated: April 11, 2026
-   Changes: Section 5 added .post-card-content a and .post-card-excerpt a
-            Section 7 fixed .featured-banner padding, removed duplicate .featured-inner
-            Section 10 deleted (micro-card — replaced by unified post-card)
-            Section 13 removed .micro-body img and .micro-card img references
-            Section 30 rewritten for manual carousel controls
-            Font size housekeeping — removed redundant 1.2rem overrides on reading elements
+   Last updated: April 16, 2026
+   Changes: Section 32 added — YouTube & Instagram embed styles
+            (.yt-embed, .yt-shorts, .ig-embed, .ig-thumb-wrap, .ig-badge)
+            Instagram embed centering (.ig-embed .instagram-media)
    ============================================================ */
 
 /* ------------------------------------------------------------

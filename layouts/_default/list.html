@@ -1,56 +1,49 @@
 {{ define "main" }}
-  <div class="archive-wrapper">
-    <header class="page-header">
-      {{ if .Title }}
-        <h1 class="page-title">{{ .Title }}</h1>
-      {{ end }}
-    </header>
-    <div class="feed-wrapper">
-      {{ range .Pages }}
-        {{ if and (not .Title) (lt (len .Plain) 300) }}
-          <div class="micro-card">
-            <div class="post-date" aria-hidden="true">
-              <span class="post-date-day">{{ .Date.Format "2" }}</span>
-              <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+  <div class="category-page-header">
+    <h1 class="category-page-title">{{ .Title | safeHTML }}</h1>
+  </div>
+  <div class="feed-wrapper">
+    {{ $paginator := .Paginate .Pages.ByDate.Reverse }}
+    {{ range $paginator.Pages }}
+     <div class="post-card">
+        <div class="post-date" aria-hidden="true">
+         <span class="post-date-day">{{ .Date.Format "2" }}</span>
+         <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+         <span class="post-date-year">{{ .Date.Format "2006" }}</span>
+        </div>
+        <div class="post-card-content">
+          {{ if .Params.categories }}
+            <div class="post-card-categories">
+              {{ range .Params.categories }}
+                <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+              {{ end }}
             </div>
-            <div>
-              <div class="micro-body">{{ .Content }}</div>
-              <p class="micro-footer">
-                <a href="{{ .Permalink }}">
-                  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
-                </a>
-              </p>
+          {{ end }}
+          {{ if .Title }}
+            <div class="post-card-title">
+              <a href="{{ .Permalink }}">{{ .Title }}</a>
             </div>
+          {{ end }}
+          <div class="post-card-excerpt">
+            {{ if gt (len .Plain) 800 }}
+              {{ .Summary | htmlUnescape | safeHTML }}
+              <div class="post-card-footer">
+                <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+              </div>
+            {{ else }}
+              {{ .Content | htmlUnescape | safeHTML }}
+            {{ end }}
           </div>
-        {{ else }}
-          <div class="post-card">
-            <div class="post-date" aria-hidden="true">
-              <span class="post-date-day">{{ .Date.Format "2" }}</span>
-              <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-            </div>
-            <div class="post-card-content">
-              {{ if .Params.categories }}
-            {{ range .Params.categories }}
-  <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
-{{ end }}
-              {{ end }}
-              {{ if .Title }}
-                <div class="post-card-title">
-                  <a href="{{ .Permalink }}">{{ .Title }}</a>
-                </div>
-              {{ end }}
-              {{ if gt (len .Plain) 650 }}
-                <p class="post-card-excerpt">{{ .Plain | truncate 650 }}</p>
-                <div class="post-card-footer">
-                  <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
-                </div>
-              {{ else }}
-                <div class="post-card-excerpt">{{ .Content | safeHTML }}</div>
-              {{ end }}
-            </div>
-          </div>
-        {{ end }}
-      {{ end }}
-    </div>
+          {{ if le (len .Plain) 800 }}
+            <p class="post-card-footer">
+              <a href="{{ .Permalink }}" class="u-url">
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
+              </a>
+            </p>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+    {{ partial "pagination.html" $paginator }}
   </div>
 {{ end }}

@@ -1,13 +1,13 @@
 /* ============================================================
-   TOBY GEEKS OUT! — custom.css
-   Mobile-first. Scales up to tablet and desktop.
-   Palette: Terracotta + Navy + Warm White
-   Fonts: Georgia (headlines) + Inter (body)
-   Last updated: April 16, 2026
-   Changes: Section 32 added — YouTube & Instagram embed styles
-            (.yt-embed, .yt-shorts, .ig-embed, .ig-thumb-wrap, .ig-badge)
-            Instagram embed centering (.ig-embed .instagram-media)
-   ============================================================ */
+  TOBY GEEKS OUT! — custom.css
+  Mobile-first. Scales up to tablet and desktop.
+  Palette: Terracotta + Navy + Warm White
+  Fonts: Georgia (headlines) + Inter (body)
+  Last updated: April 16, 2026
+  Changes: Section 32 added — YouTube & Instagram embed styles
+           (.yt-embed, .yt-shorts, .ig-embed, .ig-thumb-wrap, .ig-badge)
+           Instagram embed centering (.ig-embed .instagram-media)
+  ============================================================ */
 
 /* ------------------------------------------------------------
    1. FONT DISPLAY
@@ -433,6 +433,7 @@ figcaption {
   padding: var(--space-xl) 0 var(--space-sm);
   position: relative;
   overflow: visible;
+margin-top: 0;
 }
 
 .featured-banner::before {
@@ -527,7 +528,7 @@ figcaption {
   overflow: hidden;
 }
 
-@media (min-width: 640px) { .feed-wrapper { padding: var(--space-2xl) var(--space-xl); } }
+@media (min-width: 640px) { .feed-wrapper { padding: var(--space-lg) var(--space-xl); } }
 
 .feed-label {
   font-family: var(--font-display);
@@ -663,6 +664,55 @@ figcaption {
 font-size: 0.625rem;
 }
 
+/* ------------------------------------------------------------
+   9a. POST CARD — Mobile editorial date layout
+   Collapses two-column grid on mobile. Date sits on top,
+   full width for content. Desktop untouched.
+   ------------------------------------------------------------ */
+
+@media (max-width: 599px) {
+
+  .post-card {
+    display: block;
+    padding: var(--space-md) 0;
+  }
+
+  .post-date {
+    text-align: left;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    padding-top: 0;
+  }
+
+  .post-date-day {
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-bottom: 0;
+  }
+
+  .post-date-month {
+    display: inline;
+    font-size: 0.65rem;
+    margin: 0;
+  }
+
+  .post-date-year {
+    display: inline;
+    font-size: 0.65rem;
+    margin: 0;
+  }
+
+  .post-date-month::after {
+    content: ' ';
+  }
+
+  .post-card-content {
+    width: 100%;
+  }
+
+}
 
 /* ------------------------------------------------------------
    11. SINGLE POST PAGE
@@ -845,7 +895,7 @@ font-size: 0.625rem;
 
 @media (min-width: 640px) {
   .post-card img,
-  .micro-card img { width: 75%; }
+  .micro-card img { width: 85%; }
 }
 
 .post-body figure { margin: var(--space-xl) 0; }
@@ -1025,31 +1075,59 @@ font-size: 0.625rem;
 
 .about-strip {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  max-width: 800px;
-  margin: 28px auto 0;
-  padding: 16px 24px;
+  justify-content: center;
+  padding: 28px 24px;
+  margin-top: 0;
   background: #f4f0eb;
-  border-left: 4px solid #c95f2a;
-  border-radius: 0 4px 4px 0;
 }
-
-.about-avatar { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
-.about-text { color: #444; line-height: 1.6; }
-.about-text strong { display: block; font-size: 1.4rem; color: #1a2540; margin-bottom: 6px; }
+.about-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 12px;
+  object-fit: cover;
+  border: 3px solid #c95f2a;
+}
+.about-text {
+  max-width: 600px;
+  width: 100%;
+  color: #444;
+  line-height: 1.6;
+  text-align: center;
+}
+.about-text strong {
+  display: block;
+  font-size: 1.6rem;
+  color: #1a2540;
+  margin-bottom: 6px;
+}
 .about-text a { color: #c95f2a; text-decoration: none; font-weight: 700; }
-.about-links { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
 .about-links a { color: #c95f2a; text-decoration: none; font-weight: 700; }
 .about-links span { color: #c95f2a; font-size: 1rem; }
 
 .subscribe-strip {
   display: flex;
+  justify-content: center;
+  padding: 0 24px 28px;
+  background: #f4f0eb;
+  margin-bottom: 0;
+}
+.subscribe-inner {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 800px;
-  margin: 16px auto 0;
+  max-width: 600px;
+  width: 100%;
   padding: 20px 24px;
   background: #1a2540;
   border-radius: 4px;

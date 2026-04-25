@@ -158,6 +158,13 @@ blockquote {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
+blockquote.reblog {
+  border-left: 3px solid #2E5077;
+  background: #f0f4f8;
+  color: #555;
+  font-style: normal;
+}
+
 blockquote p {
   font-family: var(--font-display);
   font-style: italic;

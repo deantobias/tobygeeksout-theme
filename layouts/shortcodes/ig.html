@@ -1,0 +1,21 @@
+{{ $id := .Get "id" }}
+{{ $caption := .Get "caption" | default "" }}
+{{ $link := printf "https://www.instagram.com/p/%s/" $id }}
+{{ $thumb := printf "https://www.instagram.com/p/%s/media/?size=l" $id }}
+
+{{ if .Page.IsHome }}
+  <a href="{{ .Page.Permalink }}" class="ig-thumb-wrap">
+    <img src="{{ $thumb }}" alt="{{ $caption }}" loading="lazy">
+    <span class="ig-badge">📷 Instagram</span>
+  </a>
+{{ else }}
+  <div class="ig-embed">
+    <blockquote class="instagram-media" data-instgrm-permalink="{{ $link }}" data-instgrm-version="14" style="max-width:560px; width:100%; border-radius:8px;">
+      <a href="{{ $link }}">
+        <img src="{{ $thumb }}" alt="{{ $caption }}" style="width:100%;max-width:560px;border-radius:8px;">
+      </a>
+      <p style="font-size:0.85em;">📷 <a href="{{ $link }}">View on Instagram</a></p>
+    </blockquote>
+    <script async src="//www.instagram.com/embed.js"></script>
+  </div>
+{{ end }}

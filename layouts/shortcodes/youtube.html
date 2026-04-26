@@ -1,0 +1,22 @@
+{{ $id := .Get "id" }}
+{{ $title := .Get "title" | default "Watch on YouTube" }}
+{{ $shorts := .Get "shorts" | default "false" }}
+{{ $thumb := printf "https://img.youtube.com/vi/%s/maxresdefault.jpg" $id }}
+{{ $link := printf "https://www.youtube.com/watch?v=%s" $id }}
+
+{{ if .Page.IsHome }}
+  <a href="{{ .Page.Permalink }}" class="yt-thumb-wrap">
+    <img src="{{ $thumb }}" alt="{{ $title }}" loading="lazy">
+    <span class="yt-badge">▶ YouTube</span>
+  </a>
+{{ else }}
+  {{ if eq $shorts "true" }}
+    <div class="yt-embed yt-shorts">
+      <iframe src="https://www.youtube.com/embed/{{ $id }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    </div>
+  {{ else }}
+    <div class="yt-embed">
+      <iframe src="https://www.youtube.com/embed/{{ $id }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    </div>
+  {{ end }}
+{{ end }}

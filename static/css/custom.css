@@ -45,7 +45,7 @@
   --space-xl:  1.5rem;
   --space-2xl: 2rem;
   --page-pad:  1rem;
-  --max-width: 860px;
+  --max-width: 980px;
   --header-h:  90px;
   --radius:    4px;
   --radius-lg: 8px;
@@ -763,6 +763,12 @@ font-size: 0.625rem;
 }
 
 .post-header-meta time { font-weight: 500; }
+
+post.body article {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-pad);
+}
 
 .post-body {
   max-width: var(--max-width);
@@ -1749,9 +1755,23 @@ body.page .microblog_conversation {
   border: 0;
 }
 
+/* This targets the specific 'Shorts' version and forces the 9:16 vertical ratio */
 .yt-embed.yt-shorts {
-  max-width: 360px;
-  padding-bottom: 110%;
+  width: 100% !important;
+  max-width: 315px !important; /* Limits the width */
+  height: 560px !important;    /* Forces the height */
+  padding-bottom: 0 !important; /* KILLS the widescreen ratio hack */
+  margin: 1.5rem auto !important;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* This makes the iframe fill the 315x560 box we just created */
+.yt-embed.yt-shorts iframe {
+  position: static !important; /* Removes the absolute positioning from widescreen */
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .ig-embed {
@@ -1796,3 +1816,4 @@ body.page .microblog_conversation {
   border-radius: 4px;
   letter-spacing: 0.05em;
 }
+

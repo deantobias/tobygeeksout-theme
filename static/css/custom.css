@@ -3,10 +3,11 @@
   Mobile-first. Scales up to tablet and desktop.
   Palette: Terracotta + Navy + Warm White
   Fonts: Georgia (headlines) + Inter (body)
-  Last updated: April 16, 2026
-  Changes: Section 32 added — YouTube & Instagram embed styles
-           (.yt-embed, .yt-shorts, .ig-embed, .ig-thumb-wrap, .ig-badge)
-           Instagram embed centering (.ig-embed .instagram-media)
+  Last updated: May 2, 2026
+  Changes: CSS modernization pass
+           text-wrap: balance on headings
+           text-wrap: pretty on body paragraphs
+           :is() selector consolidation (sections 5, 11, 12)
   ============================================================ */
 
 /* ------------------------------------------------------------
@@ -66,9 +67,7 @@
 }
 
 @supports (-webkit-touch-callout: none) {
-  html {
-    font-size: 16px !important;
-  }
+  html { font-size: 16px !important; }
 }
 
 
@@ -91,7 +90,7 @@ body {
   font-family: var(--font-body);
   line-height: 1.7;
   overflow: visible !important;
-  overflow-x: hidden !important; 
+  overflow-x: hidden !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -99,6 +98,7 @@ body {
 p {
   font-family: var(--font-body);
   line-height: 1.7;
+  text-wrap: pretty;
 }
 
 img, video { max-width: 100%; height: auto; }
@@ -116,6 +116,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.25;
   color: var(--color-text);
+  text-wrap: balance;
 }
 
 h1 { font-size: 1.75rem; font-weight: 800; }
@@ -187,11 +188,7 @@ figcaption {
    5. LINKS
    ------------------------------------------------------------ */
 
-.post-body a,
-.page-body a,
-.micro-body a,
-.post-card-content a,
-.post-card-excerpt a {
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a {
   color: var(--color-terra);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -199,11 +196,7 @@ figcaption {
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
-.post-body a:hover,
-.page-body a:hover,
-.micro-body a:hover,
-.post-card-content a:hover,
-.post-card-excerpt a:hover {
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a:hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
 }
@@ -363,11 +356,11 @@ figcaption {
     align-items: center;
     gap: 0.8rem;
     list-style: none;
-   padding: 0 0.5rem 0 0;
+    padding: 0 0.5rem 0 0;
     margin-left: auto;
   }
   .site-nav-primary > li > a {
-    font-size: 1.0625rem
+    font-size: 1.0625rem;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -440,7 +433,7 @@ figcaption {
   padding: var(--space-xl) 0 var(--space-sm);
   position: relative;
   overflow: visible;
-margin-top: 0;
+  margin-top: 0;
 }
 
 .featured-banner::before {
@@ -482,7 +475,6 @@ margin-top: 0;
   display: block;
   content: '';
 }
-
 
 .featured-title {
   font-family: var(--font-display);
@@ -568,7 +560,7 @@ margin-top: 0;
 @media (min-width: 480px) { .post-card { grid-template-columns: 64px 1fr; gap: 0 var(--space-md); } }
 
 @media (min-width: 640px) {
-  .post-card { grid-template-columns: 76px 1fr; gap: 0 var(--space-lg); padding: var(--space-lg) 0;}
+  .post-card { grid-template-columns: 76px 1fr; gap: 0 var(--space-lg); padding: var(--space-lg) 0; }
 }
 
 .post-date { text-align: right; padding-top: 2px; flex-shrink: 0; }
@@ -634,18 +626,14 @@ margin-top: 0;
   margin-bottom: 0.3rem;
 }
 
-.post-card-title a { 
-  text-decoration: none !important;
-}
+.post-card-title a { text-decoration: none !important; }
 
 .post-card-title a:hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
 }
 
-.post-card-categories {
-  margin-bottom: 0.75rem;
-}
+.post-card-categories { margin-bottom: 0.75rem; }
 
 @media (min-width: 480px) { .post-card-title { font-size: 1.5rem; } }
 @media (min-width: 640px) { .post-card-title { font-size: 2rem; } }
@@ -657,9 +645,7 @@ margin-top: 0;
   min-width: 0;
 }
 
-.post-card-excerpt h2,
-.post-card-excerpt h3,
-.post-card-excerpt h4 {
+:is(.post-card-excerpt h2, .post-card-excerpt h3, .post-card-excerpt h4) {
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -667,18 +653,16 @@ margin-top: 0;
   font-style: italic;
 }
 
-.post-card-footer { margin-top: var(--space-xs); 
-font-size: 0.625rem;
+.post-card-footer {
+  margin-top: var(--space-xs);
+  font-size: 0.625rem;
 }
 
 /* ------------------------------------------------------------
    9a. POST CARD — Mobile editorial date layout
-   Collapses two-column grid on mobile. Date sits on top,
-   full width for content. Desktop untouched.
    ------------------------------------------------------------ */
 
 @media (max-width: 599px) {
-
   .post-card {
     display: block;
     padding: var(--space-md) 0;
@@ -693,32 +677,11 @@ font-size: 0.625rem;
     padding-top: 0;
   }
 
-  .post-date-day {
-    font-size: 2.5rem;
-    line-height: 1;
-    margin-bottom: 0;
-  }
-
-  .post-date-month {
-    display: inline;
-    font-size: 0.65rem;
-    margin: 0;
-  }
-
-  .post-date-year {
-    display: inline;
-    font-size: 0.65rem;
-    margin: 0;
-  }
-
-  .post-date-month::after {
-    content: ' ';
-  }
-
-  .post-card-content {
-    width: 100%;
-  }
-
+  .post-date-day { font-size: 2.5rem; line-height: 1; margin-bottom: 0; }
+  .post-date-month { display: inline; font-size: 0.65rem; margin: 0; }
+  .post-date-year { display: inline; font-size: 0.65rem; margin: 0; }
+  .post-date-month::after { content: ' '; }
+  .post-card-content { width: 100%; }
 }
 
 /* ------------------------------------------------------------
@@ -792,10 +755,8 @@ post.body article {
   .post-body h3 { font-size: 1.25rem; }
 }
 
-.post-body ul,
-.post-body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
-
-.post-body li { line-height: 1.8; margin-bottom: var(--space-xs); }
+:is(.post-body ul, .post-body ol) { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
+:is(.post-body li, .page-body li) { line-height: 1.8; margin-bottom: var(--space-xs); }
 
 .post-body code {
   font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
@@ -844,8 +805,10 @@ post.body article {
   transition: border-color 0.15s, background-color 0.15s;
 }
 
-.post-nav-link:active,
-.post-nav-link:hover { border-color: var(--color-terra); background-color: var(--color-terra-light); }
+:is(.post-nav-link:active, .post-nav-link:hover) {
+  border-color: var(--color-terra);
+  background-color: var(--color-terra-light);
+}
 
 .post-nav-label {
   font-size: 0.6875rem;
@@ -889,26 +852,19 @@ post.body article {
   border-bottom: 2px solid var(--color-terra-light);
 }
 
-.page-body ul,
-.page-body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
-
-.page-body li { line-height: 1.8; margin-bottom: var(--space-xs); }
+:is(.page-body ul, .page-body ol) { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
 
 
 /* ------------------------------------------------------------
    13. IMAGES
    ------------------------------------------------------------ */
 
-.post-body img,
-.micro-body img,
-.post-card-content img { max-width: 100%; height: auto; }
+:is(.post-body img, .micro-body img, .post-card-content img) { max-width: 100%; height: auto; }
 
-.post-card img,
-.micro-card img { width: 100%; display: block; margin: 0 auto; border-radius: 4px; }
+:is(.post-card img, .micro-card img) { width: 100%; display: block; margin: 0 auto; border-radius: 4px; }
 
 @media (min-width: 640px) {
-  .post-card img,
-  .micro-card img { width: 85%; }
+  :is(.post-card img, .micro-card img) { width: 85%; }
 }
 
 .post-body figure { margin: var(--space-xl) 0; }
@@ -1006,9 +962,7 @@ post.body article {
 
 .archive-list { list-style: none; padding: 0; margin: 0 0 1rem 0; }
 
-.archive-item,
-.archive-item time,
-.archive-item a { font-family: var(--font-body); font-weight: 400; }
+:is(.archive-item, .archive-item time, .archive-item a) { font-family: var(--font-body); font-weight: 400; }
 
 .archive-item {
   display: flex;
@@ -1076,8 +1030,11 @@ post.body article {
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.tag-pill:active,
-.tag-pill:hover { background-color: var(--color-terra-light); border-color: var(--color-terra); color: var(--color-terra-dark); }
+:is(.tag-pill:active, .tag-pill:hover) {
+  background-color: var(--color-terra-light);
+  border-color: var(--color-terra);
+  color: var(--color-terra-dark);
+}
 
 .tag-count { font-size: 0.75rem; color: var(--color-text-light); }
 
@@ -1198,8 +1155,7 @@ post.body article {
   margin-bottom: var(--space-md);
 }
 
-.related-post-link,
-.related-post-link:visited { color: var(--color-text); text-decoration: none; }
+:is(.related-post-link, .related-post-link:visited) { color: var(--color-text); text-decoration: none; }
 
 .related-post-link {
   display: grid;
@@ -1315,8 +1271,7 @@ post.body article {
    22. SEARCH PAGE
    ------------------------------------------------------------ */
 
-#search-page form,
-.search form { display: block !important; max-width: var(--max-width); margin: 0 auto; }
+:is(#search-page form, .search form) { display: block !important; max-width: var(--max-width); margin: 0 auto; }
 
 .field {
   width: 100% !important;
@@ -1351,7 +1306,7 @@ post.body article {
   margin-top: var(--space-xl);
 }
 
-.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s;  white-space: nowrap;}
+.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; white-space: nowrap; }
 .pagination a:hover { color: var(--color-terra-dark); }
 .pagination .arrow { display: inline-block; }
 
@@ -1449,22 +1404,13 @@ post.body article {
    27. TABLE OF CONTENTS (desktop only, Long Read posts)
    ------------------------------------------------------------ */
 
-.post-layout {
-  display: block;
-}
+.post-layout { display: block; }
+.toc-sidebar { display: none; }
 
-.toc-sidebar {
-  display: none;
-}
-
-.post-layout:not(:has(#toc-list li)) {
-  display: block !important;
-}
+.post-layout:not(:has(#toc-list li)) { display: block !important; }
 
 @media (min-width: 640px) {
-  article {
-    min-height: 100vh;
-  }
+  article { min-height: 100vh; }
 
   .post-layout {
     display: grid !important;
@@ -1499,15 +1445,8 @@ post.body article {
     margin-bottom: var(--space-sm);
   }
 
-  .toc-sidebar ol {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .toc-sidebar ol li {
-    margin-bottom: var(--space-xs);
-  }
+  .toc-sidebar ol { list-style: none; padding: 0; margin: 0; }
+  .toc-sidebar ol li { margin-bottom: var(--space-xs); }
 
   .toc-sidebar ol li a {
     color: var(--color-text-muted);
@@ -1519,15 +1458,9 @@ post.body article {
     transition: color 0.15s;
   }
 
-  .toc-sidebar ol li a:hover,
-  .toc-sidebar ol li a.toc-active {
-    color: var(--color-terra);
-  }
+  :is(.toc-sidebar ol li a:hover, .toc-sidebar ol li a.toc-active) { color: var(--color-terra); }
 
-  .post-layout .post-body {
-    max-width: 100%;
-    padding: var(--space-xl) 0 var(--space-2xl);
-  }
+  .post-layout .post-body { max-width: 100%; padding: var(--space-xl) 0 var(--space-2xl); }
 }
 
 
@@ -1535,11 +1468,11 @@ post.body article {
    28. SINGLE POST — wider layout
    ------------------------------------------------------------ */
 
-body.page .post-header,
+:is(body.page .post-header,
 body.page .post-body,
 body.page .post-nav,
 body.page .related-posts,
-body.page .microblog_conversation {
+body.page .microblog_conversation) {
   max-width: 980px;
 }
 
@@ -1548,9 +1481,7 @@ body.page .microblog_conversation {
    29. POST HEADER — meta styling
    ------------------------------------------------------------ */
 
-.post-header {
-  padding-bottom: var(--space-lg);
-}
+.post-header { padding-bottom: var(--space-lg); }
 
 .post-header-eyebrow {
   gap: var(--space-sm);
@@ -1588,16 +1519,9 @@ body.page .microblog_conversation {
    30. FEATURED POST CAROUSEL
    ========================================================================== */
 
-.featured-banner {
-  position: relative;
-}
-
+.featured-banner { position: relative; }
 .splide__track { z-index: 1; }
-
-.featured-inner {
-  position: relative;
-  z-index: 1;
-}
+.featured-inner { position: relative; z-index: 1; }
 
 .splide__pagination {
   position: relative !important;
@@ -1629,8 +1553,7 @@ body.page .microblog_conversation {
   padding: 0.5rem 0 1rem;
 }
 
-.carousel-prev,
-.carousel-next {
+:is(.carousel-prev, .carousel-next) {
   position: static;
   background: rgba(255,255,255,0.15);
   border: none;
@@ -1647,15 +1570,13 @@ body.page .microblog_conversation {
   padding: 0;
 }
 
-.carousel-prev:hover,
-.carousel-next:hover {
+:is(.carousel-prev:hover, .carousel-next:hover) {
   opacity: 1;
   background: rgba(255,255,255,0.25);
 }
 
 @media (max-width: 1024px) {
-  .carousel-prev,
-  .carousel-next { display: none; }
+  :is(.carousel-prev, .carousel-next) { display: none; }
 }
 
 @media (max-width: 639px) {
@@ -1707,9 +1628,7 @@ body.page .microblog_conversation {
   outline: none;
 }
 
-.homepage-search-inner input::placeholder {
-  color: var(--color-text-light);
-}
+.homepage-search-inner input::placeholder { color: var(--color-text-light); }
 
 .homepage-search-inner button {
   padding: 0.75rem 1.25rem;
@@ -1727,13 +1646,11 @@ body.page .microblog_conversation {
   flex-shrink: 0;
 }
 
-.homepage-search-inner button:hover {
-  background: var(--color-terra-dark);
-}
+.homepage-search-inner button:hover { background: var(--color-terra-dark); }
 
 
 /* ------------------------------------------------------------
-   32. YouTube & Instagram Embeds 
+   32. YouTube & Instagram Embeds
    ------------------------------------------------------------ */
 
 .yt-embed {
@@ -1755,21 +1672,19 @@ body.page .microblog_conversation {
   border: 0;
 }
 
-/* This targets the specific 'Shorts' version and forces the 9:16 vertical ratio */
 .yt-embed.yt-shorts {
   width: 100% !important;
-  max-width: 315px !important; /* Limits the width */
-  height: 560px !important;    /* Forces the height */
-  padding-bottom: 0 !important; /* KILLS the widescreen ratio hack */
+  max-width: 315px !important;
+  height: 560px !important;
+  padding-bottom: 0 !important;
   margin: 1.5rem auto !important;
   border-radius: 12px;
   overflow: hidden;
   background: #000;
 }
 
-/* This makes the iframe fill the 315x560 box we just created */
 .yt-embed.yt-shorts iframe {
-  position: static !important; /* Removes the absolute positioning from widescreen */
+  position: static !important;
   width: 100% !important;
   height: 100% !important;
 }
@@ -1779,30 +1694,11 @@ body.page .microblog_conversation {
   margin: 1rem auto !important;
 }
 
-.ig-embed img {
-  width: 100%;
-  border-radius: 8px;
-  display: block;
-}
+.ig-embed img { width: 100%; border-radius: 8px; display: block; }
+.ig-embed .ig-label { display: block; font-size: 0.85em; margin-top: 0.4rem; color: var(--color-terra); }
 
-.ig-embed .ig-label {
-  display: block;
-  font-size: 0.85em;
-  margin-top: 0.4rem;
-  color: var(--color-terra);
-}
-
-.ig-thumb-wrap {
-  display: block;
-  max-width: 560px;
-  position: relative;
-}
-
-.ig-thumb-wrap img {
-  width: 100%;
-  border-radius: 8px;
-  display: block;
-}
+.ig-thumb-wrap { display: block; max-width: 560px; position: relative; }
+.ig-thumb-wrap img { width: 100%; border-radius: 8px; display: block; }
 
 .ig-badge {
   position: absolute;
@@ -1816,4 +1712,3 @@ body.page .microblog_conversation {
   border-radius: 4px;
   letter-spacing: 0.05em;
 }
-

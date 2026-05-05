@@ -175,9 +175,22 @@ blockquote p {
   line-height: 1.7;
 }
 
+figure {
+  text-align: center;
+  display: block;
+}
+
+figure img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+  width: 85%;
+}
+
 figcaption {
-  font-size: 0.85rem;
-  color: #6b6b6b;
+  font-size: 0.875rem;
+  color: var(--color-text-light);
   text-align: center;
   margin-top: 0.5rem;
   font-style: italic;
@@ -727,12 +740,6 @@ figcaption {
 
 .post-header-meta time { font-weight: 500; }
 
-post.body article {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 var(--page-pad);
-}
-
 .post-body {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -779,6 +786,28 @@ post.body article {
   margin-bottom: var(--space-lg);
   font-size: 0.8125rem;
   line-height: 1.6;
+}
+
+.post-body figure {
+  margin: var(--space-xl) 0;
+  text-align: center;
+  display: block;
+}
+
+.post-body figure img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+  width: 100%;
+}
+
+.post-body figcaption {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  text-align: center;
+  margin-top: var(--space-sm);
+  font-style: italic;
 }
 
 @media (min-width: 640px) { .post-body pre { padding: var(--space-lg); font-size: 0.875rem; } }
@@ -865,15 +894,6 @@ post.body article {
 
 @media (min-width: 640px) {
   :is(.post-card img, .micro-card img) { width: 85%; }
-}
-
-.post-body figure { margin: var(--space-xl) 0; }
-
-.post-body figcaption {
-  font-size: 0.8125rem;
-  color: var(--color-text-light);
-  text-align: center;
-  margin-top: var(--space-sm);
 }
 
 

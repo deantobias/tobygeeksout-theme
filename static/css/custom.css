@@ -1,3 +1,7 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&display=swap');
+
 /* ============================================================
   TOBY GEEKS OUT! — custom.css
   Mobile-first. Scales up to tablet and desktop.
@@ -37,7 +41,7 @@
   --color-text:         #1A1A18;
   --color-text-muted:   #6B645D;
   --color-text-light:   #9C9489;
-  --font-display: Georgia, 'Times New Roman', serif;
+  --font-display: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --space-xs:  0.25rem;
   --space-sm:  0.5rem;
@@ -112,7 +116,7 @@ button { cursor: pointer; font-family: inherit; border: none; background: none; 
    ------------------------------------------------------------ */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-display) !important;
   font-weight: 700;
   line-height: 1.25;
   color: var(--color-text);
@@ -133,7 +137,7 @@ h4 { font-size: 1.0625rem; font-family: var(--font-body); font-weight: 700; }
 p { margin-bottom: var(--space-md); }
 p:last-child { margin-bottom: 0; }
 
-strong, b { font-weight: 700; }
+strong, b { font-weight: 700; font-family: var(--font-display); }
 em, i     { font-style: italic; }
 small     { font-size: 0.8125rem; }
 
@@ -152,27 +156,89 @@ hr::after {
 }
 
 blockquote {
-  border-left: 3px solid var(--color-terra-dark);
+  position: relative !important;
+  border-left: 4px solid var(--color-terra) !important;
   margin: var(--space-xl) 0;
   padding: var(--space-md) var(--space-lg);
-  background-color: var(--color-terra-light);
-  border-radius: 0 var(--radius) var(--radius) 0;
+  overflow: hidden;
+}
+
+blockquote p {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+  padding: 0;
+  line-height: 1.7;
+}
+
+blockquote::before {
+  content: '\201C' !important;
+  position: absolute !important;
+  top: -0.35rem !important;
+  left: 0.75rem !important;
+  font-size: 7rem !important;
+  font-family: Georgia, serif !important;
+  color: var(--color-terra) !important;
+  opacity: 0.15 !important;
+  line-height: 1 !important;
+  pointer-events: none;
+  user-select: none;
+  z-index: 10 !important;
+  display: block !important;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+blockquote.card-quote::before {
+  display: none !important;
+ }
+
+blockquote.card-quote p {
+  font-family: var(--font-body) !important;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+blockquote.card-quote strong {
+font-family: var(--font-display);
 }
 
 blockquote.reblog {
   border-left: 3px solid #2E5077;
+  margin: var(--space-xl) 0;
+  padding: var(--space-md) var(--space-lg);
   background: #f0f4f8;
   color: #555;
-  font-style: normal;
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-blockquote p {
-  font-family: var(--font-display);
+blockquote:not(.reblog) {
+  padding: var(--space-md) var(--space-lg) !important;
+}
+
+blockquote.reblog::before {
+  display: none !important;
+}
+
+blockquote.reblog a {
+  text-underline-offset: 5.5px;
+  line-height: 1.8;
+}
+
+blockquote.reblog p {
+ font-family: var(--font-body) !important;
   font-style: italic;
-  color: var(--color-terra-dark);
-  margin-bottom: 0;
-  padding: var(--space-sm) 0;
+  color: #555;
+  margin-bottom: var(--space-sm);
+  padding: 0;
   line-height: 1.7;
+}
+
+blockquote.reblog p:last-child {
+  margin-bottom: 0;
 }
 
 figure {
@@ -1085,12 +1151,14 @@ figcaption {
   color: #444;
   line-height: 1.6;
   text-align: center;
+  font-family: var(--font-body);
 }
 .about-text strong {
   display: block;
-  font-size: 1.6rem;
+  font-size: 2.5rem !important;
   color: #1a2540;
   margin-bottom: 6px;
+  font-family: var(--font-display);
 }
 .about-text a { color: #c95f2a; text-decoration: none; font-weight: 700; }
 .about-links {

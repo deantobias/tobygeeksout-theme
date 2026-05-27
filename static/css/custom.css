@@ -7,11 +7,12 @@
   Mobile-first. Scales up to tablet and desktop.
   Palette: Terracotta + Navy + Warm White
   Fonts: Georgia (headlines) + Inter (body)
-  Last updated: May 2, 2026
+  Last updated: May 27, 2026
   Changes: CSS modernization pass
            text-wrap: balance on headings
            text-wrap: pretty on body paragraphs
            :is() selector consolidation (sections 5, 11, 12)
+           Added Section 5a: .book-card a — solid underline override
   ============================================================ */
 
 /* ------------------------------------------------------------
@@ -296,6 +297,22 @@ figcaption {
 .read-more-link:hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
+}
+
+/* ------------------------------------------------------------
+   5a. BOOK CARD LINKS
+   ------------------------------------------------------------ */
+
+.book-card a {
+  color: var(--color-terra);
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 5.5px;
+  transition: color 0.15s;
+}
+
+.book-card a:hover {
+  color: var(--color-terra-dark);
 }
 
 

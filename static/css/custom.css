@@ -13,6 +13,7 @@
            text-wrap: pretty on body paragraphs
            :is() selector consolidation (sections 5, 11, 12)
            Added Section 5a: .book-card a — solid underline override
+           Added Section 5b: .movie-card a — solid underline override
   ============================================================ */
 
 /* ------------------------------------------------------------
@@ -312,6 +313,22 @@ figcaption {
 }
 
 .book-card a:hover {
+  color: var(--color-terra-dark);
+}
+
+/* ------------------------------------------------------------
+   5b. MOVIE CARD LINKS
+   ------------------------------------------------------------ */
+
+.movie-card a {
+  color: var(--color-terra);
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 5.5px;
+  transition: color 0.15s;
+}
+
+.movie-card a:hover {
   color: var(--color-terra-dark);
 }
 

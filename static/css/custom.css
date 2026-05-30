@@ -217,7 +217,7 @@ blockquote.reblog {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-blockquote:not(.reblog) {
+blockquote:not(.reblog):not(.reblog-new) {
   padding: var(--space-md) var(--space-lg) !important;
 }
 
@@ -241,6 +241,96 @@ blockquote.reblog p {
 
 blockquote.reblog p:last-child {
   margin-bottom: 0;
+}
+
+blockquote.reblog img:not(.reblog-avatar),
+.post-card-excerpt blockquote.reblog img:not(.reblog-avatar),
+.post-card-content blockquote.reblog img:not(.reblog-avatar),
+.post-body blockquote.reblog img:not(.reblog-avatar) {
+  float: left !important;
+  display: block !important;
+  width: 80px !important;
+  max-width: 80px !important;
+  height: 120px !important;
+  object-fit: cover !important;
+  border-radius: 6px !important;
+  margin: 0 12px 6px 0 !important;
+}
+
+blockquote.reblog::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/* ── New reblog posts (class="reblog-new") ──────────── */
+blockquote.reblog-new {
+  background: #dde5ef !important;
+  border: none !important;
+  border-left: none !important;
+  border-radius: 12px !important;
+  padding: 14px 16px 14px !important;
+  margin: 8px 0 !important;
+  font-style: normal !important;
+  color: #1a2d42 !important;
+}
+blockquote.reblog-new::before { display: none !important; }
+blockquote.reblog-new::after  { content: ''; display: block; clear: both; }
+blockquote.reblog-new p {
+  margin: 0 0 0.5em;
+  line-height: 1.6;
+  color: #1a2d42;
+}
+blockquote.reblog-new p:last-child { margin-bottom: 0; }
+blockquote.reblog-new img:not(.reblog-avatar) {
+  float: left;
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 12px 6px 0;
+}
+blockquote.reblog-new a:not(.reblog-pill) {
+  color: #1a2d42 !important;
+  text-decoration: underline !important;
+  text-decoration-style: solid !important;
+  text-decoration-color: #1a2d42 !important;
+  text-underline-offset: 5.5px;
+}
+
+/* ── Attribution pill ───────────────────────────────── */
+p.reblog-attr {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin: 14px 0 0 0 !important;
+  padding: 10px 0 0 0 !important;
+  border-top: 1px solid rgba(30,45,74,0.12) !important;
+  line-height: 1;
+}
+a.reblog-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: white !important;
+  border-radius: 999px !important;
+  padding: 6px 14px 6px 6px !important;
+  border: 1px solid #b0c0d0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #1a2d42 !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+a.reblog-pill:hover { background: #edf2f7 !important; }
+img.reblog-avatar {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  float: none !important;
+  margin: 0 !important;
 }
 
 figure {

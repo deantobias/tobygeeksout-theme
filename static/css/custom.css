@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&display=swap');
 
@@ -296,6 +295,25 @@ blockquote.reblog-new a:not(.reblog-pill) {
   text-decoration-style: solid !important;
   text-decoration-color: #1a2d42 !important;
   text-underline-offset: 5.5px;
+}
+
+/* reblog-new images */
+blockquote.reblog-new img:not(.reblog-avatar) {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 6px 0;
+}
+blockquote.reblog-new img:not(.reblog-avatar)[src*="micro.blog/books"],
+blockquote.reblog-new img:not(.reblog-avatar)[src*="books.google.com"],
+blockquote.reblog-new img:not(.reblog-avatar)[src*="covers.openlibrary.org"] {
+  float: left;
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 12px 8px 0;
 }
 
 /* ── Attribution pill ───────────────────────────────── */
@@ -1923,4 +1941,73 @@ body.page .microblog_conversation) {
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   letter-spacing: 0.05em;
+}
+
+/* ── Book card ──────────────────────────── */
+.book-card {
+  background: #fdf8f4;
+  border: 1px solid #e8ddd0;
+  border-radius: 14px;
+  padding: 14px;
+  max-width: 600px;
+  margin: 8px auto;
+  overflow: hidden;
+}
+.book-card::after { content: ''; display: table; clear: both; }
+.book-card img {
+  float: left;
+  width: 72px !important;
+  height: 108px !important;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 14px 8px 0;
+}
+.book-card h3 {
+  margin: 0 0 0.1rem;
+  color: var(--color-navy);
+}
+.book-card p {
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+}
+.book-card a { color: var(--color-navy); text-decoration: underline; }
+
+/* ── Link preview card ──────────────────────────────────── */
+.link-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  max-width: 560px;
+  margin: 8px auto;
+  overflow: hidden;
+}
+.link-card img {
+  width: 100%;
+  max-width: 560px;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+.link-card p:first-of-type {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 3px;
+}
+.link-card p { margin: 0; }
+/* link-card: suppress wavy underline */
+table.link-card a, .link-card a {
+  text-decoration: none !important;
+}
+
+@media (max-width: 599px) {
+  .link-card { max-width: 100%; }
+  .link-card img { max-height: 180px; }
+}
+
+table[style*="border-collapse:separate"][style*="#FAF8F5"] {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
+  padding: 0;
 }

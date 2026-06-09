@@ -1551,6 +1551,65 @@ figcaption {
 
 .microblog_reply_button input[type="submit"]:hover { background-color: var(--color-terra-dark); }
 
+/* --- Replies (avatar / name / text / time) --- */
+
+.microblog_post {
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.microblog_user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.microblog_avatar {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: none !important;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.microblog_fullname {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.microblog_text {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  margin-left: calc(36px + var(--space-sm));
+}
+
+.microblog_text p { margin-bottom: var(--space-sm); }
+.microblog_text p:last-child { margin-bottom: 0; }
+
+.microblog_time {
+  margin-left: calc(36px + var(--space-sm));
+  margin-top: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+}
+
+.microblog_time a {
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.microblog_time a:hover { text-decoration: underline; }
+
 
 /* ------------------------------------------------------------
    22. SEARCH PAGE

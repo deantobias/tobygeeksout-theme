@@ -216,7 +216,7 @@ blockquote.reblog {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-blockquote:not(.reblog):not(.reblog-new) {
+blockquote:not(.reblog):not(.reblog-new):not(.card-wrap) {
   padding: var(--space-md) var(--space-lg) !important;
 }
 
@@ -351,6 +351,21 @@ img.reblog-avatar {
   margin: 0 !important;
 }
 
+blockquote.card-wrap {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  font-style: normal !important;
+  color: inherit !important;
+}
+blockquote.card-wrap::before {
+  display: none !important;
+}
+blockquote.card-wrap p {
+  font-family: var(--font-body) !important;
+}
+
 figure {
   text-align: center;
   display: block;
@@ -371,6 +386,27 @@ figcaption {
   margin-top: 0.5rem;
   font-style: italic;
 }
+
+
+/* ------------------------------------------------------------
+   4a. CONTENT LISTS (shared: post, page, micro, timeline)
+   ------------------------------------------------------------ */
+
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) :is(ul, ol) {
+  padding-left: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) ul { list-style: disc; }
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) ol { list-style: decimal; }
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) :is(p, li),
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) blockquote p {
+  line-height: 1.7;
+}
+:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) li {
+  margin-bottom: 0;
+}
+/* timeline + single post use the tight 10px block rhythm for lists */
+:is(.post-body, .post-card-excerpt) :is(ul, ol) { margin-bottom: var(--space-sm); }
 
 
 /* ------------------------------------------------------------
@@ -957,9 +993,8 @@ figcaption {
 @media (min-width: 640px) { .post-body { padding: var(--space-xl) var(--page-pad) var(--space-2xl); } }
 
 .post-body p {
-  line-height: 1.8;
   color: var(--color-text);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
 }
 
 .post-body h2 { font-size: 1.375rem; margin-top: var(--space-2xl); margin-bottom: var(--space-md); }
@@ -969,9 +1004,6 @@ figcaption {
   .post-body h2 { font-size: 1.5rem; }
   .post-body h3 { font-size: 1.25rem; }
 }
-
-:is(.post-body ul, .post-body ol) { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
-:is(.post-body li, .page-body li) { line-height: 1.8; margin-bottom: var(--space-xs); }
 
 .post-body code {
   font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
@@ -1079,7 +1111,7 @@ figcaption {
 @media (min-width: 640px) { .page-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
 
 .page-body { padding: var(--space-lg) 0 var(--space-2xl); }
-.page-body p { line-height: 1.8; margin-bottom: var(--space-lg); }
+.page-body p { margin-bottom: var(--space-lg); }
 
 .page-body h2 {
   font-size: 1.25rem;
@@ -1088,8 +1120,6 @@ figcaption {
   padding-bottom: var(--space-xs);
   border-bottom: 2px solid var(--color-terra-light);
 }
-
-:is(.page-body ul, .page-body ol) { padding-left: var(--space-xl); margin-bottom: var(--space-lg); list-style: revert; }
 
 
 /* ------------------------------------------------------------
@@ -1102,6 +1132,31 @@ figcaption {
 
 @media (min-width: 640px) {
   :is(.post-card img, .micro-card img) { width: 85%; }
+}
+
+/* ------------------------------------------------------------
+   13a. MULTI-PHOTO MOSAIC (2+ bare images → 2-column masonry)
+   Triggers only when a post has 2+ direct-child images.
+   Single photos stay full-width. Text/embeds span all columns.
+   ------------------------------------------------------------ */
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) {
+  column-count: 1;          /* phones: one photo per row, easier to view */
+  column-gap: 6px;
+}
+@media (min-width: 600px) { /* foldable unfolded, tablet, desktop: 2-column mosaic */
+  :is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) {
+    column-count: 2;
+  }
+}
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > img {
+  width: 100%;
+  display: block;
+  margin: 0 0 6px;
+  border-radius: 6px;
+  break-inside: avoid;
+}
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > :not(img) {
+  column-span: all;
 }
 
 

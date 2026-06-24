@@ -1,17 +1,9 @@
 {{ define "main" }}
-  <article class="page-wrapper newsletter-single">
-    <header class="page-header">
-      {{ if .Title }}
-        <h1 class="page-title">{{ .Title }}</h1>
-      {{ end }}
-      <p class="newsletter-meta">
-        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
-      </p>
-    </header>
+  <article class="page-wrapper newsletter-single" style="max-width: 780px; margin: 0 auto; width: 100%;">
     <div class="page-body newsletter-body">
       {{ .Content }}
     </div>
-    <footer class="newsletter-footer">
+    <footer class="newsletter-footer" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
       <a href="{{ "/newsletters/" | absURL }}" class="back-link">← All Newsletters</a>
     </footer>
   </article>

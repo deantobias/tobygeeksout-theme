@@ -3,7 +3,7 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="{{ .Kind }}">
+<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}">
   <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
   <main id="main-content">

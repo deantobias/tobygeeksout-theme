@@ -2125,3 +2125,80 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] {
 table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   padding: 0;
 }
+
+/* ------------------------------------------------------------
+   35. NEWSLETTER LIST PAGE
+   ------------------------------------------------------------ */
+
+.section-newsletters #main-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--page-pad) var(--space-2xl);
+}
+
+.section-newsletters #main-content::before {
+  content: "Newsletters";
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  border-bottom: 3px solid var(--color-terra);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.section-newsletters #main-content {
+  counter-reset: newsletter-count;
+}
+
+.section-newsletters .h-entry {
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid #e5e7eb;
+  counter-increment: newsletter-count;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0 var(--space-md);
+  align-items: start;
+}
+
+.section-newsletters .h-entry::before {
+  content: counter(newsletter-count);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-terra);
+  line-height: 1.3;
+  text-align: right;
+  padding-top: 0.1rem;
+}
+
+@media (min-width: 640px) {
+  .section-newsletters .h-entry { padding: var(--space-lg) 0; }
+}
+
+.section-newsletters .h-entry p { margin: 0; }
+
+.section-newsletters .h-entry a {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  text-decoration: none;
+  line-height: 1.3;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+@media (min-width: 640px) {
+  .section-newsletters .h-entry a { font-size: 1.75rem; }
+}
+
+.section-newsletters .h-entry a:hover { color: var(--color-terra); }
+
+.section-newsletters .dt-published {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}

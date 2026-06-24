@@ -1,8 +1,30 @@
 {{ define "main" }}
 {{ $longPosts := where (where .Site.Pages.ByDate.Reverse "Type" "post") ".Params.categories" "intersect" (slice "Long Read") }}
 {{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") 10 }}
-
 {{ if eq $paginator.PageNumber 1 }}
+<div class="about-strip">
+  <div class="about-text">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-profile-600--600-px.png" alt="Toby Overstreet" class="about-avatar">
+    <strong>Toby Overstreet</strong>
+    Technogeek. Blogger since 2004. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
+    <div class="about-links">
+      <a href="https://tobygeeksout.micro.blog/about-me/">About</a>
+      <span>·</span>
+      <a href="https://tobygeeksout.micro.blog/now/">Now</a>
+      <span>·</span>
+      <a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
+    </div>
+  </div>
+</div>
+<div class="subscribe-strip">
+  <div class="subscribe-text">
+    <strong>Get it in your inbox</strong>
+    Posts on tech, home decor, and whatever has my attention — no noise.
+    <a href="{{ "/newsletters/" | absURL }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: var(--color-navy, #1E2D4A); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
+  </div>
+  <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
+</div>
+{{ end }}
 <div class="featured-banner">
   <div id="featured-carousel" class="splide" aria-label="Featured Posts">
     <div class="splide__track">
@@ -56,7 +78,6 @@
     </button>
   </div>
 </div>
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('featured-carousel');
@@ -71,14 +92,12 @@
   drag: isMobile,
   autoHeight: true,
 }).mount();
-
       var pagination = el.querySelector('.splide__pagination');
       var controls = document.querySelector('.carousel-controls');
       if (pagination && controls) {
         var nextBtn = document.getElementById('carousel-next');
         controls.insertBefore(pagination, nextBtn);
       }
-
       document.getElementById('carousel-prev').addEventListener('click', function () {
         splide.go('<');
       });
@@ -88,44 +107,18 @@
     }
   });
 </script>
-
-<div class="about-strip">
-  <div class="about-text">
-    <strong>Toby Overstreet</strong>
-    Technogeek. Blogger since 2004. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
-    <br>
-    <div class="about-links">
-      <a href="https://tobygeeksout.micro.blog/about-me/">About</a>
-      <span>·</span>
-      <a href="https://tobygeeksout.micro.blog/now/">Now</a>
-      <span>·</span>
-      <a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
-    </div>
-  </div>
-</div>
-
-<div class="subscribe-strip">
-  <div class="subscribe-text">
-    <strong>Get it in your inbox</strong>
-    Posts on tech, home decor, and whatever has my attention — no noise.
-  </div>
-  <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
-</div>
 {{ end }}
-
 <div class="feed-wrapper">
   {{ if eq $paginator.PageNumber 1 }}
     <p class="feed-label">Recent Geekouts</p>
   {{ else }}
     <p class="feed-label">Geeksouts — Page {{ $paginator.PageNumber }}</p>
   {{ end }}
-
   {{ range $paginator.Pages }}
     {{ $isLongRead := false }}
     {{ range .Params.categories }}
       {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
     {{ end }}
-
     {{ if not $isLongRead }}
       <div class="post-card">
         <div class="post-date" aria-hidden="true">
@@ -166,7 +159,6 @@
       </div>
     {{ end }}
   {{ end }}
-
   {{ if gt $paginator.TotalPages 1 }}
     <nav class="pagination" aria-label="Post navigation">
       {{ if $paginator.HasPrev }}
@@ -178,7 +170,6 @@
       {{ end }}
     </nav>
   {{ end }}
-
 <div class="homepage-search" style="padding: 2rem 1rem; text-align: center;">
   <div class="homepage-search-inner" style="display: flex !important; align-items: center; max-width: 640px; margin: 0 auto; border: 2px solid #E5DDD5; border-radius: 6px; overflow: hidden; background: #FAF8F5;">
     <input type="text" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" style="flex: 1; width: 100%; padding: 1.25rem 1.25rem; border: none; font-size: 1.2rem; line-height: 1; color: #1A1A18; background: transparent; outline: none; -webkit-appearance: none; appearance: none; box-shadow: none;" />

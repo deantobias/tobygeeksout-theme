@@ -1754,7 +1754,7 @@ figcaption {
 .post-layout:not(:has(#toc-list li)) { display: block !important; }
 
 @media (min-width: 640px) {
-  article { min-height: 100vh; }
+  .post-layout article { min-height: 100vh; }
 
   .post-layout {
     display: grid !important;

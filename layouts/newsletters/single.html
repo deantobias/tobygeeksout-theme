@@ -1,0 +1,18 @@
+{{ define "main" }}
+  <article class="page-wrapper newsletter-single">
+    <header class="page-header">
+      {{ if .Title }}
+        <h1 class="page-title">{{ .Title }}</h1>
+      {{ end }}
+      <p class="newsletter-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+      </p>
+    </header>
+    <div class="page-body newsletter-body">
+      {{ .Content }}
+    </div>
+    <footer class="newsletter-footer">
+      <a href="{{ "/newsletters/" | absURL }}" class="back-link">← All Newsletters</a>
+    </footer>
+  </article>
+{{ end }}

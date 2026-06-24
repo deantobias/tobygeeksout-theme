@@ -1,0 +1,39 @@
+{{ define "main" }}
+  <div class="category-page-header">
+    <h1 class="category-page-title">Newsletters</h1>
+  </div>
+  <div class="feed-wrapper">
+    {{ $paginator := .Paginate .Pages.ByDate.Reverse }}
+    {{ range $paginator.Pages }}
+      <div class="post-card">
+        <div class="post-date" aria-hidden="true">
+          <span class="post-date-day">{{ .Date.Format "2" }}</span>
+          <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+          <span class="post-date-year">{{ .Date.Format "2006" }}</span>
+        </div>
+        <div class="post-card-content">
+          {{ if .Title }}
+            <div class="post-card-title">
+              <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </div>
+          {{ end }}
+          <div class="post-card-excerpt">
+            {{ if gt (len .Plain) 800 }}
+              {{ .Summary | htmlUnescape | safeHTML }}
+              <div class="post-card-footer">
+                <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+              </div>
+            {{ else }}
+              <p class="post-card-footer">
+                <a href="{{ .Permalink }}" class="u-url">
+                  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
+                </a>
+              </p>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    {{ end }}
+    {{ partial "pagination.html" $paginator }}
+  </div>
+{{ end }}

@@ -2250,3 +2250,277 @@ body.section-newsletters {
     margin-top: 0.1rem;
   }
 }
+
+/* ================================
+  37. Blog History Page — The Long Road Here
+================================ */
+
+.bh-wrap {
+    font-family: Inter, system-ui, sans-serif;
+    color: #1E2D4A;
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 0.5rem 0 2rem;
+  }
+
+  .bh-intro {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: #3a3a3a;
+    margin: 0 0 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #E5DDD5;
+  }
+
+  .bh-timeline {
+    position: relative;
+    padding-left: 2.25rem;
+  }
+
+  .bh-timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: #E5DDD5;
+  }
+
+  .bh-year {
+    position: relative;
+    margin: 0 0 0.6rem -2.25rem;
+    padding-left: 2.25rem;
+    pointer-events: none;
+  }
+
+  .bh-year::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 18px;
+    height: 1px;
+    background: #E5DDD5;
+  }
+
+  .bh-year-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #C4622D;
+    text-transform: uppercase;
+    font-family: var(--font-display, 'Briscoge', Georgia, serif);
+  }
+
+  .bh-entry {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .bh-entry::before {
+    content: "";
+    position: absolute;
+    left: -2rem;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #C4622D;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+
+  .bh-entry.is-current::before {
+    background: #C4622D;
+    box-shadow: 0 0 0 4px rgba(196,98,45,0.15);
+  }
+
+  .bh-header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .bh-platform {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C4622D;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .bh-favicon {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  .bh-date {
+    font-size: 0.7rem;
+    color: #9C9489;
+  }
+
+  .bh-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .bh-badge.ended    { background: #F0DDD3; color: #9C9489; }
+  .bh-badge.active   { background: #E5DDD5; color: #6B645D; }
+  .bh-badge.current  { background: #1E2D4A; color: #FAF8F5; }
+  .bh-badge.paused   { background: #FAF8F5; border: 1px solid #E5DDD5; color: #9C9489; }
+  .bh-badge.fading   { background: #FAF8F5; border: 1px solid #D5CCC4; color: #B0A89F; }
+
+  .bh-name {
+    font-family: var(--font-body, Inter, system-ui, sans-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1E2D4A;
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+  }
+
+  .bh-name a {
+    color: #1E2D4A;
+    text-decoration: none;
+    border-bottom: 1.5px solid #E5DDD5;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .bh-name a:hover {
+    border-color: var(--dot-color);
+    color: var(--dot-color);
+  }
+
+  .bh-stats {
+    font-size: 0.75rem;
+    color: #9C9489;
+    margin: 0 0 0.45rem;
+  }
+
+  .bh-stats strong { color: #6B645D; }
+
+  .bh-summary {
+    font-size: 0.855rem;
+    color: #6B645D;
+    line-height: 1.65;
+    margin: 0 0 0.4rem;
+    padding: 0.6rem 0.75rem;
+    background: #FAF8F5;
+    border-radius: 6px;
+  }
+
+  .bh-url {
+    display: inline-block;
+    font-size: 0.68rem;
+    color: var(--dot-color);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--dot-color);
+    opacity: 0.75;
+    transition: opacity 0.15s;
+  }
+  .bh-url:hover { opacity: 1; }
+
+  .bh-hiatus {
+    position: relative;
+    margin: 0.25rem 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .bh-hiatus-line {
+    flex: 1;
+    height: 1px;
+    border-top: 1.5px solid #1E2D4A;
+    opacity: 0.2;
+  }
+
+  .bh-hiatus-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #FAF8F5;
+    background: #1E2D4A;
+    padding: 4px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .bh-footer {
+    font-size: 0.75rem;
+    color: #9C9489;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E5DDD5;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 480px) {
+    .bh-wrap {
+      padding: 0.5rem 0 1.5rem;
+    }
+
+    .bh-intro {
+      font-size: 1rem;
+    }
+
+    .bh-timeline {
+      padding-left: 1.75rem;
+    }
+
+    .bh-year {
+      margin-left: -1.75rem;
+      padding-left: 1.75rem;
+    }
+
+    .bh-entry::before {
+      left: -1.6rem;
+      width: 12px;
+      height: 12px;
+    }
+
+    .bh-entry {
+      margin-bottom: 1.5rem;
+    }
+
+    .bh-header {
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .bh-year-label {
+      font-size: 0.95rem;
+    }
+
+    .bh-name {
+      font-size: 0.95rem;
+    }
+
+    .bh-summary {
+      font-size: 0.8rem;
+    }
+
+    .bh-hiatus {
+      margin: 0.1rem 0 1.25rem 0;
+    }
+
+    .bh-hiatus-label {
+      font-size: 0.58rem;
+      padding: 3px 10px;
+    }
+  }

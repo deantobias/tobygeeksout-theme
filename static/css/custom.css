@@ -2140,18 +2140,18 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
 .section.section-newsletters #main-content::before {
   content: "";
   display: block;
-  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/screenshot-2026-04-05-at-1.18.42pm.png');
+  background-image: url('https://iili.io/CukEGI9.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   width: 100%;
-  height: 450px;
-  margin-bottom: var(--space-xl);
+  height: 400px;
+  margin: 0 0 var(--space-xl);
 }
 
 @media (max-width: 599px) {
   .section.section-newsletters #main-content::before {
-    height: 168px;
+    height: 200px;
   }
 }
 

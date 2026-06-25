@@ -1,0 +1,7 @@
+# Mac system files
+.DS_Store
+**/.DS_Store
+
+# Temp banner preview files
+banner-preview.html
+banner-preview-email.html

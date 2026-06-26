@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&display=swap');
 
@@ -19,10 +20,6 @@
    1. FONT DISPLAY
    ------------------------------------------------------------ */
 
-@font-face {
-  font-family: 'Inter';
-  font-display: swap;
-}
 
 /* ------------------------------------------------------------
    2. DESIGN TOKENS
@@ -401,6 +398,8 @@ figcaption {
 :is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) :is(p, li),
 :is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) blockquote p {
   line-height: 1.7;
+  font-family: var(--font-body);
+  font-weight: 400;
 }
 :is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) li {
   margin-bottom: 0;
@@ -995,6 +994,8 @@ figcaption {
 .post-body p {
   color: var(--color-text);
   margin-bottom: var(--space-sm);
+  font-family: var(--font-body);
+  font-weight: 400;
 }
 
 .post-body h2 { font-size: 1.375rem; margin-top: var(--space-2xl); margin-bottom: var(--space-md); }
@@ -1111,7 +1112,7 @@ figcaption {
 @media (min-width: 640px) { .page-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
 
 .page-body { padding: var(--space-lg) 0 var(--space-2xl); }
-.page-body p { margin-bottom: var(--space-lg); }
+.page-body p { margin-bottom: var(--space-lg); font-family: var(--font-body); font-weight: 400; }
 
 .page-body h2 {
   font-size: 1.25rem;

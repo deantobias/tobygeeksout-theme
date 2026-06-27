@@ -278,14 +278,6 @@ blockquote.reblog-new p {
   color: #1a2d42;
 }
 blockquote.reblog-new p:last-child { margin-bottom: 0; }
-blockquote.reblog-new img:not(.reblog-avatar) {
-  float: left;
-  width: 80px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin: 0 12px 6px 0;
-}
 blockquote.reblog-new a:not(.reblog-pill) {
   color: #1a2d42 !important;
   text-decoration: underline !important;
@@ -296,6 +288,7 @@ blockquote.reblog-new a:not(.reblog-pill) {
 
 /* reblog-new images */
 blockquote.reblog-new img:not(.reblog-avatar) {
+  float: none;
   width: 100%;
   height: auto;
   border-radius: 8px;

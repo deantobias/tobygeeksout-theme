@@ -1,5 +1,178 @@
-{{/* 
+{{/*
   This file is intentionally minimal.
   Micro.blog plugins inject their footer content here automatically.
   Do not remove this file — it is required for plugins to work.
 */}}
+
+<script>
+(function () {
+  const scrollBar = document.getElementById('scroll-bar');
+  const header    = document.querySelector('.site-header');
+  const nav       = document.getElementById('site-nav');
+  const burger    = document.querySelector('.nav-toggle');
+  const logo      = header ? header.querySelector('.site-logo') : null;
+  if (!header) return;
+
+  // Capture natural logo font size once
+  var logoBasePx = parseFloat(window.getComputedStyle(logo).fontSize) || 32;
+
+  const MORPH = 140;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function clamp(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+  function lerpColor(r1,g1,b1, r2,g2,b2, a1,a2, t) {
+    return 'rgba('+Math.round(lerp(r1,r2,t))+','+Math.round(lerp(g1,g2,t))+','+Math.round(lerp(b1,b2,t))+','+lerp(a1,a2,t).toFixed(3)+')';
+  }
+
+  function update() {
+    const sy = window.scrollY;
+    const dh = document.documentElement.scrollHeight - window.innerHeight;
+    const t  = clamp(sy / MORPH, 0, 1);
+    const te = easeInOut(t);
+
+    // Scroll progress bar
+    if (scrollBar) scrollBar.style.width = clamp((sy / dh) * 100, 0, 100) + '%';
+
+    // Background + blur — semi-transparent end lets blur show through as frosted glass
+    header.style.background = lerpColor(30,45,74, 252,248,244, 1, 0.22, te);
+    var blurVal = 'blur('+lerp(0,20,te).toFixed(1)+'px) saturate('+lerp(100,180,te).toFixed(0)+'%)';
+    header.style.backdropFilter = blurVal;
+    header.style.webkitBackdropFilter = blurVal;
+
+    // Border: terracotta fades out → thin white glass border fades in
+    var borderAlpha = lerp(0, 0.5, te).toFixed(3);
+    header.style.border = '1px solid rgba(255,255,255,'+borderAlpha+')';
+
+    // Shadow
+    header.style.setProperty('--h-shadow',
+      t > 0.25
+        ? '0 2px 20px rgba(30,45,74,'+lerp(0,0.08,te).toFixed(3)+'), inset 0 1px 0 rgba(255,255,255,0.35)'
+        : 'none');
+
+    // Padding — set directly
+    var pv = lerp(20, 9, te).toFixed(1)+'px';
+    var ph = lerp(32, 20, te).toFixed(1)+'px';
+    header.style.padding = pv+' '+ph;
+
+    // Width + centering — margin:auto with left:0/right:0 centers fixed elements
+    var isMobile = window.innerWidth < 768;
+    var targetW  = isMobile ? 72 : 34;
+    header.style.width       = lerp(100, targetW, te).toFixed(1)+'vw';
+    header.style.marginLeft  = 'auto';
+    header.style.marginRight = 'auto';
+
+    // Float off top
+    var marginTarget = isMobile ? 30 : 32;
+    header.style.marginTop = lerp(0, marginTarget, te).toFixed(1)+'px';
+
+    // Border radius
+    if (!header.classList.contains('is-pill')) {
+      var r = lerp(0, 100, te).toFixed(0)+'px';
+      header.style.setProperty('--h-radius', r);
+      header.style.borderRadius = r;
+    }
+
+    // Specular highlight
+    header.style.setProperty('--sheen', lerp(0, 0.65, te).toFixed(3));
+
+    // Text colors: warm white → true black
+    var logoC = lerpColor(250,248,245, 0,0,0, 1, 1, te);
+    header.style.setProperty('--logo-color', logoC);
+    header.style.setProperty('--nav-color',  lerpColor(250,248,245, 0,0,0, 0.82, 1, te));
+    header.style.setProperty('--burger-color', logoC);
+
+    // Logo font size + color
+    if (logo) {
+      var fontTarget = window.innerWidth < 768 ? 0.72 : 0.5;
+      logo.style.fontSize = lerp(logoBasePx, logoBasePx * fontTarget, te).toFixed(1)+'px';
+      logo.style.color    = lerpColor(250,248,245, 30,45,74, 1, 1, te);
+    }
+
+    // Center logo: absolute-position it within the header so flex/Micro.blog can't interfere
+    var navT = clamp(sy / (MORPH * 0.5), 0, 1);
+    if (navT >= 0.9 && logo) {
+      logo.style.position  = 'absolute';
+      logo.style.left      = '0';
+      logo.style.right     = '0';
+      logo.style.textAlign = 'center';
+    } else if (logo) {
+      logo.style.position  = '';
+      logo.style.left      = '';
+      logo.style.right     = '';
+      logo.style.textAlign = '';
+    }
+    header.style.justifyContent = navT >= 0.9 ? 'center' : 'space-between';
+
+    // Tappable cursor
+    header.style.cursor = t >= 1 ? 'pointer' : 'default';
+
+    // Wobble class
+    if (t >= 1) {
+      header.classList.add('is-pill');
+    } else {
+      header.classList.remove('is-pill');
+      header.style.borderRadius = lerp(0, 100, te).toFixed(0)+'px';
+    }
+
+    // Nav + hamburger fade and collapse
+    var navT = clamp(sy / (MORPH * 0.5), 0, 1);
+    var navO = lerp(1, 0, navT).toFixed(3);
+    [nav, burger].forEach(function(el) {
+      if (!el) return;
+      el.style.opacity       = navO;
+      el.style.overflow      = 'hidden';
+      el.style.pointerEvents = t > 0.5 ? 'none' : 'auto';
+      // Width: let it be natural at rest; only apply maxWidth once scrolling starts
+      if (t < 0.01) {
+        el.style.maxWidth = '';
+      } else {
+        el.style.maxWidth = Math.max(0, lerp(800, 0, te)).toFixed(0)+'px';
+      }
+    });
+  }
+
+  // Tap pill to scroll to top — custom eased scroll for controlled speed
+  function smoothScrollTop(duration) {
+    var startY    = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+    var startTime = performance.now();
+    function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+    function step(now) {
+      var elapsed  = now - startTime;
+      var progress = Math.min(elapsed / duration, 1);
+      var y = Math.round(startY * (1 - ease(progress)));
+      document.documentElement.scrollTop = y;
+      document.body.scrollTop = y;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        // Force final state — iOS doesn't always fire scroll event at position 0
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        update();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  header.addEventListener('click', function(e) {
+    if (window.scrollY > MORPH * 0.9) {
+      e.preventDefault();
+      // Reset logo color immediately so tap highlight doesn't stick
+      if (logo) logo.style.color = lerpColor(250,248,245, 30,45,74, 1, 1, easeInOut(clamp(window.scrollY / MORPH, 0, 1)));
+      if (logo) logo.blur();
+      header.style.transition = 'transform 0.08s ease';
+      header.style.transform  = 'scale(0.97)';
+      setTimeout(function() {
+        header.style.transform  = '';
+        header.style.transition = '';
+      }, 80);
+      smoothScrollTop(380);
+    }
+  });
+
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+</script>

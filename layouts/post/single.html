@@ -1,23 +1,25 @@
 {{ define "main" }}
 <article>
   <header class="post-header">
-    <div class="post-header-eyebrow">
-      {{ if .Params.categories }}
-        {{ range .Params.categories }}
-          <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+    <div class="post-header-inner">
+      <div class="post-header-eyebrow">
+        {{ if .Params.categories }}
+          {{ range .Params.categories }}
+            <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+          {{ end }}
         {{ end }}
+      </div>
+      {{ if .Title }}
+        <h1 class="post-header-title">{{ .Title }}</h1>
       {{ end }}
-    </div>
-    {{ if .Title }}
-      <h1 class="post-header-title">{{ .Title }}</h1>
-    {{ end }}
-    <div class="post-header-meta">
-      <time datetime="{{ .Date.Format `2006-01-02` }}">
-        {{ .Date.Format "January 2, 2006" }}
-      </time>
-      {{ if .ReadingTime }}
-        <span class="read-time-pill">{{ .ReadingTime }} min read</span>
-      {{ end }}
+      <div class="post-header-meta">
+        <time datetime="{{ .Date.Format `2006-01-02` }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+        {{ if .ReadingTime }}
+          <span class="read-time-pill">{{ .ReadingTime }} min read</span>
+        {{ end }}
+      </div>
     </div>
   </header>
 

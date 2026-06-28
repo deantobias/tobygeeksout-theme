@@ -104,6 +104,7 @@ p {
 }
 
 img, video { max-width: 100%; height: auto; }
+video { max-width: 640px; display: block; margin: 0 auto; }
 ul, ol { list-style: none; }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
@@ -470,34 +471,107 @@ figcaption {
 
 
 /* ------------------------------------------------------------
-   6. SITE HEADER
+   6. SITE HEADER — Glass Morph Capsule
    ------------------------------------------------------------ */
 
+/* Scroll progress bar */
+#scroll-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px; width: 0%;
+  background: linear-gradient(90deg, #C4622D 0%, #e8895a 40%, #C4622D 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  z-index: 1001;
+  border-radius: 0 2px 2px 0;
+  transition: width 0.08s ease-out;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Liquid capsule wobble */
+@keyframes liquidWobble {
+  0%   { border-radius: 100px; }
+  20%  { border-radius: 100px 100px 96px 96px / 100px 100px 98px 98px; }
+  40%  { border-radius: 96px 96px 100px 100px / 98px 98px 100px 100px; }
+  60%  { border-radius: 100px 96px 100px 96px / 100px 98px 100px 98px; }
+  80%  { border-radius: 96px 100px 96px 100px / 98px 100px 98px 100px; }
+  100% { border-radius: 100px; }
+}
+
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: var(--header-h);
-  background-color: var(--color-navy);
-  border-bottom: 3px solid var(--color-terra);
-  display: flex;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex !important;
   align-items: center;
-  justify-content: flex-start;
-  padding: 0 var(--page-pad);
+  justify-content: var(--h-justify, space-between);
+  padding: var(--h-pad-v, 20px) var(--h-pad-h, var(--page-pad));
+  background: var(--color-navy);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  border: none;
+  border-radius: var(--h-radius, 0px);
+  box-shadow: var(--h-shadow, none);
+  margin: 0 auto;
+  width: 100%;
+  height: auto !important;
+  transition:
+    padding 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    max-width 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    margin 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    border-radius 0.4s cubic-bezier(0.34, 1.4, 0.64, 1),
+    background 0.4s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Specular highlight — visible only in glass state */
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255, var(--sheen, 0)) 30%,
+    rgba(255,255,255, var(--sheen, 0)) 70%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Wobble when fully formed */
+.site-header.is-pill {
+  animation: liquidWobble 7s ease-in-out infinite;
 }
 
 .site-logo {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--logo-color, #ffffff);
   letter-spacing: -0.3px;
   text-decoration: none;
   white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  transition: color 0.4s ease;
 }
 
 .site-logo .logo-accent { color: var(--color-terra); }
-.site-logo:hover { color: var(--color-terra-light) !important; text-decoration: none !important; }
+.site-logo:hover        { color: var(--color-terra-light); text-decoration: none !important; }
+.site-logo:active       { color: currentColor; }
+.site-logo:visited      { color: currentColor; }
+.site-logo               { -webkit-tap-highlight-color: transparent; }
 .site-logo .logo-accent:hover { color: var(--color-terra) !important; }
 
 @media (min-width: 600px) { .site-logo { font-size: 2rem; } }
@@ -523,9 +597,9 @@ figcaption {
   display: block;
   width: 20px;
   height: 2px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--burger-color, rgba(255, 255, 255, 0.75));
   border-radius: 2px;
-  transition: background 0.15s, transform 0.2s, opacity 0.2s;
+  transition: background 0.4s ease, transform 0.2s, opacity 0.2s;
 }
 
 .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -937,21 +1011,44 @@ figcaption {
    11. SINGLE POST PAGE
    ------------------------------------------------------------ */
 
+/* Terracotta full-bleed header */
 .post-header {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: var(--space-xl) var(--page-pad) var(--space-lg);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-terra);
+  width: 100%;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-top: calc(var(--header-h) + var(--space-xl));
+  padding-bottom: 0;
+  border-bottom: none !important;
 }
 
-@media (min-width: 640px) { .post-header { padding: var(--space-2xl) var(--page-pad) var(--space-xl); } }
+.post-header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-pad) var(--space-2xl);
+}
+
+@media (min-width: 640px) {
+  .post-header { padding-top: calc(var(--header-h) + var(--space-2xl)); }
+  .post-header-inner { padding: 0 var(--page-pad) var(--space-2xl); }
+}
 
 .post-header-eyebrow {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
   flex-wrap: wrap;
+}
+
+/* White category tags inside the terracotta header */
+.post-header .post-category {
+  background: rgba(255,255,255,0.22);
+  color: #ffffff;
+}
+.post-header .post-category:hover {
+  background: rgba(255,255,255,0.35);
+  color: #ffffff;
 }
 
 .post-header-title {
@@ -959,22 +1056,24 @@ figcaption {
   font-size: 1.75rem;
   font-weight: 800;
   line-height: 1.15;
-  color: var(--color-text);
+  color: var(--color-navy);
   margin-bottom: var(--space-md);
+  text-wrap: balance;
 }
 
 @media (min-width: 640px) { .post-header-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
 
 .post-header-meta {
   font-size: 0.8125rem;
-  color: var(--color-text-light);
+  color: rgba(255,255,255,0.88);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   flex-wrap: wrap;
+  margin-bottom: 0;
 }
 
-.post-header-meta time { font-weight: 500; }
+.post-header-meta time { font-weight: 600; color: rgba(255,255,255,0.88); }
 
 .post-body {
   max-width: var(--max-width);
@@ -1325,6 +1424,7 @@ figcaption {
   justify-content: center;
   padding: 28px 24px;
   margin-top: 0;
+  padding-top: calc(var(--header-h) + 24px); /* clear fixed header + breathing room */
   background: #f4f0eb;
 }
 .about-avatar {
@@ -1752,7 +1852,7 @@ figcaption {
 
   .post-layout {
     display: grid !important;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: var(--space-2xl);
     max-width: 1100px;
     margin: 0 auto;
@@ -1766,37 +1866,51 @@ figcaption {
     top: calc(var(--header-h) + var(--space-lg));
     max-height: calc(100vh - var(--header-h) - var(--space-lg));
     overflow-y: auto;
-    padding: var(--space-md);
-    background-color: var(--color-bg-warm);
-    border-right: 3px solid var(--color-terra);
-    border-radius: var(--radius) 0 0 var(--radius);
+    padding: var(--space-md) 0;
+    background: transparent;
+    border-right: none;
+    border-radius: 0;
     order: -1;
   }
 
   .toc-sidebar .toc-title {
     font-family: var(--font-body);
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-text-light);
     margin-bottom: var(--space-sm);
+    padding: 0 var(--space-sm);
   }
 
   .toc-sidebar ol { list-style: none; padding: 0; margin: 0; }
-  .toc-sidebar ol li { margin-bottom: var(--space-xs); }
+  .toc-sidebar ol li { margin-bottom: 2px; }
 
   .toc-sidebar ol li a {
+    display: block;
+    padding: 6px var(--space-sm);
+    border-left: 2px solid transparent;
     color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 0.8125rem;
+    font-weight: 500;
     line-height: 1.4;
-    display: block;
-    transition: color 0.15s;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
   }
 
-  :is(.toc-sidebar ol li a:hover, .toc-sidebar ol li a.toc-active) { color: var(--color-terra); }
+  .toc-sidebar ol li a:hover {
+    color: var(--color-text);
+    border-left-color: var(--color-border);
+  }
+
+  .toc-sidebar ol li a.toc-active {
+    color: var(--color-terra);
+    border-left-color: var(--color-terra);
+    background: rgba(196,98,45,0.07);
+    font-weight: 600;
+  }
 
   .post-layout .post-body { max-width: 100%; padding: var(--space-xl) 0 var(--space-2xl); }
 }
@@ -1806,12 +1920,16 @@ figcaption {
    28. SINGLE POST — wider layout
    ------------------------------------------------------------ */
 
-:is(body.page .post-header,
-body.page .post-body,
+:is(body.page .post-body,
 body.page .post-nav,
 body.page .related-posts,
 body.page .microblog_conversation) {
   max-width: 980px;
+}
+
+/* post-header is full-bleed on all page types */
+body.page .post-header {
+  max-width: 100% !important;
 }
 
 
@@ -1819,36 +1937,23 @@ body.page .microblog_conversation) {
    29. POST HEADER — meta styling
    ------------------------------------------------------------ */
 
-.post-header { padding-bottom: var(--space-lg); }
-
-.post-header-eyebrow {
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
-}
-
 .post-header-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: var(--space-lg);
-}
-
-.post-header-meta time {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
+  margin-bottom: 0;
 }
 
 .read-time-pill {
   display: inline-flex;
   align-items: center;
-  background-color: var(--color-terra);
+  background: rgba(255,255,255,0.22);
   color: #ffffff;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 3px;
   text-transform: uppercase;
 }
 

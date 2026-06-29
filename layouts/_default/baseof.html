@@ -6,7 +6,7 @@
 <body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}">
   <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
-  <main id="main-content">
+  <main id="main-content"{{ if not (or (eq .Kind "home") (and (eq .Kind "page") (eq .Section "post"))) }} style="padding-top: calc(var(--header-h, 90px) + 2rem)"{{ end }}>
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}

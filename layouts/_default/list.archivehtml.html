@@ -1,4 +1,5 @@
 {{ define "main" }}
+  <div>
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
   {{ if gt (len $list) 0 }}
     <div class="archive_categories">
@@ -28,5 +29,6 @@
       {{ end }}
     </section>
     {{ end }}
+  </div>
   </div>
 {{ end }}

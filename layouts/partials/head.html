@@ -42,7 +42,7 @@
 <!-- Google Fonts — Updated to load Inter only -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&display=swap" rel="stylesheet">
 
 
 <!-- Critical CSS: Inlined for Performance -->
@@ -53,6 +53,7 @@
     --bg-warm: #FDFCFB;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: Georgia, 'Times New Roman', serif;
+    --header-h: 90px;
   }
 
   body {
@@ -70,6 +71,14 @@
     text-wrap: balance;
     margin-top: 1.5em;
   }
+
+  /* Header clearance — universal, overrides Micro.blog platform CSS */
+  #main-content { padding-top: calc(var(--header-h) + 2rem) !important; }
+  body.home #main-content,
+  body.page.section-post #main-content { padding-top: 0 !important; }
+  /* Newsletter list banner sits flush against header */
+  body.section.section-newsletters #main-content { padding-top: 0 !important; }
+
 </style>
 
 <!-- Theme stylesheet — query string busts Micro.blog cache on updates -->

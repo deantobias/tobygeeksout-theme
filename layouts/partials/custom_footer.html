@@ -11,10 +11,15 @@
   const nav       = document.getElementById('site-nav');
   const burger    = document.querySelector('.nav-toggle');
   const logo      = header ? header.querySelector('.site-logo') : null;
+  const accent    = logo  ? logo.querySelector('.logo-accent')  : null;
   if (!header) return;
 
   // Capture natural logo font size once
+  // Cap logoBasePx only in fold zone (600–850px) — keeps fold pill compact
+  // without shrinking laptop/desktop pill too aggressively
+  var vwInit = window.innerWidth;
   var logoBasePx = parseFloat(window.getComputedStyle(logo).fontSize) || 32;
+  if (vwInit >= 600 && vwInit < 850) logoBasePx = Math.min(logoBasePx, 26);
 
   const MORPH = 140;
 
@@ -51,21 +56,46 @@
         ? '0 2px 20px rgba(30,45,74,'+lerp(0,0.08,te).toFixed(3)+'), inset 0 1px 0 rgba(255,255,255,0.35)'
         : 'none');
 
-    // Padding — set directly
-    var pv = lerp(20, 9, te).toFixed(1)+'px';
+    // Screen size tiers — declared first so all blocks below can use them
+    var vw = window.innerWidth;
+    var isMobile  = vw < 600;      // true phones — aligned with nav visibility threshold
+    var isMidSize = vw >= 600 && vw < 1400;   // fold portrait (~707px) + tablets
+
+    // Padding — fold gets more vertical padding so pill is taller
+    var pvEnd = isMidSize ? 22 : 9;
+    var pv = lerp(20, pvEnd, te).toFixed(1)+'px';
     var ph = lerp(32, 20, te).toFixed(1)+'px';
     header.style.padding = pv+' '+ph;
 
-    // Width + centering — margin:auto with left:0/right:0 centers fixed elements
-    var isMobile = window.innerWidth < 768;
-    var targetW  = isMobile ? 72 : 34;
+    // Width + centering
+    var targetW   = isMobile ? 72 : (isMidSize ? 38 : 34);
     header.style.width       = lerp(100, targetW, te).toFixed(1)+'vw';
     header.style.marginLeft  = 'auto';
     header.style.marginRight = 'auto';
 
-    // Float off top
-    var marginTarget = isMobile ? 30 : 32;
+    // Top margin — closer to top
+    var marginTarget = vw >= 1024 ? 12 : 10;
     header.style.marginTop = lerp(0, marginTarget, te).toFixed(1)+'px';
+
+    // Force nav visible on wide screens — setProperty 'important' beats all platform CSS
+    if (vw >= 600 && nav) {
+      nav.style.setProperty('display', 'block', 'important');
+      var foldNavUl = nav.querySelector('ul');
+      if (foldNavUl) {
+        foldNavUl.style.setProperty('display',         'flex',       'important');
+        foldNavUl.style.setProperty('flex-direction',  'row',        'important');
+        foldNavUl.style.setProperty('gap',             '1.5rem',     'important');
+        foldNavUl.style.setProperty('list-style',      'none',       'important');
+        foldNavUl.style.setProperty('padding',         '0',          'important');
+        foldNavUl.style.setProperty('margin',          '0 0 0 auto', 'important');
+        // Nav link colors — use --nav-color so they stay readable in both header and pill states
+        var navLinks = foldNavUl.querySelectorAll('a');
+        var navColor = getComputedStyle(header).getPropertyValue('--nav-color').trim() || 'rgba(250,248,245,0.82)';
+        navLinks.forEach(function(a) { a.style.setProperty('color', navColor, 'important'); });
+      }
+    } else if (vw < 600 && nav) {
+      nav.style.removeProperty('display');
+    }
 
     // Border radius
     if (!header.classList.contains('is-pill')) {
@@ -83,12 +113,14 @@
     header.style.setProperty('--nav-color',  lerpColor(250,248,245, 0,0,0, 0.82, 1, te));
     header.style.setProperty('--burger-color', logoC);
 
-    // Logo font size + color
+    // Logo font size + color — phone smaller, fold medium, desktop tight
     if (logo) {
-      var fontTarget = window.innerWidth < 768 ? 0.72 : 0.5;
-      logo.style.fontSize = lerp(logoBasePx, logoBasePx * fontTarget, te).toFixed(1)+'px';
+      var fontTarget = isMobile ? 0.62 : (isMidSize ? 0.58 : 0.42);
+      logo.style.setProperty('font-size', lerp(logoBasePx, logoBasePx * fontTarget, te).toFixed(1)+'px', 'important');
       logo.style.color    = lerpColor(250,248,245, 30,45,74, 1, 1, te);
     }
+    // Accent: orange → navy as pill forms
+    if (accent) accent.style.color = lerpColor(196,98,45, 30,45,74, 1, 1, te);
 
     // Center logo: absolute-position it within the header so flex/Micro.blog can't interfere
     var navT = clamp(sy / (MORPH * 0.5), 0, 1);
@@ -122,12 +154,13 @@
     [nav, burger].forEach(function(el) {
       if (!el) return;
       el.style.opacity       = navO;
-      el.style.overflow      = 'hidden';
       el.style.pointerEvents = t > 0.5 ? 'none' : 'auto';
-      // Width: let it be natural at rest; only apply maxWidth once scrolling starts
+      // Only constrain during animation — clearing overflow at rest lets nav render naturally
       if (t < 0.01) {
         el.style.maxWidth = '';
+        el.style.overflow = '';
       } else {
+        el.style.overflow = 'hidden';
         el.style.maxWidth = Math.max(0, lerp(800, 0, te)).toFixed(0)+'px';
       }
     });
@@ -174,5 +207,34 @@
 
   window.addEventListener('scroll', update, { passive: true });
   update();
+})();
+</script>
+
+<script>
+/* Header clearance — detect page type by DOM, not body class */
+(function () {
+  var main = document.getElementById('main-content');
+  if (!main) return;
+  var siteHeader = document.querySelector('.site-header');
+  var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 90;
+
+  // Subtract 1px so banner overlaps header bottom edge — prevents subpixel gap on mobile
+  document.documentElement.style.setProperty('--header-actual-h', (headerH - 1) + 'px');
+
+  // Post pages: .post-header has its own padding-top — zero out #main-content
+  if (document.querySelector('.post-header')) {
+    main.style.setProperty('padding-top', '0', 'important');
+    return;
+  }
+
+  // Home page: .about-strip handles spacing
+  if (document.querySelector('.about-strip')) return;
+
+  // Newsletter list: banner ::before handles spacing via margin-top
+  if (document.querySelector('.section-newsletters') ||
+      document.body.classList.contains('section-newsletters')) return;
+
+  // All other pages: push content below fixed header
+  main.style.setProperty('padding-top', (headerH + 32) + 'px', 'important');
 })();
 </script>

@@ -95,7 +95,12 @@ body {
   overflow-x: hidden !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+#main-content { flex: 1; }
 
 p {
   font-family: var(--font-body);
@@ -555,7 +560,7 @@ figcaption {
 }
 
 .site-logo {
-  font-family: var(--font-display);
+  font-family: 'Bricolage Grotesque', var(--font-display);
   font-size: 2rem;
   font-weight: 800;
   color: var(--logo-color, #ffffff);
@@ -564,6 +569,7 @@ figcaption {
   white-space: nowrap;
   position: relative;
   z-index: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
   transition: color 0.4s ease;
 }
 
@@ -669,82 +675,16 @@ figcaption {
 /* ------------------------------------------------------------
    6a. SITE-NAV-PRIMARY — mid-screen "More" overflow menu
    ------------------------------------------------------------ */
-.site-nav-primary { display: none; }
-@media (min-width: 768px) and (max-width: 1023px) {
-  .site-nav { display: none !important; }
-  #site-nav { margin-left: auto; }
-  .site-nav-primary {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.8rem;
-    list-style: none;
-    padding: 0 0.5rem 0 0;
-    margin-left: auto;
-  }
-  .site-nav-primary > li > a {
-    font-size: 1.0625rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .site-nav-primary > li > a:hover,
-  .site-nav-primary > li > a.active { color: var(--color-terra); }
-  .nav-more-btn {
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: color 0.15s;
-  }
-  .nav-more-btn:hover, .nav-more-btn.open { color: var(--color-terra); }
-  .nav-more-arrow { font-size: 0.7rem; transition: transform 0.15s; }
-  .nav-more-btn.open .nav-more-arrow { transform: rotate(180deg); }
-  .nav-more-wrap { position: relative; }
-  .nav-more-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 14px);
-    right: 0;
-    background-color: var(--color-navy);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 3px solid var(--color-terra);
-    border-radius: 0 0 var(--radius) var(--radius);
-    list-style: none;
-    min-width: 140px;
-    z-index: 200;
-    padding: 0.5rem 0;
-  }
-  .nav-more-dropdown.open { display: block; }
-  .nav-more-dropdown li a {
-    display: block;
-    padding: 10px 18px;
-    font-size: 0.9375rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-    transition: color 0.15s, background-color 0.15s;
-  }
-  .nav-more-dropdown li a:hover,
-  .nav-more-dropdown li a.active {
-    color: var(--color-terra);
-    background-color: rgba(255, 255, 255, 0.05);
-  }
+/* Fold / mid-size screens (768–1399px): compact header so logo + nav fit cleanly */
+@media (min-width: 768px) and (max-width: 1399px) {
+  #site-nav { display: block !important; }
+  #site-nav .site-nav { display: flex !important; }
+  .nav-toggle { display: none !important; }
+  .site-logo { font-size: 1.6rem !important; }
+  #site-nav { margin-left: auto !important; }
+  .site-nav { gap: 1.5rem !important; }
+  .site-nav li a { font-size: 0.9rem !important; letter-spacing: 0.5px !important; }
 }
-@media (min-width: 1024px) { .site-nav-primary { display: none; } }
 
 
 /* ------------------------------------------------------------
@@ -777,7 +717,7 @@ figcaption {
 @media (min-width: 640px) {
   .featured-banner { padding: var(--space-xl) 2rem var(--space-sm); }
   .featured-inner  { padding: 0 2rem; }
-  .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem); }
+  .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; }
 }
 
 .featured-eyebrow {
@@ -958,8 +898,8 @@ figcaption {
 
 .post-card-categories { margin-bottom: 0.75rem; }
 
-@media (min-width: 480px) { .post-card-title { font-size: 1.5rem; } }
-@media (min-width: 640px) { .post-card-title { font-size: 2rem; } }
+@media (min-width: 480px) { .post-card-title { font-size: 1.75rem; } }
+@media (min-width: 640px) { .post-card-title { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; } }
 
 .post-card-excerpt {
   color: var(--color-text-muted);
@@ -1013,7 +953,7 @@ figcaption {
 
 /* Terracotta full-bleed header */
 .post-header {
-  background: var(--color-terra);
+  background: #cc7a5b;
   width: 100%;
   max-width: 100% !important;
   margin: 0 !important;
@@ -1029,8 +969,11 @@ figcaption {
 }
 
 @media (min-width: 640px) {
-  .post-header { padding-top: calc(var(--header-h) + var(--space-2xl)); }
-  .post-header-inner { padding: 0 var(--page-pad) var(--space-2xl); }
+  .post-header {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+    padding-bottom: calc(var(--space-2xl) + var(--space-xl)) !important;
+  }
+  .post-header-inner { padding: 0 var(--page-pad); }
 }
 
 .post-header-eyebrow {
@@ -1041,13 +984,13 @@ figcaption {
   flex-wrap: wrap;
 }
 
-/* White category tags inside the terracotta header */
+/* Navy category tags inside the post header */
 .post-header .post-category {
-  background: rgba(255,255,255,0.22);
+  background: var(--color-navy);
   color: #ffffff;
 }
 .post-header .post-category:hover {
-  background: rgba(255,255,255,0.35);
+  background: var(--color-navy-mid);
   color: #ffffff;
 }
 
@@ -1947,7 +1890,7 @@ body.page .post-header {
 .read-time-pill {
   display: inline-flex;
   align-items: center;
-  background: rgba(255,255,255,0.22);
+  background: var(--color-navy);
   color: #ffffff;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -2245,7 +2188,7 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   background-position: center;
   width: 100%;
   height: 400px;
-  margin: 0 0 var(--space-xl);
+  margin: var(--header-actual-h, 90px) 0 var(--space-xl);
 }
 
 @media (max-width: 599px) {

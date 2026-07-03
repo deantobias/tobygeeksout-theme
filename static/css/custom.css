@@ -1458,7 +1458,7 @@ figcaption {
 
 
 /* ------------------------------------------------------------
-   18. RELATED POSTS
+   18. RELATED POSTS — "More like this" card grid
    ------------------------------------------------------------ */
 
 .related-posts {
@@ -1474,30 +1474,69 @@ figcaption {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--color-text-light);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
-:is(.related-post-link, .related-post-link:visited) { color: var(--color-text); text-decoration: none; }
-
-.related-post-link {
+.related-grid {
   display: grid;
-  grid-template-columns: 8rem 1fr;
-  gap: 0 var(--space-md);
-  align-items: start;
-  margin-bottom: var(--space-sm);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 28px;
 }
 
-.related-post-link:hover { color: var(--color-terra); }
+:is(.related-card, .related-card:visited) {
+  color: var(--color-text);
+  text-decoration: none;
+}
 
-.related-post-date {
+.related-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.related-card-tag {
   font-family: var(--font-body);
-  color: var(--color-text-light);
-  white-space: nowrap;
-  padding-top: 2px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  background: var(--color-terra-light);
+  padding: 2px 8px;
+  border-radius: 3px;
 }
 
-.related-post-title { font-family: var(--font-body); }
-.related-post-excerpt { font-family: var(--font-body); color: var(--color-text-light); line-height: 1.4; }
+.related-card-title {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-navy);
+}
+
+.related-card:hover .related-card-title { color: var(--color-terra); }
+
+.related-card-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.related-card-date {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-top: auto;
+}
+
+@media (max-width: 700px) {
+  .related-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
 
 
 /* ------------------------------------------------------------

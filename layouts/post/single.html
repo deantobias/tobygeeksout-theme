@@ -46,73 +46,55 @@
 
   {{ if and .Permalink .Params.categories (ne .Title "Short Stack") }}
     {{ $currentPermalink := .Permalink }}
-    {{ $currentCats := .Params.categories }}
 
-    {{ $scoredTitled := slice }}
-    {{ $scoredMicro := slice }}
-    {{ $unscoredTitled := slice }}
+    {{/* Real topic categories of the current post (meta categories excluded) */}}
+    {{ $currentCats := slice }}
+    {{ range .Params.categories }}
+      {{ if and (ne . "Long Read") (ne . "Short Stack") (ne . "The Friday Haul") }}
+        {{ $currentCats = $currentCats | append . }}
+      {{ end }}
+    {{ end }}
+
+    {{/* Score every post by how many categories it shares with this one.
+         Sort key = score-major, date-minor, so best matches come first
+         and ties break newest-first. Titled and untitled mix naturally. */}}
+    {{ $scored := slice }}
+    {{ $fallback := slice }}
 
     {{ range .Site.RegularPages }}
-      {{ if and (ne .Permalink $currentPermalink) .Params.categories }}
+      {{ if and (eq .Type "post") (ne .Permalink $currentPermalink) }}
         {{ $score := 0 }}
+        {{ $matchCat := "" }}
         {{ $candidateCats := .Params.categories }}
         {{ range $currentCats }}
           {{ $thisCat := . }}
-          {{ if and (ne $thisCat "Long Read") (ne $thisCat "Short Stack") (ne $thisCat "The Friday Haul") }}
-            {{ range $candidateCats }}
-              {{ if eq . $thisCat }}
-                {{ $score = add $score 1 }}
-              {{ end }}
+          {{ range $candidateCats }}
+            {{ if eq . $thisCat }}
+              {{ $score = add $score 1 }}
+              {{ if eq $matchCat "" }}{{ $matchCat = $thisCat }}{{ end }}
             {{ end }}
           {{ end }}
         {{ end }}
         {{ if gt $score 0 }}
-          {{ if .Title }}
-            {{ $scoredTitled = $scoredTitled | append . }}
-          {{ else }}
-            {{ $scoredMicro = $scoredMicro | append . }}
-          {{ end }}
-        {{ else }}
-          {{ if .Title }}
-            {{ $unscoredTitled = $unscoredTitled | append . }}
-          {{ end }}
+          {{ $key := add (mul $score 10000000000) .Date.Unix }}
+          {{ $scored = $scored | append (dict "page" . "key" $key "cat" $matchCat) }}
+        {{ else if .Title }}
+          {{ $fallback = $fallback | append (dict "page" . "key" .Date.Unix "cat" "") }}
         {{ end }}
       {{ end }}
     {{ end }}
 
     {{ $top := slice }}
-
-    {{/* Slot 1: first scored titled post */}}
-    {{ range $scoredTitled }}
-      {{ if lt (len $top) 1 }}
+    {{ if $scored }}
+      {{ range first 6 (sort $scored "key" "desc") }}
         {{ $top = $top | append . }}
       {{ end }}
     {{ end }}
 
-    {{/* Slots 2-3: up to 2 scored microposts */}}
-    {{ range $scoredMicro }}
-      {{ if lt (len $top) 3 }}
-        {{ $top = $top | append . }}
-      {{ end }}
-    {{ end }}
-
-    {{/* Fill any remaining slots with random titled posts */}}
-    {{ range $unscoredTitled }}
-      {{ if lt (len $top) 3 }}
-        {{ $top = $top | append . }}
-      {{ end }}
-    {{ end }}
-
-    {{/* Last resort: more scored titled posts if still not 3 */}}
-    {{ range $scoredTitled }}
-      {{ if lt (len $top) 3 }}
-        {{ $alreadyIn := false }}
-        {{ range $top }}
-          {{ if eq .Permalink $.Permalink }}
-            {{ $alreadyIn = true }}
-          {{ end }}
-        {{ end }}
-        {{ if not $alreadyIn }}
+    {{/* Not enough category matches — fill with recent titled posts */}}
+    {{ if and (lt (len $top) 6) $fallback }}
+      {{ range sort $fallback "key" "desc" }}
+        {{ if lt (len $top) 6 }}
           {{ $top = $top | append . }}
         {{ end }}
       {{ end }}
@@ -120,18 +102,35 @@
 
     {{ if $top }}
       <div class="related-posts">
-        <p class="related-posts-label">Keep reading</p>
-        {{ range $top }}
-          <a href="{{ .Permalink }}" class="related-post-link">
-            <span class="related-post-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-            <div class="related-post-info">
-              {{ if .Title }}
-                <span class="related-post-title"><strong>{{ .Title }}</strong></span>
+        <p class="related-posts-label">More like this</p>
+        <div class="related-grid">
+          {{ range $top }}
+            {{ $p := .page }}
+            <a href="{{ $p.Permalink }}" class="related-card">
+              {{ $tagCat := .cat }}
+              {{ if eq $tagCat "" }}
+                {{ range $p.Params.categories }}
+                  {{ if and (eq $tagCat "") (ne . "Long Read") (ne . "Short Stack") (ne . "The Friday Haul") }}
+                    {{ $tagCat = . }}
+                  {{ end }}
+                {{ end }}
               {{ end }}
-              <span class="related-post-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 100 "..." }}</span>
-            </div>
-          </a>
-        {{ end }}
+              {{ if $tagCat }}<span class="related-card-tag">{{ $tagCat }}</span>{{ end }}
+              {{ if $p.Title }}
+                <span class="related-card-title">{{ $p.Title }}</span>
+                <span class="related-card-excerpt">{{ $p.Summary | htmlUnescape | plainify | truncate 140 }}</span>
+              {{ else }}
+                {{ $plain := $p.Summary | htmlUnescape | plainify }}
+                {{ $words := split $plain " " }}
+                <span class="related-card-title">{{ delimit (first 9 $words) " " }}{{ if gt (len $words) 9 }}&hellip;{{ end }}</span>
+                {{ if gt (len $words) 9 }}
+                  <span class="related-card-excerpt">{{ delimit (after 9 $words) " " | truncate 120 }}</span>
+                {{ end }}
+              {{ end }}
+              <span class="related-card-date">{{ $p.Date.Format "02 Jan" }}</span>
+            </a>
+          {{ end }}
+        </div>
       </div>
     {{ end }}
   {{ end }}

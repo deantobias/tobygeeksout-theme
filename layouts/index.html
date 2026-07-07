@@ -17,14 +17,17 @@
   </div>
 </div>
 <div class="subscribe-strip">
-  <div class="subscribe-text">
-    <strong>Get it in your inbox</strong>
-    Posts on tech, home decor, and whatever has my attention — no noise.
-    <a href="{{ "/newsletters/" | absURL }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: var(--color-navy, #1E2D4A); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
+  <div class="subscribe-inner">
+    <div class="subscribe-text">
+      <strong>Get it in your inbox</strong>
+      Posts on tech, home decor, and whatever has my attention — no noise.
+      <a href="{{ "/newsletters/" | absURL }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
+    </div>
+    <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
   </div>
-  <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
 </div>
-{{ end }}
+{{/* Featured carousel is page-1 only too — pages 2+ start clean
+     with the post list ("Geeksouts — Page N") */}}
 <div class="featured-banner">
   <div id="featured-carousel" class="splide" aria-label="Featured Posts">
     <div class="splide__track">

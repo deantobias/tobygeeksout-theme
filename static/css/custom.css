@@ -87,8 +87,14 @@ html {
 
 body {
   font-size: 1rem !important;
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  /* !important: injected legacy rule body { color: var(--navy) } uses an
+     undefined var, collapsing inherited text color to black on first paint */
+  color: var(--color-text) !important;
+  /* !important: an injected style (body { background: var(--bg-warm) },
+     from the Design "Edit CSS" box or a plugin) loads after this file;
+     its variable is undefined, which resets the body to white and
+     causes white flashes behind view-transition slides. */
+  background-color: var(--color-bg) !important;
   font-family: var(--font-body);
   line-height: 1.7;
   overflow: visible !important;
@@ -575,8 +581,11 @@ figcaption {
 
 .site-logo .logo-accent { color: var(--color-terra); }
 .site-logo:hover        { color: var(--color-terra-light); text-decoration: none !important; }
-.site-logo:active       { color: currentColor; }
-.site-logo:visited      { color: currentColor; }
+/* Explicit color, not currentColor: currentColor inherits from body,
+   and an injected legacy rule (body { color: var(--navy) } — undefined
+   var) collapses that to black, flashing a black logo on first paint */
+.site-logo:active       { color: var(--logo-color, #ffffff); }
+.site-logo:visited      { color: var(--logo-color, #ffffff); }
 .site-logo               { -webkit-tap-highlight-color: transparent; }
 .site-logo .logo-accent:hover { color: var(--color-terra) !important; }
 
@@ -2701,4 +2710,65 @@ table.link-card .card-wrap p {
 table.link-card a[style*="inline-block"] {
   background: var(--color-bg-warm) !important;
   color: var(--color-text-light) !important;
+}
+
+
+/* ------------------------------------------------------------
+   39. VIEW TRANSITIONS (cross-document, CSS-only)
+   Crossfade between pages; site header stays fixed in place.
+   Firefox and older browsers ignore this block and navigate
+   normally. Reduced-motion users get plain navigation.
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* The whole page (header included) transitions as ONE piece.
+     The header is intentionally NOT pinned: it has two very
+     different scroll states (full bar vs glass pill), and layering
+     it separately means either a visible snap or a box morph
+     between those states — both read as flicker. Moving it with
+     the page can never mismatch. */
+
+  /* Mobile default: hold the old page steady, fade the new page in
+     on top. Avoids the default plus-lighter double-fade, which
+     produces a bright flick between high-contrast pages. */
+  @keyframes vt-page-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  ::view-transition-old(root) {
+    animation: none;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-page-fade-in 0.3s ease both;
+    mix-blend-mode: normal;
+  }
+
+  /* Desktop: slide the whole viewport snapshot (omgmog-style).
+     Root snapshots are viewport-sized, so nothing can squash. */
+  @media (min-width: 768px) {
+    @keyframes vt-slide-out-left {
+      from { transform: translateX(0); opacity: 1; }
+      to   { transform: translateX(-50vw); opacity: 0; }
+    }
+
+    @keyframes vt-slide-in-left {
+      from { transform: translateX(-50vw); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    ::view-transition-old(root) {
+      animation: vt-slide-out-left 0.15s ease forwards;
+    }
+
+    ::view-transition-new(root) {
+      animation: vt-slide-in-left 0.3s ease forwards;
+      mix-blend-mode: normal;
+    }
+  }
 }

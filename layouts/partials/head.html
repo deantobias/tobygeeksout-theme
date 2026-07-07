@@ -76,6 +76,9 @@
   #main-content { padding-top: calc(var(--header-h) + 2rem) !important; }
   body.home #main-content,
   body.page.section-post #main-content { padding-top: 0 !important; }
+  /* Posts' Section is the year (e.g. section-2026), not "post" —
+     match on the type- class instead */
+  body.type-post #main-content { padding-top: 0 !important; }
   /* Newsletter list banner sits flush against header */
   body.section.section-newsletters #main-content { padding-top: 0 !important; }
 
@@ -83,6 +86,12 @@
 
 <!-- Theme stylesheet — query string busts Micro.blog cache on updates -->
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ .Site.Params.theme_seconds }}">
+
+<!-- Hold first paint until the whole page (incl. end-of-body scripts) is
+     parsed, so view transitions snapshot the finished layout instead of a
+     half-styled first frame (white gap under header on post pages).
+     Browsers without rel=expect support simply ignore this. -->
+<link rel="expect" href="#page-end" blocking="render">
 
 <!-- Splide.js carousel -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">

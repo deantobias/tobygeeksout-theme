@@ -238,3 +238,90 @@
   main.style.setProperty('padding-top', (headerH + 32) + 'px', 'important');
 })();
 </script>
+
+<script>
+/* Skip view transitions for reloads and same-page navigations
+   (e.g. refreshing, or clicking Home while already on the home page) */
+(function () {
+  function samePath(url) {
+    try { return new URL(url, location.href).pathname === location.pathname; }
+    catch (e) { return false; }
+  }
+  window.addEventListener('pageswap', function (e) {
+    if (!e.viewTransition) return;
+    var act = e.activation;
+    if (act && (act.navigationType === 'reload' ||
+        (act.entry && samePath(act.entry.url)))) {
+      e.viewTransition.skipTransition();
+    }
+  });
+  window.addEventListener('pagereveal', function (e) {
+    if (!e.viewTransition || !window.navigation || !navigation.activation) return;
+    var act = navigation.activation;
+    if (act.navigationType === 'reload' ||
+        (act.from && samePath(act.from.url))) {
+      e.viewTransition.skipTransition();
+    }
+  });
+})();
+</script>
+
+<script>
+/* Return-to-title: opening a post from the timeline remembers both the
+   post AND which timeline page it was on (/, /page/2/, ...). Clicking
+   Home from that post returns to that timeline page, anchored to the
+   post's entry. The anchor scroll runs at parse time so the
+   view-transition snapshot already shows the right spot (no visible
+   jump). Browser Back gets all this natively; this covers the nav. */
+(function () {
+  try {
+    var KEY = 'tgo-return';
+    var raw = sessionStorage.getItem(KEY);
+    var data = null;
+    if (raw) { try { data = JSON.parse(raw); } catch (e) {} }
+
+    // Timeline pages: anchor to the post we came back from, then forget
+    if (document.querySelector('.feed-wrapper')) {
+      if (data && data.post) {
+        var link = document.querySelector('.feed-wrapper a[href="' + data.post + '"]');
+        if (link) {
+          // Take over from the browser: its pixel-based restoration
+          // anchors wrong once images load and shift the layout
+          if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+          var anchor = function () {
+            var card = link.closest('.post-card') || link;
+            card.scrollIntoView({ block: 'center', behavior: 'instant' });
+          };
+          anchor();
+          // Re-anchor once images have loaded (layout settles)
+          window.addEventListener('load', anchor);
+        }
+        sessionStorage.removeItem(KEY);
+      }
+      // Remember which post gets opened from this timeline page
+      document.addEventListener('click', function (e) {
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || a.origin !== location.origin) return;
+        if (!/^\/20\d\d\/\d\d\/\d\d\//.test(a.pathname)) return;
+        sessionStorage.setItem(KEY, JSON.stringify({ post: a.href, list: location.href }));
+      }, true);
+      return;
+    }
+
+    // Post pages: clicking Home goes back to the timeline page we came
+    // from (page 2, 3, ...) instead of page 1. Skip when the header is
+    // in pill state — that click means "scroll to top", not "navigate".
+    if (data && data.post === location.href && data.list) {
+      document.addEventListener('click', function (e) {
+        if (window.scrollY > 126) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || a.origin !== location.origin) return;
+        if (a.pathname !== '/' && a.pathname !== '') return;
+        if (a.href === data.list) return;
+        e.preventDefault();
+        location.href = data.list;
+      }, true);
+    }
+  } catch (err) {}
+})();
+</script>

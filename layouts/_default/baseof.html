@@ -3,10 +3,15 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}">
+<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}">
   <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
-  <main id="main-content"{{ if not (or (eq .Kind "home") (and (eq .Kind "page") (eq .Section "post"))) }} style="padding-top: calc(var(--header-h, 90px) + 2rem)"{{ end }}>
+  {{/* Posts are Type "post" but their Section is the YEAR (/2026/...),
+       so never test .Section for post-ness. Post pages get no inline
+       padding — .post-header's own padding handles header clearance,
+       and a stale inline value here causes a white gap on first paint
+       that view transitions freeze on screen. */}}
+  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post")) }} style="padding-top: calc(var(--header-h, 90px) + 2rem)"{{ end }}>
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
@@ -59,5 +64,9 @@
     })();
   </script>
   {{ block "extra_scripts" . }}{{ end }}
+  <!-- Render-blocking anchor: pairs with <link rel="expect" href="#page-end"
+       blocking="render"> in head.html. Parser reaching this element means all
+       scripts above have executed, so the first painted frame is final. -->
+  <div id="page-end"></div>
 </body>
 </html>

@@ -2605,3 +2605,58 @@ body.section-newsletters {
       padding: 3px 10px;
     }
   }
+
+
+/* ------------------------------------------------------------
+   37. REPLYING TO (manual, per-post)
+   Usage — paste at the top of a post in HTML mode:
+   <p class="replying-to">Replying to <a href="URL">Title</a></p>
+   Quotes around the title are added automatically.
+   ------------------------------------------------------------ */
+
+.replying-to {
+  position: relative;
+  margin: 0 0 var(--space-xl);
+  padding-left: 2.2rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Thread line: dot on top, dashed line below, above the icon */
+.replying-to::before {
+  content: "";
+  display: block;
+  width: 7px;
+  height: 2.9rem;
+  margin: 0 0 0.7rem calc(-1.45rem - 4px);
+  background:
+    radial-gradient(circle at 50% 3.5px, var(--color-text-light) 3.5px, transparent 4px) no-repeat 0 0 / 7px 7px,
+    repeating-linear-gradient(to bottom, var(--color-border) 0 6px, transparent 6px 12px) no-repeat 50% 13px / 3px calc(100% - 13px);
+}
+
+/* Reply icon (inline SVG mask, colored via background-color) */
+.replying-to::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.15rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: var(--color-text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 5h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 4v-4'/%3E%3Cpath d='m6 6-4 4 4 4'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 5h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 4v-4'/%3E%3Cpath d='m6 6-4 4 4 4'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.replying-to a {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.replying-to a::before { content: "\201C"; }
+.replying-to a::after  { content: "\201D"; }
+
+.replying-to a:hover { color: var(--color-terra); }

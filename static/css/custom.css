@@ -2660,3 +2660,45 @@ body.section-newsletters {
 .replying-to a::after  { content: "\201D"; }
 
 .replying-to a:hover { color: var(--color-terra); }
+
+
+/* ------------------------------------------------------------
+   38. LINK PREVIEW CARD (Perch composer)
+   The composer outputs an email-safe table with inline styles;
+   email uses those as-is. On the blog, these overrides re-map
+   colors to theme variables and add hover polish.
+   No changes needed in the composer template.
+   ------------------------------------------------------------ */
+
+table.link-card {
+  background: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  font-family: var(--font-body) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+table.link-card:hover {
+  box-shadow: 0 4px 14px rgba(30, 45, 74, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Title link (inline style carries font-weight:700) */
+table.link-card td > a[style*="font-weight"] {
+  color: var(--color-navy) !important;
+  transition: color 0.15s ease;
+}
+
+table.link-card td > a[style*="font-weight"]:hover {
+  color: var(--color-terra) !important;
+}
+
+/* Description */
+table.link-card .card-wrap p {
+  color: var(--color-text-muted) !important;
+}
+
+/* Domain pill */
+table.link-card a[style*="inline-block"] {
+  background: var(--color-bg-warm) !important;
+  color: var(--color-text-light) !important;
+}

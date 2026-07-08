@@ -216,7 +216,7 @@
   var main = document.getElementById('main-content');
   if (!main) return;
   var siteHeader = document.querySelector('.site-header');
-  var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 90;
+  var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 62;
 
   // Subtract 1px so banner overlaps header bottom edge — prevents subpixel gap on mobile
   document.documentElement.style.setProperty('--header-actual-h', (headerH - 1) + 'px');

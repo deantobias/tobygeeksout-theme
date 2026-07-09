@@ -103,7 +103,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   flex-direction: column;
+  /* dvh, not vh: on mobile browsers (Brave/Chrome on Android
+     especially), 100vh is the LARGE viewport — as if the URL bar were
+     already collapsed. With the URL bar visible, that makes the page
+     taller than the screen, so the footer overshoots and hides behind
+     the mobile tab bar until you scroll. 100dvh tracks the real
+     visible height as the URL bar shows/hides. vh line kept first as
+     a fallback for old browsers without dvh support. */
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 #main-content { flex: 1; }
@@ -716,9 +724,25 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   .mobile-tab-bar { display: none; }
 }
 
+/* The tab bar is fixed/floating over the page, so nothing anywhere
+   reserved space for it — on every page under 768px, it was sitting on
+   top of whatever's last on the page, usually clipping the bottom of
+   the site-footer. Reserve its height (roughly 8px+8px padding + a
+   48px min-height icon, plus the iOS home-indicator safe area) as
+   bottom padding on body so the real content, including the footer,
+   always clears it. */
+@media (max-width: 767px) {
+  body {
+    /* --tab-bar-h is measured live in custom_footer.html from the
+       actual rendered bar (icon sizing + safe-area-inset-bottom vary
+       by device) — the fixed fallback only applies before that JS
+       runs or if it's ever missing. */
+    padding-bottom: var(--tab-bar-h, calc(64px + env(safe-area-inset-bottom)));
+  }
+}
+
 @media (max-width: 767px) {
   .site-nav-row { display: none; }
-  body { padding-bottom: 64px; }
 }
 
 /* ------------------------------------------------------------
@@ -1251,7 +1275,19 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    ------------------------------------------------------------ */
 
 .page-wrapper { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--page-pad); }
-.page-header { padding: var(--space-lg) 0 var(--space-2xl); border-bottom: 1px solid var(--color-border); }
+/* Tighter top padding so page titles sit close under the nav bar —
+   requested for search first, then extended to every page (mobile,
+   foldable, and desktop alike). Bottom padding also trimmed from
+   space-2xl so the content below (e.g. the search box) doesn't float
+   miles under the title. */
+.page-header { padding: 8px 0 var(--space-lg); border-bottom: none; }
+.page-header::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(to right, #C4622D, #F0DDD3, transparent);
+  margin-top: 0.75rem;
+}
 .page-title { font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: var(--color-text); }
 
 @media (min-width: 640px) { .page-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
@@ -1507,6 +1543,11 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   color: #1a2540;
   margin-bottom: 6px;
   font-family: var(--font-display);
+}
+.about-greeting {
+  font-size: 1rem;
+  color: #444;
+  margin: 0 0 4px;
 }
 .about-tagline {
   font-size: 1rem;
@@ -1890,6 +1931,31 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 #list_results a { color: var(--color-text-light); font-weight: 500; text-decoration: none; }
 #list_results b { color: var(--color-navy); font-weight: 700; }
 #list_results a:hover { color: var(--color-terra); }
+
+/* tgo-search-empty: no height/overflow lock here on purpose — an
+   earlier version forced height:100vh + overflow:hidden and it clipped
+   the footer whenever the page's natural content was a hair taller
+   than the viewport. Instead, the fade script itself (custom_footer.html)
+   just freezes the header at full opacity while this class is present,
+   so the page can still be its natural height (footer never cut off)
+   but nothing fades or shrinks until #list_results actually has content.
+
+   The actual overflow (measured live: 57px) turned out to be the
+   footer's own margin-top: 60px stacking on top of #main-content,
+   which already flex-grows to fill the viewport on a short page. Zero
+   that margin out only in the empty-search state so total height
+   lands at/under 100vh with no scroll needed. */
+body.tgo-search-empty .site-footer {
+  margin-top: 0;
+}
+
+/* Empty search stays top-aligned like every other page — an earlier
+   version vertically centered the title + box, which read too low on
+   tall screens (foldables especially) and, with the padding used to
+   bias it upward, added height that made the page scroll and buried
+   the footer behind the mobile tab bar. Top-aligned needs none of
+   that: title sits right under the nav, footer pins to the viewport
+   bottom via the body's normal flex layout, nothing scrolls. */
 
 
 /* ------------------------------------------------------------

@@ -124,8 +124,44 @@
   if (document.querySelector('.section-newsletters') ||
       document.body.classList.contains('section-newsletters')) return;
 
-  // All other pages: push content below fixed header
-  main.style.setProperty('padding-top', (headerH + 32) + 'px', 'important');
+  // All other pages: push content below fixed header. +12 (was +32)
+  // so page titles sit close under the nav bar on every screen size.
+  main.style.setProperty('padding-top', (headerH + 12) + 'px', 'important');
+})();
+</script>
+
+<script>
+/* Mobile tab bar clearance — measure its real rendered height (varies
+   with safe-area-inset-bottom on notched phones, and possibly with
+   label/icon sizing per device) instead of guessing a fixed number in
+   CSS. Sets --tab-bar-h for custom.css's body padding-bottom to use. */
+(function () {
+  var bar = document.querySelector('.mobile-tab-bar');
+  if (!bar) return;
+  var setH = function () {
+    var h = bar.getBoundingClientRect().height;
+    if (h > 0) document.documentElement.style.setProperty('--tab-bar-h', h + 'px');
+  };
+  setH();
+  window.addEventListener('resize', setH);
+})();
+</script>
+
+<script>
+/* Search page: stays perfectly still (no scroll, no header fade, no
+   footer gap) whenever #list_results is empty — whether that's the
+   initial load, or after typing a search and then clearing it back
+   out. This re-syncs on every results change instead of unlocking
+   once and staying unlocked, so clearing the search re-locks it. */
+(function () {
+  var results = document.getElementById('list_results');
+  if (!results) return;
+  var sync = function () {
+    var empty = results.children.length === 0 && results.textContent.trim() === '';
+    document.body.classList.toggle('tgo-search-empty', empty);
+  };
+  sync();
+  new MutationObserver(sync).observe(results, { childList: true, subtree: true, characterData: true });
 })();
 </script>
 

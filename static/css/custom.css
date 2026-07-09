@@ -611,8 +611,8 @@ figcaption {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  font-size: 0.6875rem;
+  gap: 4px;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-text-muted);
   text-decoration: none;
@@ -620,11 +620,17 @@ figcaption {
 }
 
 .site-nav li a .tgo-icon {
-  width: 17px;
-  height: 17px;
+  width: 22px;
+  height: 22px;
 }
 
 .site-nav li a:hover, .site-nav li a.active { color: var(--color-terra-dark); }
+
+@media (min-width: 1024px) {
+  .site-nav { gap: 2rem; }
+  .site-nav li a { font-size: 0.875rem; }
+  .site-nav li a .tgo-icon { width: 24px; height: 24px; }
+}
 
 /* Mobile bottom tab bar — the only nav on small screens, no hamburger */
 .mobile-tab-bar {
@@ -1360,22 +1366,6 @@ figcaption {
   padding-top: calc(var(--header-actual-h, var(--header-h)) + 56px);
   background: var(--color-bg);
 }
-.about-avatar {
-  /* Back to a plain circle for now — the source photo is itself a
-     circular cutout, so a square Polaroid frame left empty terracotta
-     in the corners and cut your shoulders off in a curve instead of a
-     natural straight line. Revisit the Polaroid look if a square/
-     rectangular crop of the photo becomes available. */
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  display: block;
-  margin: 0 auto 16px;
-  object-fit: cover;
-  outline: 0.5px solid rgba(30, 45, 74, 0.1);
-  box-shadow: 0 2px 4px rgba(30, 45, 74, 0.15);
-}
-
 /* Desktop: pull the whole about block up a bit so more of it (ideally
    the subscribe box) clears the fold without scrolling. Mobile spacing
    above is untouched — this was already dialed in separately. */
@@ -1383,9 +1373,6 @@ figcaption {
   .about-strip {
     padding-top: calc(var(--header-actual-h, var(--header-h)) + 24px);
     padding-bottom: 16px;
-  }
-  .about-avatar {
-    margin-bottom: 8px;
   }
 }
 .about-text {

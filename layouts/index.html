@@ -30,7 +30,14 @@
         <span class="tgo-rss-label">Subscribe via RSS</span>
       </button>
     </div>
-    <a href="{{ "/newsletters/" | absURL }}" class="subscribe-archive-link">Browse past newsletters →</a>
+    {{/* The standalone /newsletters/ list route isn't controlled by
+         this theme (Micro.blog appears to handle it as a built-in
+         page), so this links into the reader itself instead —
+         landing on the latest issue with the full inbox list showing
+         (desktop: side-by-side, same as always; mobile: list-first,
+         via ?view=list, see newsletter/single.html). */}}
+    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
+    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
   </div>
 </div>
 {{/* Featured section is page-1 only too — pages 2+ start clean with

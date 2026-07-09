@@ -2577,6 +2577,21 @@ body.type-newsletter .site-footer {
     color: var(--color-terra-dark);
     text-decoration: none;
   }
+
+  /* List-first entry point on mobile (?view=list, added via JS in
+     newsletter/single.html): show the full inbox list instead of the
+     preview. Tapping an issue is a plain link to its own permalink
+     with no query string, so the next page load lands in normal
+     preview mode automatically — no state to reset. */
+  .newsletter-reader.is-list-mode .newsletter-list-panel {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-right: none;
+  }
+  .newsletter-reader.is-list-mode .newsletter-preview-panel {
+    display: none;
+  }
 }
 
 /* ================================

@@ -2,17 +2,13 @@
 <header class="site-header">
 
   <div class="header-top-row">
-    <a href="{{ .Site.BaseURL }}" class="site-avatar-link" aria-label="{{ .Site.Title }} home">
+    <a href="{{ .Site.BaseURL }}" class="site-identity" aria-label="{{ .Site.Title }} home">
+      <span class="site-wordmark">
+        <span class="site-logo-text">Toby Geeks<span class="logo-accent">Out!</span></span>
+        <span class="logo-underline" aria-hidden="true"></span>
+      </span>
       <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="site-logo-avatar">
     </a>
-
-    <a href="{{ .Site.BaseURL }}" class="site-wordmark" aria-label="{{ .Site.Title }} home">
-      <span class="site-logo-text">Toby Geeks<span class="logo-accent">Out!</span></span>
-      <span class="logo-underline" aria-hidden="true"></span>
-    </a>
-
-    <!-- Spacer keeps the wordmark visually centered against the avatar's width -->
-    <span class="header-spacer" aria-hidden="true"></span>
   </div>
 
   <nav id="site-nav" class="site-nav-row" aria-label="Primary navigation">
@@ -28,6 +24,7 @@
       </li>
 
       {{ range .Site.Menus.main }}
+      {{ if not (in .URL "/stats/") }}
       {{ $iconName := "search" }}
       {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
       {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
@@ -42,6 +39,7 @@
         </a>
       </li>
       {{ end }}
+      {{ end }}
 
     </ul>
   </nav>
@@ -54,6 +52,7 @@
     {{ partial "icon.html" (dict "name" "home") }}
   </a>
   {{ range .Site.Menus.main }}
+  {{ if not (in .URL "/stats/") }}
   {{ $iconName := "search" }}
   {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
   {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
@@ -63,5 +62,6 @@
   <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }} aria-label="{{ .Name }}">
     {{ partial "icon.html" (dict "name" $iconName) }}
   </a>
+  {{ end }}
   {{ end }}
 </nav>

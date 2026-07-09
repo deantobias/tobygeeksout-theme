@@ -49,7 +49,7 @@
   --space-2xl: 2rem;
   --page-pad:  1rem;
   --max-width: 980px;
-  --header-h:  62px;
+  --header-h:  108px;
   --radius:    4px;
   --radius-lg: 8px;
 }
@@ -60,7 +60,7 @@
     --space-lg:  1.5rem;
     --space-xl:  2rem;
     --space-2xl: 3rem;
-    --header-h:  62px;
+    --header-h:  108px;
   }
 }
 
@@ -514,7 +514,11 @@ figcaption {
   align-items: center;
   gap: 10px;
   padding: 16px var(--page-pad) 12px;
-  background: var(--color-bg-warm);
+  /* --color-bg, not --color-bg-warm — the body's real rendered
+     background wins via an !important rule elsewhere using --color-bg,
+     so that's the value the header needs to match, not the similarly
+     named but different --color-bg-warm token. */
+  background: var(--color-bg);
   border-bottom: 0.5px solid rgba(30, 45, 74, 0.08);
   margin: 0 auto;
   width: 100%;
@@ -530,19 +534,27 @@ figcaption {
   position: relative;
 }
 
-.site-avatar-link {
-  flex-shrink: 0;
+/* Single identity unit — avatar sits immediately next to the
+   wordmark, both always visible, the pair centered as one group in
+   the row (instead of avatar pinned to the far edge and wordmark
+   centered separately, which left a big empty gap between them on
+   wide screens). On scroll, only the wordmark text fades; the avatar
+   never moves or hides. */
+.site-identity {
   display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+  text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .site-logo-avatar {
+  flex-shrink: 0;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  background: var(--color-terra);
   transform-origin: 50% 85%;
   animation: logo-avatar-bob 3.2s ease-in-out infinite;
 }
@@ -558,14 +570,9 @@ figcaption {
   .site-logo-avatar { animation: none; }
 }
 
-.header-spacer {
-  width: 40px;
-  flex-shrink: 0;
-}
-
 .site-wordmark {
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 1.375rem;
+  font-size: 1.625rem;
   font-weight: 800;
   color: var(--color-navy);
   letter-spacing: -0.3px;
@@ -574,8 +581,6 @@ figcaption {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
-  -webkit-tap-highlight-color: transparent;
   transition: opacity 0.3s ease;
 }
 
@@ -589,7 +594,7 @@ figcaption {
 .site-wordmark .logo-underline {
   height: 2px;
   width: 68%;
-  margin-top: 2px;
+  margin: 2px auto 0;
   background: var(--color-terra);
   opacity: 0.5;
   border-radius: 2px;
@@ -597,8 +602,8 @@ figcaption {
 
 .site-wordmark:hover .logo-accent { color: var(--color-terra-dark); }
 
-@media (min-width: 600px) { .site-wordmark { font-size: 1.5rem; } }
-@media (min-width: 1024px) { .site-wordmark { font-size: 1.625rem; } }
+@media (min-width: 600px) { .site-wordmark { font-size: 1.875rem; } }
+@media (min-width: 1024px) { .site-wordmark { font-size: 2.125rem; } }
 
 .site-nav-row {
   width: 100%;
@@ -647,7 +652,7 @@ figcaption {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--color-bg-warm);
+  background: var(--color-bg);
   border-top: 0.5px solid rgba(30, 45, 74, 0.1);
   padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));
 }
@@ -657,12 +662,12 @@ figcaption {
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  padding: 6px 14px;
-  min-width: 44px;
-  min-height: 32px;
+  padding: 10px 16px;
+  min-width: 48px;
+  min-height: 48px;
 }
 
-.mobile-tab-bar a .tgo-icon { width: 21px; height: 21px; }
+.mobile-tab-bar a .tgo-icon { width: 26px; height: 26px; }
 .mobile-tab-bar a.active { color: var(--color-terra); }
 
 @media (min-width: 768px) {
@@ -671,10 +676,7 @@ figcaption {
 
 @media (max-width: 767px) {
   .site-nav-row { display: none; }
-  .header-spacer { display: none; }
-  .header-top-row { justify-content: flex-start; }
-  .site-wordmark { display: none; }
-  body { padding-bottom: 56px; }
+  body { padding-bottom: 64px; }
 }
 
 
@@ -683,7 +685,7 @@ figcaption {
    ------------------------------------------------------------ */
 
 .featured-banner {
-  background-color: var(--color-bg-warm);
+  background-color: var(--color-bg);
   padding: var(--space-xl) 0 var(--space-md);
   position: relative;
   overflow: visible;
@@ -699,11 +701,19 @@ figcaption {
   border: 0.5px solid rgba(30, 45, 74, 0.1);
   border-top: 3px solid var(--color-terra);
   border-radius: 0 0 var(--radius) var(--radius);
+  /* Fixed box regardless of title/excerpt length across slides, with
+     the content centered inside it instead of pinned to the top —
+     short titles no longer leave the card looking lopsided, and
+     switching slides no longer resizes the whole banner. */
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 @media (min-width: 640px) {
   .featured-banner { padding: var(--space-xl) 2rem var(--space-md); }
-  .featured-inner  { padding: 24px 2rem 26px; }
+  .featured-inner  { padding: 24px 2rem 26px; min-height: 340px; }
   .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; }
 }
 
@@ -1359,21 +1369,29 @@ figcaption {
   justify-content: center;
   padding: 28px 24px;
   margin-top: 0;
-  padding-top: calc(var(--header-h) + 56px); /* clear fixed header + breathing room */
-  background: #f4f0eb;
+  /* Prefer the JS-measured live header height (accurate on every
+     screen size); the static --header-h is only a first-paint guess
+     before that script runs. Using the static value alone is what
+     let the avatar sit underneath the fixed header on some viewports. */
+  padding-top: calc(var(--header-actual-h, var(--header-h)) + 56px);
+  background: var(--color-bg);
 }
 .about-avatar {
   width: 180px;
   height: 180px;
-  border-radius: 8px;
+  border-radius: 2px;
   display: block;
   margin: 0 auto 16px;
   object-fit: contain;
   background: var(--color-terra);
-  border: 6px solid #ffffff;
+  /* Classic Polaroid proportions: white frame, noticeably thicker
+     along the bottom edge than the other three sides. */
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 8px 8px 26px;
   outline: 0.5px solid rgba(30, 45, 74, 0.1);
   transform: rotate(-4deg);
-  box-shadow: 0 1px 3px rgba(30, 45, 74, 0.12);
+  box-shadow: 0 2px 4px rgba(30, 45, 74, 0.15);
 }
 
 /* Desktop: pull the whole about block up a bit so more of it (ideally
@@ -1381,7 +1399,7 @@ figcaption {
    above is untouched — this was already dialed in separately. */
 @media (min-width: 1024px) {
   .about-strip {
-    padding-top: calc(var(--header-h) + 24px);
+    padding-top: calc(var(--header-actual-h, var(--header-h)) + 24px);
     padding-bottom: 16px;
   }
   .about-avatar {
@@ -1427,11 +1445,11 @@ figcaption {
   display: flex;
   justify-content: center;
   padding: 0 24px 28px;
-  background: #f4f0eb;
+  background: var(--color-bg);
   margin-bottom: 0;
 }
 .subscribe-inner {
-  max-width: 460px;
+  max-width: 600px;
   width: 100%;
   padding: 20px 22px 18px;
   background: #ffffff;
@@ -2010,9 +2028,9 @@ body.page .post-header {
 
 .splide__pagination {
   position: relative !important;
-  padding-top: 2rem !important;
-  padding-bottom: 1.5rem !important;
-  margin-top: var(--space-md);
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.75rem !important;
+  margin-top: 0;
 }
 
 .splide__pagination__page {

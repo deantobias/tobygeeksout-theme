@@ -6,42 +6,18 @@
 
 <script>
 (function () {
-  const scrollBar   = document.getElementById('scroll-bar');
-  const header      = document.querySelector('.site-header');
-  const topRow      = header ? header.querySelector('.header-top-row') : null;
-  const avatarLink  = header ? header.querySelector('.site-avatar-link') : null;
-  const wordmark    = header ? header.querySelector('.site-wordmark') : null;
+  const scrollBar = document.getElementById('scroll-bar');
+  const header    = document.querySelector('.site-header');
+  const wordmark  = header ? header.querySelector('.site-wordmark') : null;
   if (!header) return;
 
   function clampFade(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
   function easeFade(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
   // Wordmark quietly fades over the first bit of scroll, same on every
-  // page type. Once it's fully faded, the avatar animates from its
-  // left-aligned spot to the horizontal center of the row, so scrolled
-  // pages get a compact, centered avatar instead of an empty left slot.
-  // This replaces the old pill-morph script but keeps only the single
-  // position transition piece of it — no color/size/border-radius morph.
+  // page type. The avatar next to it never moves or hides — it's a
+  // fixed part of the identity unit, not something that animates.
   var FADE_DIST = 90;
-  var isCentered = false;
-
-  function centerAvatar() {
-    if (!avatarLink || !topRow || isCentered) return;
-    if (window.innerWidth < 768) return;
-    var rowRect = topRow.getBoundingClientRect();
-    var avatarRect = avatarLink.getBoundingClientRect();
-    var rowCenterX = rowRect.left + rowRect.width / 2;
-    var avatarCenterX = avatarRect.left + avatarRect.width / 2;
-    var delta = rowCenterX - avatarCenterX;
-    avatarLink.style.transform = 'translateX(' + delta.toFixed(1) + 'px)';
-    isCentered = true;
-  }
-
-  function resetAvatar() {
-    if (!avatarLink || !isCentered) return;
-    avatarLink.style.transform = '';
-    isCentered = false;
-  }
 
   function updateHeader() {
     var sy = window.scrollY;
@@ -51,13 +27,9 @@
       var t = clampFade(sy / FADE_DIST, 0, 1);
       wordmark.style.opacity = (1 - easeFade(t)).toFixed(3);
       wordmark.style.pointerEvents = t >= 1 ? 'none' : 'auto';
-      if (t >= 1) { centerAvatar(); } else { resetAvatar(); }
     }
   }
   window.addEventListener('scroll', updateHeader, { passive: true });
-  window.addEventListener('resize', function () {
-    if (isCentered) { isCentered = false; centerAvatar(); }
-  });
   updateHeader();
 })();
 </script>

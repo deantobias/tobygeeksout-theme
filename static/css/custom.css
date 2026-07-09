@@ -651,10 +651,14 @@ body:not(.type-post) .site-header {
   padding-top: calc(16px - 6px * var(--header-shrink, 0));
   padding-bottom: calc(12px - 6px * var(--header-shrink, 0));
 }
-body:not(.type-post) .site-identity {
+/* Gap + wordmark box collapse apply everywhere, including single
+   posts — the wordmark fades on scroll on every page type, and
+   without this the fully-transparent text still held its layout
+   space, leaving a dead gap under the avatar. */
+.site-identity {
   gap: calc(6px - 6px * var(--header-shrink, 0));
 }
-body:not(.type-post) .site-wordmark {
+.site-wordmark {
   max-height: calc(3rem - 3rem * var(--header-shrink, 0));
   overflow: hidden;
 }

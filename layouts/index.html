@@ -30,8 +30,7 @@
         <span class="tgo-rss-label">Subscribe via RSS</span>
       </button>
     </div>
-    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
-    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
+    <a href="{{ "/newsletters/" | absURL }}" class="subscribe-archive-link">Browse past newsletters →</a>
   </div>
 </div>
 {{/* Featured section is page-1 only too — pages 2+ start clean with

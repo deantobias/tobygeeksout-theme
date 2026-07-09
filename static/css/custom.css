@@ -64,12 +64,6 @@
   }
 }
 
-@media (min-width: 1440px) {
-  :root {
-    --max-width: 1240px;
-  }
-}
-
 @media (min-width: 640px) {
   html { font-size: 22px !important; }
 }
@@ -2012,82 +2006,14 @@ body.page .post-header {
 
 
 /* ==========================================================================
-   30. FEATURED POST CAROUSEL
+   30. FEATURED POST
    ========================================================================== */
 
 .featured-banner { position: relative; }
-.splide__track { z-index: 1; }
-.featured-inner { position: relative; z-index: 1; }
-
-.splide__pagination {
-  position: relative !important;
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.75rem !important;
-  margin-top: 0;
-}
-
-.splide__pagination__page {
-  background: rgba(30, 45, 74, 0.18);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.splide__pagination__page.is-active {
-  background: var(--color-terra);
-  transform: scale(1.2);
-}
-
-.carousel-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0 1rem;
-}
-
-:is(.carousel-prev, .carousel-next) {
-  position: static;
-  background: transparent;
-  border: 1px solid rgba(30, 45, 74, 0.15);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  opacity: 0.85;
-  transition: opacity 0.2s, background 0.2s;
-  padding: 0;
-}
-
-:is(.carousel-prev:hover, .carousel-next:hover) {
-  opacity: 1;
-  background: rgba(30, 45, 74, 0.05);
-}
-
-.carousel-arrow-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--color-navy);
-}
-
-@media (max-width: 1024px) {
-  :is(.carousel-prev, .carousel-next) { display: none; }
-}
+.featured-inner { position: relative; }
 
 @media (max-width: 639px) {
   .featured-banner { padding-bottom: 0; }
-  .splide__pagination {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
-    margin-top: 0;
-  }
   .featured-excerpt { margin-bottom: 0.75rem; }
   .featured-meta { margin-bottom: 0.5rem; }
 }

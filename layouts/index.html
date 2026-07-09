@@ -34,86 +34,41 @@
     <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
   </div>
 </div>
-{{/* Featured carousel is page-1 only too — pages 2+ start clean
-     with the post list ("Geeksouts — Page N") */}}
+{{/* Featured section is page-1 only too — pages 2+ start clean with
+     the post list ("Geeksouts — Page N"). Just the single latest Long
+     Read post, no carousel and no arrows to fight with. */}}
+{{ range first 1 $longPosts }}
+{{ if .Title }}
 <div class="featured-banner">
-  <div id="featured-carousel" class="splide" aria-label="Featured Posts">
-    <div class="splide__track">
-      <ul class="splide__list">
-        {{ range first 6 $longPosts }}
-          {{ if .Title }}
-          <li class="splide__slide">
-            <div class="featured-inner">
-<div class="featured-eyebrow">
-  {{ partial "icon.html" (dict "name" "star") }}
-  <span>Featured</span>
-  <div class="featured-categories">
-    {{ $cats := slice }}
-    {{ range .Params.categories }}
-      {{ if ne . "Long Read" }}
-        {{ $cats = $cats | append . }}
-      {{ end }}
-    {{ end }}
-    {{ range first 3 $cats }}
-      <span class="post-category">{{ . }}</span>
-    {{ end }}
-  </div>
-</div>
-              <h2 class="featured-title">{{ .Title }}</h2>
-              <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
-              <div class="featured-meta">
-                <span class="featured-date">
-                  <time datetime="{{ .Date.Format "2006-01-02" }}">
-                    {{ .Date.Format "January 2, 2006" }}
-                  </time>
-                </span>
-                <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
-              </div>
-            </div>
-          </li>
+  <div class="featured-inner">
+    <div class="featured-eyebrow">
+      {{ partial "icon.html" (dict "name" "star") }}
+      <span>Featured</span>
+      <div class="featured-categories">
+        {{ $cats := slice }}
+        {{ range .Params.categories }}
+          {{ if ne . "Long Read" }}
+            {{ $cats = $cats | append . }}
           {{ end }}
         {{ end }}
-      </ul>
+        {{ range first 3 $cats }}
+          <span class="post-category">{{ . }}</span>
+        {{ end }}
+      </div>
+    </div>
+    <h2 class="featured-title">{{ .Title }}</h2>
+    <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
+    <div class="featured-meta">
+      <span class="featured-date">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+      </span>
+      <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
     </div>
   </div>
-  <div class="carousel-controls">
-    <button class="carousel-prev" id="carousel-prev" aria-label="Previous slide">
-      {{ partial "icon.html" (dict "name" "chevron-left" "class" "carousel-arrow-icon") }}
-    </button>
-    <button class="carousel-next" id="carousel-next" aria-label="Next slide">
-      {{ partial "icon.html" (dict "name" "chevron-right" "class" "carousel-arrow-icon") }}
-    </button>
-  </div>
 </div>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var el = document.getElementById('featured-carousel');
-    if (el) {
-      var isMobile = window.matchMedia('(max-width: 1024px)').matches;
-  var splide = new Splide(el, {
-  type: 'fade',
-  rewind: true,
-  arrows: false,
-  pagination: true,
-  autoplay: false,
-  drag: isMobile,
-  autoHeight: true,
-}).mount();
-      var pagination = el.querySelector('.splide__pagination');
-      var controls = document.querySelector('.carousel-controls');
-      if (pagination && controls) {
-        var nextBtn = document.getElementById('carousel-next');
-        controls.insertBefore(pagination, nextBtn);
-      }
-      document.getElementById('carousel-prev').addEventListener('click', function () {
-        splide.go('<');
-      });
-      document.getElementById('carousel-next').addEventListener('click', function () {
-        splide.go('>');
-      });
-    }
-  });
-</script>
+{{ end }}
 {{ end }}
 <div class="feed-wrapper">
   {{ if eq $paginator.PageNumber 1 }}

@@ -2336,6 +2336,25 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   padding-bottom: var(--space-2xl);
 }
 
+/* Banner image */
+.section.section-newsletters #main-content::before {
+  content: "";
+  display: block;
+  background-image: url('https://iili.io/CukEGI9.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  height: 400px;
+  margin: var(--header-actual-h, 62px) 0 var(--space-xl);
+}
+
+@media (max-width: 599px) {
+  .section.section-newsletters #main-content::before {
+    height: 200px;
+  }
+}
+
 /* Hide default template title on newsletter single pages */
 .page.section-newsletters h1.page-title {
   display: none;

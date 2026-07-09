@@ -534,16 +534,15 @@ figcaption {
   position: relative;
 }
 
-/* Single identity unit — avatar sits immediately next to the
-   wordmark, both always visible, the pair centered as one group in
-   the row (instead of avatar pinned to the far edge and wordmark
-   centered separately, which left a big empty gap between them on
-   wide screens). On scroll, only the wordmark text fades; the avatar
-   never moves or hides. */
+/* Single identity unit — avatar centered above the wordmark (not
+   beside it), so the avatar is never offset to one side. Avatar is
+   always visible and never moves; only the wordmark underneath it
+   fades away on scroll. */
 .site-identity {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   margin: 0 auto;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
@@ -578,26 +577,11 @@ figcaption {
   letter-spacing: -0.3px;
   text-decoration: none;
   white-space: nowrap;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
   transition: opacity 0.3s ease;
 }
 
 .site-wordmark .logo-accent {
   color: var(--color-terra);
-  display: inline-block;
-  transform: rotate(-6deg);
-  margin-left: 2px;
-}
-
-.site-wordmark .logo-underline {
-  height: 2px;
-  width: 68%;
-  margin: 2px auto 0;
-  background: var(--color-terra);
-  opacity: 0.5;
-  border-radius: 2px;
 }
 
 .site-wordmark:hover .logo-accent { color: var(--color-terra-dark); }
@@ -1426,7 +1410,6 @@ figcaption {
   margin: 0 0 14px;
   transition: opacity 0.3s ease;
 }
-.about-bio { margin: 0; }
 .about-text a { color: #c95f2a; text-decoration: none; font-weight: 700; }
 .about-links {
   display: flex;

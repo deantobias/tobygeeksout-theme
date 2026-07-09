@@ -8,205 +8,31 @@
 (function () {
   const scrollBar = document.getElementById('scroll-bar');
   const header    = document.querySelector('.site-header');
-  const nav       = document.getElementById('site-nav');
-  const burger    = document.querySelector('.nav-toggle');
   const logo      = header ? header.querySelector('.site-logo') : null;
-  const accent    = logo  ? logo.querySelector('.logo-accent')  : null;
+  const logoText  = logo  ? logo.querySelector('.site-logo-text') : null;
   if (!header) return;
 
-  // Capture natural logo font size once
-  // Cap logoBasePx only in fold zone (600–850px) — keeps fold pill compact
-  // without shrinking laptop/desktop pill too aggressively
-  var vwInit = window.innerWidth;
-  var logoBasePx = parseFloat(window.getComputedStyle(logo).fontSize) || 32;
-  if (vwInit >= 600 && vwInit < 850) logoBasePx = Math.min(logoBasePx, 26);
+  function clampFade(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
+  function easeFade(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-  const MORPH = 140;
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function clamp(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
-  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-
-  function lerpColor(r1,g1,b1, r2,g2,b2, a1,a2, t) {
-    return 'rgba('+Math.round(lerp(r1,r2,t))+','+Math.round(lerp(g1,g2,t))+','+Math.round(lerp(b1,b2,t))+','+lerp(a1,a2,t).toFixed(3)+')';
+  // Pill morph is retired. Every page (home, archive, category,
+  // newsletters list, single posts, static pages, newsletter issues)
+  // now behaves the same way: header stays put, avatar stays put,
+  // wordmark quietly fades away over the first bit of scroll so it
+  // doesn't compete for attention. Header padding is handled entirely
+  // by plain CSS (see .site-header rules in custom.css), not JS.
+  var FADE_DIST = 90;
+  function updateHeader() {
+    var sy = window.scrollY;
+    var dh = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollBar) scrollBar.style.width = clampFade((sy / dh) * 100, 0, 100) + '%';
+    if (logoText) {
+      var t = clampFade(sy / FADE_DIST, 0, 1);
+      logoText.style.opacity = (1 - easeFade(t)).toFixed(3);
+    }
   }
-
-  function update() {
-    const sy = window.scrollY;
-    const dh = document.documentElement.scrollHeight - window.innerHeight;
-    const t  = clamp(sy / MORPH, 0, 1);
-    const te = easeInOut(t);
-
-    // Scroll progress bar
-    if (scrollBar) scrollBar.style.width = clamp((sy / dh) * 100, 0, 100) + '%';
-
-    // Background + blur — semi-transparent end lets blur show through as frosted glass
-    header.style.background = lerpColor(30,45,74, 252,248,244, 1, 0.22, te);
-    var blurVal = 'blur('+lerp(0,20,te).toFixed(1)+'px) saturate('+lerp(100,180,te).toFixed(0)+'%)';
-    header.style.backdropFilter = blurVal;
-    header.style.webkitBackdropFilter = blurVal;
-
-    // Border: terracotta fades out → thin white glass border fades in
-    var borderAlpha = lerp(0, 0.5, te).toFixed(3);
-    header.style.border = '1px solid rgba(255,255,255,'+borderAlpha+')';
-
-    // Shadow
-    header.style.setProperty('--h-shadow',
-      t > 0.25
-        ? '0 2px 20px rgba(30,45,74,'+lerp(0,0.08,te).toFixed(3)+'), inset 0 1px 0 rgba(255,255,255,0.35)'
-        : 'none');
-
-    // Screen size tiers — declared first so all blocks below can use them
-    var vw = window.innerWidth;
-    var isMobile  = vw < 600;      // true phones — aligned with nav visibility threshold
-    var isMidSize = vw >= 600 && vw < 1400;   // fold portrait (~707px) + tablets
-
-    // Padding — fold gets more vertical padding so pill is taller
-    var pvEnd = isMidSize ? 22 : 9;
-    var pv = lerp(20, pvEnd, te).toFixed(1)+'px';
-    var ph = lerp(32, 20, te).toFixed(1)+'px';
-    header.style.padding = pv+' '+ph;
-
-    // Width + centering
-    var targetW   = isMobile ? 72 : (isMidSize ? 38 : 34);
-    header.style.width       = lerp(100, targetW, te).toFixed(1)+'vw';
-    header.style.marginLeft  = 'auto';
-    header.style.marginRight = 'auto';
-
-    // Top margin — closer to top
-    var marginTarget = vw >= 1024 ? 12 : 10;
-    header.style.marginTop = lerp(0, marginTarget, te).toFixed(1)+'px';
-
-    // Force nav visible on wide screens — setProperty 'important' beats all platform CSS
-    if (vw >= 600 && nav) {
-      nav.style.setProperty('display', 'block', 'important');
-      var foldNavUl = nav.querySelector('ul');
-      if (foldNavUl) {
-        foldNavUl.style.setProperty('display',         'flex',       'important');
-        foldNavUl.style.setProperty('flex-direction',  'row',        'important');
-        foldNavUl.style.setProperty('gap',             '1.5rem',     'important');
-        foldNavUl.style.setProperty('list-style',      'none',       'important');
-        foldNavUl.style.setProperty('padding',         '0',          'important');
-        foldNavUl.style.setProperty('margin',          '0 0 0 auto', 'important');
-        // Nav link colors — use --nav-color so they stay readable in both header and pill states
-        var navLinks = foldNavUl.querySelectorAll('a');
-        var navColor = getComputedStyle(header).getPropertyValue('--nav-color').trim() || 'rgba(250,248,245,0.82)';
-        navLinks.forEach(function(a) { a.style.setProperty('color', navColor, 'important'); });
-      }
-    } else if (vw < 600 && nav) {
-      nav.style.removeProperty('display');
-    }
-
-    // Border radius
-    if (!header.classList.contains('is-pill')) {
-      var r = lerp(0, 100, te).toFixed(0)+'px';
-      header.style.setProperty('--h-radius', r);
-      header.style.borderRadius = r;
-    }
-
-    // Specular highlight
-    header.style.setProperty('--sheen', lerp(0, 0.65, te).toFixed(3));
-
-    // Text colors: warm white → true black
-    var logoC = lerpColor(250,248,245, 0,0,0, 1, 1, te);
-    header.style.setProperty('--logo-color', logoC);
-    header.style.setProperty('--nav-color',  lerpColor(250,248,245, 0,0,0, 0.82, 1, te));
-    header.style.setProperty('--burger-color', logoC);
-
-    // Logo font size + color — phone smaller, fold medium, desktop tight
-    if (logo) {
-      var fontTarget = isMobile ? 0.62 : (isMidSize ? 0.58 : 0.42);
-      logo.style.setProperty('font-size', lerp(logoBasePx, logoBasePx * fontTarget, te).toFixed(1)+'px', 'important');
-      logo.style.color    = lerpColor(250,248,245, 30,45,74, 1, 1, te);
-    }
-    // Accent: orange → navy as pill forms
-    if (accent) accent.style.color = lerpColor(196,98,45, 30,45,74, 1, 1, te);
-
-    // Center logo: absolute-position it within the header so flex/Micro.blog can't interfere
-    var navT = clamp(sy / (MORPH * 0.5), 0, 1);
-    if (navT >= 0.9 && logo) {
-      logo.style.position  = 'absolute';
-      logo.style.left      = '0';
-      logo.style.right     = '0';
-      logo.style.textAlign = 'center';
-    } else if (logo) {
-      logo.style.position  = '';
-      logo.style.left      = '';
-      logo.style.right     = '';
-      logo.style.textAlign = '';
-    }
-    header.style.justifyContent = navT >= 0.9 ? 'center' : 'space-between';
-
-    // Tappable cursor
-    header.style.cursor = t >= 1 ? 'pointer' : 'default';
-
-    // Wobble class
-    if (t >= 1) {
-      header.classList.add('is-pill');
-    } else {
-      header.classList.remove('is-pill');
-      header.style.borderRadius = lerp(0, 100, te).toFixed(0)+'px';
-    }
-
-    // Nav + hamburger fade and collapse
-    var navT = clamp(sy / (MORPH * 0.5), 0, 1);
-    var navO = lerp(1, 0, navT).toFixed(3);
-    [nav, burger].forEach(function(el) {
-      if (!el) return;
-      el.style.opacity       = navO;
-      el.style.pointerEvents = t > 0.5 ? 'none' : 'auto';
-      // Only constrain during animation — clearing overflow at rest lets nav render naturally
-      if (t < 0.01) {
-        el.style.maxWidth = '';
-        el.style.overflow = '';
-      } else {
-        el.style.overflow = 'hidden';
-        el.style.maxWidth = Math.max(0, lerp(800, 0, te)).toFixed(0)+'px';
-      }
-    });
-  }
-
-  // Tap pill to scroll to top — custom eased scroll for controlled speed
-  function smoothScrollTop(duration) {
-    var startY    = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-    var startTime = performance.now();
-    function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-    function step(now) {
-      var elapsed  = now - startTime;
-      var progress = Math.min(elapsed / duration, 1);
-      var y = Math.round(startY * (1 - ease(progress)));
-      document.documentElement.scrollTop = y;
-      document.body.scrollTop = y;
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        // Force final state — iOS doesn't always fire scroll event at position 0
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        update();
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
-  header.addEventListener('click', function(e) {
-    if (window.scrollY > MORPH * 0.9) {
-      e.preventDefault();
-      // Reset logo color immediately so tap highlight doesn't stick
-      if (logo) logo.style.color = lerpColor(250,248,245, 30,45,74, 1, 1, easeInOut(clamp(window.scrollY / MORPH, 0, 1)));
-      if (logo) logo.blur();
-      header.style.transition = 'transform 0.08s ease';
-      header.style.transform  = 'scale(0.97)';
-      setTimeout(function() {
-        header.style.transform  = '';
-        header.style.transition = '';
-      }, 80);
-      smoothScrollTop(380);
-    }
-  });
-
-  window.addEventListener('scroll', update, { passive: true });
-  update();
+  window.addEventListener('scroll', updateHeader, { passive: true });
+  updateHeader();
 })();
 </script>
 
@@ -227,6 +53,13 @@
     return;
   }
 
+  // Newsletter reader: full-viewport email-client layout handles its own
+  // spacing and scrolling — zero out #main-content here too
+  if (document.querySelector('.newsletter-single')) {
+    main.style.setProperty('padding-top', '0', 'important');
+    return;
+  }
+
   // Home page: .about-strip handles spacing
   if (document.querySelector('.about-strip')) return;
 
@@ -241,7 +74,13 @@
 
 <script>
 /* Skip view transitions for reloads and same-page navigations
-   (e.g. refreshing, or clicking Home while already on the home page) */
+   (e.g. refreshing, or clicking Home while already on the home page).
+   Newsletter single pages are handled separately below via CSS, not by
+   skipping the transition — skipping it entirely reintroduces the
+   default blank-white-flash between hard page loads that view
+   transitions normally mask. Instead we let the transition still run,
+   but make its animation instant when landing on a newsletter page —
+   see html.is-newsletter-reader rules in custom.css. */
 (function () {
   function samePath(url) {
     try { return new URL(url, location.href).pathname === location.pathname; }

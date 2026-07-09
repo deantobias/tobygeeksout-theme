@@ -503,16 +503,6 @@ figcaption {
   100% { background-position: -200% 0; }
 }
 
-/* Liquid capsule wobble */
-@keyframes liquidWobble {
-  0%   { border-radius: 100px; }
-  20%  { border-radius: 100px 100px 96px 96px / 100px 100px 98px 98px; }
-  40%  { border-radius: 96px 96px 100px 100px / 98px 98px 100px 100px; }
-  60%  { border-radius: 100px 96px 100px 96px / 100px 98px 100px 98px; }
-  80%  { border-radius: 96px 100px 96px 100px / 98px 100px 98px 100px; }
-  100% { border-radius: 100px; }
-}
-
 .site-header {
   position: fixed !important;
   top: 0 !important;
@@ -560,11 +550,6 @@ figcaption {
   z-index: 0;
 }
 
-/* Wobble when fully formed */
-.site-header.is-pill {
-  animation: liquidWobble 7s ease-in-out infinite;
-}
-
 .site-logo {
   font-family: 'Bricolage Grotesque', var(--font-display);
   font-size: 2rem;
@@ -577,6 +562,32 @@ figcaption {
   z-index: 1;
   text-shadow: 0 1px 3px rgba(0,0,0,0.25);
   transition: color 0.4s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15em;
+}
+
+.site-logo-avatar {
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transform-origin: 50% 85%;
+  animation: logo-avatar-bob 3.2s ease-in-out infinite;
+}
+
+@keyframes logo-avatar-bob {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  25%      { transform: rotate(-4deg) translateY(-1px); }
+  50%      { transform: rotate(0deg) translateY(0); }
+  75%      { transform: rotate(4deg) translateY(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-logo-avatar { animation: none; }
 }
 
 .site-logo .logo-accent { color: var(--color-terra); }
@@ -590,8 +601,21 @@ figcaption {
 .site-logo .logo-accent:hover { color: var(--color-terra) !important; }
 
 @media (min-width: 600px) { .site-logo { font-size: 2rem; } }
-@media (min-width: 1024px) { .site-logo { font-size: 2.5rem; } }
+@media (min-width: 1024px) { .site-logo { font-size: 2.1rem; } }
 @media (max-width: 599px) { .site-logo { font-size: 1.75rem; } }
+
+/* Header padding is static everywhere now (pill morph retired) —
+   set here instead of via JS so it's correct on the very first paint. */
+.site-header {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+@media (min-width: 1400px) {
+  .site-header {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+}
 
 .nav-toggle {
   display: flex;
@@ -1376,7 +1400,7 @@ figcaption {
   justify-content: center;
   padding: 28px 24px;
   margin-top: 0;
-  padding-top: calc(var(--header-h) + 24px); /* clear fixed header + breathing room */
+  padding-top: calc(var(--header-h) + 56px); /* clear fixed header + breathing room */
   background: #f4f0eb;
 }
 .about-avatar {
@@ -1386,6 +1410,19 @@ figcaption {
   display: block;
   margin: 0 auto 12px;
   object-fit: cover;
+}
+
+/* Desktop: pull the whole about block up a bit so more of it (ideally
+   the subscribe box) clears the fold without scrolling. Mobile spacing
+   above is untouched — this was already dialed in separately. */
+@media (min-width: 1024px) {
+  .about-strip {
+    padding-top: calc(var(--header-h) + 24px);
+    padding-bottom: 16px;
+  }
+  .about-avatar {
+    margin-bottom: 8px;
+  }
 }
 .about-text {
   max-width: 600px;
@@ -2340,6 +2377,229 @@ body.section-newsletters {
   }
 }
 
+/* ------------------------------------------------------------
+   36a. NEWSLETTER READER — email-client style single view
+   Desktop: fixed full-viewport frame below the header, list panel
+   and preview panel each scroll independently, page itself never
+   scrolls. Mobile: list panel hides, preview becomes a normal
+   scrolling page with a back link standing in for the list.
+   ------------------------------------------------------------ */
+
+/* Lock the whole page — only the two panels inside scroll.
+   type-newsletter (singular) only matches single issues, never the
+   /newsletters/ list page, which gets type-newsletters (plural). */
+body.type-newsletter {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+}
+body.type-newsletter .site-footer {
+  display: none;
+}
+
+.newsletter-single {
+  padding-top: var(--header-actual-h, var(--header-h));
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+  max-width: 100% !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.newsletter-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: #f4f0eb;
+  border-bottom: 1px solid #e5e0d5;
+}
+
+.newsletter-toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  letter-spacing: 0.01em;
+}
+
+.newsletter-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nt-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: var(--color-text-light);
+}
+.nt-icon svg { width: 16px; height: 16px; }
+.nt-icon-search { margin-left: 6px; }
+
+.newsletter-reader {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.newsletter-list-panel {
+  width: 320px;
+  flex-shrink: 0;
+  border-right: 1px solid #ece7de;
+  background: #f9f7f3;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.newsletter-list-panel-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid #ece7de;
+  position: sticky;
+  top: 0;
+  background: #f9f7f3;
+  z-index: 1;
+}
+.newsletter-list-panel-header a {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-terra-dark);
+  text-decoration: none;
+}
+.newsletter-list-panel-header a:hover { color: var(--color-terra); }
+
+.newsletter-list { list-style: none; margin: 0; padding: 0; }
+
+.newsletter-list-item a {
+  display: block;
+  padding: var(--space-md) var(--space-lg);
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid #ece7de;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.newsletter-list-item a:hover { background: #f0ece3; }
+.newsletter-list-item.is-active a {
+  border-left-color: var(--color-terra);
+  background: var(--color-terra-light);
+}
+
+.nli-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-navy);
+  margin-bottom: 2px;
+}
+.nli-date {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  margin-bottom: 4px;
+}
+.newsletter-list-item.is-active .nli-date { color: var(--color-terra-dark); }
+.nli-summary {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.newsletter-preview-panel {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  height: 100%;
+  padding: var(--space-md) var(--space-xl) var(--space-md);
+}
+
+/* .page-body has its own top padding, and if the newsletter content
+   opens with a heading, h1–h6's global margin-top stacks on top of
+   that too — between the panel's own padding and those, the top gap
+   was tripling up. Panel padding is enough on its own. */
+.newsletter-preview-panel .page-body {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.newsletter-preview-panel .page-body > :first-child {
+  margin-top: 0;
+}
+.newsletter-preview-panel .page-body > :last-child {
+  margin-bottom: 0;
+}
+
+.newsletter-mobile-back { display: none; }
+
+/* Hidden, not removed — the list panel already covers jumping between
+   issues, so prev/next felt redundant. Delete this rule to bring it back. */
+.newsletter-prevnext {
+  display: none;
+}
+.newsletter-nav-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--color-navy);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: 4px;
+  line-height: 1.3;
+  max-width: 45%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 899px) {
+  body.type-newsletter {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+  }
+  body.type-newsletter .site-footer {
+    display: block;
+  }
+  .newsletter-single {
+    height: auto;
+    overflow: visible;
+  }
+  .newsletter-reader {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+  .newsletter-list-panel { display: none; }
+  .newsletter-preview-panel {
+    height: auto;
+    overflow: visible;
+    padding: var(--space-lg) var(--page-pad);
+  }
+  .newsletter-mobile-back {
+    display: inline-block;
+    margin-bottom: var(--space-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-terra-dark);
+    text-decoration: none;
+  }
+}
+
 /* ================================
   37. Blog History Page — The Long Road Here
 ================================ */
@@ -2769,5 +3029,16 @@ table.link-card a[style*="inline-block"] {
       animation: vt-slide-in-left 0.3s ease forwards;
       mix-blend-mode: normal;
     }
+  }
+
+  /* Landing on the newsletter reader: keep the transition engaged (so the
+     default blank-flash-between-page-loads still gets masked) but make it
+     instant — no slide, no fade. The locked full-viewport panel layout
+     doesn't suit the whole-page slide used everywhere else. This rule
+     lives in the destination page's stylesheet, which is what actually
+     governs a cross-document transition's pseudo-elements. */
+  html.is-newsletter-reader::view-transition-old(root),
+  html.is-newsletter-reader::view-transition-new(root) {
+    animation: none !important;
   }
 }

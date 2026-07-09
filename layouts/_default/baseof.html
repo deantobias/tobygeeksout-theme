@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"{{ if and (eq .Type "newsletter") (eq .Kind "page") }} class="is-newsletter-reader"{{ end }}>
 <head>
   {{ partial "head.html" . }}
 </head>
 <body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}">
   <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
+  {{/* Measure the header the instant it exists, before <main> is even
+       parsed — so --header-actual-h is correct on the very first layout
+       pass instead of jumping a beat later. This is what was causing the
+       newsletter reader (which needs pixel-exact clearance for its
+       locked full-viewport panels) to visibly flick into place. */}}
+  <script>
+  (function () {
+    var h = document.querySelector('.site-header');
+    if (h) {
+      document.documentElement.style.setProperty('--header-actual-h', (Math.round(h.getBoundingClientRect().height) - 1) + 'px');
+    }
+  })();
+  </script>
   {{/* Posts are Type "post" but their Section is the YEAR (/2026/...),
        so never test .Section for post-ness. Post pages get no inline
        padding — .post-header's own padding handles header clearance,
        and a stale inline value here causes a white gap on first paint
        that view transitions freeze on screen. */}}
-  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post")) }} style="padding-top: calc(var(--header-h, 90px) + 2rem)"{{ end }}>
+  {{/* Newsletter LIST (Kind "section") keeps the generic padding — only
+       individual newsletter issues (Kind "page") own their spacing. */}}
+  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post") (and (eq .Type "newsletter") (eq .Kind "page"))) }} style="padding-top: calc(var(--header-h, 90px) + 2rem)"{{ end }}>
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}

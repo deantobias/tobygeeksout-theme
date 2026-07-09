@@ -81,6 +81,13 @@
   body.type-post #main-content { padding-top: 0 !important; }
   /* Newsletter list banner sits flush against header */
   body.section.section-newsletters #main-content { padding-top: 0 !important; }
+  /* Newsletter single (the email-client reader) owns its own spacing —
+     type-newsletter (singular) only matches single issues, never the
+     /newsletters/ list page, which is type-newsletters (plural) and is
+     already covered by the rule above. Without this, the reader got the
+     generic ~94px padding on first paint, then jumped when JS corrected
+     it — this is the real fix for that flicker. */
+  body.type-newsletter #main-content { padding-top: 0 !important; }
 
 </style>
 

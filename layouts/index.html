@@ -4,7 +4,7 @@
 {{ if eq $paginator.PageNumber 1 }}
 <div class="about-strip">
   <div class="about-text">
-    <img src="https://tobygeeksout.micro.blog/uploads/2026/toby-avatar-circle-transparent.png" alt="Toby Overstreet" class="about-avatar">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/file-00000000d50c722fb4920f78f4636f02.png" alt="Toby Overstreet" class="about-avatar">
     <strong>Hi, I'm Toby</strong>
     Technogeek. Blogging since 2004, here on Micro.blog since 2022. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
     <div class="about-links">
@@ -21,7 +21,8 @@
     <div class="subscribe-text">
       <strong>Get it in your inbox</strong>
       Posts on tech, home decor, and whatever has my attention — no noise.
-      <a href="{{ "/newsletters/" | absURL }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
+      {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
+      <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
     </div>
     <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
   </div>

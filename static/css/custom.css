@@ -675,6 +675,65 @@ figcaption {
   body { padding-bottom: 64px; }
 }
 
+/* ------------------------------------------------------------
+   6a. SINGLE POST — compact header
+   Single posts already have their own big terracotta header with
+   the title and meta right below this bar, so the top identity bar
+   only needs to whisper "still on Toby Geeks Out", not repeat a
+   full two-row nav+identity stack. Desktop: one thin row, nav on
+   the left, avatar+wordmark on the right. Mobile: same centered
+   avatar+wordmark as everywhere else, just smaller — nav already
+   lives in the bottom tab bar there.
+   ------------------------------------------------------------ */
+@media (min-width: 768px) {
+  body.type-post .site-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px var(--page-pad);
+    gap: 0;
+  }
+  body.type-post .header-top-row,
+  body.type-post .site-nav-row {
+    width: auto;
+    max-width: none;
+  }
+  body.type-post .header-top-row { order: 2; }
+  body.type-post .site-nav-row { order: 1; }
+  body.type-post .site-identity {
+    flex-direction: row;
+    gap: 8px;
+  }
+  body.type-post .site-nav {
+    gap: 1.25rem;
+  }
+  body.type-post .site-nav li a {
+    flex-direction: row;
+    gap: 5px;
+    font-size: 0.75rem;
+  }
+  body.type-post .site-nav li a .tgo-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+body.type-post .site-logo-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+body.type-post .site-wordmark {
+  font-size: 1rem !important;
+}
+
+@media (max-width: 767px) {
+  body.type-post .site-header {
+    padding: 10px var(--page-pad) 8px;
+    gap: 4px;
+  }
+}
+
 
 /* ------------------------------------------------------------
    7. FEATURED POST BANNER
@@ -955,7 +1014,10 @@ figcaption {
   width: 100%;
   max-width: 100% !important;
   margin: 0 !important;
-  padding-top: calc(var(--header-h) + var(--space-xl));
+  /* header-actual-h, not the static header-h — the compact single-post
+     header above is a different height than every other page, so this
+     needs the JS-measured live value or it leaves a gap/overlap. */
+  padding-top: calc(var(--header-actual-h, var(--header-h)) + var(--space-xl));
   padding-bottom: 0;
   border-bottom: none !important;
 }
@@ -968,7 +1030,7 @@ figcaption {
 
 @media (min-width: 640px) {
   .post-header {
-    padding-top: calc(var(--header-h) + var(--space-2xl));
+    padding-top: calc(var(--header-actual-h, var(--header-h)) + var(--space-2xl));
     padding-bottom: calc(var(--space-2xl) + var(--space-xl)) !important;
   }
   .post-header-inner { padding: 0 var(--page-pad); }

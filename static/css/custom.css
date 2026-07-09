@@ -1590,7 +1590,7 @@ body.type-post .site-wordmark {
   border-color: rgba(30, 45, 74, 0.2);
 }
 
-.btn-subscribe-quiet:hover { background: rgba(30, 45, 74, 0.06); color: var(--color-text-muted); }
+.btn-subscribe-quiet:hover { background: var(--color-navy); border-color: var(--color-navy); color: #ffffff; }
 
 .btn-subscribe-quiet .tgo-check-icon { display: none; }
 

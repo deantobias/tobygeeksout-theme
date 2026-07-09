@@ -48,7 +48,7 @@
   --space-xl:  1.5rem;
   --space-2xl: 2rem;
   --page-pad:  1rem;
-  --max-width: 980px;
+  --max-width: 1120px;
   --header-h:  132px;
   --radius:    4px;
   --radius-lg: 8px;
@@ -61,6 +61,12 @@
     --space-xl:  2rem;
     --space-2xl: 3rem;
     --header-h:  132px;
+  }
+}
+
+@media (min-width: 1440px) {
+  :root {
+    --max-width: 1240px;
   }
 }
 
@@ -538,13 +544,18 @@ figcaption {
    beside it), so the avatar is never offset to one side. Avatar is
    always visible and never moves; only the wordmark underneath it
    fades away on scroll. */
-.site-identity {
+.site-identity,
+.site-identity:link,
+.site-identity:visited,
+.site-identity:hover,
+.site-identity:focus,
+.site-identity:active {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   margin: 0 auto;
-  text-decoration: none;
+  text-decoration: none !important;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -575,13 +586,14 @@ figcaption {
   font-weight: 800;
   color: var(--color-navy);
   letter-spacing: -0.3px;
-  text-decoration: none;
+  text-decoration: none !important;
   white-space: nowrap;
   transition: opacity 0.3s ease;
 }
 
 .site-wordmark .logo-accent {
   color: var(--color-terra);
+  text-decoration: none !important;
 }
 
 .site-wordmark:hover .logo-accent { color: var(--color-terra-dark); }
@@ -1485,6 +1497,19 @@ figcaption {
   font-size: 0.75rem;
   color: var(--color-text-light);
   text-decoration: none;
+}
+
+/* Mobile: the two subscribe buttons were wide enough together to force
+   a wrap onto separate rows. Shrink them so both sit on one row, matching
+   desktop, instead of stacking. */
+@media (max-width: 480px) {
+  .subscribe-actions { gap: 6px; }
+  .btn-subscribe {
+    font-size: 0.6875rem;
+    padding: 7px 11px;
+    gap: 4px;
+  }
+  .btn-subscribe .tgo-icon { width: 12px; height: 12px; }
 }
 .subscribe-archive-link:hover { color: var(--color-terra-dark); }
 

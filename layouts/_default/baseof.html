@@ -26,7 +26,7 @@
        that view transitions freeze on screen. */}}
   {{/* Newsletter LIST (Kind "section") keeps the generic padding — only
        individual newsletter issues (Kind "page") own their spacing. */}}
-  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post") (and (eq .Type "newsletter") (eq .Kind "page"))) }} style="padding-top: calc(var(--header-h, 108px) + 2rem)"{{ end }}>
+  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post") (and (eq .Type "newsletter") (eq .Kind "page"))) }} style="padding-top: calc(var(--header-h, 132px) + 2rem)"{{ end }}>
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}

@@ -49,7 +49,7 @@
   --space-2xl: 2rem;
   --page-pad:  1rem;
   --max-width: 980px;
-  --header-h:  108px;
+  --header-h:  132px;
   --radius:    4px;
   --radius-lg: 8px;
 }
@@ -60,7 +60,7 @@
     --space-lg:  1.5rem;
     --space-xl:  2rem;
     --space-2xl: 3rem;
-    --header-h:  108px;
+    --header-h:  132px;
   }
 }
 
@@ -512,7 +512,7 @@ figcaption {
   display: flex !important;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
   padding: 16px var(--page-pad) 12px;
   /* --color-bg, not --color-bg-warm — the body's real rendered
      background wins via an !important rule elsewhere using --color-bg,
@@ -550,8 +550,8 @@ figcaption {
 
 .site-logo-avatar {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   transform-origin: 50% 85%;

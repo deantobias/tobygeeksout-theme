@@ -638,6 +638,47 @@ figcaption {
   .site-nav li a .tgo-icon { width: 24px; height: 24px; }
 }
 
+/* Header trim on scroll (non-post pages only — single posts already
+   use their own fixed compact layout). --header-shrink is a 0→1
+   value set in custom_footer.html, tied to the same scroll distance
+   the wordmark fades over. Once the wordmark is gone, its reserved
+   space was just dead air; this tightens the gap/padding and eases
+   the nav down a notch over that same stretch, so scrolling actually
+   buys back header height instead of holding it fixed forever. */
+body:not(.type-post) .site-header {
+  gap: calc(18px - 10px * var(--header-shrink, 0));
+  padding-top: calc(16px - 6px * var(--header-shrink, 0));
+  padding-bottom: calc(12px - 6px * var(--header-shrink, 0));
+}
+body:not(.type-post) .site-identity {
+  gap: calc(6px - 6px * var(--header-shrink, 0));
+}
+body:not(.type-post) .site-wordmark {
+  max-height: calc(3rem - 3rem * var(--header-shrink, 0));
+  overflow: hidden;
+}
+body:not(.type-post) .site-logo-avatar {
+  width: calc(56px - 16px * var(--header-shrink, 0));
+  height: calc(56px - 16px * var(--header-shrink, 0));
+}
+body:not(.type-post) .site-nav li a {
+  gap: calc(4px - 1px * var(--header-shrink, 0));
+  font-size: calc(0.8125rem - 0.0625rem * var(--header-shrink, 0));
+}
+body:not(.type-post) .site-nav li a .tgo-icon {
+  width: calc(22px - 4px * var(--header-shrink, 0));
+  height: calc(22px - 4px * var(--header-shrink, 0));
+}
+@media (min-width: 1024px) {
+  body:not(.type-post) .site-nav li a {
+    font-size: calc(0.875rem - 0.0625rem * var(--header-shrink, 0));
+  }
+  body:not(.type-post) .site-nav li a .tgo-icon {
+    width: calc(24px - 4px * var(--header-shrink, 0));
+    height: calc(24px - 4px * var(--header-shrink, 0));
+  }
+}
+
 /* Mobile bottom tab bar — the only nav on small screens, no hamburger */
 .mobile-tab-bar {
   position: fixed;

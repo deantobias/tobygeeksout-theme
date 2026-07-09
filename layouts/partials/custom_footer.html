@@ -23,11 +23,17 @@
     var sy = window.scrollY;
     var dh = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollBar) scrollBar.style.width = clampFade((sy / dh) * 100, 0, 100) + '%';
+    var t = clampFade(sy / FADE_DIST, 0, 1);
     if (wordmark) {
-      var t = clampFade(sy / FADE_DIST, 0, 1);
       wordmark.style.opacity = (1 - easeFade(t)).toFixed(3);
       wordmark.style.pointerEvents = t >= 1 ? 'none' : 'auto';
     }
+    // Once the wordmark has faded, its reserved space is just dead air —
+    // trim the header's own padding/gap and ease the nav down a notch
+    // over that same scroll distance, so the bar actually gets shorter
+    // instead of holding a fixed height forever. Reverses smoothly on
+    // the way back up, same as the fade itself.
+    header.style.setProperty('--header-shrink', easeFade(t).toFixed(3));
   }
   window.addEventListener('scroll', updateHeader, { passive: true });
   updateHeader();

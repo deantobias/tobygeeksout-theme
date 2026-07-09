@@ -1586,8 +1586,8 @@ body.type-post .site-wordmark {
 .btn-subscribe:hover { background: var(--color-terra); color: #ffffff; }
 
 .btn-subscribe-quiet {
-  color: var(--color-text-muted);
-  border-color: rgba(30, 45, 74, 0.2);
+  color: var(--color-navy);
+  border-color: var(--color-navy);
 }
 
 .btn-subscribe-quiet:hover { background: var(--color-navy); border-color: var(--color-navy); color: #ffffff; }

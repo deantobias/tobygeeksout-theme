@@ -1538,7 +1538,9 @@ body.type-post .site-wordmark {
   max-width: 600px;
   width: 100%;
   padding: 20px 22px 18px;
-  background: #ffffff;
+  /* Tan instead of stark white — matches the featured card, and reads
+     more like actual postcard/kraft paper than printer-white ever did. */
+  background: var(--color-bg-warm);
   border: 1.5px dashed rgba(196, 98, 45, 0.45);
   border-radius: 10px;
   text-align: left;

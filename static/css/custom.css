@@ -732,49 +732,49 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    lives in the bottom tab bar there. Newsletter singles get the
    exact same treatment — same reasoning, own reader UI below it. */
 @media (min-width: 768px) {
-  :is(body.type-post, body.type-newsletter) .site-header {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 10px var(--page-pad);
     gap: 0;
   }
-  :is(body.type-post, body.type-newsletter) .header-top-row,
-  :is(body.type-post, body.type-newsletter) .site-nav-row {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .header-top-row,
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav-row {
     width: auto;
     max-width: none;
   }
-  :is(body.type-post, body.type-newsletter) .header-top-row { order: 2; }
-  :is(body.type-post, body.type-newsletter) .site-nav-row { order: 1; }
-  :is(body.type-post, body.type-newsletter) .site-identity {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .header-top-row { order: 2; }
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav-row { order: 1; }
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-identity {
     flex-direction: row-reverse;
     gap: 8px;
   }
-  :is(body.type-post, body.type-newsletter) .site-nav {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav {
     gap: 1.25rem;
   }
-  :is(body.type-post, body.type-newsletter) .site-nav li a {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav li a {
     flex-direction: row;
     gap: 5px;
     font-size: 0.75rem;
   }
-  :is(body.type-post, body.type-newsletter) .site-nav li a .tgo-icon {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav li a .tgo-icon {
     width: 16px;
     height: 16px;
   }
 }
 
-:is(body.type-post, body.type-newsletter) .site-logo-avatar {
+:is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar {
   width: 32px;
   height: 32px;
 }
 
-:is(body.type-post, body.type-newsletter) .site-wordmark {
+:is(body.type-post, body.type-newsletter, body.type-newsletters) .site-wordmark {
   font-size: 1rem !important;
 }
 
 @media (max-width: 767px) {
-  :is(body.type-post, body.type-newsletter) .site-header {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-header {
     padding: 10px var(--page-pad) 8px;
     gap: 4px;
   }
@@ -2326,41 +2326,14 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
 
 /* ------------------------------------------------------------
    35. NEWSLETTER LIST PAGE
+   Now its own Perch Mail inbox view (layouts/newsletter/list.html),
+   matching the single-issue reader instead of a blog-style archive —
+   the old banner-image + numbered .h-entry list is gone along with
+   the template that produced it.
    ------------------------------------------------------------ */
 
-/* List page only */
 .section.section-newsletters #main-content {
-  counter-reset: newsletter-count;
   padding-bottom: var(--space-2xl);
-}
-
-/* Banner image */
-.section.section-newsletters #main-content::before {
-  content: "";
-  display: block;
-  background-image: url('https://iili.io/CukEGI9.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 100%;
-  height: 400px;
-  margin: var(--header-actual-h, 62px) 0 var(--space-xl);
-}
-
-@media (max-width: 599px) {
-  .section.section-newsletters #main-content::before {
-    height: 200px;
-  }
-}
-
-/* Constrain the list content */
-.section.section-newsletters .h-entry,
-.section.section-newsletters .pagination {
-  max-width: var(--max-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: var(--page-pad);
-  padding-right: var(--page-pad);
 }
 
 /* Hide default template title on newsletter single pages */
@@ -2368,85 +2341,9 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   display: none;
 }
 
-.section.section-newsletters .h-entry {
-  padding: var(--space-md) 0;
-  border-bottom: 1px solid #e5e7eb;
-  counter-increment: newsletter-count;
-  display: grid;
-  grid-template-columns: 2rem 1fr;
-  gap: 0 var(--space-md);
-  align-items: start;
-}
-
-.section.section-newsletters .h-entry::before {
-  content: counter(newsletter-count);
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-terra);
-  line-height: 1.3;
-  text-align: right;
-  padding-top: 0.1rem;
-}
-
-@media (min-width: 640px) {
-  .section.section-newsletters .h-entry { padding: var(--space-lg) 0; }
-}
-
-.section.section-newsletters .h-entry p { margin: 0; }
-
-.section.section-newsletters .h-entry a {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-navy);
-  text-decoration: none;
-  line-height: 1.3;
-  display: block;
-  margin-bottom: 0.35rem;
-}
-
-@media (min-width: 640px) {
-  .section.section-newsletters .h-entry a { font-size: 1.75rem; }
-}
-
-.section.section-newsletters .h-entry a:hover { color: var(--color-terra); }
-
-.section.section-newsletters .dt-published {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin-top: 0.25rem;
-}
-
-/* ------------------------------------------------------------
-   36. NEWSLETTER LIST — mobile fixes
-   ------------------------------------------------------------ */
-
 /* Strip any top padding Micro.blog injects on mobile */
 body.section-newsletters {
   padding-top: 0 !important;
-}
-
-@media (max-width: 599px) {
-  .section.section-newsletters .h-entry {
-    padding: 0.5rem var(--page-pad);
-    gap: 0 0.625rem;
-    grid-template-columns: 1.75rem 1fr;
-  }
-
-  .section.section-newsletters .h-entry::before {
-    font-size: 1.25rem;
-  }
-
-  .section.section-newsletters .h-entry a {
-    font-size: 1.05rem !important;
-  }
-
-  .section.section-newsletters .dt-published {
-    font-size: 0.7rem;
-    margin-top: 0.1rem;
-  }
 }
 
 /* ------------------------------------------------------------
@@ -2589,6 +2486,16 @@ body.type-newsletter .site-footer {
   font-size: 0.78rem;
   line-height: 1.4;
   color: var(--color-text-muted);
+}
+
+/* Standalone /newsletters/ list page — same Perch Mail inbox look as
+   the reader's sidebar (reuses .newsletter-list/.newsletter-list-item/
+   .nli-* as-is), just as a normal full-width scrolling page instead of
+   a 320px sidebar next to a preview pane. */
+.newsletter-list-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--page-pad) var(--space-2xl);
 }
 
 .newsletter-preview-panel {

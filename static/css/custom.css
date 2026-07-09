@@ -1377,20 +1377,18 @@ figcaption {
   background: var(--color-bg);
 }
 .about-avatar {
+  /* Back to a plain circle for now — the source photo is itself a
+     circular cutout, so a square Polaroid frame left empty terracotta
+     in the corners and cut your shoulders off in a curve instead of a
+     natural straight line. Revisit the Polaroid look if a square/
+     rectangular crop of the photo becomes available. */
   width: 180px;
   height: 180px;
-  border-radius: 2px;
+  border-radius: 50%;
   display: block;
   margin: 0 auto 16px;
-  object-fit: contain;
-  background: var(--color-terra);
-  /* Classic Polaroid proportions: white frame, noticeably thicker
-     along the bottom edge than the other three sides. */
-  border-style: solid;
-  border-color: #ffffff;
-  border-width: 8px 8px 26px;
+  object-fit: cover;
   outline: 0.5px solid rgba(30, 45, 74, 0.1);
-  transform: rotate(-4deg);
   box-shadow: 0 2px 4px rgba(30, 45, 74, 0.15);
 }
 

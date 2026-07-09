@@ -6,33 +6,112 @@
 
 <script>
 (function () {
-  const scrollBar = document.getElementById('scroll-bar');
-  const header    = document.querySelector('.site-header');
-  const logo      = header ? header.querySelector('.site-logo') : null;
-  const logoText  = logo  ? logo.querySelector('.site-logo-text') : null;
+  const scrollBar   = document.getElementById('scroll-bar');
+  const header      = document.querySelector('.site-header');
+  const topRow      = header ? header.querySelector('.header-top-row') : null;
+  const avatarLink  = header ? header.querySelector('.site-avatar-link') : null;
+  const wordmark    = header ? header.querySelector('.site-wordmark') : null;
   if (!header) return;
 
   function clampFade(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
   function easeFade(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-  // Pill morph is retired. Every page (home, archive, category,
-  // newsletters list, single posts, static pages, newsletter issues)
-  // now behaves the same way: header stays put, avatar stays put,
-  // wordmark quietly fades away over the first bit of scroll so it
-  // doesn't compete for attention. Header padding is handled entirely
-  // by plain CSS (see .site-header rules in custom.css), not JS.
+  // Wordmark quietly fades over the first bit of scroll, same on every
+  // page type. Once it's fully faded, the avatar animates from its
+  // left-aligned spot to the horizontal center of the row, so scrolled
+  // pages get a compact, centered avatar instead of an empty left slot.
+  // This replaces the old pill-morph script but keeps only the single
+  // position transition piece of it — no color/size/border-radius morph.
   var FADE_DIST = 90;
+  var isCentered = false;
+
+  function centerAvatar() {
+    if (!avatarLink || !topRow || isCentered) return;
+    if (window.innerWidth < 768) return;
+    var rowRect = topRow.getBoundingClientRect();
+    var avatarRect = avatarLink.getBoundingClientRect();
+    var rowCenterX = rowRect.left + rowRect.width / 2;
+    var avatarCenterX = avatarRect.left + avatarRect.width / 2;
+    var delta = rowCenterX - avatarCenterX;
+    avatarLink.style.transform = 'translateX(' + delta.toFixed(1) + 'px)';
+    isCentered = true;
+  }
+
+  function resetAvatar() {
+    if (!avatarLink || !isCentered) return;
+    avatarLink.style.transform = '';
+    isCentered = false;
+  }
+
   function updateHeader() {
     var sy = window.scrollY;
     var dh = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollBar) scrollBar.style.width = clampFade((sy / dh) * 100, 0, 100) + '%';
-    if (logoText) {
+    if (wordmark) {
       var t = clampFade(sy / FADE_DIST, 0, 1);
-      logoText.style.opacity = (1 - easeFade(t)).toFixed(3);
+      wordmark.style.opacity = (1 - easeFade(t)).toFixed(3);
+      wordmark.style.pointerEvents = t >= 1 ? 'none' : 'auto';
+      if (t >= 1) { centerAvatar(); } else { resetAvatar(); }
     }
   }
   window.addEventListener('scroll', updateHeader, { passive: true });
+  window.addEventListener('resize', function () {
+    if (isCentered) { isCentered = false; centerAvatar(); }
+  });
   updateHeader();
+})();
+</script>
+
+<script>
+/* Home page about-strip: cycling tagline under "Hi, I'm Toby". Static
+   fallback text is already in the HTML so it reads fine with JS off. */
+(function () {
+  var el = document.getElementById('tgo-tagline');
+  if (!el) return;
+  var words = [
+    "Technogeek.",
+    "Deaf, proud of it.",
+    "Blogging since 2004.",
+    "LEGO builder.",
+    "Tiny house dweller.",
+    "OULDHH writer."
+  ];
+  var i = 0;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setInterval(function () {
+    i = (i + 1) % words.length;
+    el.style.opacity = 0;
+    setTimeout(function () {
+      el.textContent = words[i];
+      el.style.opacity = 1;
+    }, 250);
+  }, 2200);
+})();
+</script>
+
+<script>
+/* Subscribe via RSS: copies the feed URL to the clipboard instead of
+   navigating to a raw XML page, with a brief "Copied!" confirmation
+   so people aren't left guessing whether the click did anything. */
+(function () {
+  var btn = document.getElementById('tgo-rss-copy');
+  if (!btn) return;
+  var label = btn.querySelector('.tgo-rss-label');
+  var defaultLabel = label ? label.textContent : 'Subscribe via RSS';
+  var resetTimer;
+  btn.addEventListener('click', function () {
+    var url = btn.getAttribute('data-feed-url');
+    if (navigator.clipboard && url) {
+      navigator.clipboard.writeText(url).catch(function () {});
+    }
+    btn.classList.add('is-copied');
+    if (label) label.textContent = 'Copied!';
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(function () {
+      btn.classList.remove('is-copied');
+      if (label) label.textContent = defaultLabel;
+    }, 1800);
+  });
 })();
 </script>
 

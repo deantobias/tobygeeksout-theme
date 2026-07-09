@@ -6,7 +6,8 @@
   <div class="about-text">
     <img src="https://tobygeeksout.micro.blog/uploads/2026/file-00000000d50c722fb4920f78f4636f02.png" alt="Toby Overstreet" class="about-avatar">
     <strong>Hi, I'm Toby</strong>
-    Technogeek. Blogging since 2004, here on Micro.blog since 2022. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.
+    <p class="about-tagline" id="tgo-tagline" aria-live="polite">Technogeek.</p>
+    <p class="about-bio">Blogging since 2004, here on Micro.blog since 2022. I write about tech, AI, home decor, movies, TV, and whatever the internet throws at me. Deaf, proud of it. I also write for <a href="https://www.ouldhh.org">Organization of Unique Learners (OULDHH)</a>, creating educational content on neurodivergence.</p>
     <div class="about-links">
       <a href="https://tobygeeksout.micro.blog/about-me/">About</a>
       <span>·</span>
@@ -18,13 +19,21 @@
 </div>
 <div class="subscribe-strip">
   <div class="subscribe-inner">
-    <div class="subscribe-text">
-      <strong>Get it in your inbox</strong>
-      Posts on tech, home decor, and whatever has my attention — no noise.
-      {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
-      <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" style="display: inline-block; margin-top: 10px; padding: 6px 14px; background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.03em;">Browse past newsletters →</a>
+    <p class="subscribe-heading">Get it in your inbox</p>
+    <p class="subscribe-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
+    <div class="subscribe-actions">
+      <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">
+        {{ partial "icon.html" (dict "name" "mail") }} Subscribe by email
+      </a>
+      <button type="button" class="btn-subscribe btn-subscribe-quiet" id="tgo-rss-copy"
+        data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
+        {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">Subscribe via RSS</span>
+      </button>
     </div>
-    <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">Subscribe</a>
+    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
+    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
   </div>
 </div>
 {{/* Featured carousel is page-1 only too — pages 2+ start clean
@@ -38,8 +47,8 @@
           <li class="splide__slide">
             <div class="featured-inner">
 <div class="featured-eyebrow">
-  ★ Featured Post
-<br>
+  {{ partial "icon.html" (dict "name" "star") }}
+  <span>Featured</span>
   <div class="featured-categories">
     {{ $cats := slice }}
     {{ range .Params.categories }}
@@ -60,7 +69,7 @@
                     {{ .Date.Format "January 2, 2006" }}
                   </time>
                 </span>
-                <a href="{{ .Permalink }}" class="btn-featured">Read it →</a>
+                <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
               </div>
             </div>
           </li>
@@ -71,14 +80,10 @@
   </div>
   <div class="carousel-controls">
     <button class="carousel-prev" id="carousel-prev" aria-label="Previous slide">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-        <path d="M25 8 L13 20 L25 32" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      {{ partial "icon.html" (dict "name" "chevron-left" "class" "carousel-arrow-icon") }}
     </button>
     <button class="carousel-next" id="carousel-next" aria-label="Next slide">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-        <path d="M15 8 L27 20 L15 32" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      {{ partial "icon.html" (dict "name" "chevron-right" "class" "carousel-arrow-icon") }}
     </button>
   </div>
 </div>

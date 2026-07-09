@@ -1,39 +1,44 @@
 <div id="scroll-bar"></div>
 <header class="site-header">
 
-  <a href="{{ .Site.BaseURL }}" class="site-logo" aria-label="{{ .Site.Title }} home">
-    <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="site-logo-avatar">
-    <span class="site-logo-text">Toby Geeks<span class="logo-accent"> Out!</span></span>
-  </a>
+  <div class="header-top-row">
+    <a href="{{ .Site.BaseURL }}" class="site-avatar-link" aria-label="{{ .Site.Title }} home">
+      <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="site-logo-avatar">
+    </a>
 
-  <!-- Hamburger toggle (mobile only — hidden via CSS on desktop) -->
-  <button
-    class="nav-toggle"
-    aria-controls="site-nav"
-    aria-expanded="false"
-    aria-label="Toggle navigation"
-  >
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
+    <a href="{{ .Site.BaseURL }}" class="site-wordmark" aria-label="{{ .Site.Title }} home">
+      <span class="site-logo-text">Toby Geeks<span class="logo-accent">Out!</span></span>
+      <span class="logo-underline" aria-hidden="true"></span>
+    </a>
 
-  <nav id="site-nav" aria-label="Primary navigation">
+    <!-- Spacer keeps the wordmark visually centered against the avatar's width -->
+    <span class="header-spacer" aria-hidden="true"></span>
+  </div>
+
+  <nav id="site-nav" class="site-nav-row" aria-label="Primary navigation">
     <ul class="site-nav">
 
       <!-- Home is always first -->
       <li>
         <a href="{{ .Site.BaseURL }}"
           {{ if .IsHome }}class="active" aria-current="page"{{ end }}>
-          Home
+          {{ partial "icon.html" (dict "name" "home") }}
+          <span>Home</span>
         </a>
       </li>
 
       {{ range .Site.Menus.main }}
+      {{ $iconName := "search" }}
+      {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
+      {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
+      {{ else if eq .Name "About" }}{{ $iconName = "user" }}
+      {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
+      {{ end }}
       <li>
         <a href="{{ .URL }}"
           {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }}>
-          {{ .Name }}
+          {{ partial "icon.html" (dict "name" $iconName) }}
+          <span>{{ .Name }}</span>
         </a>
       </li>
       {{ end }}
@@ -42,3 +47,21 @@
   </nav>
 
 </header>
+
+<!-- Mobile-only bottom tab bar — replaces the hamburger entirely -->
+<nav class="mobile-tab-bar" aria-label="Primary navigation">
+  <a href="{{ .Site.BaseURL }}" {{ if .IsHome }}class="active" aria-current="page"{{ end }} aria-label="Home">
+    {{ partial "icon.html" (dict "name" "home") }}
+  </a>
+  {{ range .Site.Menus.main }}
+  {{ $iconName := "search" }}
+  {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
+  {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
+  {{ else if eq .Name "About" }}{{ $iconName = "user" }}
+  {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
+  {{ end }}
+  <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }} aria-label="{{ .Name }}">
+    {{ partial "icon.html" (dict "name" $iconName) }}
+  </a>
+  {{ end }}
+</nav>

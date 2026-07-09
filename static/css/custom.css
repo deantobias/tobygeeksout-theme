@@ -578,6 +578,7 @@ figcaption {
   font-family: 'Bricolage Grotesque', var(--font-display);
   font-size: 1.625rem;
   font-weight: 800;
+  line-height: 1.2;
   color: var(--color-navy);
   letter-spacing: -0.3px;
   text-decoration: none !important;
@@ -742,7 +743,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   body.type-post .header-top-row { order: 2; }
   body.type-post .site-nav-row { order: 1; }
   body.type-post .site-identity {
-    flex-direction: row;
+    flex-direction: row-reverse;
     gap: 8px;
   }
   body.type-post .site-nav {

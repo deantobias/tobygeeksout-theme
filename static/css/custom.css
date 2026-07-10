@@ -542,9 +542,9 @@ figcaption {
   position: relative;
 }
 
-/* Single identity unit — avatar centered above the wordmark (not
+/* Single identity unit — avatar centered above the logo image (not
    beside it), so the avatar is never offset to one side. Avatar is
-   always visible and never moves; only the wordmark underneath it
+   always visible and never moves; only the logo underneath it
    fades away on scroll. */
 .site-identity,
 .site-identity:link,
@@ -582,27 +582,20 @@ figcaption {
   .site-logo-avatar { animation: none; }
 }
 
-.site-wordmark {
-  font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 1.625rem;
-  font-weight: 800;
-  line-height: 1.2;
-  color: var(--color-navy);
-  letter-spacing: -0.3px;
-  text-decoration: none !important;
-  white-space: nowrap;
+/* Image wordmark (July 10 2026): 2000x500 PNG replaces the old text
+   wordmark. Fades out on scroll exactly like the old text did — JS
+   in custom_footer.html drives the opacity, and the collapse block
+   further down reclaims its space. Height-driven; width follows the
+   4:1 ratio so it always fits the header at these sizes. */
+.site-logo-wordmark {
+  display: block;
+  height: 56px;
+  width: auto;
   transition: opacity 0.3s ease;
 }
 
-.site-wordmark .logo-accent {
-  color: var(--color-terra);
-  text-decoration: none !important;
-}
-
-.site-wordmark:hover .logo-accent { color: var(--color-terra-dark); }
-
-@media (min-width: 600px) { .site-wordmark { font-size: 1.875rem; } }
-@media (min-width: 1024px) { .site-wordmark { font-size: 2.125rem; } }
+@media (min-width: 600px) { .site-logo-wordmark { height: 66px; } }
+@media (min-width: 1024px) { .site-logo-wordmark { height: 72px; } }
 
 .site-nav-row {
   width: 100%;
@@ -659,16 +652,17 @@ body:not(.type-post) .site-header {
   padding-top: calc(16px - 6px * var(--header-shrink, 0));
   padding-bottom: calc(12px - 6px * var(--header-shrink, 0));
 }
-/* Gap + wordmark box collapse apply everywhere, including single
-   posts — the wordmark fades on scroll on every page type, and
-   without this the fully-transparent text still held its layout
-   space, leaving a dead gap under the avatar. */
+/* Logo fade+collapse on scroll — same behavior the old text wordmark
+   had. JS in custom_footer.html fades the image out over the first
+   ~90px of scroll; this collapses its reserved space over the same
+   distance so the avatar and nav close ranks instead of leaving dead
+   air under the avatar. max-height on an img scales it down
+   proportionally (width follows), so it shrinks as it fades. */
 .site-identity {
   gap: calc(6px - 6px * var(--header-shrink, 0));
 }
-.site-wordmark {
-  max-height: calc(3rem - 3rem * var(--header-shrink, 0));
-  overflow: hidden;
+.site-logo-wordmark {
+  max-height: calc(72px - 72px * var(--header-shrink, 0));
 }
 body:not(.type-post) .site-logo-avatar {
   width: calc(56px - 16px * var(--header-shrink, 0));
@@ -750,8 +744,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    Single posts already have their own big terracotta header with
    the title and meta right below this bar, so the top identity bar
    only needs to whisper "still on Toby Geeks Out", not repeat a
-   full two-row nav+identity stack. Desktop: one thin row, nav on
-   the left, avatar+wordmark on the right. Mobile: same centered
+   full two-row nav+identity stack. Desktop: one thin row, avatar +
+   wordmark on the left, nav on the right. Mobile: same centered
    avatar+wordmark as everywhere else, just smaller — nav already
    lives in the bottom tab bar there. Newsletter singles get the
    exact same treatment — same reasoning, own reader UI below it. */
@@ -768,10 +762,13 @@ body:not(.type-post) .site-nav li a .tgo-icon {
     width: auto;
     max-width: none;
   }
-  :is(body.type-post, body.type-newsletter, body.type-newsletters) .header-top-row { order: 2; }
-  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav-row { order: 1; }
+  /* Identity LEFT, nav RIGHT (Toby's call, July 9 2026): eyes start
+     top-left, so that's where "whose site am I on" belongs; actions
+     live on the right. Avatar sits before the wordmark, normal order. */
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .header-top-row { order: 1; }
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav-row { order: 2; }
   :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-identity {
-    flex-direction: row-reverse;
+    flex-direction: row;
     gap: 8px;
   }
   :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-nav {
@@ -793,8 +790,16 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   height: 32px;
 }
 
-:is(body.type-post, body.type-newsletter, body.type-newsletters) .site-wordmark {
-  font-size: 1rem !important;
+:is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark {
+  height: 30px !important;
+}
+
+/* Mobile single posts stack avatar above logo just like the home
+   page — same header, same logo size (matches the base 56px). */
+@media (max-width: 767px) {
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark {
+    height: 56px !important;
+  }
 }
 
 @media (max-width: 767px) {
@@ -809,7 +814,20 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    7. FEATURED POST BANNER
    ------------------------------------------------------------ */
 
+/* Warm terracotta marquee ("Option 2 — soft warm glow", July 9 2026
+   mockup). Louder than the old tan card: peachy terracotta gradient,
+   oversized display title, ghost star in the corner. No photo needed,
+   so every Long Read gets the same treatment. Toby picked this over
+   navy — no blue anywhere in this section.
+   Local shades below extend the terracotta family for this component
+   only; everything else uses the global tokens. */
 .featured-banner {
+  --terra-glow-1: #F6E7DC;
+  --terra-glow-2: #E9C4AC;
+  --terra-glow-border: #E4C3AE;
+  --terra-peach: #E8B08E;
+  --terra-brown: #5A4438;
+  --terra-brown-soft: #8A6B58;
   background-color: var(--color-bg);
   padding: var(--space-xl) 0 var(--space-md);
   position: relative;
@@ -817,97 +835,179 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   margin-top: 0;
 }
 
-.featured-inner {
+@media (min-width: 640px) {
+  .featured-banner { padding: var(--space-xl) 2rem var(--space-md); }
+}
+
+.featured-shell {
   max-width: var(--max-width);
   margin: 0 auto;
+}
+
+.featured-inner {
   position: relative;
-  padding: 20px 1rem 22px;
-  /* Tan, not white — warmer than the body background so the card
-     still reads as a distinct callout, but not var(--color-terra-light):
-     that's the exact color the category pills inside this card use for
-     their own background, so it would swallow them. */
-  background: var(--color-bg-warm);
-  border: 0.5px solid rgba(30, 45, 74, 0.1);
-  border-top: 3px solid var(--color-terra);
-  border-radius: 0 0 var(--radius) var(--radius);
-  /* Fixed box regardless of title/excerpt length across slides, with
-     the content centered inside it instead of pinned to the top —
-     short titles no longer leave the card looking lopsided, and
-     switching slides no longer resizes the whole banner. */
-  min-height: 300px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--terra-glow-1) 0%, var(--color-terra-light) 55%, var(--terra-glow-2) 100%);
+  border: 1px solid var(--terra-glow-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: clamp(28px, 6vw, 60px) clamp(20px, 5vw, 56px);
+  min-height: clamp(300px, 40vw, 380px);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-shadow: 0 14px 36px rgba(196, 98, 45, 0.18);
 }
 
-@media (min-width: 640px) {
-  .featured-banner { padding: var(--space-xl) 2rem var(--space-md); }
-  .featured-inner  { padding: 24px 2rem 26px; min-height: 340px; }
-  .featured-title  { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; }
+/* Terracotta accent bar along the top edge */
+.featured-inner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(to right, var(--color-terra), var(--terra-peach), transparent);
 }
+
+/* Ghost star in the corner — pure decoration, scales with viewport
+   so it never swallows a phone-sized card */
+.featured-inner::after {
+  content: '★';
+  position: absolute;
+  right: clamp(-40px, -3vw, -24px);
+  bottom: clamp(-80px, -8vw, -56px);
+  font-size: clamp(9rem, 22vw, 16rem);
+  color: rgba(196, 98, 45, 0.08);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Keep real content above the ghost star */
+.featured-inner > * { position: relative; z-index: 1; }
 
 .featured-eyebrow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: var(--color-terra-dark);
   margin-bottom: var(--space-md);
 }
 
-.featured-eyebrow .tgo-icon { width: 13px; height: 13px; }
+.featured-eyebrow .tgo-icon { width: 14px; height: 14px; color: var(--color-terra); }
 
 .featured-eyebrow .featured-categories {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-left: 6px;
+}
+
+/* Pills inside the marquee: white on the warm gradient, and clickable */
+.featured-eyebrow .featured-categories .post-category {
+  background: #FFFFFF;
+  color: var(--color-terra-dark);
+  border: 1px solid var(--terra-glow-border);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .featured-eyebrow br { display: none; }
 
 .featured-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
   font-weight: 800;
-  color: var(--color-navy);
-  line-height: 1.2;
+  color: var(--color-terra-dark);
+  line-height: 1.12;
+  max-width: 20ch;
+  text-wrap: balance;
   margin-bottom: var(--space-md);
 }
 
-@media (min-width: 480px) { .featured-title { font-size: 1.75rem; } }
-
 .featured-excerpt {
-  color: var(--color-text-muted);
-  line-height: 1.75;
+  color: var(--terra-brown);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  max-width: 54ch;
   margin-bottom: var(--space-lg);
 }
 
-.featured-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); flex-wrap: wrap; }
-.featured-date { font-size: 0.8125rem; color: var(--color-text-light); }
+.featured-meta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.featured-date { font-size: 0.85rem; color: var(--terra-brown-soft); }
 
 .btn-featured {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background-color: transparent;
-  color: var(--color-terra);
-  border: 1.5px solid var(--color-terra);
+  gap: 8px;
+  background-color: var(--color-terra);
+  color: #FFFFFF;
+  border: none;
   font-family: 'Bricolage Grotesque', var(--font-display);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.3px;
-  padding: 9px 16px;
-  border-radius: 999px;
+  padding: 13px 26px;
+  border-radius: var(--radius);
   text-decoration: none;
   min-height: 44px;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.15s;
 }
 
 .btn-featured .tgo-icon { width: 14px; height: 14px; }
 
-.btn-featured:hover { background-color: var(--color-terra); color: #ffffff; }
+.btn-featured:hover { background-color: var(--color-terra-dark); color: #FFFFFF; }
+
+/* "More long reads" strip — cream shelf under the marquee that keeps
+   the two previous Long Reads one tap away (they're hidden from the
+   page-1 timeline, so without this they'd be invisible on the home
+   page). */
+.featured-more {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: 16px clamp(20px, 5vw, 56px) 18px;
+}
+
+.featured-more-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  margin-bottom: 8px;
+}
+
+.featured-more-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  text-decoration: none;
+  border-top: 1px dashed var(--color-border);
+  min-height: 44px;
+}
+
+.featured-more-item:first-of-type { border-top: none; }
+
+.featured-more-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-terra-dark);
+}
+
+.featured-more-item:hover .featured-more-title { color: var(--color-terra); }
+
+.featured-more-date {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
 
 
 /* ------------------------------------------------------------
@@ -1083,8 +1183,18 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    ------------------------------------------------------------ */
 
 /* Terracotta full-bleed header */
+/* Deep terracotta post header ("Option 2", July 9 2026 mockup, minus
+   the star — that's the featured badge's mark, not a post decoration).
+   Replaces the old off-palette salmon (#cc7a5b): token terracotta
+   gradient, warm-white title, translucent pills. Darkest corner is
+   top-left where the text sits, so contrast is strongest exactly
+   where people read (title ~7:1, meta ~5:1 — the old white-on-salmon
+   meta measured 3.2:1). Light title on terracotta = "you're inside a
+   post"; the warm glow gradient stays exclusive to Featured on home. */
 .post-header {
-  background: #cc7a5b;
+  --terra-peach: #E8B08E; /* shared with featured marquee accents */
+  background: linear-gradient(135deg, var(--color-terra-dark) 0%, var(--color-terra) 100%);
+  position: relative;
   width: 100%;
   max-width: 100% !important;
   margin: 0 !important;
@@ -1094,6 +1204,16 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   padding-top: calc(var(--header-actual-h, var(--header-h)) + var(--space-xl));
   padding-bottom: 0;
   border-bottom: none !important;
+}
+
+/* Peach accent line where the header hands off to the post body —
+   same fading-line signature as the page titles and the marquee. */
+.post-header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--terra-peach), transparent);
 }
 
 .post-header-inner {
@@ -1118,31 +1238,34 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   flex-wrap: wrap;
 }
 
-/* Navy category tags inside the post header */
+/* Translucent white pills on the terracotta — clickable, readable,
+   no navy in here anymore */
 .post-header .post-category {
-  background: var(--color-navy);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .post-header .post-category:hover {
-  background: var(--color-navy-mid);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
 }
 
 .post-header-title {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  /* Warm white token, not pure #fff — same readability (~7:1 on the
+     dark end of the gradient), stays inside the palette */
+  color: var(--color-bg);
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
   font-weight: 800;
-  line-height: 1.15;
-  color: var(--color-navy);
+  line-height: 1.12;
+  max-width: 22ch;
   margin-bottom: var(--space-md);
   text-wrap: balance;
 }
 
-@media (min-width: 640px) { .post-header-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
-
 .post-header-meta {
   font-size: 0.8125rem;
-  color: rgba(255,255,255,0.88);
+  color: rgba(250, 248, 245, 0.92);
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -1150,7 +1273,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   margin-bottom: 0;
 }
 
-.post-header-meta time { font-weight: 600; color: rgba(255,255,255,0.88); }
+.post-header-meta time { font-weight: 600; color: rgba(250, 248, 245, 0.92); }
 
 .post-body {
   max-width: var(--max-width);
@@ -1517,7 +1640,12 @@ body:not(.type-post) .site-nav li a .tgo-icon {
      screen size); the static --header-h is only a first-paint guess
      before that script runs. Using the static value alone is what
      let the avatar sit underneath the fixed header on some viewports. */
-  padding-top: calc(var(--header-actual-h, var(--header-h)) + 56px);
+  /* Was +56px — tuned for the old short text-wordmark header. The
+     image logo (July 10 2026) makes the header taller on its own, so
+     the strip now uses the same tight +24px offset as desktop;
+     +56px on top of the taller header read as a dead gap on phones
+     and foldables. */
+  padding-top: calc(var(--header-actual-h, var(--header-h)) + 24px);
   background: var(--color-bg);
 }
 /* Desktop: pull the whole about block up a bit so more of it (ideally
@@ -2174,13 +2302,15 @@ body.page .post-header {
 .read-time-pill {
   display: inline-flex;
   align-items: center;
-  background: var(--color-navy);
-  color: #ffffff;
+  /* Cream on the terracotta header — highest-contrast element in the
+     meta row (terra-dark on warm white ≈ 8:1), and no navy up here */
+  background: var(--color-bg);
+  color: var(--color-terra-dark);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 10px;
-  border-radius: 3px;
+  border-radius: 999px;
   text-transform: uppercase;
 }
 
@@ -2211,7 +2341,10 @@ body.page .post-header {
 .homepage-search-inner {
   display: flex !important;
   align-items: center;
-  max-width: 480px;
+  /* 640px + 1.2rem input text below: matches how the box actually
+     rendered while the template's inline styles were winning — the
+     inline styles are gone now (July 9 2026), CSS owns the look */
+  max-width: 640px;
   margin: 0 auto;
   border: 2px solid var(--color-border);
   border-radius: 6px;
@@ -2227,13 +2360,16 @@ body.page .post-header {
 
 .homepage-search-inner input {
   flex: 1;
-  padding: 0.75rem 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
   border: none;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--color-text);
   background: transparent;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .homepage-search-inner input::placeholder { color: var(--color-text-light); }
@@ -3225,4 +3361,149 @@ table.link-card a[style*="inline-block"] {
   html.is-newsletter-reader::view-transition-new(root) {
     animation: none !important;
   }
+}
+
+/* ------------------------------------------------------------
+   33. POST SUBSCRIBE LINE (single posts)
+   One quiet row right after the post body — catches readers who
+   land on a post from a link/search and never see the home page
+   subscribe strip. Deliberately compact: the post footer already
+   has Reply by Email, related posts, and prev/next to live with.
+   Kept at the END of the file so its styles win over the home
+   strip's .btn-subscribe-quiet colors (the RSS button borrows that
+   class for the copied-state icon swap only).
+   ------------------------------------------------------------ */
+
+.post-subscribe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  max-width: 980px;
+  margin: var(--space-xl) auto var(--space-sm);
+  padding: 14px 18px;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-terra);
+  border-radius: var(--radius-lg);
+}
+
+.post-subscribe-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.post-subscribe-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.post-subscribe-email,
+.post-subscribe-rss {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Bricolage Grotesque', var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  min-height: 40px;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.post-subscribe-email {
+  background: var(--color-terra);
+  color: #ffffff;
+  border: none;
+}
+.post-subscribe-email:hover { background: var(--color-terra-dark); color: #ffffff; }
+
+.post-subscribe-rss {
+  background: transparent;
+  color: var(--color-terra-dark);
+  border: 1.5px solid var(--color-terra);
+}
+.post-subscribe-rss:hover { background: var(--color-terra-light); color: var(--color-terra-dark); }
+
+.post-subscribe .tgo-icon { width: 14px; height: 14px; }
+
+/* Copied state — mirror the home strip's confirmation so the two RSS
+   buttons feel like the same control */
+.post-subscribe-rss.is-copied {
+  border-color: var(--color-terra);
+  color: var(--color-terra-dark);
+  background: var(--color-terra-light);
+}
+
+/* Under desktop, the centered max-width box would touch the screen
+   edges — inset it to match the post body's side padding */
+@media (max-width: 1023px) {
+  .post-subscribe {
+    margin-left: var(--space-xl);
+    margin-right: var(--space-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .post-subscribe { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* ------------------------------------------------------------
+   34. SKIP LINK (keyboard accessibility)
+   First tab stop on every page. Visually hidden until focused,
+   then drops in as a terracotta pill above the fixed header so
+   keyboard users can jump straight past the nav to the content.
+   ------------------------------------------------------------ */
+
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 3000; /* above the fixed header and the tab bar */
+  background: var(--color-terra);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 999px;
+  text-decoration: none;
+  /* hidden until focused */
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid var(--color-terra-light);
+  outline-offset: 2px;
+}
+
+/* Tab bar hides while the on-screen keyboard is up (body.kb-open,
+   toggled by the visualViewport watcher in custom_footer.html).
+   Slides down AND fades — with the keyboard open the bar anchors
+   above it, so a pure slide could leave a sliver peeking at the
+   keyboard's top edge; opacity+visibility guarantee it's fully gone.
+   The body's reserved bottom padding is released at the same time,
+   otherwise an empty strip shows under the footer. */
+body.kb-open { padding-bottom: 0; }
+/* Footer hides too: when the keyboard opens, mobile browsers compress
+   the page into the space above it — on short pages (empty search
+   especially) that shoved the navy footer up into view mid-screen,
+   with odd gaps around it. While typing, content only; footer and
+   bar both return when the keyboard closes. */
+body.kb-open .site-footer { display: none; }
+body.kb-open .mobile-tab-bar {
+  transform: translateY(110%);
+  opacity: 0;
+  visibility: hidden;
+}
+.mobile-tab-bar {
+  transition: transform 0.2s ease, opacity 0.15s ease, visibility 0s linear 0.2s;
 }

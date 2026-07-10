@@ -40,6 +40,30 @@
     {{ end }}
   </div>
 
+  {{/* Compact subscribe line — catches new readers who land on a post
+       from a link/search and never see the home page strip. One quiet
+       row, right where someone who just finished (and liked) the post
+       is looking. RSS button reuses the home strip's copy-to-clipboard
+       script (custom_footer.html targets #tgo-rss-copy; only one page
+       type has the button at a time, so the id stays unique). */}}
+  <div class="post-subscribe">
+    <span class="post-subscribe-text">Enjoyed this? Get new posts in your inbox.</span>
+    <span class="post-subscribe-actions">
+      {{/* Short label on purpose — the line's text already says "get
+           new posts in your inbox", so the button doesn't repeat it.
+           Keeps the two pills balanced instead of one long, one stubby. */}}
+      <a class="post-subscribe-email" href="https://tobygeeksout.micro.blog/subscribe/">
+        {{ partial "icon.html" (dict "name" "mail") }} Email
+      </a>
+      <button type="button" class="post-subscribe-rss btn-subscribe-quiet" id="tgo-rss-copy"
+        data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
+        {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">RSS</span>
+      </button>
+    </span>
+  </div>
+
   <div class="reply-email-wrap">
     {{ partial "reply-by-email.html" . }}
   </div>

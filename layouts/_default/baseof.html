@@ -4,6 +4,10 @@
   {{ partial "head.html" . }}
 </head>
 <body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}">
+  {{/* Keyboard users' first tab stop: jump straight to the content
+       instead of tabbing through the whole nav on every page.
+       Invisible until focused — see .skip-link in custom.css. */}}
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <div id="scroll-progress" aria-hidden="true"></div>
   {{ partial "header.html" . }}
   {{/* Measure the header the instant it exists, before <main> is even

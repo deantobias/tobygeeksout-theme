@@ -47,32 +47,50 @@
 {{ range first 1 $longPosts }}
 {{ if .Title }}
 <div class="featured-banner">
-  <div class="featured-inner">
-    <div class="featured-eyebrow">
-      {{ partial "icon.html" (dict "name" "star") }}
-      <span>Featured</span>
-      <div class="featured-categories">
-        {{ $cats := slice }}
-        {{ range .Params.categories }}
-          {{ if ne . "Long Read" }}
-            {{ $cats = $cats | append . }}
+  <div class="featured-shell">
+    <div class="featured-inner">
+      <div class="featured-eyebrow">
+        {{ partial "icon.html" (dict "name" "star") }}
+        <span>Featured</span>
+        <div class="featured-categories">
+          {{ $cats := slice }}
+          {{ range .Params.categories }}
+            {{ if ne . "Long Read" }}
+              {{ $cats = $cats | append . }}
+            {{ end }}
           {{ end }}
-        {{ end }}
-        {{ range first 3 $cats }}
-          <span class="post-category">{{ . }}</span>
-        {{ end }}
+          {{ range first 3 $cats }}
+            <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
+          {{ end }}
+        </div>
+      </div>
+      <h2 class="featured-title">{{ .Title }}</h2>
+      <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
+      <div class="featured-meta">
+        <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
+        <span class="featured-date">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">
+            {{ .Date.Format "January 2, 2006" }}
+          </time>
+        </span>
       </div>
     </div>
-    <h2 class="featured-title">{{ .Title }}</h2>
-    <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
-    <div class="featured-meta">
-      <span class="featured-date">
-        <time datetime="{{ .Date.Format "2006-01-02" }}">
-          {{ .Date.Format "January 2, 2006" }}
-        </time>
-      </span>
-      <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
+    {{/* Older Long Reads used to vanish from the home page entirely
+         once a newer one published (the feed skips them and only the
+         latest gets featured). This strip keeps the two previous ones
+         one tap away, right under the marquee. */}}
+    {{ $older := first 2 (after 1 $longPosts) }}
+    {{ if $older }}
+    <div class="featured-more">
+      <div class="featured-more-label">More long reads</div>
+      {{ range $older }}
+      <a class="featured-more-item" href="{{ .Permalink }}">
+        <span class="featured-more-title">{{ .Title }}</span>
+        <span class="featured-more-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </a>
+      {{ end }}
     </div>
+    {{ end }}
   </div>
 </div>
 {{ end }}
@@ -82,14 +100,18 @@
   {{ if eq $paginator.PageNumber 1 }}
     <p class="feed-label">Recent Geekouts</p>
   {{ else }}
-    <p class="feed-label">Geeksouts — Page {{ $paginator.PageNumber }}</p>
+    <p class="feed-label">Geekouts — Page {{ $paginator.PageNumber }}</p>
   {{ end }}
   {{ range $paginator.Pages }}
     {{ $isLongRead := false }}
     {{ range .Params.categories }}
       {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
     {{ end }}
-    {{ if not $isLongRead }}
+    {{/* Long Reads are hidden from the timeline on page 1 only — the
+         featured marquee + "More long reads" strip already show them
+         there. Pages 2+ include them in the timeline like any post,
+         so older Long Reads are never invisible. */}}
+    {{ if or (ne $paginator.PageNumber 1) (not $isLongRead) }}
       <div class="post-card">
         <div class="post-date" aria-hidden="true">
          <span class="post-date-day">{{ .Date.Format "2" }}</span>
@@ -121,8 +143,7 @@
           </div>
           {{ if le (len .Plain) 800 }}
             <p class="post-card-footer">
-             <a href="{{ .Permalink }}" class="u-url">Permalink</a> ∞
-              </a>
+              <a href="{{ .Permalink }}" class="u-url">Permalink ∞</a>
             </p>
           {{ end }}
         </div>
@@ -140,11 +161,17 @@
       {{ end }}
     </nav>
   {{ end }}
-<div class="homepage-search" style="padding: 2rem 1rem; text-align: center;">
-  <div class="homepage-search-inner" style="display: flex !important; align-items: center; max-width: 640px; margin: 0 auto; border: 2px solid #E5DDD5; border-radius: 6px; overflow: hidden; background: #FAF8F5;">
-    <input type="text" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" style="flex: 1; width: 100%; padding: 1.25rem 1.25rem; border: none; font-size: 1.2rem; line-height: 1; color: #1A1A18; background: transparent; outline: none; -webkit-appearance: none; appearance: none; box-shadow: none;" />
-    <button onclick="var q=document.getElementById('homepage-search-input').value; if(q) window.location.href='/search/?q='+encodeURIComponent(q);" style="padding: 1.25rem 1.5rem; background: #C4622D; color: #fff; border: none; font-size: 0.875rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; white-space: nowrap; align-self: stretch;">Search</button>
-  </div>
+{{/* Styling lives in custom.css section 31 (homepage-search) — the
+     inline styles that used to sit here were duplicating it with
+     hardcoded hex values, and overriding the tokened CSS.
+     A real GET form instead of an onclick handler: pressing Enter
+     now searches too (it used to do nothing), and it works with
+     JS off. Submitting produces /search/?q=... same as before. */}}
+<div class="homepage-search">
+  <form class="homepage-search-inner" action="/search/" method="get">
+    <input type="text" name="q" id="homepage-search-input" placeholder="Search posts..." aria-label="Search posts" />
+    <button type="submit">Search</button>
+  </form>
 </div>
 </div>
 {{ end }}

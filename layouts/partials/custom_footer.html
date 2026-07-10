@@ -8,15 +8,16 @@
 (function () {
   const scrollBar = document.getElementById('scroll-bar');
   const header    = document.querySelector('.site-header');
-  const wordmark  = header ? header.querySelector('.site-wordmark') : null;
+  const logo      = header ? header.querySelector('.site-logo-wordmark') : null;
   if (!header) return;
 
   function clampFade(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
   function easeFade(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-  // Wordmark quietly fades over the first bit of scroll, same on every
-  // page type. The avatar next to it never moves or hides — it's a
-  // fixed part of the identity unit, not something that animates.
+  // Logo image quietly fades over the first bit of scroll, same on
+  // every page type — same behavior the old text wordmark had. The
+  // avatar and nav never move or hide; once the logo is gone they're
+  // all that's left in the header.
   var FADE_DIST = 90;
 
   function updateHeader() {
@@ -24,11 +25,11 @@
     var dh = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollBar) scrollBar.style.width = clampFade((sy / dh) * 100, 0, 100) + '%';
     var t = clampFade(sy / FADE_DIST, 0, 1);
-    if (wordmark) {
-      wordmark.style.opacity = (1 - easeFade(t)).toFixed(3);
-      wordmark.style.pointerEvents = t >= 1 ? 'none' : 'auto';
+    if (logo) {
+      logo.style.opacity = (1 - easeFade(t)).toFixed(3);
+      logo.style.pointerEvents = t >= 1 ? 'none' : 'auto';
     }
-    // Once the wordmark has faded, its reserved space is just dead air —
+    // Once the logo has faded, its reserved space is just dead air —
     // trim the header's own padding/gap and ease the nav down a notch
     // over that same scroll distance, so the bar actually gets shorter
     // instead of holding a fixed height forever. Reverses smoothly on
@@ -144,6 +145,38 @@
   };
   setH();
   window.addEventListener('resize', setH);
+})();
+</script>
+
+<script>
+/* Mobile tab bar vs. the on-screen keyboard: when the keyboard is up
+   (typing in search, etc.), the bar floats mid-screen above it with
+   dead space under the icons — swollen and useless. Do what native
+   apps do: hide the bar while the keyboard is open.
+   Detection is by VIEWPORT HEIGHT, not input focus — on Android the
+   back button closes the keyboard WITHOUT blurring the input, so a
+   focus-based check left the bar hidden forever (found live July 9).
+   The visual viewport shrinks >150px only for a keyboard; the URL
+   bar hiding is ~56px, safely under the threshold. */
+(function () {
+  var bar = document.querySelector('.mobile-tab-bar');
+  if (!bar || !window.visualViewport) return;
+  var vv = window.visualViewport;
+  var maxH = vv.height;
+  var check = function () {
+    if (vv.height > maxH) maxH = vv.height;
+    // Class goes on <body>, not the bar: CSS needs it in two places —
+    // hiding the bar AND releasing the body's reserved bottom padding
+    // (otherwise an empty strip shows under the footer while the
+    // keyboard is up).
+    document.body.classList.toggle('kb-open', (maxH - vv.height) > 150);
+  };
+  vv.addEventListener('resize', check);
+  window.addEventListener('orientationchange', function () {
+    maxH = 0;
+    setTimeout(check, 300);
+  });
+  check();
 })();
 </script>
 

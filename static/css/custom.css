@@ -794,11 +794,19 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   height: 30px !important;
 }
 
-/* Mobile single posts stack avatar above logo just like the home
-   page — same header, same logo size (matches the base 56px). */
+/* Mobile single posts use the SAME compact row as desktop/foldable
+   (Toby's call, July 10): avatar + logo side by side on the LEFT,
+   not stacked and centered like the home page. Nav lives in the
+   bottom tab bar on mobile, so the row is identity only. Logo stays
+   at the unscoped 30px to match desktop singles. */
 @media (max-width: 767px) {
-  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark {
-    height: 56px !important;
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .header-top-row {
+    justify-content: flex-start;
+  }
+  :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-identity {
+    flex-direction: row;
+    gap: 8px;
+    margin: 0;
   }
 }
 

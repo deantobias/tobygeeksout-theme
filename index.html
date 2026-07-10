@@ -24,6 +24,20 @@
 	
 	  <div class="h-entry">
 		
+			<h1><a href="https://tobygeeksout.micro.blog/2026/07/10/koi-in-graffiti.html">Koi in Graffiti </a></h1>
+		
+
+		<a href="https://tobygeeksout.micro.blog/2026/07/10/koi-in-graffiti.html" class="u-url"><time class="dt-published" datetime="2026-07-10 10:13:05 -0400">Jul 10, 2026</time></a>
+
+		<div class="e-content">
+			 <p>They are so cool.</p>
+<!-- raw HTML omitted -->
+
+		</div>
+	  </div>
+	
+	  <div class="h-entry">
+		
 			<h1><a href="https://tobygeeksout.micro.blog/2026/07/08/i-didnt-feel-like-celebrating.html">It Was Always Bigger Than That</a></h1>
 		
 
@@ -5054,7 +5068,32 @@ Trailer:
 		<a href="https://tobygeeksout.micro.blog/2026/04/18/a-few-weeks-in-the.html" class="u-url"><time class="dt-published" datetime="2026-04-18 16:24:25 -0400">Apr 18, 2026</time></a>
 
 		<div class="e-content">
-			 <p><!-- raw HTML omitted --><!-- raw HTML omitted -->The past few weeks have been less about writing posts and more about building the thing that holds them. If you&rsquo;ve visited the blog recently and noticed things looking a little sharper, a little more intentional — that&rsquo;s not your imagination. I&rsquo;ve been deep in the code, and I want to tell you what that actually looked like.<!-- raw HTML omitted --><!-- raw HTML omitted -->It Started With One Thing and Became Twenty<!-- raw HTML omitted --><!-- raw HTML omitted -->That&rsquo;s always how it goes, isn&rsquo;t it? I went in wanting to clean up a small layout inconsistency, and three weeks later I had touched nearly every part of the theme. CSS sections, Hugo templates, JavaScript, mobile layouts — all of it got some attention. Not because anything was broken beyond fixing, but because once you start looking, you can&rsquo;t stop seeing what could be better.<!-- raw HTML omitted --><!-- raw HTML omitted -->The biggest structural change was collapsing two redundant card components into one. The blog feed used to have a <!-- raw HTML omitted -->micro-card<!-- raw HTML omitted --> for short posts and a <!-- raw HTML omitted -->post-card<!-- raw HTML omitted --> for longer ones — two separate chunks of code doing almost the same job. I merged them into a single unified card with simple logic inside: if a post is over 800 characters, it shows a truncated summary with a &ldquo;Keep reading&rdquo; link. Under 800, it shows everything. Same visual design, half the code. That kind of cleanup feels good in a way that&rsquo;s hard to explain to non-developers, but if you&rsquo;ve ever reorganized a messy drawer and felt the satisfaction of it — it&rsquo;s that.<!-- raw HTML omitted --><!-- raw HTML omitted -->The TOC Fight<!-- raw HTML omitted --><!-- raw HTML omitted -->One of the more satisfying fixes involved the Table of Contents sidebar on Long Read posts. It had been working, then stopped, and I couldn&rsquo;t figure out why. The TOC is supposed to stay sticky as you scroll — following you down the page, highlighting each section as you reach it. It wasn&rsquo;t doing that anymore.<!-- raw HTML omitted --><!-- raw HTML omitted -->After a lot of digging, I found the culprit: Grammarly. The browser extension was injecting <!-- raw HTML omitted -->overflow: hidden<!-- raw HTML omitted --> onto the page body at runtime, which silently broke <!-- raw HTML omitted -->position: sticky<!-- raw HTML omitted --> on the sidebar. One line of CSS fixed it — I forced the body to allow vertical scroll regardless of what extensions try to inject. Took a while to find, took a second to fix. That&rsquo;s debugging in a nutshell.<!-- raw HTML omitted --><!-- raw HTML omitted -->Mobile Got a Real Rethink<!-- raw HTML omitted --><!-- raw HTML omitted -->I spent a good chunk of time thinking hard about the mobile experience. The blog was sitting at 56% on PageSpeed Insights, and I wanted to push that number up. Some of it was technical — moving the Splide.js carousel off the top of the page and down between the About Me blurb and Recent Geeksouts, converting images to WebP format, and making sure every image has proper alt text for accessibility. Some of it was design.<!-- raw HTML omitted --><!-- raw HTML omitted -->Honestly though, the performance score didn&rsquo;t budge much. A lot of what&rsquo;s dragging it down is baked into how Hugo builds on Micro.blog — stuff I simply don&rsquo;t have control over. So I made peace with it. I loaded the blog on my phone — a newer, high-end device — and it runs beautifully. The tradeoff I&rsquo;m aware of is that people on older, aging devices might have a different experience. That&rsquo;s something I&rsquo;ll keep an eye on.<!-- raw HTML omitted --><!-- raw HTML omitted -->The feed layout on mobile used to have the post date in a column on the left, with the post content on the right. It worked, but on a small screen it was eating up real estate. I dropped it and switched to a stacked editorial style — date above, content below — which gave the text more room to breathe. I also discovered that iPhone Safari and Android Chrome render fonts very differently, and had to add a specific CSS block just to tame the iPhone sizing without breaking how good it already looked on Android.<!-- raw HTML omitted --><!-- raw HTML omitted -->I tested across Brave, Safari, Orion, Comet, Arc, and Chrome — the browsers I use most often. Everything looks good on both mobile and desktop. The one exception is Comet and Arc on my Samsung Galaxy Z Fold 7 when unfolded — there&rsquo;s a header nav issue and some unexpected white space on the right side that the other browsers don&rsquo;t have. Still investigating why. The rest of the browsers handle it beautifully, so it&rsquo;s a quirk worth chasing down rather than a crisis.<!-- raw HTML omitted --><!-- raw HTML omitted -->Little Things That Add Up<!-- raw HTML omitted --><!-- raw HTML omitted -->Beyond the big structural stuff, a lot of small things got fixed or refined:<!-- raw HTML omitted --><!-- raw HTML omitted -->The blockquote style got unified across every context on the site — feed, single post, static pages — so it always looks the same no matter where it appears. Warm terracotta background, deep rust border, Georgia italic. It&rsquo;s a small detail but it matters.<!-- raw HTML omitted --><!-- raw HTML omitted -->The homepage search bar got taller and wider — more inviting, easier to tap on mobile. The subscribe section got a proper card layout. The footer on short posts now shows a permalink instead of a redundant date. The category pills lost the wavy underline that Micro.blog&rsquo;s own CSS was injecting over my styles.<!-- raw HTML omitted --><!-- raw HTML omitted -->The Reading page got some love too. The bookshelf got a visual overhaul — compact cover cards with title and author, styled consistently with the rest of the site. I even added a fake wood shelf underneath the currently reading section, which sounds a little silly but looks fantastic. It&rsquo;s a much nicer way to show what I&rsquo;m currently reading than a plain list.<!-- raw HTML omitted --><!-- raw HTML omitted -->The Now page got a full redesign — a navy card for what I&rsquo;m currently tinkering with, arrow-style lists for writing links, a bookshelf section for what I&rsquo;m reading, and an auto-updating Long Reads block so I never have to update it manually again.<!-- raw HTML omitted --><!-- raw HTML omitted -->And &ldquo;Recent Posts&rdquo; became <!-- raw HTML omitted -->&ldquo;Recent Geeksout.&quot;<!-- raw HTML omitted --> Because obviously.<!-- raw HTML omitted --><!-- raw HTML omitted -->Rethinking the Homepage Order<!-- raw HTML omitted --><!-- raw HTML omitted -->I also reorganized the homepage layout. It used to open with the featured post, then my About Me blurb, then the subscribe strip, then the recent feed. It made sense at the time, but it always felt like the featured post was grabbing attention before readers even knew what the blog was about.<!-- raw HTML omitted --><!-- raw HTML omitted -->So I flipped it. Now the homepage opens with the About Me section, followed by the subscribe strip, then the featured post, then the recent feed. It&rsquo;s a small reorder but it changes the feel significantly — you get context first, then content. New visitors know who I am and what this place is before they dive into anything. It just makes more sense.<!-- raw HTML omitted --><!-- raw HTML omitted -->What&rsquo;s Next<!-- raw HTML omitted --><!-- raw HTML omitted -->The theme is in a good place right now. There are always small things to revisit — there&rsquo;s a Browse by Topic spacing issue that keeps evading me, and I want to keep watching how the &ldquo;Keep reading&rdquo; truncation performs across different post types. But the tinkering never really stops. I&rsquo;ll keep poking at the HTML and CSS, making this a more enjoyable reading experience one small improvement at a time.<!-- raw HTML omitted --><!-- raw HTML omitted -->If you&rsquo;ve landed on the homepage and have thoughts about how it looks or reads, I&rsquo;d love to hear from you. Seriously — drop me a note. Feedback from actual readers means a lot.<!-- raw HTML omitted --></p>
+			 <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
 		</div>
 	  </div>
@@ -7006,7 +7045,7 @@ via Facebook</a></p>
 
 		<div class="e-content">
 			 <p>Decided to build my own Micro.blog theme. A couple of days of tinkering in, still working through a few minor issues, but progress is being made. More tweaks coming soon.</p>
-<p><img src="https://cdn.uploads.micro.blog/95313/2026/theme-change-result.webp" alt="Auto-generated description: A blog webpage titled Toby Geeks Out! discusses the topic Can a Robot Love You Back? with recent posts and navigational menu options."></p>
+<p><img src="https://tobygeeksout.micro.blog/uploads/2026/theme-change-result.webp" alt="Auto-generated description: A blog webpage titled Toby Geeks Out! discusses the topic Can a Robot Love You Back? with recent posts and navigational menu options."></p>
 
 		</div>
 	  </div>
@@ -10307,7 +10346,7 @@ The site is <strong>Mine No. 155</strong>, which was active from roughly 1910 to
 			<h1><a href="https://tobygeeksout.micro.blog/2026/02/15/sunday-afternoon-css-tinkering.html">Sunday Afternoon CSS Tinkering</a></h1>
 		
 
-		<a href="https://tobygeeksout.micro.blog/2026/02/15/sunday-afternoon-css-tinkering.html" class="u-url"><time class="dt-published" datetime="2026-02-15 18:03:00 -0400">Feb 15, 2026</time></a>
+		<a href="https://tobygeeksout.micro.blog/2026/02/15/sunday-afternoon-css-tinkering.html" class="u-url"><time class="dt-published" datetime="2026-02-15 19:03:00 -0400">Feb 15, 2026</time></a>
 
 		<div class="e-content">
 			 <p><!-- raw HTML omitted -->S<!-- raw HTML omitted -->o I spent my Sunday doing what normal people probably don&rsquo;t do—obsessing over blog spacing. You know how it is. You notice one little thing that&rsquo;s bugging you, and next thing you know, three hours have disappeared, and you&rsquo;re still messing around with CSS.</p>
@@ -10600,7 +10639,7 @@ The site is <strong>Mine No. 155</strong>, which was active from roughly 1910 to
 			<h1><a href="https://tobygeeksout.micro.blog/2026/02/13/wrestling-with-microblog.html">Wrestling with Micro.blog</a></h1>
 		
 
-		<a href="https://tobygeeksout.micro.blog/2026/02/13/wrestling-with-microblog.html" class="u-url"><time class="dt-published" datetime="2026-02-13 13:36:00 -0400">Feb 13, 2026</time></a>
+		<a href="https://tobygeeksout.micro.blog/2026/02/13/wrestling-with-microblog.html" class="u-url"><time class="dt-published" datetime="2026-02-13 14:36:00 -0400">Feb 13, 2026</time></a>
 
 		<div class="e-content">
 			 <p><!-- raw HTML omitted -->I<!-- raw HTML omitted -->&rsquo;ve been in a full-on wrestling match with my Micro.blog theme lately. Had this specific vision: truncated posts on the homepage with a &ldquo;Continue Reading&rdquo; link, a nice drop cap at the start of long-form posts, and images that didn&rsquo;t feel like they were yelling over the text. Simple, right?</p>

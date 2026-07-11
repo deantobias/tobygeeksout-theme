@@ -2,11 +2,17 @@
   <div>
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
   {{ if gt (len $list) 0 }}
-    <div class="archive_categories">
-      {{ range $list }}
-        <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
-      {{ end }}
-    </div>
+    {{/* Collapsed by default (Toby, July 11 2026): the post list is
+         what greets readers; tap "Categories" to browse by topic.
+         Native details/summary — no JS. CSS in section 14. */}}
+    <details class="archive-categories-fold">
+      <summary>Categories</summary>
+      <div class="archive_categories">
+        {{ range $list }}
+          <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
+        {{ end }}
+      </div>
+    </details>
   {{ end }}
   {{ $posts := where .Site.Pages "Type" "post" }}
   <div class="archive-wrapper">

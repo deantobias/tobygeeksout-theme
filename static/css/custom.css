@@ -1480,6 +1480,46 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .archive_categories p::after { content: ', '; }
 .archive_categories p:last-child::after { content: ''; }
 
+/* Categories fold (July 11 2026): collapsed by default so the post
+   list is what greets readers — tap the heading to browse by topic.
+   Width/padding match .archive-wrapper so everything lines up. */
+.archive-categories-fold {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+.archive-categories-fold summary {
+  font-family: var(--font-display);
+  color: var(--color-navy);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.archive-categories-fold summary::-webkit-details-marker { display: none; }
+
+.archive-categories-fold summary::before {
+  content: '\25B8';
+  color: var(--color-terra);
+  margin-right: 8px;
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.archive-categories-fold[open] summary::before { transform: rotate(90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-categories-fold summary::before { transition: none; }
+}
+
+.archive-categories-fold .archive_categories {
+  max-width: none;
+  margin: 0;
+  padding: var(--space-sm) 0 0 1.4rem;
+}
+
 .archive_years { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-xl) var(--space-md); }
 
 .archive_years select {

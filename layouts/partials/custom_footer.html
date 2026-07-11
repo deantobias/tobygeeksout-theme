@@ -181,6 +181,56 @@
 </script>
 
 <script>
+/* Single posts, mobile: tab bar tucks away on scroll-down (past ~80px)
+   and returns on scroll-up — reading stays clean, nav is one flick
+   away. Same scroll-direction pattern as the header shrink. Home and
+   list pages are untouched: this only runs when .post-header exists.
+   CSS lives in custom.css section 41 (body.tab-bar-tucked). */
+(function () {
+  if (!document.querySelector('.post-header')) return;
+  if (!document.querySelector('.mobile-tab-bar')) return;
+  var lastY = window.scrollY;
+  var ticking = false;
+  var update = function () {
+    var y = window.scrollY;
+    if (y > lastY && y > 80) {
+      document.body.classList.add('tab-bar-tucked');
+    } else if (y < lastY) {
+      document.body.classList.remove('tab-bar-tucked');
+    }
+    lastY = y;
+    ticking = false;
+  };
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+  }, { passive: true });
+})();
+</script>
+
+<script>
+/* Back pill (single posts, mobile): upgrades the plain link-to-home
+   into a true "back to where I was" button — but ONLY when the reader
+   arrived from another page on this site, so it never dumps anyone
+   back out to an external site or an empty tab. Without JS, or from
+   an outside link, it stays a home link. */
+(function () {
+  var pill = document.getElementById('back-pill');
+  if (!pill) return;
+  var cameFromHere = document.referrer &&
+    document.referrer.indexOf(window.location.host) !== -1;
+  if (window.history.length > 1 && cameFromHere) {
+    pill.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.history.back();
+    });
+  }
+})();
+</script>
+
+<script>
 /* Search page: stays perfectly still (no scroll, no header fade, no
    footer gap) whenever #list_results is empty — whether that's the
    initial load, or after typing a search and then clearing it back

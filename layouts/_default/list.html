@@ -12,29 +12,24 @@
          <span class="post-date-year">{{ .Date.Format "2006" }}</span>
         </div>
         <div class="post-card-content">
-          {{ if .Params.categories }}
-            <div class="post-card-categories">
-              {{ range .Params.categories }}
-                <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
-              {{ end }}
-            </div>
-          {{ end }}
+          {{/* Category pills removed from cards July 11, 2026 —
+               categories now appear on single posts only. */}}
           {{ if .Title }}
             <div class="post-card-title">
               <a href="{{ .Permalink }}">{{ .Title }}</a>
             </div>
           {{ end }}
-          <div class="post-card-excerpt">
-            {{ if gt (len .Plain) 800 }}
+          {{ if gt (len .Plain) 800 }}
+            <div class="post-card-excerpt excerpt-fade">
               {{ .Summary | htmlUnescape | safeHTML }}
-              <div class="post-card-footer">
-                <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
-              </div>
-            {{ else }}
+            </div>
+            <div class="post-card-footer">
+              <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+            </div>
+          {{ else }}
+            <div class="post-card-excerpt">
               {{ .Content | htmlUnescape | safeHTML }}
-            {{ end }}
-          </div>
-          {{ if le (len .Plain) 800 }}
+            </div>
             <p class="post-card-footer">
               <a href="{{ .Permalink }}" class="u-url">
                 <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞

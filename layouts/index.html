@@ -1,7 +1,18 @@
 {{ define "main" }}
-{{ $longPosts := where (where .Site.Pages.ByDate.Reverse "Type" "post") ".Params.categories" "intersect" (slice "Long Read") }}
-{{ $paginator := .Paginate (where .Site.Pages.ByDate.Reverse "Type" "post") 10 }}
-{{ if eq $paginator.PageNumber 1 }}
+{{ $spotlightPosts := where (where .Site.Pages.ByDate.Reverse "Type" "post") ".Params.categories" "intersect" (slice "Spotlight") }}
+{{/* Recent feed = latest non-Spotlight posts. Spotlight posts live in
+     the marquee + "More in the Spotlight" strip above, so the feed
+     skips them to avoid doubling up. Everything is always reachable
+     from the archive link below — no numbered pagination anymore. */}}
+{{ $recentPool := slice }}
+{{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+  {{ $isSpotlight := false }}
+  {{ range .Params.categories }}
+    {{ if eq . "Spotlight" }}{{ $isSpotlight = true }}{{ end }}
+  {{ end }}
+  {{ if not $isSpotlight }}{{ $recentPool = $recentPool | append . }}{{ end }}
+{{ end }}
+{{ $recent := first 6 $recentPool }}
 <div class="about-strip">
   <div class="about-text">
     <strong>Hi, I'm Toby</strong>
@@ -41,28 +52,18 @@
     <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
   </div>
 </div>
-{{/* Featured section is page-1 only too — pages 2+ start clean with
-     the post list ("Geeksouts — Page N"). Just the single latest Long
-     Read post, no carousel and no arrows to fight with. */}}
-{{ range first 1 $longPosts }}
+{{/* Spotlight marquee — latest post tagged "Spotlight" (curated by
+     Toby, replaces the old Long Read-driven featured banner).
+     Category pills removed from cards and marquee July 11, 2026 —
+     categories now appear on single posts only. */}}
+{{ range first 1 $spotlightPosts }}
 {{ if .Title }}
 <div class="featured-banner">
   <div class="featured-shell">
     <div class="featured-inner">
       <div class="featured-eyebrow">
         {{ partial "icon.html" (dict "name" "star") }}
-        <span>Featured</span>
-        <div class="featured-categories">
-          {{ $cats := slice }}
-          {{ range .Params.categories }}
-            {{ if ne . "Long Read" }}
-              {{ $cats = $cats | append . }}
-            {{ end }}
-          {{ end }}
-          {{ range first 3 $cats }}
-            <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
-          {{ end }}
-        </div>
+        <span>Spotlight</span>
       </div>
       <h2 class="featured-title">{{ .Title }}</h2>
       <p class="featured-excerpt">{{ .Summary | htmlUnescape | plainify | truncate 250 }}</p>
@@ -75,14 +76,13 @@
         </span>
       </div>
     </div>
-    {{/* Older Long Reads used to vanish from the home page entirely
-         once a newer one published (the feed skips them and only the
-         latest gets featured). This strip keeps the two previous ones
-         one tap away, right under the marquee. */}}
-    {{ $older := first 2 (after 1 $longPosts) }}
+    {{/* Older Spotlight posts would otherwise vanish from the home
+         page once a newer one publishes. This strip keeps the two
+         previous ones one tap away, right under the marquee. */}}
+    {{ $older := first 2 (after 1 $spotlightPosts) }}
     {{ if $older }}
     <div class="featured-more">
-      <div class="featured-more-label">More long reads</div>
+      <div class="featured-more-label">More in the Spotlight</div>
       {{ range $older }}
       <a class="featured-more-item" href="{{ .Permalink }}">
         <span class="featured-more-title">{{ .Title }}</span>
@@ -95,72 +95,47 @@
 </div>
 {{ end }}
 {{ end }}
-{{ end }}
 <div class="feed-wrapper">
-  {{ if eq $paginator.PageNumber 1 }}
-    <p class="feed-label">Recent Geekouts</p>
-  {{ else }}
-    <p class="feed-label">Geekouts — Page {{ $paginator.PageNumber }}</p>
-  {{ end }}
-  {{ range $paginator.Pages }}
-    {{ $isLongRead := false }}
-    {{ range .Params.categories }}
-      {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
-    {{ end }}
-    {{/* Long Reads are hidden from the timeline on page 1 only — the
-         featured marquee + "More long reads" strip already show them
-         there. Pages 2+ include them in the timeline like any post,
-         so older Long Reads are never invisible. */}}
-    {{ if or (ne $paginator.PageNumber 1) (not $isLongRead) }}
-      <div class="post-card">
-        <div class="post-date" aria-hidden="true">
-         <span class="post-date-day">{{ .Date.Format "2" }}</span>
-         <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-         <span class="post-date-year">{{ .Date.Format "2006" }}</span>
-        </div>
-        <div class="post-card-content">
-          {{ if .Params.categories }}
-            <div class="post-card-categories">
-              {{ range .Params.categories }}
-                <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
-              {{ end }}
-            </div>
-          {{ end }}
-          {{ if .Title }}
-            <div class="post-card-title">
-              <a href="{{ .Permalink }}">{{ .Title }}</a>
-            </div>
-          {{ end }}
-          <div class="post-card-excerpt">
-            {{ if gt (len .Plain) 800 }}
-              {{ .Summary | htmlUnescape | safeHTML }}
-              <div class="post-card-footer">
-                <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
-              </div>
-            {{ else }}
-              {{ .Content }}
-            {{ end }}
-          </div>
-          {{ if le (len .Plain) 800 }}
-            <p class="post-card-footer">
-              <a href="{{ .Permalink }}" class="u-url">Permalink ∞</a>
-            </p>
-          {{ end }}
-        </div>
+  <p class="feed-label">Recent Geekouts</p>
+  {{ range $recent }}
+    <div class="post-card">
+      <div class="post-date" aria-hidden="true">
+       <span class="post-date-day">{{ .Date.Format "2" }}</span>
+       <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
+       <span class="post-date-year">{{ .Date.Format "2006" }}</span>
       </div>
-    {{ end }}
+      <div class="post-card-content">
+        {{ if .Title }}
+          <div class="post-card-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+          </div>
+        {{ end }}
+        {{ if gt (len .Plain) 800 }}
+          {{/* Long post: truncated summary with a tease fade — text
+               melts out at the bottom instead of cutting off hard.
+               Fade lives on .excerpt-fade in custom.css section 40. */}}
+          <div class="post-card-excerpt excerpt-fade">
+            {{ .Summary | htmlUnescape | safeHTML }}
+          </div>
+          <div class="post-card-footer">
+            <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
+          </div>
+        {{ else }}
+          <div class="post-card-excerpt">
+            {{ .Content }}
+          </div>
+          <p class="post-card-footer">
+            <a href="{{ .Permalink }}" class="u-url">Permalink ∞</a>
+          </p>
+        {{ end }}
+      </div>
+    </div>
   {{ end }}
-  {{ if gt $paginator.TotalPages 1 }}
-    <nav class="pagination" aria-label="Post navigation">
-      {{ if $paginator.HasPrev }}
-        <a href="{{ $paginator.Prev.URL }}" class="pagination-prev">← Newer</a>
-      {{ end }}
-      <span class="pagination-info">Page {{ $paginator.PageNumber }} of {{ $paginator.TotalPages }}</span>
-      {{ if $paginator.HasNext }}
-        <a href="{{ $paginator.Next.URL }}" class="pagination-next">Older →</a>
-      {{ end }}
-    </nav>
-  {{ end }}
+  {{/* Single archive door instead of numbered pagination — the full
+       chronological record lives on /archive/. */}}
+  <div class="feed-archive-cta">
+    <a href="{{ "/archive/" | absURL }}" class="btn-archive">View the full archive →</a>
+  </div>
 {{/* Styling lives in custom.css section 31 (homepage-search) — the
      inline styles that used to sit here were duplicating it with
      hardcoded hex values, and overriding the tokened CSS.

@@ -1,4 +1,13 @@
 {{ define "main" }}
+{{/* Mobile-only back pill (July 11, 2026) — always visible while
+     reading, even when the tab bar tucks away on scroll-down.
+     Plain link to home by default; the script in custom_footer.html
+     upgrades it to history.back() when the reader arrived from
+     another page on this site. Styled in custom.css section 41. */}}
+<a href="{{ .Site.BaseURL }}" class="back-pill" id="back-pill" aria-label="Go back">
+  {{ partial "icon.html" (dict "name" "arrow-left") }}
+  <span>Back</span>
+</a>
 <article>
   <header class="post-header">
     <div class="post-header-inner">

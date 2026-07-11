@@ -906,21 +906,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .featured-eyebrow .tgo-icon { width: 14px; height: 14px; color: var(--color-terra); }
 
-.featured-eyebrow .featured-categories {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-left: 6px;
-}
-
-/* Pills inside the marquee: white on the warm gradient, and clickable */
-.featured-eyebrow .featured-categories .post-category {
-  background: #FFFFFF;
-  color: var(--color-terra-dark);
-  border: 1px solid var(--terra-glow-border);
-  letter-spacing: normal;
-  text-transform: none;
-}
+/* Category pills removed from the marquee July 11, 2026 —
+   categories now appear on single posts only. */
 
 .featured-eyebrow br { display: none; }
 
@@ -1135,7 +1122,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   text-decoration-color: var(--color-terra-dark);
 }
 
-.post-card-categories { margin-bottom: 0.75rem; }
+/* .post-card-categories removed July 11, 2026 — category pills no
+   longer render on feed cards; categories live on single posts only. */
 
 @media (min-width: 480px) { .post-card-title { font-size: 1.75rem; } }
 @media (min-width: 640px) { .post-card-title { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; } }
@@ -3514,4 +3502,107 @@ body.kb-open .mobile-tab-bar {
 }
 .mobile-tab-bar {
   transition: transform 0.2s ease, opacity 0.15s ease, visibility 0s linear 0.2s;
+}
+
+/* ------------------------------------------------------------
+   40. HOME FEED — archive door + excerpt tease fade
+   (July 11, 2026 — numbered pagination retired; feed shows the
+   6 latest non-Spotlight posts, everything else lives in the
+   archive. Fade applies ONLY to the >800-char truncation branch
+   via .excerpt-fade — short posts render in full, no fade.)
+   ------------------------------------------------------------ */
+
+.post-card-excerpt.excerpt-fade {
+  /* Text melts out over the last few lines instead of a hard cut */
+  mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
+}
+
+.feed-archive-cta {
+  text-align: center;
+  margin: var(--space-xl) 0 var(--space-lg);
+}
+
+.btn-archive {
+  display: inline-block;
+  padding: 12px 28px;
+  border: 2px solid var(--color-terra);
+  border-radius: 999px;
+  color: var(--color-terra-dark);
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-archive:hover {
+  background: var(--color-terra);
+  color: #FFFFFF;
+}
+
+/* ------------------------------------------------------------
+   41. SINGLE POST — mobile tab bar tuck + back pill
+   (July 11, 2026 — single posts only, mobile only. Scroll down
+   past ~80px and the tab bar slides away so the reading view is
+   clean; scroll up and it returns. body.tab-bar-tucked is toggled
+   by the scroll watcher in custom_footer.html. The back pill never
+   hides — it's the constant exit while reading. Home and all list
+   pages keep the tab bar permanently visible.)
+   ------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  body.tab-bar-tucked .mobile-tab-bar {
+    transform: translateY(110%);
+  }
+
+  .back-pill {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    right: 12px;
+    z-index: 1001;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(30, 45, 74, 0.10);
+    color: var(--color-navy);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .back-pill .tgo-icon { width: 16px; height: 16px; }
+}
+
+/* Desktop: no tab bar, no pill — nothing changes */
+@media (min-width: 768px) {
+  .back-pill { display: none; }
+}
+
+/* Reduced motion: bar still tucks (function kept) but without the
+   slide animation */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-tab-bar { transition: none; }
+}
+
+/* ------------------------------------------------------------
+   42. ARCHIVE — titled vs. untitled entries
+   (July 11, 2026 — titled posts read as bold display-font
+   entries; untitled micro posts fall back to italic body-font
+   summary text, so the two are distinguishable at a glance.)
+   ------------------------------------------------------------ */
+
+.archive-item .archive-item-titled {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.archive-item .archive-item-untitled {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-muted);
 }

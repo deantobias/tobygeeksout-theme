@@ -21,7 +21,15 @@
           <li class="archive-item">
             <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time>
             —
-            <a href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Summary | plainify | truncate 80 }}{{ end }}</a>
+            {{/* Titled vs. untitled split (July 11, 2026): real titles
+                 get bold display font; untitled micro posts fall back
+                 to italic body-font summary text, so the two read
+                 differently at a glance. CSS section 42. */}}
+            {{ if .Title }}
+              <a href="{{ .Permalink }}" class="archive-item-titled">{{ .Title }}</a>
+            {{ else }}
+              <a href="{{ .Permalink }}" class="archive-item-untitled">{{ .Summary | plainify | truncate 80 }}</a>
+            {{ end }}
           </li>
           {{ end }}
         </ul>

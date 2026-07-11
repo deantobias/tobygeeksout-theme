@@ -8,7 +8,13 @@
   {{ partial "icon.html" (dict "name" "arrow-left") }}
   <span>Back</span>
 </a>
-<article>
+<article class="h-entry">
+  {{/* Hidden microformats2 author card (July 11, 2026) — webmention
+       parsers on receiving blogs read this to show name + avatar with
+       Perch reply-to posts. Visitors never see it; the hidden
+       attribute is fine, mf2 parsers read the DOM regardless. */}}
+  <a class="p-author h-card" href="{{ .Site.BaseURL }}" hidden>
+    <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
   <header class="post-header">
     <div class="post-header-inner">
       <div class="post-header-eyebrow">
@@ -19,12 +25,17 @@
         {{ end }}
       </div>
       {{ if .Title }}
-        <h1 class="post-header-title">{{ .Title }}</h1>
+        <h1 class="post-header-title p-name">{{ .Title }}</h1>
       {{ end }}
       <div class="post-header-meta">
-        <time datetime="{{ .Date.Format `2006-01-02` }}">
-          {{ .Date.Format "January 2, 2006" }}
-        </time>
+        {{/* u-url + dt-published: the visible date doubles as the
+             post's microformats permalink; styled to look unchanged
+             (custom.css section 29). */}}
+        <a class="u-url" href="{{ .Permalink }}">
+          <time class="dt-published" datetime="{{ .Date.Format `2006-01-02T15:04:05Z07:00` }}">
+            {{ .Date.Format "January 2, 2006" }}
+          </time>
+        </a>
         {{ if .ReadingTime }}
           <span class="read-time-pill">{{ .ReadingTime }} min read</span>
         {{ end }}
@@ -38,7 +49,7 @@
   {{ end }}
 
   <div class="{{ if $isLongRead }}post-layout{{ end }}">
-    <div class="post-body">
+    <div class="post-body e-content">
       {{ .Content }}
     </div>
     {{ if $isLongRead }}

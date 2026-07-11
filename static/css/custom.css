@@ -2354,18 +2354,36 @@ body.page .post-header {
   box-shadow: 0 0 0 3px var(--color-terra-light);
 }
 
-.homepage-search-inner input {
+/* The [type="text"] variant + explicit height/margin/box-shadow exist
+   to out-rank the blogroll/FeedLand plugin's Bootstrap (loaded from
+   scripting.com AFTER custom.css) — its input[type="text"] rule tied
+   this one on specificity and was shrinking the box to a 20px-tall
+   14px-font default (found live July 11, 2026). */
+.homepage-search-inner input,
+.homepage-search-inner input[type="text"] {
   flex: 1;
   width: 100%;
+  height: auto;
+  margin: 0;
   padding: 1rem 1.25rem;
   border: none;
+  border-radius: 0;
+  box-shadow: none;
   font-family: var(--font-body);
   font-size: 1.2rem;
+  line-height: 1.4;
   color: var(--color-text);
   background: transparent;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+}
+
+.homepage-search-inner input:focus,
+.homepage-search-inner input[type="text"]:focus {
+  border: none;
+  box-shadow: none;
+  outline: none;
 }
 
 .homepage-search-inner input::placeholder { color: var(--color-text-light); }

@@ -2336,7 +2336,9 @@ body.page .post-header {
 
 .homepage-search-inner {
   display: flex !important;
-  align-items: center;
+  /* stretch, not center: the button fills the full height of the box
+     so it always matches the input (Toby, July 11 2026) */
+  align-items: stretch;
   /* 640px + 1.2rem input text below: matches how the box actually
      rendered while the template's inline styles were winning — the
      inline styles are gone now (July 9 2026), CSS owns the look */
@@ -2389,7 +2391,7 @@ body.page .post-header {
 .homepage-search-inner input::placeholder { color: var(--color-text-light); }
 
 .homepage-search-inner button {
-  padding: 0.75rem 1.25rem;
+  padding: 0 1.5rem;
   background: var(--color-terra);
   color: #fff !important;
   border: none !important;
@@ -3573,15 +3575,19 @@ body.kb-open .mobile-tab-bar {
     transform: translateY(110%);
   }
 
+  /* Bottom-right, in thumb reach (Toby's call, July 11 2026): the
+     pill rides the tab bar — floats just above it while the bar is
+     visible, slides down into the freed space when the bar tucks
+     away on scroll. Never overlaps the avatar/logo row up top. */
   .back-pill {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 10px);
     right: 12px;
+    bottom: calc(var(--tab-bar-h, calc(64px + env(safe-area-inset-bottom))) + 12px);
     z-index: 1001;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border-radius: 999px;
     background: var(--color-bg);
     border: 1px solid var(--color-border);
@@ -3590,6 +3596,11 @@ body.kb-open .mobile-tab-bar {
     font-size: 0.8rem;
     font-weight: 700;
     text-decoration: none;
+    transition: bottom 0.2s ease;
+  }
+
+  body.tab-bar-tucked .back-pill {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 
   .back-pill .tgo-icon { width: 16px; height: 16px; }
@@ -3600,10 +3611,11 @@ body.kb-open .mobile-tab-bar {
   .back-pill { display: none; }
 }
 
-/* Reduced motion: bar still tucks (function kept) but without the
-   slide animation */
+/* Reduced motion: bar still tucks and pill still repositions
+   (function kept) but without the slide animations */
 @media (prefers-reduced-motion: reduce) {
   .mobile-tab-bar { transition: none; }
+  .back-pill { transition: none; }
 }
 
 /* ------------------------------------------------------------

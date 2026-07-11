@@ -211,21 +211,27 @@
 </script>
 
 <script>
-/* Back pill (single posts, mobile): upgrades the plain link-to-home
-   into a true "back to where I was" button — but ONLY when the reader
-   arrived from another page on this site, so it never dumps anyone
-   back out to an external site or an empty tab. Without JS, or from
-   an outside link, it stays a home link. */
+/* Back pill (single posts, mobile): a plain link pointed at the
+   smartest "back" target available — NO history.back() involved.
+   history.back() proved unreliable here: the browser sometimes
+   swallowed the first programmatic back() after a fresh page load,
+   so Toby needed two taps (found July 11, 2026).
+   Priority: (1) the stored timeline round-trip (same tgo-return data
+   the return-to-title script keeps; landing there re-anchors to this
+   post's card), (2) the same-site page the reader came from,
+   (3) home, which is the href already in the markup. */
 (function () {
   var pill = document.getElementById('back-pill');
   if (!pill) return;
-  var cameFromHere = document.referrer &&
-    document.referrer.indexOf(window.location.host) !== -1;
-  if (window.history.length > 1 && cameFromHere) {
-    pill.addEventListener('click', function (e) {
-      e.preventDefault();
-      window.history.back();
-    });
+  var data = null;
+  try { data = JSON.parse(sessionStorage.getItem('tgo-return') || 'null'); } catch (e) {}
+  if (data && data.post === location.href && data.list && data.list !== location.href) {
+    pill.setAttribute('href', data.list);
+    return;
+  }
+  var ref = document.referrer;
+  if (ref && ref !== location.href && ref.indexOf('//' + window.location.host) !== -1) {
+    pill.setAttribute('href', ref);
   }
 })();
 </script>

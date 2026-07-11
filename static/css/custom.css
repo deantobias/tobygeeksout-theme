@@ -3584,7 +3584,7 @@ body.kb-open .mobile-tab-bar {
   .back-pill {
     position: fixed;
     right: 12px;
-    bottom: calc(var(--tab-bar-h, calc(64px + env(safe-area-inset-bottom))) + 12px);
+    bottom: calc(var(--tab-bar-h, calc(64px + env(safe-area-inset-bottom))) + 8px);
     z-index: 1001;
     display: inline-flex;
     align-items: center;

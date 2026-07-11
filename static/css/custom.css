@@ -3682,3 +3682,17 @@ body.kb-open .mobile-tab-bar {
   font-weight: 400;
   color: var(--color-text-muted);
 }
+
+
+/* ------------------------------------------------------------
+   37a. REPLYING TO — WRAP FIX (addendum to section 37)
+   Reply icon: stay on the first line when the link title
+   wraps on mobile.
+   ------------------------------------------------------------ */
+
+.replying-to { line-height: 1.5; }
+
+.replying-to::after {
+  bottom: auto;
+  top: 3.5rem;
+}

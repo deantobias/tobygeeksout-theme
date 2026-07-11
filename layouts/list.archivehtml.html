@@ -1,0 +1,48 @@
+{{ define "main" }}
+  <div>
+  {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
+  {{ if gt (len $list) 0 }}
+    {{/* Collapsed by default (Toby, July 11 2026): the post list is
+         what greets readers; tap "Categories" to browse by topic.
+         Native details/summary — no JS. CSS in section 14. */}}
+    <details class="archive-categories-fold">
+      <summary>Categories</summary>
+      <div class="archive_categories">
+        {{ range $list }}
+          <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
+        {{ end }}
+      </div>
+    </details>
+  {{ end }}
+  {{ $posts := where .Site.Pages "Type" "post" }}
+  <div class="archive-wrapper">
+    {{ range ($posts.GroupByDate "2006") }}
+    <section class="archive-year">
+      <h2 class="archive-year-heading">{{ .Key }}</h2>
+      {{ range (.Pages.GroupByDate "January 2006") }}
+      <section class="archive-month">
+        <h3 class="archive-month-heading">{{ .Key }}</h3>
+        <ul>
+          {{ range .Pages }}
+          <li class="archive-item">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time>
+            —
+            {{/* Titled vs. untitled split (July 11, 2026): real titles
+                 get bold display font; untitled micro posts fall back
+                 to italic body-font summary text, so the two read
+                 differently at a glance. CSS section 42. */}}
+            {{ if .Title }}
+              <a href="{{ .Permalink }}" class="archive-item-titled">{{ .Title }}</a>
+            {{ else }}
+              <a href="{{ .Permalink }}" class="archive-item-untitled">{{ .Summary | plainify | truncate 80 }}</a>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </section>
+      {{ end }}
+    </section>
+    {{ end }}
+  </div>
+  </div>
+{{ end }}

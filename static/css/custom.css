@@ -3575,10 +3575,12 @@ body.kb-open .mobile-tab-bar {
     transform: translateY(110%);
   }
 
-  /* Bottom-right, in thumb reach (Toby's call, July 11 2026): the
-     pill rides the tab bar — floats just above it while the bar is
-     visible, slides down into the freed space when the bar tucks
-     away on scroll. Never overlaps the avatar/logo row up top. */
+  /* Bottom-right, in thumb reach (Toby's call, July 11 2026), and
+     ALWAYS at the same spot: it does NOT follow the tab bar's
+     tuck/reveal. An earlier version slid down into the freed space —
+     but a touch could re-reveal the bar, the pill slid up under the
+     finger mid-tap, and the browser cancelled the click. Toby needed
+     two taps; a stationary pill fixed it. */
   .back-pill {
     position: fixed;
     right: 12px;
@@ -3596,11 +3598,6 @@ body.kb-open .mobile-tab-bar {
     font-size: 0.8rem;
     font-weight: 700;
     text-decoration: none;
-    transition: bottom 0.2s ease;
-  }
-
-  body.tab-bar-tucked .back-pill {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 
   .back-pill .tgo-icon { width: 16px; height: 16px; }
@@ -3611,11 +3608,10 @@ body.kb-open .mobile-tab-bar {
   .back-pill { display: none; }
 }
 
-/* Reduced motion: bar still tucks and pill still repositions
-   (function kept) but without the slide animations */
+/* Reduced motion: bar still tucks (function kept) but without the
+   slide animation. The back pill is stationary, nothing to reduce. */
 @media (prefers-reduced-motion: reduce) {
   .mobile-tab-bar { transition: none; }
-  .back-pill { transition: none; }
 }
 
 /* ------------------------------------------------------------

@@ -3702,3 +3702,90 @@ body.kb-open .mobile-tab-bar {
   bottom: auto;
   top: 3.5rem;
 }
+
+
+/* ------------------------------------------------------------
+   43. SUNRISE/SUNSET SKY (July 12, 2026)
+   The whole page follows the sun, on every page including
+   singles. Reader's clock (device time, no geolocation).
+   Daytime = EXACTLY the stock tokens — the script removes all
+   overrides during the day, so midday is untouched. Around
+   sunrise/sunset the tokens drift gradually (script in
+   custom_footer.html retints every 2 min); at night the page
+   is deep navy with high-contrast light text.
+   @property registration makes the token changes ease instead
+   of stepping. prefers-reduced-motion kills the easing (steps
+   are tiny anyway); prefers-contrast: more disables the whole
+   feature (script bails, stock theme). "Sky: auto/off" toggle
+   is injected into the footer by the script (localStorage
+   tgo-sky). body.tgo-night hooks the white-logo flip.
+   ------------------------------------------------------------ */
+
+@property --color-bg           { syntax: '<color>'; inherits: true; initial-value: #FAF8F5; }
+@property --color-bg-warm      { syntax: '<color>'; inherits: true; initial-value: #F2EDE8; }
+@property --color-bg-card      { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --color-border       { syntax: '<color>'; inherits: true; initial-value: #E5DDD5; }
+@property --color-border-light { syntax: '<color>'; inherits: true; initial-value: #EDE8E2; }
+@property --color-text         { syntax: '<color>'; inherits: true; initial-value: #1A1A18; }
+@property --color-text-muted   { syntax: '<color>'; inherits: true; initial-value: #6B645D; }
+@property --color-text-light   { syntax: '<color>'; inherits: true; initial-value: #9C9489; }
+@property --color-navy         { syntax: '<color>'; inherits: true; initial-value: #1E2D4A; }
+@property --color-navy-mid     { syntax: '<color>'; inherits: true; initial-value: #2E4470; }
+@property --color-terra        { syntax: '<color>'; inherits: true; initial-value: #C4622D; }
+@property --color-terra-dark   { syntax: '<color>'; inherits: true; initial-value: #8B3E18; }
+@property --color-terra-light  { syntax: '<color>'; inherits: true; initial-value: #F0DDD3; }
+
+:root {
+  transition:
+    --color-bg 1.6s ease, --color-bg-warm 1.6s ease, --color-bg-card 1.6s ease,
+    --color-border 1.6s ease, --color-border-light 1.6s ease,
+    --color-text 1.6s ease, --color-text-muted 1.6s ease, --color-text-light 1.6s ease,
+    --color-navy 1.6s ease, --color-navy-mid 1.6s ease,
+    --color-terra 1.6s ease, --color-terra-dark 1.6s ease, --color-terra-light 1.6s ease;
+}
+
+/* Night logo: swapped by the sky script to Toby's sunset logo
+   (warm white + terracotta, uploads/2026/sunset-toby-geeks-out-new-logo.png)
+   when body.tgo-night is on. No CSS filter — the real asset is nicer. */
+.site-logo-wordmark { transition: opacity 0.8s ease; }
+
+/* Footer sky toggle (injected by JS) */
+.tgo-sky-toggle {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-body);
+  text-decoration: underline dotted;
+}
+.tgo-sky-toggle:hover { color: var(--color-terra); }
+
+/* Night patches for elements with hardcoded (pre-token) colors —
+   scoped to body.tgo-night so daytime is untouched. Found live
+   July 12: about strip uses #444/#1a2540/#c95f2a; the Spotlight
+   marquee gradient hardcodes light endpoint stops that clash with
+   the night tokens. */
+body.tgo-night .about-text,
+body.tgo-night .about-greeting { color: #D8DEEA; }
+body.tgo-night .about-text strong { color: #E8EDF7; }
+body.tgo-night .about-text a { color: #E0906B; }
+body.tgo-night .featured-inner {
+  background: linear-gradient(135deg, #1B2440 0%, #2E4470 55%, #4A3A5E 100%);
+}
+body.tgo-night .featured-excerpt { color: #FFFFFF; }
+body.tgo-night .featured-date { color: #E8DFD6; }
+/* Single post header: its gradient rides the terra tokens, which go
+   LIGHTER at night (they double as link colors on dark bg) — so pin
+   the night header to deep terracotta and the title to white. The
+   title's day color is var(--color-bg), which turns near-black after
+   dark; both fixed here. */
+body.tgo-night .post-header {
+  background: linear-gradient(135deg, #8B3E18 0%, #6E3213 100%) !important;
+}
+body.tgo-night .post-header-title { color: #FFFFFF; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { transition: none; }
+  .site-logo-wordmark { transition: none; }
+}

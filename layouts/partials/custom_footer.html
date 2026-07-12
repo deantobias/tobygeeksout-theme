@@ -346,3 +346,145 @@
   } catch (err) {}
 })();
 </script>
+
+<script>
+/* Sunrise/sunset sky (July 12, 2026 — pairs with custom.css section 43).
+   Full page, all pages incl. singles. Reader's clock — device time,
+   longitude estimated from the UTC offset, mid-latitude sky assumed;
+   approximate on purpose, no geolocation prompt ever.
+   Daytime = stock theme exactly (all overrides removed).
+   Text tokens STEP at a background-luminance threshold instead of
+   blending — blending both text and background through the dusk
+   crossover would hit a moment of zero contrast. The step lands where
+   BOTH inks clear ~AA against the background, and the @property
+   transition eases the visible switch. */
+(function () {
+  try {
+    if (window.matchMedia && matchMedia('(prefers-contrast: more)').matches) return;
+
+    var KEY = 'tgo-sky';
+    var locked = false;
+    try { locked = localStorage.getItem(KEY) === 'off'; } catch (e) {}
+
+    var TOKENS_BG = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
+    var TOKENS_TEXT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light'];
+    var DAY_TEXT   = ['#1A1A18', '#6B645D', '#9C9489', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3'];
+    var NIGHT_TEXT = ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20'];
+
+    /* bg-token sets per phase: [bg, bg-warm, card, border, border-light] */
+    var P = {
+      day:    ['#FAF8F5', '#F2EDE8', '#FFFFFF', '#E5DDD5', '#EDE8E2'],
+      golden: ['#F6E7D2', '#EFDCC0', '#FFFCF6', '#E0CDB2', '#EAD9C2'],
+      sunset: ['#F0D7B8', '#E9CBA6', '#FBF3E6', '#D9BE9B', '#E3CCAF'],
+      cross:  ['#A56B41', '#9A6138', '#AC7248', '#8A5530', '#935C36'],
+      dusk:   ['#232C48', '#1E2740', '#273252', '#34405F', '#2C3856'],
+      night:  ['#171E30', '#141B2C', '#1E2740', '#2E3A58', '#283350']
+    };
+
+    function hx(h) { h = h.slice(1); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+    function mix(a, b, t) { return a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }); }
+    function rgb(c) { return 'rgb(' + c.join(',') + ')'; }
+    function lum(c) {
+      var s = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2];
+    }
+
+    /* Sun times, reader's clock. NOAA-style approximation. */
+    function sunTimes() {
+      var d = new Date();
+      var rad = Math.PI / 180;
+      var tz = -d.getTimezoneOffset();          /* minutes east of UTC */
+      var lon = tz / 4, lat = 38;               /* estimate from clock; mid-latitude sky */
+      var doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+      var g = 2 * Math.PI / 365 * (doy - 1);
+      var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      var dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      var cosHa = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec);
+      if (cosHa > 1 || cosHa < -1) return { r: 360, s: 1080 };
+      var ha = Math.acos(cosHa) / rad;
+      return { r: 720 - 4 * (lon + ha) - eq + tz, s: 720 - 4 * (lon - ha) - eq + tz };
+    }
+
+    function bgAt(mins, R, S) {
+      var A = [
+        [0, P.night], [R - 70, P.night], [R - 30, P.dusk], [R - 12, P.cross],
+        [R + 5, P.sunset], [R + 50, P.golden], [R + 100, P.day],
+        [S - 90, P.day], [S - 45, P.golden], [S - 12, P.sunset],
+        [S + 6, P.cross], [S + 24, P.dusk], [S + 75, P.night], [1440, P.night]
+      ];
+      for (var i = 0; i < A.length - 1; i++) {
+        if (mins >= A[i][0] && mins <= A[i + 1][0]) {
+          var f = A[i + 1][0] === A[i][0] ? 0 : (mins - A[i][0]) / (A[i + 1][0] - A[i][0]);
+          return A[i][1].map(function (c, j) { return mix(hx(c), hx(A[i + 1][1][j]), f); });
+        }
+      }
+      return P.night.map(hx);
+    }
+
+    var root = document.documentElement;
+    var NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/sunset-toby-geeks-out-new-logo.png';
+    function setLogo(dark) {
+      var logo = document.querySelector('.site-logo-wordmark');
+      if (!logo) return;
+      if (!logo.getAttribute('data-day-src')) logo.setAttribute('data-day-src', logo.src);
+      var want = dark ? NIGHT_LOGO : logo.getAttribute('data-day-src');
+      if (logo.src !== want) logo.src = want;
+    }
+    function clearSky() {
+      TOKENS_BG.concat(TOKENS_TEXT).forEach(function (t) { root.style.removeProperty(t); });
+      document.body.classList.remove('tgo-night');
+      setLogo(false);
+    }
+
+    function tick() {
+      if (locked) { clearSky(); return; }
+      var d = new Date();
+      /* Test hook: append ?sky=21:30 to any URL to preview that time.
+         Sticks for the whole tab session (survives page-to-page clicks,
+         Micro.blog strips the query on redirects); ?sky=off clears it. */
+      var forced = location.search.match(/[?&]sky=(\d{1,2}):(\d{2})/);
+      try {
+        if (/[?&]sky=off/.test(location.search)) sessionStorage.removeItem('tgo-sky-test');
+        else if (forced) sessionStorage.setItem('tgo-sky-test', forced[1] + ':' + forced[2]);
+        else {
+          var saved = sessionStorage.getItem('tgo-sky-test');
+          if (saved) forced = saved.match(/(\d{1,2}):(\d{2})/);
+        }
+      } catch (e) {}
+      var mins = forced ? (+forced[1]) * 60 + (+forced[2]) : d.getHours() * 60 + d.getMinutes();
+      var sun = sunTimes();
+      /* Pure day: remove every override so midday is EXACTLY stock. */
+      if (mins >= sun.r + 100 && mins <= sun.s - 90) { clearSky(); return; }
+      var bg = bgAt(mins, sun.r, sun.s);
+      TOKENS_BG.forEach(function (t, i) { root.style.setProperty(t, rgb(bg[i])); });
+      /* Step text tokens where both inks clear ~AA vs the background. */
+      var dark = lum(bg[0]) < 0.17;
+      TOKENS_TEXT.forEach(function (t, i) { root.style.setProperty(t, dark ? NIGHT_TEXT[i] : DAY_TEXT[i]); });
+      document.body.classList.toggle('tgo-night', dark);
+      setLogo(dark);
+    }
+
+    /* Footer control: lets a reader freeze the sky to the stock look. */
+    function addToggle() {
+      var footer = document.querySelector('.site-footer') || document.querySelector('footer');
+      if (!footer) return;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tgo-sky-toggle';
+      function label() { b.textContent = locked ? 'Sky: off — page ignores the time of day' : 'Sky: auto — page follows the sun'; }
+      label();
+      b.addEventListener('click', function () {
+        locked = !locked;
+        try { localStorage.setItem(KEY, locked ? 'off' : 'auto'); } catch (e) {}
+        label(); tick();
+      });
+      footer.appendChild(b);
+    }
+
+    tick();
+    setInterval(tick, 120000);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addToggle);
+    else addToggle();
+  } catch (err) {}
+})();
+</script>

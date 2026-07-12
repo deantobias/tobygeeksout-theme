@@ -913,13 +913,18 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .featured-title {
   font-family: var(--font-display);
-  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  font-size: 1.9rem; /* July 12, 2026 — phone size for all phones + foldables; desktop scales below. Cap was lowered from 3rem same day (hero felt shouty next to 1.5rem post card titles) */
   font-weight: 800;
   color: var(--color-terra-dark);
   line-height: 1.12;
   max-width: 20ch;
   text-wrap: balance;
   margin-bottom: var(--space-md);
+}
+
+/* Spotlight title only grows on true desktop — 1024px is the theme's desktop line */
+@media (min-width: 1024px) {
+  .featured-title { font-size: clamp(2rem, 2.6vw, 2.5rem); }
 }
 
 .featured-excerpt {
@@ -992,7 +997,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .featured-more-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem; /* July 12, 2026 — was 0.95rem; matched to post card body text (1rem) */
   color: var(--color-terra-dark);
 }
 
@@ -1125,8 +1130,9 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 /* .post-card-categories removed July 11, 2026 — category pills no
    longer render on feed cards; categories live on single posts only. */
 
-@media (min-width: 480px) { .post-card-title { font-size: 1.75rem; } }
-@media (min-width: 640px) { .post-card-title { font-size: clamp(1.875rem, 4vw, 2.25rem) !important; } }
+/* Post card title is 1.5rem at all widths as of July 12, 2026 —
+   old 480px (1.75rem) and 640px (clamp up to 2.25rem) ramps removed;
+   desktop titles felt too big. */
 
 .post-card-excerpt {
   color: var(--color-text-muted);

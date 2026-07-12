@@ -3983,3 +3983,21 @@ body.tgo-night .post-header-title { color: #FFFFFF; }
 .define-card .define-example  { color: var(--color-navy-mid); }
 .define-card .define-note-bar { background-color: var(--color-terra-light); }
 .define-card .define-note     { color: var(--color-navy-mid); }
+
+/* ── Night footer (July 12, 2026) ── .site-footer rides
+   --color-navy, which flips LIGHT after dark (navy doubles as ink
+   on dark pages), so the footer went pale blue at night. Deep
+   terracotta after dark instead — bookends the single post header.
+   Daytime footer stays navy, untouched. */
+body.tgo-night .site-footer {
+  background-color: #6E3213;
+  background-image: linear-gradient(135deg, #8B3E18 0%, #6E3213 100%);
+}
+body.tgo-night .tgo-sky-toggle { color: rgba(255, 255, 255, 0.65); }
+
+/* Blockquote " ornament: 15% terracotta vanishes on the night
+   background — brighter and stronger after dark (Toby's call). */
+body.tgo-night blockquote::before {
+  color: #E0906B !important;
+  opacity: 0.38 !important;
+}

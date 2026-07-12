@@ -4104,6 +4104,14 @@ body.tgo-night .newsletter-list-panel-header { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a:hover { background: #232C48; }
 
+/* ── Email base ink: the email pane is white paper, but loose email
+   content (text without inline colors, e.g. the colorless define
+   card) INHERITS the page text tokens — white at night, invisible
+   on the white email. Pin the email body's base ink to day values.
+   (July 12, 2026) */
+body.type-newsletter .newsletter-preview-panel .page-body { color: #1A1A18; }
+body.type-newsletter .newsletter-preview-panel .page-body :is(h1, h2, h3, h4) { color: #1E2D4A; }
+
 /* ── Email width: hard 600px, like a real mail client ──
    The preview pane is flexible, so loose content (paragraphs
    outside the 600px card tables) was stretching to fill it.

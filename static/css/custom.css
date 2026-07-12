@@ -3925,3 +3925,61 @@ body.tgo-night .post-header-title { color: #FFFFFF; }
   padding-top: 6px;
   font-family: var(--font-body);
 }
+
+
+/* ------------------------------------------------------------
+   45. PERCH CARDS — THEME-OWNED COLORS (July 12, 2026)
+   Based on Perch's proposal, with every hex swapped for a theme
+   token so all four card types (movie, book, link, define) follow
+   the sunrise/sunset cycle — old posts included. The !important
+   rules exist to beat inline styles baked into already-published
+   posts; new Perch markup carries no colors, so the plain define
+   rules are enough there.
+   ------------------------------------------------------------ */
+
+/* ── Movie / book cards: strip baked-in backgrounds ── */
+.movie-card, .book-card {
+  background: transparent !important;
+  border-color: var(--color-border) !important;
+}
+.movie-card [style*="background:#FAF8F5"],
+.book-card  [style*="background:#FAF8F5"] { background: var(--color-bg) !important; }
+.book-card  [style*="background:#fdf8f4"] { background: transparent !important; }
+
+/* Old-post inline text colors, matched by their baked-in values and
+   redirected to tokens so night mode reaches them too. */
+.movie-card h3, .movie-card h3 a,
+.book-card h3,  .book-card h3 a { color: var(--color-navy) !important; }
+.movie-card [style*="#6B6560"], .movie-card [style*="#5A5048"],
+.book-card  [style*="#888"],    .book-card  [style*="#5A5048"] { color: var(--color-text-muted) !important; }
+.movie-card p[style*="#C4622D"], .movie-card a[style*="#C4622D"], .movie-card span[style*="#C4622D"],
+.book-card  p[style*="#C4622D"], .book-card  a[style*="#C4622D"] { color: var(--color-terra) !important; }
+.movie-card td[style*="border-top"], .book-card td[style*="border-top"] { border-top-color: var(--color-border) !important; }
+.movie-card blockquote.card-quote {
+  background: var(--color-bg) !important;
+  border-left-color: var(--color-terra) !important;
+}
+.book-card div[style*="border-top"] { border-top-color: var(--color-border) !important; }
+.book-card div[style*="background:#ede8e1"] { background: var(--color-bg-warm) !important; }
+
+/* ── Link preview card — covers OLD and NEW posts ── */
+.link-card {
+  background: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+}
+.link-card td > a:first-child { color: var(--color-navy) !important; }        /* title */
+.link-card blockquote p { color: var(--color-text-muted) !important; }        /* description */
+.link-card td > a[style*="inline-block"] {                                    /* domain pill */
+  background: var(--color-bg-warm) !important;
+  color: var(--color-text-light) !important;
+}
+
+/* ── Define card — new posts are colorless, no !important needed ── */
+.define-card .define-eyebrow  { color: var(--color-terra); }
+.define-card .define-word     { color: var(--color-navy); }
+.define-card .define-rule     { background-color: var(--color-terra); }
+.define-card .define-def      { color: var(--color-navy); }
+.define-card .define-num      { color: var(--color-terra); }
+.define-card .define-example  { color: var(--color-navy-mid); }
+.define-card .define-note-bar { background-color: var(--color-terra-light); }
+.define-card .define-note     { color: var(--color-navy-mid); }

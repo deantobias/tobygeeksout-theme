@@ -4103,3 +4103,15 @@ body.tgo-night .newsletter-list-panel { border-right-color: #2E3A58; }
 body.tgo-night .newsletter-list-panel-header { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a:hover { background: #232C48; }
+
+/* ── Email width: hard 600px, like a real mail client ──
+   The preview pane is flexible, so loose content (paragraphs
+   outside the 600px card tables) was stretching to fill it.
+   Pin the whole email body to 600px centered; max-width keeps
+   phones safe. (July 12, 2026) */
+body.type-newsletter .newsletter-preview-panel .page-body {
+  width: 600px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -3400,28 +3400,12 @@ table.link-card a[style*="inline-block"] {
     mix-blend-mode: normal;
   }
 
-  /* Desktop: slide the whole viewport snapshot (omgmog-style).
-     Root snapshots are viewport-sized, so nothing can squash. */
-  @media (min-width: 768px) {
-    @keyframes vt-slide-out-left {
-      from { transform: translateX(0); opacity: 1; }
-      to   { transform: translateX(-50vw); opacity: 0; }
-    }
-
-    @keyframes vt-slide-in-left {
-      from { transform: translateX(-50vw); opacity: 0; }
-      to   { transform: translateX(0); opacity: 1; }
-    }
-
-    ::view-transition-old(root) {
-      animation: vt-slide-out-left 0.15s ease forwards;
-    }
-
-    ::view-transition-new(root) {
-      animation: vt-slide-in-left 0.3s ease forwards;
-      mix-blend-mode: normal;
-    }
-  }
+  /* Desktop slide removed July 12, 2026 — Toby's call after living
+     with it: the 50vw whole-page slide was theatrical, and it moved
+     the same direction for forward AND back navigation, which read
+     as subtly wrong. Desktop now uses the same quiet 0.3s crossfade
+     as mobile (rules above); the fade's real job — masking the blank
+     flash between page loads — is kept. */
 
   /* Landing on the newsletter reader: keep the transition engaged (so the
      default blank-flash-between-page-loads still gets masked) but make it

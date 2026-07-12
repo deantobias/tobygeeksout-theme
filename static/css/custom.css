@@ -3735,7 +3735,12 @@ body.kb-open .mobile-tab-bar {
 @property --color-terra-dark   { syntax: '<color>'; inherits: true; initial-value: #8B3E18; }
 @property --color-terra-light  { syntax: '<color>'; inherits: true; initial-value: #F0DDD3; }
 
-:root {
+/* Easing is gated behind .tgo-anim, which the sky script adds AFTER
+   the first paint — otherwise every page loaded after dark flashed
+   day colors for 1.6s while easing to night (July 12 fix). Pages now
+   load already-lit; the easing only smooths changes that happen while
+   the reader is on the page. */
+html.tgo-anim {
   transition:
     --color-bg 1.6s ease, --color-bg-warm 1.6s ease, --color-bg-card 1.6s ease,
     --color-border 1.6s ease, --color-border-light 1.6s ease,
@@ -3786,7 +3791,7 @@ body.tgo-night .post-header {
 body.tgo-night .post-header-title { color: #FFFFFF; }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { transition: none; }
+  html.tgo-anim { transition: none; }
   .site-logo-wordmark { transition: none; }
 }
 
@@ -4101,6 +4106,12 @@ body.type-newsletter .define-card .define-note-bar { background-color: #F0DDD3; 
 body.type-newsletter .define-card .define-note     { color: #2E4470; }
 
 /* ── 2. Reader chrome: dark after dark ── */
+/* No color easing on newsletter pages — on the mail chrome the 1.6s
+   token blend reads as a flash of wrong colors on load, not a sunset
+   (Toby's call). Colors snap instantly here; the rest of the site
+   keeps the gradual drift. */
+html:has(body.type-newsletter) { transition: none; }
+
 body.tgo-night .newsletter-toolbar { background: #1B2338; }
 body.tgo-night .newsletter-list-panel,
 body.tgo-night .newsletter-list-panel-header { background: #1B2338; }

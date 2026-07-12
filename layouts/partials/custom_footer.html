@@ -483,6 +483,11 @@
 
     tick();
     setInterval(tick, 120000);
+    /* Enable color easing only AFTER the first paint — pages load
+       already-lit instead of flashing day colors while easing. */
+    requestAnimationFrame(function () {
+      setTimeout(function () { root.classList.add('tgo-anim'); }, 80);
+    });
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addToggle);
     else addToggle();
   } catch (err) {}

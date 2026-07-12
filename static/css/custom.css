@@ -4056,3 +4056,55 @@ body.tgo-night blockquote::before {
 .now-reading-more { font-size: 0.875rem; color: var(--color-terra); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 0.75rem; }
 .now-inspired { font-size: 0.875rem; color: var(--color-text-light); margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
 .now-inspired a { color: var(--color-terra) !important; }
+
+
+/* ------------------------------------------------------------
+   47. NEWSLETTERS AT NIGHT (July 12, 2026)
+   Two rules discovered by night-testing the reader:
+   1) The EMAIL IS PAPER. The reader renders the email inline, so
+      the section 45 card overrides and token flips were re-tinting
+      content inside the always-white email pane (light gray byline
+      on white). Everything inside a newsletter page is pinned back
+      to fixed day colors.
+   2) The reader CHROME (sidebar, toolbar) hardcodes light
+      backgrounds while its text rides tokens that flip light at
+      night — light-on-light. Chrome goes dark navy after dark.
+   ------------------------------------------------------------ */
+
+/* ── 1. Email pane: always day-lit ── */
+body.type-newsletter :is(.movie-card, .book-card) { border-color: #D4CFC8 !important; }
+body.type-newsletter :is(.movie-card, .book-card) :is(h3, h3 a) { color: #1E2D4A !important; }
+body.type-newsletter :is(.movie-card, .book-card) [style*="#6B6560"],
+body.type-newsletter :is(.movie-card, .book-card) [style*="#888"] { color: #6B6560 !important; }
+body.type-newsletter :is(.movie-card, .book-card) [style*="#5A5048"] { color: #5A5048 !important; }
+body.type-newsletter :is(.movie-card, .book-card) :is(p, a, span)[style*="#C4622D"] { color: #C4622D !important; }
+body.type-newsletter :is(.movie-card, .book-card) td[style*="border-top"] { border-top-color: #D4CFC8 !important; }
+body.type-newsletter :is(.movie-card, .book-card) [style*="background:#FAF8F5"] { background: #FAF8F5 !important; }
+body.type-newsletter .movie-card blockquote.card-quote { background: #FAF8F5 !important; border-left-color: #C4622D !important; }
+body.type-newsletter .book-card div[style*="background:#ede8e1"] { background: #ede8e1 !important; }
+body.type-newsletter .movie-card-title, body.type-newsletter .movie-card-title a { color: #1E2D4A !important; }
+body.type-newsletter .movie-card-byline { color: #6B6560 !important; }
+body.type-newsletter .movie-card-thoughts { background: #FAF8F5 !important; color: #5A5048 !important; }
+body.type-newsletter :is(.movie-card-stars, .movie-card-scale, .movie-card-label, .movie-card-trailer-caption) { color: #C4622D !important; }
+body.type-newsletter .movie-card-footer { border-top-color: #D4CFC8 !important; }
+body.type-newsletter .link-card { background: #FAF8F5 !important; border-color: #E5DDD5 !important; }
+body.type-newsletter .link-card td > a:first-child { color: #1E2D4A !important; }
+body.type-newsletter .link-card blockquote p { color: #6B645D !important; }
+body.type-newsletter .link-card td > a[style*="inline-block"] { background: #EDE8E2 !important; color: #9C9489 !important; }
+body.type-newsletter .define-card .define-eyebrow  { color: #C4622D; }
+body.type-newsletter .define-card .define-word     { color: #1E2D4A; }
+body.type-newsletter .define-card .define-rule     { background-color: #C4622D; }
+body.type-newsletter .define-card .define-def      { color: #1E2D4A; }
+body.type-newsletter .define-card .define-num      { color: #C4622D; }
+body.type-newsletter .define-card .define-example  { color: #2E4470; }
+body.type-newsletter .define-card .define-note-bar { background-color: #F0DDD3; }
+body.type-newsletter .define-card .define-note     { color: #2E4470; }
+
+/* ── 2. Reader chrome: dark after dark ── */
+body.tgo-night .newsletter-toolbar { background: #1B2338; }
+body.tgo-night .newsletter-list-panel,
+body.tgo-night .newsletter-list-panel-header { background: #1B2338; }
+body.tgo-night .newsletter-list-panel { border-right-color: #2E3A58; }
+body.tgo-night .newsletter-list-panel-header { border-bottom-color: #2E3A58; }
+body.tgo-night .newsletter-list-item a { border-bottom-color: #2E3A58; }
+body.tgo-night .newsletter-list-item a:hover { background: #232C48; }

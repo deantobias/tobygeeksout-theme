@@ -4094,7 +4094,7 @@ body.type-newsletter .define-card .define-note     { color: #2E4470; }
    token blend reads as a flash of wrong colors on load, not a sunset
    (Toby's call). Colors snap instantly here; the rest of the site
    keeps the gradual drift. */
-html:has(body.type-newsletter) { transition: none; }
+html:has(body.type-newsletter), html:has(body.type-newsletters) { transition: none; } /* single AND list (plural class!) */
 
 body.tgo-night .newsletter-toolbar { background: #1B2338; }
 body.tgo-night .newsletter-list-panel,

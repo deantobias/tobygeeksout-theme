@@ -112,6 +112,63 @@
 <link rel="webmention"              href="https://micro.blog/webmention">
 <link rel="subscribe"               href="https://micro.blog/users/follow">
 
+<!-- Sunrise/sunset sky: PRE-PAINT tick (July 12, 2026). Sets the color
+     tokens before first paint so pages load already-lit — the footer
+     script (custom_footer.html) then handles the 2-min drift, night
+     class, logo swap, and footer toggle. Same math, kept in sync. -->
+<script>
+(function () {
+  try {
+    if (matchMedia('(prefers-contrast: more)').matches) return;
+    if (localStorage.getItem('tgo-sky') === 'off') return;
+    var d = new Date();
+    var f = location.search.match(/[?&]sky=(\d{1,2}):(\d{2})/);
+    if (/[?&]sky=off/.test(location.search)) sessionStorage.removeItem('tgo-sky-test');
+    else if (f) sessionStorage.setItem('tgo-sky-test', f[1] + ':' + f[2]);
+    else { var sv = sessionStorage.getItem('tgo-sky-test'); if (sv) f = sv.match(/(\d{1,2}):(\d{2})/); }
+    var mins = f ? (+f[1]) * 60 + (+f[2]) : d.getHours() * 60 + d.getMinutes();
+    var rad = Math.PI / 180, tz = -d.getTimezoneOffset(), lon = tz / 4, lat = 38;
+    var doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+    var g = 2 * Math.PI / 365 * (doy - 1);
+    var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+    var dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+    var cosHa = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec);
+    var R = 360, S = 1080;
+    if (cosHa <= 1 && cosHa >= -1) { var ha = Math.acos(cosHa) / rad; R = 720 - 4 * (lon + ha) - eq + tz; S = 720 - 4 * (lon - ha) - eq + tz; }
+    if (mins >= R + 100 && mins <= S - 90) return; /* pure day = stock */
+    var P = {
+      day:    ['#FAF8F5', '#F2EDE8', '#FFFFFF', '#E5DDD5', '#EDE8E2'],
+      golden: ['#F6E7D2', '#EFDCC0', '#FFFCF6', '#E0CDB2', '#EAD9C2'],
+      sunset: ['#F0D7B8', '#E9CBA6', '#FBF3E6', '#D9BE9B', '#E3CCAF'],
+      cross:  ['#A56B41', '#9A6138', '#AC7248', '#8A5530', '#935C36'],
+      dusk:   ['#232C48', '#1E2740', '#273252', '#34405F', '#2C3856'],
+      night:  ['#171E30', '#141B2C', '#1E2740', '#2E3A58', '#283350']
+    };
+    function hx(h) { h = h.slice(1); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+    function mix(a, b, t) { return a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }); }
+    var A = [[0, P.night], [R - 70, P.night], [R - 30, P.dusk], [R - 12, P.cross], [R + 5, P.sunset], [R + 50, P.golden], [R + 100, P.day], [S - 90, P.day], [S - 45, P.golden], [S - 12, P.sunset], [S + 6, P.cross], [S + 24, P.dusk], [S + 75, P.night], [1440, P.night]];
+    var bg = P.night.map(hx);
+    for (var i = 0; i < A.length - 1; i++) {
+      if (mins >= A[i][0] && mins <= A[i + 1][0]) {
+        var fr = A[i + 1][0] === A[i][0] ? 0 : (mins - A[i][0]) / (A[i + 1][0] - A[i][0]);
+        bg = A[i][1].map(function (c, j) { return mix(hx(c), hx(A[i + 1][1][j]), fr); });
+        break;
+      }
+    }
+    var TB = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
+    var rs = document.documentElement.style;
+    TB.forEach(function (t, i) { rs.setProperty(t, 'rgb(' + bg[i].join(',') + ')'); });
+    var s = bg[0].map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    var dark = (0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2]) < 0.17;
+    var TT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light'];
+    var TV = dark
+      ? ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20']
+      : ['#1A1A18', '#6B645D', '#9C9489', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3'];
+    TT.forEach(function (t, i) { rs.setProperty(t, TV[i]); });
+  } catch (e) {}
+})();
+</script>
+
 <!-- Plugin CSS -->
 {{ range .Site.Params.plugins_css }}
   <link rel="stylesheet" href="{{ . }}">

@@ -353,11 +353,14 @@
    longitude estimated from the UTC offset, mid-latitude sky assumed;
    approximate on purpose, no geolocation prompt ever.
    Daytime = stock theme exactly (all overrides removed).
-   Text tokens STEP at a background-luminance threshold instead of
-   blending — blending both text and background through the dusk
-   crossover would hit a moment of zero contrast. The step lands where
-   BOTH inks clear ~AA against the background, and the @property
-   transition eases the visible switch. */
+   FOUR FIXED SKIES, stepped (July 12 rework, Toby's call): day,
+   warm cream, navy dusk, night. Nothing blends — each phase holds
+   its color and the 1.6s @property easing smooths the single-step
+   changes. Text steps with the sky, and a per-tick CONTRAST GUARD
+   (low-vision fix) verifies every ink against the live background,
+   pushing any failing token toward black/white until it clears its
+   floor (7:1 body text, 5:1 muted/navy, 4.5:1 terra links, 3:1
+   tertiary). */
 (function () {
   try {
     if (window.matchMedia && matchMedia('(prefers-contrast: more)').matches) return;
@@ -371,13 +374,23 @@
     var DAY_TEXT   = ['#1A1A18', '#6B645D', '#9C9489', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3'];
     var NIGHT_TEXT = ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20'];
 
-    /* bg-token sets per phase: [bg, bg-warm, card, border, border-light] */
+    /* FOUR fixed skies (July 12, Toby's call — was six continuously
+       blending phases, which read as "6 to 9 different colors" and
+       spent minutes in muddy mid-blends no ink could survive on).
+       Each phase now HOLDS its color; changes are single steps that
+       the 1.6s @property easing smooths. No blending = no mid-brown
+       dead zone, ever. [bg, bg-warm, card, border, border-light] */
     var P = {
       day:    ['#FAF8F5', '#F2EDE8', '#FFFFFF', '#E5DDD5', '#EDE8E2'],
-      golden: ['#F6E7D2', '#EFDCC0', '#FFFCF6', '#E0CDB2', '#EAD9C2'],
+      /* dawn: pale cream — Toby's call, early morning reads
+         lighter than the evening */
+      dawn:   ['#F6E7D2', '#EFDCC0', '#FFFCF6', '#E0CDB2', '#EAD9C2'],
+      /* sunset: deeper golden-hour cream (Toby picked depth 2 of 3;
+         anything darker than ~#E9C9A0 enters the unreadable band) */
       sunset: ['#F0D7B8', '#E9CBA6', '#FBF3E6', '#D9BE9B', '#E3CCAF'],
-      cross:  ['#A56B41', '#9A6138', '#AC7248', '#8A5530', '#935C36'],
-      dusk:   ['#232C48', '#1E2740', '#273252', '#34405F', '#2C3856'],
+      /* deep navy dusk — Toby chose navy over darker orange for the
+         between-light-and-night sky; white ink clears ~13:1 */
+      dusk:   ['#2B3655', '#26304C', '#313C5E', '#455379', '#3A476A'],
       night:  ['#171E30', '#141B2C', '#1E2740', '#2E3A58', '#283350']
     };
 
@@ -388,6 +401,40 @@
       var s = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
       return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2];
     }
+    function ratio(a, b) {
+      var l1 = lum(a), l2 = lum(b);
+      var hi = Math.max(l1, l2), lo = Math.min(l1, l2);
+      return (hi + 0.05) / (lo + 0.05);
+    }
+
+    /* Contrast guard (July 12, 2026 — low-vision fix): the sky blends
+       the background CONTINUOUSLY, so no fixed ink palette can be safe
+       at every minute of the crossover. Each tick, every text token is
+       checked against the current page bg AND card bg; any token below
+       its floor gets nudged toward black (day side) or white (night
+       side) until it clears. Midday and deep night are untouched — the
+       stock inks already pass with room to spare, so the guard only
+       ever engages during the sunrise/sunset ramps. */
+    function ensureInk(ink, bgs, dark, min) {
+      var target = dark ? [255, 255, 255] : [0, 0, 0];
+      var c = ink, t = 0;
+      while (t < 1) {
+        var ok = true;
+        for (var i = 0; i < bgs.length; i++) { if (ratio(c, bgs[i]) < min) { ok = false; break; } }
+        if (ok) return c;
+        t += 0.08;
+        c = mix(ink, target, Math.min(t, 1));
+      }
+      return c;
+    }
+
+    /* Per-token floors, same order as TOKENS_TEXT:
+       text 7 (AAA body), muted 5, light 3, navy 5, navy-mid 5,
+       terra 4.5 (links), terra-dark 4.5, terra-light 0 (it's a
+       background/accent tint, not an ink — guarding it would wreck
+       the gradients it lives in). Floors deliberately sit ABOVE bare
+       AA — Toby's call, low-vision readers first. */
+    var INK_MIN = [7, 5, 3, 5, 5, 4.5, 4.5, 0];
 
     /* Sun times, reader's clock. NOAA-style approximation. */
     function sunTimes() {
@@ -405,35 +452,37 @@
       return { r: 720 - 4 * (lon + ha) - eq + tz, s: 720 - 4 * (lon - ha) - eq + tz };
     }
 
+    /* Stepped schedule — each phase holds, nothing blends:
+       night → (R-60) navy dusk → (R) pale dawn cream → (R+100) day
+       → (S-90) deeper sunset cream → (S) navy dusk → (S+60) night */
     function bgAt(mins, R, S) {
-      var A = [
-        [0, P.night], [R - 70, P.night], [R - 30, P.dusk], [R - 12, P.cross],
-        [R + 5, P.sunset], [R + 50, P.golden], [R + 100, P.day],
-        [S - 90, P.day], [S - 45, P.golden], [S - 12, P.sunset],
-        [S + 6, P.cross], [S + 24, P.dusk], [S + 75, P.night], [1440, P.night]
-      ];
-      for (var i = 0; i < A.length - 1; i++) {
-        if (mins >= A[i][0] && mins <= A[i + 1][0]) {
-          var f = A[i + 1][0] === A[i][0] ? 0 : (mins - A[i][0]) / (A[i + 1][0] - A[i][0]);
-          return A[i][1].map(function (c, j) { return mix(hx(c), hx(A[i + 1][1][j]), f); });
-        }
-      }
-      return P.night.map(hx);
+      if (mins < R - 60 || mins >= S + 60) return P.night.map(hx);
+      if (mins < R) return P.dusk.map(hx);
+      if (mins < R + 100) return P.dawn.map(hx);
+      if (mins <= S - 90) return P.day.map(hx);
+      if (mins < S) return P.sunset.map(hx);
+      return P.dusk.map(hx);
     }
 
     var root = document.documentElement;
+    /* Two logo slots (July 12 final, Toby simplified from three):
+       light skies (day + both creams) = stock logo (navy + orange);
+       dark skies (navy dusk + night) = white + orange. The retired
+       white + blue glasses variant lives at
+       uploads/2026/sunset-before-8-pm-toby-geeks-out-new-logo.png
+       if Toby ever wants a third slot back. */
+    var DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png';
     var NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/sunset-toby-geeks-out-new-logo.png';
-    function setLogo(dark) {
+    function setLogo(mode) {
       var logo = document.querySelector('.site-logo-wordmark');
       if (!logo) return;
-      if (!logo.getAttribute('data-day-src')) logo.setAttribute('data-day-src', logo.src);
-      var want = dark ? NIGHT_LOGO : logo.getAttribute('data-day-src');
+      var want = mode === 'night' ? NIGHT_LOGO : DAY_LOGO;
       if (logo.src !== want) logo.src = want;
     }
     function clearSky() {
       TOKENS_BG.concat(TOKENS_TEXT).forEach(function (t) { root.style.removeProperty(t); });
       document.body.classList.remove('tgo-night');
-      setLogo(false);
+      setLogo('day');
     }
 
     function tick() {
@@ -456,12 +505,30 @@
       /* Pure day: remove every override so midday is EXACTLY stock. */
       if (mins >= sun.r + 100 && mins <= sun.s - 90) { clearSky(); return; }
       var bg = bgAt(mins, sun.r, sun.s);
+      /* No dead-band logic needed anymore: the four fixed skies all
+         sit safely outside the ~0.10–0.30 luminance band where no ink
+         works. The old continuous blending needed a band-skip here;
+         stepped phases made it obsolete (July 12). */
       TOKENS_BG.forEach(function (t, i) { root.style.setProperty(t, rgb(bg[i])); });
-      /* Step text tokens where both inks clear ~AA vs the background. */
+      /* Step text tokens at the luminance threshold, then run every
+         ink through the contrast guard against both the page bg and
+         the card bg — whichever is worse for that ink wins. */
       var dark = lum(bg[0]) < 0.17;
-      TOKENS_TEXT.forEach(function (t, i) { root.style.setProperty(t, dark ? NIGHT_TEXT[i] : DAY_TEXT[i]); });
+      var baseInks = dark ? NIGHT_TEXT : DAY_TEXT;
+      var bgsToCheck = [bg[0], bg[2]];
+      TOKENS_TEXT.forEach(function (t, i) {
+        var ink = hx(baseInks[i]);
+        if (INK_MIN[i] > 0) ink = ensureInk(ink, bgsToCheck, dark, INK_MIN[i]);
+        root.style.setProperty(t, rgb(ink));
+      });
       document.body.classList.toggle('tgo-night', dark);
-      setLogo(dark);
+      /* Logo through the day: light skies keep the stock logo (the
+         white-text variants would vanish on cream). Once the sky
+         flips dark: white + blue glasses through the sunset/dusk
+         transition windows, white + orange glasses for full night.
+         Pure midday never reaches here (clearSky handles it). */
+      /* Logos track the skies: light = stock, dark = white + orange. */
+      setLogo(dark ? 'night' : 'day');
     }
 
     /* Footer control: lets a reader freeze the sky to the stock look. */

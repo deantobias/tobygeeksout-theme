@@ -3696,7 +3696,10 @@ body.kb-open .mobile-tab-bar {
    overrides during the day, so midday is untouched. Around
    sunrise/sunset the tokens drift gradually (script in
    custom_footer.html retints every 2 min); at night the page
-   is deep navy with high-contrast light text.
+   is deep navy with high-contrast light text. A contrast guard
+   in the script (July 12, low-vision fix) keeps every ink above
+   WCAG floors at every minute of the crossover — see the script
+   for details.
    @property registration makes the token changes ease instead
    of stepping. prefers-reduced-motion kills the easing (steps
    are tiny anyway); prefers-contrast: more disables the whole

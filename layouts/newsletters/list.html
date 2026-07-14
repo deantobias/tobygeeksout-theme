@@ -19,7 +19,7 @@
           {{ end }}
           <div class="post-card-excerpt">
             {{ if gt (len .Plain) 800 }}
-              {{ .Summary | htmlUnescape | safeHTML }}
+              {{ .Summary | htmlUnescape | plainify | truncate 300 }}
               <div class="post-card-footer">
                 <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
               </div>

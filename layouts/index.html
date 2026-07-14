@@ -115,7 +115,7 @@
                melts out at the bottom instead of cutting off hard.
                Fade lives on .excerpt-fade in custom.css section 40. */}}
           <div class="post-card-excerpt excerpt-fade">
-            {{ .Summary | htmlUnescape | safeHTML }}
+            {{ .Summary | htmlUnescape | plainify | truncate 300 }}
           </div>
           <div class="post-card-footer">
             <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>

@@ -3749,17 +3749,93 @@ html.tgo-anim {
    when body.tgo-night is on. No CSS filter — the real asset is nicer. */
 .site-logo-wordmark { transition: opacity 0.8s ease; }
 
-/* Footer sky toggle (injected by JS) */
-.tgo-sky-toggle {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: var(--color-text-light);
-  background: none; border: none; cursor: pointer;
-  font-family: var(--font-body);
-  text-decoration: underline dotted;
+/* Header sky toggle — injected by JS into .header-top-row (mobile)
+   and .site-nav-row (desktop). Sun icon + pill toggle track.
+   Two modifier classes handle show/hide per breakpoint:
+   --header: absolute-pinned to top-row right edge, mobile only.
+   --nav: inline flex child at the end of the nav row, desktop only. */
+.tgo-sky-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.5s;
 }
-.tgo-sky-toggle:hover { color: var(--color-terra); }
+.tgo-sky-btn.tgo-sky-hidden { opacity: 0; pointer-events: none; }
+.tgo-sky-btn--header {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.tgo-sky-btn--nav {
+  display: none;
+  margin-left: 0.75rem;
+  width: 53px;
+  justify-content: center;
+}
+
+/* Reserve the toggle's slot at first paint so the nav never shifts when JS injects the button.
+   The placeholder disappears as soon as the real button exists. */
+@media (min-width: 768px) {
+  .site-nav-row::after { content: ''; width: 53px; margin-left: 0.75rem; flex-shrink: 0; }
+  .site-nav-row:has(.tgo-sky-btn--nav)::after { content: none; }
+}
+@media (max-width: 767px) { .tgo-sky-btn--header { display: inline-flex; } }
+@media (min-width: 768px) { .tgo-sky-btn--nav    { display: inline-flex; } }
+
+/* Sun icon */
+.tgo-sky-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-terra);
+  flex-shrink: 0;
+  transition: color 0.3s, opacity 0.3s;
+}
+.tgo-sky-btn.is-locked .tgo-sky-icon {
+  color: var(--color-text-light);
+  opacity: 0.55;
+}
+
+/* Toggle track */
+.tgo-sky-track {
+  display: inline-flex;
+  width: 28px;
+  height: 16px;
+  border-radius: 9px;
+  background: var(--color-terra);
+  padding: 2px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.tgo-sky-btn.is-locked .tgo-sky-track {
+  background: var(--color-border);
+}
+
+/* Toggle knob */
+.tgo-sky-knob {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  transition: transform 0.25s ease;
+  transform: translateX(12px); /* ON: knob right */
+}
+.tgo-sky-btn.is-locked .tgo-sky-knob {
+  transform: translateX(0);   /* OFF: knob left */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tgo-sky-btn, .tgo-sky-icon, .tgo-sky-track, .tgo-sky-knob { transition: none; }
+}
 
 /* Night patches for elements with hardcoded (pre-token) colors —
    scoped to body.tgo-night so daytime is untouched. Found live
@@ -3983,7 +4059,8 @@ body.tgo-night .site-footer {
   background-color: #6E3213;
   background-image: linear-gradient(135deg, #8B3E18 0%, #6E3213 100%);
 }
-body.tgo-night .tgo-sky-toggle { color: rgba(255, 255, 255, 0.65); }
+/* sky toggle at night: terra token lightens automatically via sky script;
+   knob stays #fff; no additional override needed. */
 
 /* Blockquote " ornament: 15% terracotta vanishes on the night
    background — brighter and stronger after dark (Toby's call). */

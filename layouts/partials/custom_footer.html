@@ -486,7 +486,6 @@
     }
 
     function tick() {
-      if (locked) { clearSky(); return; }
       var d = new Date();
       /* Test hook: append ?sky=21:30 to any URL to preview that time.
          Sticks for the whole tab session (survives page-to-page clicks,
@@ -502,8 +501,15 @@
       } catch (e) {}
       var mins = forced ? (+forced[1]) * 60 + (+forced[2]) : d.getHours() * 60 + d.getMinutes();
       var sun = sunTimes();
+      var isPureDay = mins >= sun.r + 100 && mins <= sun.s - 90;
+      /* Show toggle only when sky is active — hide during pure daytime
+         so readers don't click a button that appears to do nothing. */
+      document.querySelectorAll('.tgo-sky-btn').forEach(function(b) {
+        b.classList.toggle('tgo-sky-hidden', isPureDay);
+      });
+      if (locked) { clearSky(); return; }
       /* Pure day: remove every override so midday is EXACTLY stock. */
-      if (mins >= sun.r + 100 && mins <= sun.s - 90) { clearSky(); return; }
+      if (isPureDay) { clearSky(); return; }
       var bg = bgAt(mins, sun.r, sun.s);
       /* No dead-band logic needed anymore: the four fixed skies all
          sit safely outside the ~0.10–0.30 luminance band where no ink
@@ -533,21 +539,51 @@
 
     /* Footer control: lets a reader freeze the sky to the stock look. */
     function addToggle() {
-      var footer = document.querySelector('.site-footer') || document.querySelector('footer');
-      if (!footer) return;
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'tgo-sky-toggle';
-      function label() { b.textContent = locked ? 'Sky: off — page ignores the time of day' : 'Sky: auto — page follows the sun'; }
-      label();
-      b.addEventListener('click', function () {
-        locked = !locked;
-        try { localStorage.setItem(KEY, locked ? 'off' : 'auto'); } catch (e) {}
-        label(); tick();
+      var sunSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+      var trackHTML = '<span class="tgo-sky-track" aria-hidden="true"><span class="tgo-sky-knob"></span></span>';
+
+      function makeBtn(extraClass) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tgo-sky-hidden tgo-sky-btn ' + extraClass + (locked ? ' is-locked' : '');
+        var lbl = locked ? 'Sky off — tap to follow the sun' : 'Sky on — tap to use fixed colors';
+        b.setAttribute('aria-label', lbl);
+        b.setAttribute('title', lbl);
+        b.innerHTML = sunSVG + trackHTML;
+        return b;
+      }
+
+      var buttons = [];
+      var headerRow = document.querySelector('.header-top-row');
+      var navRow    = document.querySelector('.site-nav-row');
+
+      if (headerRow) { var hb = makeBtn('tgo-sky-btn--header'); headerRow.appendChild(hb); buttons.push(hb); }
+      if (navRow)    { var nb = makeBtn('tgo-sky-btn--nav');    navRow.appendChild(nb);    buttons.push(nb); }
+
+      function updateBtns() {
+        var lbl = locked ? 'Sky off — tap to follow the sun' : 'Sky on — tap to use fixed colors';
+        buttons.forEach(function(b) {
+          if (locked) b.classList.add('is-locked'); else b.classList.remove('is-locked');
+          b.setAttribute('aria-label', lbl);
+          b.setAttribute('title', lbl);
+        });
+      }
+
+      buttons.forEach(function(b) {
+        b.addEventListener('click', function() {
+          locked = !locked;
+          try { localStorage.setItem(KEY, locked ? 'off' : 'auto'); } catch (e) {}
+          updateBtns();
+          tick();
+        });
       });
-      footer.appendChild(b);
+      /* Initialize visibility immediately — tick() may have run before
+         buttons existed if readyState was 'loading' at script exec. */
+      tick();
     }
 
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addToggle);
+    else addToggle();
     tick();
     setInterval(tick, 120000);
     /* Enable color easing only AFTER the first paint — pages load
@@ -555,8 +591,6 @@
     requestAnimationFrame(function () {
       setTimeout(function () { root.classList.add('tgo-anim'); }, 80);
     });
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addToggle);
-    else addToggle();
   } catch (err) {}
 })();
 </script>

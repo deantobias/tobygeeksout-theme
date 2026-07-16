@@ -1,3 +1,46 @@
+<!-- tgo-sky boot: pre-applies night colors before first paint so pages don't flash light then go dark.
+     Night palette + boundaries mirror custom_footer.html (night = sunset..sunrise) — keep in sync. -->
+<script>
+(function () {
+  try {
+    if (localStorage.getItem('tgo-sky') === 'off') return;
+    var mins;
+    var m = location.search.match(/[?&]sky=(\d{1,2}):(\d{2})/);
+    if (m) { mins = (+m[1]) * 60 + (+m[2]); }
+    else {
+      var t = sessionStorage.getItem('tgo-sky-test');
+      if (t && /^\d{1,2}:\d{2}$/.test(t)) { var p = t.split(':'); mins = (+p[0]) * 60 + (+p[1]); }
+      else { var n = new Date(); mins = n.getHours() * 60 + n.getMinutes(); }
+    }
+    function sunTimes() {
+      var d = new Date();
+      var rad = Math.PI / 180;
+      var tz = -d.getTimezoneOffset();          /* minutes east of UTC */
+      var lon = tz / 4, lat = 38;               /* estimate from clock; mid-latitude sky */
+      var doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+      var g = 2 * Math.PI / 365 * (doy - 1);
+      var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      var dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      var cosHa = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec);
+      if (cosHa > 1 || cosHa < -1) return { r: 360, s: 1080 };
+      var ha = Math.acos(cosHa) / rad;
+      return { r: 720 - 4 * (lon + ha) - eq + tz, s: 720 - 4 * (lon - ha) - eq + tz };
+    }
+    var T = sunTimes(new Date());
+    if (mins >= T.s || mins <= T.r) {
+      var V = {"--color-bg":"rgb(23,30,48)","--color-bg-warm":"rgb(20,27,44)","--color-bg-card":"rgb(30,39,64)","--color-border":"rgb(46,58,88)","--color-border-light":"rgb(40,51,80)","--color-text":"rgb(255,255,255)","--color-text-muted":"rgb(216,222,234)","--color-text-light":"rgb(168,176,196)","--color-navy":"rgb(232,237,247)","--color-navy-mid":"rgb(201,212,234)","--color-terra":"rgb(217,122,69)","--color-terra-dark":"rgb(224,144,107)","--color-terra-light":"rgb(58,42,32)"};
+      var st = document.documentElement.style;
+      for (var k in V) st.setProperty(k, V[k]);
+      var addCls = function () {
+        if (document.body) { document.body.classList.add('tgo-night'); }
+        else { requestAnimationFrame(addCls); }
+      };
+      addCls();
+    }
+  } catch (e) {}
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">

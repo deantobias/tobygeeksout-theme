@@ -368,6 +368,30 @@ img.reblog-avatar {
   margin: 0 !important;
 }
 
+/* ── Attribution pill v2 (table-based, email-safe) — July 16 2026 ──
+   New echoes from Perch emit nested tables so newsletter clients
+   can't stack the avatar over the name. Inline styles carry the
+   design; these rules only undo generic reblog-new link styling. */
+table.reblog-attr { clear: both; }
+blockquote.reblog-new table.reblog-attr a { text-decoration: none !important; }
+blockquote.reblog-new a.reblog-name {
+  color: #1a2d42 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+blockquote.reblog-new table.reblog-attr > tbody > tr > td {
+  border: 0 !important;
+  border-top: 1px solid #b9c6d6 !important;
+}
+blockquote.reblog-new table.reblog-attr table td {
+  border: 0 !important;
+  background: transparent;
+}
+blockquote.reblog-new table.reblog-attr img.reblog-avatar {
+  max-width: none !important;
+}
+blockquote.reblog-new { max-width: 600px; margin: 8px auto !important; }
+
 blockquote.card-wrap {
   border: none !important;
   padding: 0 !important;

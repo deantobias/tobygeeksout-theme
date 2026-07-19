@@ -229,3 +229,7 @@
 {{ range $filename := .Site.Params.plugins_html }}
   {{ partial $filename $ }}
 {{ end }}
+<!-- Favicon: Toby avatar (added 2026-07-19) -->
+<link rel="icon" href="{{ .Site.Author.avatar }}" />
+<link rel="shortcut icon" href="{{ .Site.Author.avatar }}" />
+<link rel="apple-touch-icon" href="{{ .Site.Author.avatar }}" />

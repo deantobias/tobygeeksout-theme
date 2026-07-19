@@ -44,7 +44,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="theme-color" content="#F2EDE8">
+<!-- Browser tab/address bar tint. Matches --color-bg (was #F2EDE8,
+     the bg-warm token — wrong cream, July 19, 2026 fix). The sky
+     script in custom_footer.html retints this meta on every tick so
+     mobile browser chrome follows dawn/sunset/dusk/night. Some
+     Android browsers ignore light values in system dark mode. -->
+<meta name="theme-color" content="#FAF8F5">
 <title>
   {{- if .IsHome -}}
     {{ .Site.Title }}

@@ -479,10 +479,23 @@
       var want = mode === 'night' ? NIGHT_LOGO : DAY_LOGO;
       if (logo.src !== want) logo.src = want;
     }
+    /* Browser tab/address bar follows the sky (July 19, 2026):
+       keep the theme-color meta in lockstep with --color-bg so
+       mobile browser chrome melts through dawn/sunset/dusk/night
+       with the page. Safari iOS and Chrome/Brave Android honor it;
+       some Android browsers override light values in system dark
+       mode; desktop mostly ignores it — harmless where ignored. */
+    function setBar(c) {
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
+      if (m.getAttribute('content') !== c) m.setAttribute('content', c);
+    }
+
     function clearSky() {
       TOKENS_BG.concat(TOKENS_TEXT).forEach(function (t) { root.style.removeProperty(t); });
       document.body.classList.remove('tgo-night');
       setLogo('day');
+      setBar('#FAF8F5'); /* stock day bg — matches the static meta in head.html */
     }
 
     function tick() {
@@ -535,6 +548,7 @@
          Pure midday never reaches here (clearSky handles it). */
       /* Logos track the skies: light = stock, dark = white + orange. */
       setLogo(dark ? 'night' : 'day');
+      setBar(rgb(bg[0])); /* browser bar = current page bg */
     }
 
     /* Footer control: lets a reader freeze the sky to the stock look. */

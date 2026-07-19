@@ -495,7 +495,9 @@
       TOKENS_BG.concat(TOKENS_TEXT).forEach(function (t) { root.style.removeProperty(t); });
       document.body.classList.remove('tgo-night');
       setLogo('day');
-      setBar('#FAF8F5'); /* stock day bg — matches the static meta in head.html */
+      setBar('#F5F0EA'); /* NOT the page bg #FAF8F5 — Chromium discards
+         near-white theme-colors (paints default white). This is the
+         closest accepted cream; matches the static meta in head.html */
     }
 
     function tick() {

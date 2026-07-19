@@ -44,12 +44,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<!-- Browser tab/address bar tint. Matches --color-bg (was #F2EDE8,
-     the bg-warm token — wrong cream, July 19, 2026 fix). The sky
-     script in custom_footer.html retints this meta on every tick so
-     mobile browser chrome follows dawn/sunset/dusk/night. Some
-     Android browsers ignore light values in system dark mode. -->
-<meta name="theme-color" content="#FAF8F5">
+<!-- Browser tab/address bar tint. NOT the page bg #FAF8F5 — Brave/
+     Chromium on Android silently discard near-white values and paint
+     default white instead (verified on Toby's phone, July 19, 2026:
+     #FAF8F5 → white bar, while the old #F2EDE8 was applied). #F5F0EA
+     is the closest cream to the page that still gets accepted. The
+     sky script in custom_footer.html retints this meta every tick so
+     browser chrome follows dawn/sunset/dusk/night (those bgs are
+     tinted enough to be accepted as-is). -->
+<meta name="theme-color" content="#F5F0EA">
 <title>
   {{- if .IsHome -}}
     {{ .Site.Title }}

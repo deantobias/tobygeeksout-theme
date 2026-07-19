@@ -1283,10 +1283,10 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .post-header-title {
   font-family: var(--font-display);
-  /* Navy token on the page background — turns near-white at night
-     because the timed palettes flip --color-navy */
-  color: var(--color-navy);
-  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  /* Bumped from clamp(1.75rem, 4.5vw, 2.75rem) (July 18, 2026) —
+     bigger single-post titles on phone, foldable, and desktop.
+     Post CARD titles stay 1.5rem per the July 12 call. */
+  font-size: clamp(2rem, 5.5vw, 3.25rem);
   font-weight: 800;
   line-height: 1.12;
   /* Widened from 22ch (July 13, 2026) — the narrow poster measure
@@ -1294,6 +1294,20 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   max-width: 30ch;
   margin-bottom: var(--space-md);
   text-wrap: balance;
+  /* Gradient title (July 18, 2026, wil.to-inspired) — holds navy
+     for the first ~35% then melts into terra-dark. Built from the
+     sky tokens, NOT hex, so all five skies work: day/dawn/sunset =
+     navy → rust; dusk/night = near-white → peach (the same inks
+     the contrast guard already polices). Solid navy is the
+     fallback color for browsers without background-clip: text. */
+  color: var(--color-navy);
+  background-image: linear-gradient(105deg, var(--color-navy) 0%, var(--color-navy) 35%, var(--color-terra-dark) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .post-header-title { color: transparent; }
 }
 
 .post-header-meta {
@@ -3608,6 +3622,17 @@ body.kb-open .mobile-tab-bar {
   /* Text melts out over the last few lines instead of a hard cut */
   mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
+}
+
+/* Spotlight tease fade (July 18, 2026) — same melt as the cards,
+   but gentler: the 250-char spotlight excerpt is only ~4 lines,
+   so just the last line-and-a-bit fades. Class is added in
+   layouts/index.html only when the truncate actually cut text,
+   matching the cards' short-posts-render-in-full rule. Mask (not
+   a bg-colored overlay) so every timed sky works. */
+.featured-excerpt.excerpt-fade {
+  mask-image: linear-gradient(to bottom, black calc(100% - 2.2em), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 2.2em), transparent 100%);
 }
 
 .feed-archive-cta {

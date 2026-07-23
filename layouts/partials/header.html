@@ -43,6 +43,70 @@
 
 </header>
 
+{{/* Desktop rail sidebar (July 22, 2026) — on ≥1024px screens this
+     REPLACES the fixed top header entirely (CSS section 52 hides
+     .site-header and shows this). Mobile/tablet never see it.
+     Carries: identity, greeting, cycling tagline, about links,
+     vertical nav, subscribe block, and the sky-toggle slot.
+     The newsletter reader is exempt — it keeps the compact top
+     header on desktop (its locked panels assume full width). */}}
+<aside class="site-rail" aria-label="Sidebar">
+  <a href="{{ .Site.BaseURL }}" class="rail-identity" aria-label="{{ .Site.Title }} home">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="rail-avatar">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png" alt="Toby Geeks Out!" class="rail-logo" width="2000" height="500">
+  </a>
+  <p class="rail-greeting">Thanks for stopping by.</p>
+  <p class="rail-tagline tgo-tagline-cycle" aria-live="polite">Technogeek.</p>
+  <div class="rail-about">
+    <a href="https://tobygeeksout.micro.blog/about-me/">About</a><span>·</span><a href="https://tobygeeksout.micro.blog/now/">Now</a><span>·</span><a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
+  </div>
+
+  <nav class="rail-nav" aria-label="Primary navigation">
+    <a href="{{ .Site.BaseURL }}" {{ if .IsHome }}class="active" aria-current="page"{{ end }}>
+      {{ partial "icon.html" (dict "name" "home") }}
+      <span>Home</span>
+    </a>
+    {{ range .Site.Menus.main }}
+    {{ if not (in .URL "/stats/") }}
+    {{ $iconName := "search" }}
+    {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
+    {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
+    {{ else if eq .Name "About" }}{{ $iconName = "user" }}
+    {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
+    {{ end }}
+    <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }}>
+      {{ partial "icon.html" (dict "name" $iconName) }}
+      <span>{{ .Name }}</span>
+    </a>
+    {{ end }}
+    {{ end }}
+  </nav>
+
+  <div class="rail-subscribe">
+    <p class="rail-sub-heading">Get it in your inbox</p>
+    <p class="rail-sub-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
+    <a href="https://tobygeeksout.micro.blog/subscribe/" class="rail-btn rail-btn--primary">
+      {{ partial "icon.html" (dict "name" "mail") }} Subscribe by email
+    </a>
+    <button type="button" class="rail-btn rail-btn--quiet tgo-rss-copy"
+      data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
+      {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+      {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+      <span class="tgo-rss-label">RSS (XML)</span>
+    </button>
+    <button type="button" class="rail-btn rail-btn--quiet tgo-rss-copy"
+      data-feed-url="{{ .Site.BaseURL }}feed.json">
+      {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+      {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+      <span class="tgo-rss-label">RSS (JSON)</span>
+    </button>
+    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
+    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="rail-newsletters">Browse past newsletters →</a>
+  </div>
+
+  <div class="rail-sky-slot"></div>
+</aside>
+
 <!-- Mobile-only bottom tab bar — replaces the hamburger entirely -->
 <nav class="mobile-tab-bar" aria-label="Primary navigation">
   <a href="{{ .Site.BaseURL }}" {{ if .IsHome }}class="active" aria-current="page"{{ end }} aria-label="Home">

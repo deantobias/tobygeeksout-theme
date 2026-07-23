@@ -1,16 +1,20 @@
 {{ define "main" }}
 {{ $spotlightPosts := where (where .Site.Pages.ByDate.Reverse "Type" "post") ".Params.categories" "intersect" (slice "Spotlight") }}
-{{/* Recent feed = latest non-Spotlight posts. Spotlight posts live in
-     the marquee + "More in the Spotlight" strip above, so the feed
-     skips them to avoid doubling up. Everything is always reachable
-     from the archive link below — no numbered pagination anymore. */}}
+{{/* Recent feed = journal-style list (July 22, 2026, Toby's redesign):
+     titled posts only, title + date, no excerpts. Excluded categories:
+     Spotlight (lives in the marquee above), Movie Reviews, TV Reviews,
+     Bookshelf, Reel and Remote (reviews/reading live on their category
+     pages). Untitled microposts live in the archive. Everything is
+     always reachable from the archive link below. */}}
+{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Bookshelf" "Reel and Remote" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-  {{ $isSpotlight := false }}
+  {{ $skip := false }}
   {{ range .Params.categories }}
-    {{ if eq . "Spotlight" }}{{ $isSpotlight = true }}{{ end }}
+    {{ if in $excluded . }}{{ $skip = true }}{{ end }}
   {{ end }}
-  {{ if not $isSpotlight }}{{ $recentPool = $recentPool | append . }}{{ end }}
+  {{ if not .Title }}{{ $skip = true }}{{ end }}
+  {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{ $recent := first 6 $recentPool }}
 <div class="about-strip">
@@ -103,46 +107,222 @@
 <div class="feed-wrapper">
   <p class="feed-label">Recent Geekouts</p>
   {{ range $recent }}
-    <div class="post-card">
-      <div class="post-date" aria-hidden="true">
-       <span class="post-date-day">{{ .Date.Format "2" }}</span>
-       <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-       <span class="post-date-year">{{ .Date.Format "2006" }}</span>
-      </div>
-      <div class="post-card-content">
-        {{ if .Title }}
-          <div class="post-card-title">
-            <a href="{{ .Permalink }}">{{ .Title }}</a>
-          </div>
-        {{ end }}
-        {{ if gt (len .Plain) 800 }}
-          {{/* Long post: truncated text with a tease fade — text
-               melts out at the bottom instead of cutting off hard.
-               Sourced from .Content with Hugo's HTML-aware
-               truncate (closes tags at the cut) — restores the
-               paragraph breaks the July 14 plainify fix flattened,
-               without re-leaking broken markup. Two numbers, two
-               jobs (July 18, 2026, Toby's call): posts ≤ 800 chars
-               (define/movie/book/tv cards etc.) render IN FULL via
-               the else branch below; only posts OVER 800 get cut,
-               and the excerpt shown is 650. Fade lives on
-               .excerpt-fade in custom.css section 40. */}}
-          <div class="post-card-excerpt excerpt-fade">
-            {{ .Content | truncate 650 }}
-          </div>
-          <div class="post-card-footer">
-            <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
-          </div>
-        {{ else }}
-          <div class="post-card-excerpt">
-            {{ .Content }}
-          </div>
-          <p class="post-card-footer">
-            <a href="{{ .Permalink }}" class="u-url">Permalink ∞</a>
-          </p>
-        {{ end }}
-      </div>
+    {{/* Journal entry — the whole row is the permalink. Date block
+         keeps the exact same day/month/year setup the cards had. */}}
+    <a href="{{ .Permalink }}" class="journal-entry u-url">
+      <span class="journal-date" aria-hidden="true">
+        <span class="journal-date-day">{{ .Date.Format "2" }}</span>
+        <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
+        <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
+      </span>
+      <span class="journal-title">{{ .Title }}</span>
+    </a>
+  {{ end }}
+  {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,
+       300 chars or less, category "Micro". FULL content shown (they're
+       short by definition), Lora reading text, date links to the post.
+       Hidden until the category has posts — appears on its own with
+       the first one, like every other section built today. */}}
+  {{ $microPool := slice }}
+  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+    {{ $isMicro := false }}
+    {{ range .Params.categories }}
+      {{ if eq . "Micro" }}{{ $isMicro = true }}{{ end }}
+    {{ end }}
+    {{ if $isMicro }}{{ $microPool = $microPool | append . }}{{ end }}
+  {{ end }}
+  {{ $micros := first 3 $microPool }}
+  {{ if $micros }}
+  <div class="micro-section">
+    <p class="feed-label">💬 Micros</p>
+    {{ range $micros }}
+    <div class="micro-entry h-entry">
+      <div class="micro-entry-text e-content">{{ .Content }}</div>
+      <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "Jan 2, 2006" }} ∞</a>
     </div>
+    {{ end }}
+  </div>
+  {{ end }}
+  {{/* THE BOOKSHELF (July 22, 2026, Toby's design) — three self-managing
+       pieces, each rendering ONLY when its posts exist (Hugo rebuilds on
+       every publish, so new sections appear on their own):
+       1. Currently Reading — posts in that category; "Currently Reading:"
+          stripped from the title, progress bar + page count pulled from
+          the post's own book-card markup (findRE). EMPTY today.
+       2. Book Reviews — rated rows, stars via findRE. EMPTY today.
+       3. Bookshelf rows — 3 newest Bookshelf posts, excluding anything
+          also categorized Currently Reading or Book Reviews. LIVE today.
+       Reuses the reel-entry row styles; CR rows are .book-entry (CSS 56). */}}
+  {{ $crPool := slice }}
+  {{ $brPool := slice }}
+  {{ $shelfPool := slice }}
+  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+    {{ $isCR := false }}{{ $isBR := false }}{{ $isShelf := false }}
+    {{ range .Params.categories }}
+      {{ if eq . "Currently Reading" }}{{ $isCR = true }}{{ end }}
+      {{ if eq . "Book Reviews" }}{{ $isBR = true }}{{ end }}
+      {{ if eq . "Bookshelf" }}{{ $isShelf = true }}{{ end }}
+    {{ end }}
+    {{ if and $isCR .Title }}{{ $crPool = $crPool | append . }}{{ end }}
+    {{ if and $isBR .Title }}{{ $brPool = $brPool | append . }}{{ end }}
+    {{/* Shelf accepts untitled posts too — most bookshelf activity is
+         untitled "want to read" microposts; the display title is
+         extracted from the prose below. */}}
+    {{ if and $isShelf (not $isCR) (not $isBR) }}{{ $shelfPool = $shelfPool | append . }}{{ end }}
+  {{ end }}
+  {{ $cr := first 3 $crPool }}
+  {{ $br := first 3 $brPool }}
+  {{ $shelf := first 6 $shelfPool }}{{/* pool slice for the exists-check; display loop below caps at 3 rendered rows */}}
+  {{ if or $cr $br $shelf }}
+  <div class="books-section">
+    <p class="feed-label">📚 The Bookshelf</p>
+    {{/* Dedupe by book title (Toby has 4 books going + will post
+         progress updates per book over time — each book shows ONCE,
+         always its newest post). Cap 4 active books. */}}
+    {{ $seenBooks := slice }}
+    {{ $crShown := 0 }}
+    {{ range $crPool }}
+    {{ $bookTitle := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
+    {{ $bookKey := lower $bookTitle }}
+    {{ if and (lt $crShown 4) (not (in $seenBooks $bookKey)) }}
+    {{ $seenBooks = $seenBooks | append $bookKey }}
+    {{ $crShown = add $crShown 1 }}
+    {{/* Plainify FIRST — scanning raw HTML matched width:100% from the
+         card's own styles and filled the bar to 100% (Toby's catch,
+         live). Visible text only, so the real reading % wins. */}}
+    {{ $crPlain := .Content | plainify }}
+    {{ $pages := findRE `Page \d+ of \d+` $crPlain 1 }}
+    {{ $pct := findRE `\d{1,3}%` $crPlain 1 }}
+    <a href="{{ .Permalink }}" class="book-entry u-url">
+      <span class="book-entry-eyebrow">📖 Currently reading</span>
+      <span class="book-entry-title">{{ $bookTitle }}</span>
+      {{ with $pct }}
+      <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
+        <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
+      </span>
+      {{ end }}
+      <span class="book-entry-metaline">
+        {{ with $pages }}<span>{{ index . 0 }}</span>{{ end }}
+        {{ with $pct }}<span>{{ index . 0 }}</span>{{ end }}
+        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </span>
+    </a>
+    {{ end }}
+    {{ end }}
+    {{/* Book Reviews = TILES (Toby's call, July 22) — rated books get
+         the same trophy treatment as the movie tiles; reuses the
+         reel-tile styles. Hidden until rated book posts exist. */}}
+    {{ if $br }}
+    <div class="reel-tiles">
+      {{ range $br }}
+      {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
+      <a href="{{ .Permalink }}" class="reel-tile u-url">
+        <span class="reel-tile-title">{{ .Title }}</span>
+        {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
+        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+    {{ $shelfShown := 0 }}
+    {{ range $shelfPool }}
+    {{ if lt $shelfShown 3 }}
+    {{/* Display title: the post's own title when it has one; otherwise
+         the "want to read: Book by Author" phrase extracted from the
+         prose (Toby's untitled bookshelf microposts name the book that
+         way). Posts with neither are skipped. */}}
+    {{ $t := .Title }}
+    {{/* Finished-book checkpoints (July 22, Toby's lifecycle): once the
+         Currently Reading category comes off a "Currently Reading: ..."
+         titled post, it's reading HISTORY, not a shelf item — skip it
+         here. It stays in the archive and on the Bookshelf category
+         page; the book's home-page presence becomes its review. */}}
+    {{ if and $t (findRE `(?i)currently reading:` $t 1) }}{{ $t = "" }}{{ end }}
+    {{ if not $t }}
+      {{/* htmlUnescape: plainify leaves entities like &rsquo; encoded,
+           which then render literally. Emoji excluded from the grab so
+           the trailing 📚 doesn't ride along; trim cleans edges. */}}
+      {{ $plain := .Content | plainify }}
+      {{ $m := findRE `(?i)want to read: [^.!?📚🎬📺\n]{3,70}` $plain 1 }}
+      {{ with $m }}{{ $t = trim (htmlUnescape (index . 0)) " " }}{{ end }}
+      {{/* Home page only: capitalize the leading "want" so the row reads
+           "Want to read: ..." (July 22, Toby). The post itself is untouched. */}}
+      {{ if $t }}{{ $t = printf "%s%s" (upper (substr $t 0 1)) (substr $t 1) }}{{ end }}
+    {{ end }}
+    {{ if $t }}
+    {{ $shelfShown = add $shelfShown 1 }}
+    <a href="{{ .Permalink }}" class="reel-entry u-url">
+      <span class="reel-entry-title">{{ $t }}</span>
+      <span class="reel-entry-meta">
+        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </span>
+    </a>
+    {{ end }}
+    {{ end }}
+    {{ end }}
+    <div class="reel-cta">
+      <a href="{{ "/categories/bookshelf/" | absURL }}">All of the Bookshelf →</a>
+    </div>
+  </div>
+  {{ end }}
+  {{/* Reel and Remote (July 22, 2026, Toby's design) — mixed WATCHING
+       activity, not just reviews: rated watches, watchlist entries,
+       currently-watching notes. Tiles = 3 newest RATED posts (star run
+       found in the post's own movie-card markup via findRE). Rows =
+       next 3 newest posts from the categories, any type, stars shown
+       when present — titles self-describe the rest ("Watchlist: ...").
+       No duplicates. Tiles collapse to rows on phones (CSS 54). */}}
+  {{ $reelCats := slice "Movie Reviews" "TV Reviews" "Reel and Remote" }}
+  {{ $reelPool := slice }}
+  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+    {{ $match := false }}
+    {{ range .Params.categories }}
+      {{ if in $reelCats . }}{{ $match = true }}{{ end }}
+    {{ end }}
+    {{ if and $match .Title }}{{ $reelPool = $reelPool | append . }}{{ end }}
+  {{ end }}
+  {{ $tiles := slice }}
+  {{ range $reelPool }}
+    {{ if lt (len $tiles) 3 }}
+      {{ if findRE `[★☆½]{3,}` .Content 1 }}{{ $tiles = $tiles | append . }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ $tileLinks := slice }}
+  {{ range $tiles }}{{ $tileLinks = $tileLinks | append .Permalink }}{{ end }}
+  {{ $rows := slice }}
+  {{ range $reelPool }}
+    {{ if and (lt (len $rows) 3) (not (in $tileLinks .Permalink)) }}
+      {{ $rows = $rows | append . }}
+    {{ end }}
+  {{ end }}
+  {{ if or $tiles $rows }}
+  <div class="reel-section">
+    <p class="feed-label">🎬 Reel and Remote</p>
+    {{ if $tiles }}
+    <div class="reel-tiles">
+      {{ range $tiles }}
+      <a href="{{ .Permalink }}" class="reel-tile u-url">
+        <span class="reel-tile-title">{{ .Title }}</span>
+        <span class="reel-stars">{{ index (findRE `[★☆½]{3,}` .Content 1) 0 }}</span>
+        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+    {{ range $rows }}
+    {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
+    <a href="{{ .Permalink }}" class="reel-entry u-url">
+      <span class="reel-entry-title">{{ .Title }}</span>
+      <span class="reel-entry-meta">
+        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
+      </span>
+    </a>
+    {{ end }}
+    <div class="reel-cta">
+      <a href="{{ "/categories/reel-and-remote/" | absURL }}">All of Reel and Remote →</a>
+    </div>
+  </div>
   {{ end }}
   {{/* Single archive door instead of numbered pagination — the full
        chronological record lives on /archive/. */}}

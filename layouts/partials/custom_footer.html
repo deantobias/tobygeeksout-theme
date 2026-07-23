@@ -42,11 +42,13 @@
 </script>
 
 <script>
-/* Home page about-strip: cycling tagline under "Hi, I'm Toby". Static
+/* Cycling tagline — home about-strip AND the desktop rail (July 22,
+   2026: the rail carries its own copy, so this drives every element
+   matching #tgo-tagline or .tgo-tagline-cycle in lockstep). Static
    fallback text is already in the HTML so it reads fine with JS off. */
 (function () {
-  var el = document.getElementById('tgo-tagline');
-  if (!el) return;
+  var els = document.querySelectorAll('#tgo-tagline, .tgo-tagline-cycle');
+  if (!els.length) return;
   var words = [
     "Technogeek.",
     "Deaf, proud of it.",
@@ -59,10 +61,12 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   setInterval(function () {
     i = (i + 1) % words.length;
-    el.style.opacity = 0;
+    els.forEach(function (el) { el.style.opacity = 0; });
     setTimeout(function () {
-      el.textContent = words[i];
-      el.style.opacity = 1;
+      els.forEach(function (el) {
+        el.textContent = words[i];
+        el.style.opacity = 1;
+      });
     }, 250);
   }, 2200);
 })();
@@ -71,25 +75,29 @@
 <script>
 /* Subscribe via RSS: copies the feed URL to the clipboard instead of
    navigating to a raw XML page, with a brief "Copied!" confirmation
-   so people aren't left guessing whether the click did anything. */
+   so people aren't left guessing whether the click did anything.
+   July 22, 2026: class-based — covers the home strip button (#) AND
+   the rail's two feed buttons (XML + JSON), each with its own URL. */
 (function () {
-  var btn = document.getElementById('tgo-rss-copy');
-  if (!btn) return;
-  var label = btn.querySelector('.tgo-rss-label');
-  var defaultLabel = label ? label.textContent : 'Subscribe via RSS';
-  var resetTimer;
-  btn.addEventListener('click', function () {
-    var url = btn.getAttribute('data-feed-url');
-    if (navigator.clipboard && url) {
-      navigator.clipboard.writeText(url).catch(function () {});
-    }
-    btn.classList.add('is-copied');
-    if (label) label.textContent = 'Copied!';
-    clearTimeout(resetTimer);
-    resetTimer = setTimeout(function () {
-      btn.classList.remove('is-copied');
-      if (label) label.textContent = defaultLabel;
-    }, 1800);
+  var btns = document.querySelectorAll('#tgo-rss-copy, .tgo-rss-copy');
+  if (!btns.length) return;
+  btns.forEach(function (btn) {
+    var label = btn.querySelector('.tgo-rss-label');
+    var defaultLabel = label ? label.textContent : 'Subscribe via RSS';
+    var resetTimer;
+    btn.addEventListener('click', function () {
+      var url = btn.getAttribute('data-feed-url');
+      if (navigator.clipboard && url) {
+        navigator.clipboard.writeText(url).catch(function () {});
+      }
+      btn.classList.add('is-copied');
+      if (label) label.textContent = 'Copied!';
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function () {
+        btn.classList.remove('is-copied');
+        if (label) label.textContent = defaultLabel;
+      }, 1800);
+    });
   });
 })();
 </script>
@@ -124,6 +132,14 @@
   // Newsletter list: banner ::before handles spacing via margin-top
   if (document.querySelector('.section-newsletters') ||
       document.body.classList.contains('section-newsletters')) return;
+
+  // Desktop rail mode (July 22, 2026): the top header is display:none
+  // ≥1024px, so it measures 0 — a fixed 32px keeps page titles from
+  // hugging the viewport top instead of headerH+12 collapsing to 11px.
+  if (siteHeader && getComputedStyle(siteHeader).display === 'none') {
+    main.style.setProperty('padding-top', '32px', 'important');
+    return;
+  }
 
   // All other pages: push content below fixed header. +12 (was +32)
   // so page titles sit close under the nav bar on every screen size.
@@ -474,10 +490,14 @@
     var DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png';
     var NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/sunset-toby-geeks-out-new-logo.png';
     function setLogo(mode) {
-      var logo = document.querySelector('.site-logo-wordmark');
-      if (!logo) return;
+      /* Header wordmark AND the desktop rail logo (July 22, 2026) —
+         both swap together through the skies. */
+      var logos = document.querySelectorAll('.site-logo-wordmark, .rail-logo');
+      if (!logos.length) return;
       var want = mode === 'night' ? NIGHT_LOGO : DAY_LOGO;
-      if (logo.src !== want) logo.src = want;
+      logos.forEach(function (logo) {
+        if (logo.src !== want) logo.src = want;
+      });
     }
     /* Browser tab/address bar follows the sky (July 19, 2026):
        keep the theme-color meta in lockstep with --color-bg so
@@ -572,9 +592,13 @@
       var buttons = [];
       var headerRow = document.querySelector('.header-top-row');
       var navRow    = document.querySelector('.site-nav-row');
+      var railSlot  = document.querySelector('.rail-sky-slot');
 
       if (headerRow) { var hb = makeBtn('tgo-sky-btn--header'); headerRow.appendChild(hb); buttons.push(hb); }
       if (navRow)    { var nb = makeBtn('tgo-sky-btn--nav');    navRow.appendChild(nb);    buttons.push(nb); }
+      /* Desktop rail slot (July 22, 2026) — the top header is hidden
+         ≥1024px, so the rail carries its own copy of the toggle. */
+      if (railSlot)  { var rb = makeBtn('tgo-sky-btn--rail');   railSlot.appendChild(rb);  buttons.push(rb); }
 
       function updateBtns() {
         var lbl = locked ? 'Sky off — tap to follow the sun' : 'Sky on — tap to use fixed colors';

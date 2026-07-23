@@ -41,6 +41,8 @@
   --color-text-light:   #9C9489;
   --font-display: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
   --font-body:    'Inter', system-ui, sans-serif;
+  --font-reading: 'Lora', Georgia, 'Times New Roman', serif; /* July 22, 2026 — post/reading text */
+  --rail-w: 280px; /* desktop rail sidebar width */
   --space-xs:  0.25rem;
   --space-sm:  0.5rem;
   --space-md:  1rem;
@@ -853,20 +855,15 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    7. FEATURED POST BANNER
    ------------------------------------------------------------ */
 
-/* Warm terracotta marquee ("Option 2 — soft warm glow", July 9 2026
-   mockup). Louder than the old tan card: peachy terracotta gradient,
-   oversized display title, ghost star in the corner. No photo needed,
-   so every Long Read gets the same treatment. Toby picked this over
-   navy — no blue anywhere in this section.
-   Local shades below extend the terracotta family for this component
-   only; everything else uses the global tokens. */
+/* Simplified spotlight (July 22, 2026 — Toby's call, distraction-free
+   home page pass). The warm peachy glow panel is retired: no gradient,
+   no ghost star, no accent bar, no shadow. The spotlight now sits
+   directly on the page background — so it follows the timed sky like
+   everything else — inside a simple rounded border, same quiet
+   --color-border the post cards use. Text moved off the old local
+   terra-brown shades onto global ink tokens so the sky contrast
+   guard covers it at every hour. */
 .featured-banner {
-  --terra-glow-1: #F6E7DC;
-  --terra-glow-2: #E9C4AC;
-  --terra-glow-border: #E4C3AE;
-  --terra-peach: #E8B08E;
-  --terra-brown: #5A4438;
-  --terra-brown-soft: #8A6B58;
   background-color: var(--color-bg);
   padding: var(--space-xl) 0 var(--space-md);
   position: relative;
@@ -886,41 +883,21 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .featured-inner {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--terra-glow-1) 0%, var(--color-terra-light) 55%, var(--terra-glow-2) 100%);
-  border: 1px solid var(--terra-glow-border);
+  background: transparent;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: clamp(28px, 6vw, 60px) clamp(20px, 5vw, 56px);
   min-height: clamp(300px, 40vw, 380px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: 0 14px 36px rgba(196, 98, 45, 0.18);
 }
 
-/* Terracotta accent bar along the top edge */
-.featured-inner::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 5px;
-  background: linear-gradient(to right, var(--color-terra), var(--terra-peach), transparent);
+/* No "More in the Spotlight" shelf rendered (only one Spotlight post
+   exists)? Then the box stands alone — round all four corners. */
+.featured-shell > .featured-inner:last-child {
+  border-radius: var(--radius-lg);
 }
-
-/* Ghost star in the corner — pure decoration, scales with viewport
-   so it never swallows a phone-sized card */
-.featured-inner::after {
-  content: '★';
-  position: absolute;
-  right: clamp(-40px, -3vw, -24px);
-  bottom: clamp(-80px, -8vw, -56px);
-  font-size: clamp(9rem, 22vw, 16rem);
-  color: rgba(196, 98, 45, 0.08);
-  line-height: 1;
-  pointer-events: none;
-}
-
-/* Keep real content above the ghost star */
-.featured-inner > * { position: relative; z-index: 1; }
 
 .featured-eyebrow {
   display: flex;
@@ -959,15 +936,15 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .featured-excerpt {
-  color: var(--terra-brown);
-  font-size: 1.05rem;
+  color: var(--color-text);
+  font-size: 1.2rem; /* July 22 — matches post bodies/cards; was 1.05rem, read smaller than everything else after the Lora pass */
   line-height: 1.65;
   max-width: 54ch;
   margin-bottom: var(--space-lg);
 }
 
 .featured-meta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.featured-date { font-size: 0.85rem; color: var(--terra-brown-soft); }
+.featured-date { font-size: 0.85rem; color: var(--color-text-muted); }
 
 .btn-featured {
   display: inline-flex;
@@ -996,7 +973,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    page-1 timeline, so without this they'd be invisible on the home
    page). */
 .featured-more {
-  background: var(--color-bg);
+  background: transparent;
   border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
@@ -2203,9 +2180,13 @@ body.tgo-search-empty .site-footer {
    24. SITE FOOTER
    ------------------------------------------------------------ */
 
+/* Simplified July 22, 2026 (Toby's call): no navy panel, no logo, no
+   nav links. The footer sits directly on the page background so it
+   follows the sky (day cream → dusk navy → night) automatically, and
+   its text uses the ink tokens the sky script already contrast-guards.
+   Two lines: tagline alone, then credits + copyright together. */
 .site-footer {
-  background-color: var(--color-navy);
-  border-top: 3px solid var(--color-terra);
+  background: transparent;
   padding: var(--space-md) var(--page-pad);
   margin-top: var(--space-2xl);
 }
@@ -2220,28 +2201,10 @@ body.tgo-search-empty .site-footer {
   gap: 0.25rem;
 }
 
-.footer-logo { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #ffffff; }
-.footer-logo span { color: var(--color-terra); }
-.footer-tagline { font-family: var(--font-display); font-size: 0.9375rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 0; }
-.footer-copyright { font-size: 0.75rem; color: rgba(255, 255, 255, 0.3); margin-bottom: 0; }
-.footer-text { font-size: 0.8125rem; color: rgba(255, 255, 255, 0.4); margin-bottom: 0; }
+.footer-tagline { font-family: var(--font-display); font-size: 0.9375rem; color: var(--color-text-muted); margin-bottom: 0; }
+.footer-text { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: 0; }
 .footer-text a { color: var(--color-terra); text-decoration: none; transition: opacity 0.15s; }
 .footer-text a:hover { opacity: 0.8; }
-
-.footer-nav { display: flex; gap: var(--space-md); flex-wrap: wrap; }
-
-.footer-nav a {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-  text-decoration: none;
-  padding: 4px 0;
-  transition: color 0.15s;
-}
-
-.footer-nav a:hover { color: var(--color-terra); }
 
 
 /* ------------------------------------------------------------
@@ -3888,18 +3851,13 @@ html.tgo-anim {
 
 /* Night patches for elements with hardcoded (pre-token) colors —
    scoped to body.tgo-night so daytime is untouched. Found live
-   July 12: about strip uses #444/#1a2540/#c95f2a; the Spotlight
-   marquee gradient hardcodes light endpoint stops that clash with
-   the night tokens. */
+   July 12: about strip uses #444/#1a2540/#c95f2a.
+   Spotlight night patches removed July 22, 2026 — the marquee now
+   rides the sky bg with ink tokens, so no overrides needed. */
 body.tgo-night .about-text,
 body.tgo-night .about-greeting { color: #D8DEEA; }
 body.tgo-night .about-text strong { color: #E8EDF7; }
 body.tgo-night .about-text a { color: #E0906B; }
-body.tgo-night .featured-inner {
-  background: linear-gradient(135deg, #1B2440 0%, #2E4470 55%, #4A3A5E 100%);
-}
-body.tgo-night .featured-excerpt { color: #FFFFFF; }
-body.tgo-night .featured-date { color: #E8DFD6; }
 @media (prefers-reduced-motion: reduce) {
   html.tgo-anim { transition: none; }
   .site-logo-wordmark { transition: none; }
@@ -4099,17 +4057,9 @@ body.tgo-night .featured-date { color: #E8DFD6; }
 .define-card .define-note-bar { background-color: var(--color-terra-light); }
 .define-card .define-note     { color: var(--color-navy-mid); }
 
-/* ── Night footer (July 12, 2026) ── .site-footer rides
-   --color-navy, which flips LIGHT after dark (navy doubles as ink
-   on dark pages), so the footer went pale blue at night. Deep
-   terracotta after dark instead — bookends the single post header.
-   Daytime footer stays navy, untouched. */
-body.tgo-night .site-footer {
-  background-color: #6E3213;
-  background-image: linear-gradient(135deg, #8B3E18 0%, #6E3213 100%);
-}
-/* sky toggle at night: terra token lightens automatically via sky script;
-   knob stays #fff; no additional override needed. */
+/* Night footer override removed July 22, 2026 — the footer no longer
+   has its own background (simplified, rides the sky bg directly), so
+   the old terracotta-after-dark panel is obsolete. */
 
 /* Blockquote " ornament: 15% terracotta vanishes on the night
    background — brighter and stronger after dark (Toby's call). */
@@ -4294,7 +4244,6 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 .post-card-title a:focus, .post-card-title a:active,
 .archive-item a:focus, .archive-item a:active,
 #list_results a:focus, #list_results a:active,
-.footer-nav a:focus, .footer-nav a:active,
 .section.section-newsletters .h-entry a:focus, .section.section-newsletters .h-entry a:active,
 .newsletter-list-panel-header a:focus, .newsletter-list-panel-header a:active,
 .replying-to a:focus, .replying-to a:active,
@@ -4328,4 +4277,809 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 .social-embed a:focus .social-embed-caption,
 .social-embed a:active .social-embed-caption {
   color: var(--color-terra-dark) !important;
+}
+
+
+/* ------------------------------------------------------------
+   51. READING FONT — LORA (July 22, 2026)
+   Toby's call after the rail mockup session: Lora for anything
+   you READ (post bodies, excerpts), Inter stays for anything
+   you TAP (nav, buttons, labels, metadata), Bricolage keeps
+   titles. Footer is EXEMPT (Toby, July 22): Bricolage tagline +
+   Inter credits, exactly as section 24 already styles it. Slightly taller line-height than Inter needs —
+   serif strokes want the extra air, especially on the dark skies.
+   ------------------------------------------------------------ */
+
+/* Descendant selectors on purpose: the base p rule (section 1),
+   the :is(.post-body...) :is(p, li) rule (section 3), and
+   .post-body p (section 15) all pin Inter on paragraphs — these
+   later rules out-cascade them at equal specificity. The social
+   embed blockquotes (card-quote/reblog/card-wrap) keep their
+   !important Inter — those are UI cards, not reading text. */
+.post-body,
+.post-card-excerpt,
+.featured-excerpt,
+.about-greeting,
+:is(.post-body, .post-card-excerpt, .featured-excerpt) :is(p, li),
+:is(.post-body, .post-card-excerpt) blockquote p {
+  font-family: var(--font-reading);
+}
+
+.post-body p, .post-card-excerpt p { line-height: 1.7; }
+.featured-excerpt { line-height: 1.7; }
+
+/* Match the single-post reading experience everywhere (Toby, July 22):
+   card excerpts were muted #6B645D ink — same Lora/size as post bodies
+   but visibly fainter. Full reading ink now, so home and single match.
+   The token flips through the sky, so night stays covered too. */
+.post-card-excerpt,
+.post-card-excerpt p,
+.post-card-excerpt li {
+  color: var(--color-text);
+}
+
+/* Lora's descenders (p/g/y) run deeper than Inter's, so the site-wide
+   5.5px underline offset reads cramped in the serif — descender tails
+   nearly touch the line (Toby's catch, July 22). 7px restores the
+   visual gap 5.5px used to give with Inter. Applies only in reading
+   contexts; Inter UI links keep 5.5px. */
+:is(.post-body, .post-card-content, .post-card-excerpt) a,
+.read-more-link {
+  text-underline-offset: 7px;
+}
+
+/* Mobile + foldable visibility bump (Toby, July 22): Lora reads fine
+   on phones but wanted a touch more presence — a small size nudge plus
+   Lora's MEDIUM (500) weight: more visible than regular, nowhere near
+   bold. Covers everything below the desktop rail breakpoint, so
+   foldables and tablets get the same treatment as phones. */
+@media (max-width: 1023px) {
+  .post-body,
+  .post-body p, .post-body li,
+  .post-card-excerpt,
+  .post-card-excerpt p, .post-card-excerpt li,
+  .featured-excerpt {
+    font-weight: 500;
+  }
+  /* Cards match the single-post reading size exactly (Toby, July 22:
+     "I like the single font size better") — no smaller teaser text. */
+  .post-card-excerpt,
+  .post-card-excerpt p, .post-card-excerpt li { font-size: 1.25rem; }
+  .post-body, .post-body p, .post-body li { font-size: 1.25rem; }
+  .featured-excerpt { font-size: 1.25rem; }
+}
+
+
+/* ------------------------------------------------------------
+   52. DESKTOP RAIL SIDEBAR (July 22, 2026)
+   Replaces the fixed top header on ≥1024px screens: avatar, logo,
+   greeting, cycling tagline, about links, vertical nav, and the
+   full subscribe block live in a fixed left rail. Everything
+   rides the sky tokens — the rail has NO background and NO divider
+   (Toby's call), it sits directly on the page color.
+   Sized COMPACT on purpose (Toby, July 22): the whole rail must
+   fit a single screen with no scrolling — overflow-y:auto stays
+   only as a safety net for very short windows.
+   Mobile and tablet (<1024px) are COMPLETELY untouched: same
+   header, same tab bar. The newsletter reader keeps the compact
+   top header on desktop too — its locked full-viewport panels
+   assume full page width.
+   ------------------------------------------------------------ */
+
+.site-rail { display: none; }
+
+@media (min-width: 1024px) {
+  body:not(.type-newsletter) .site-header { display: none !important; }
+
+  body:not(.type-newsletter) .site-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--rail-w);
+    height: 100vh;
+    height: 100dvh;
+    padding: 20px 20px 14px;
+    overflow-y: auto;
+    z-index: 900;
+    background: transparent;
+    font-family: var(--font-body);
+  }
+
+  /* Content and footer clear the rail; footer stays under the
+     content column (Toby reverted the full-width version). */
+  body:not(.type-newsletter) #main-content,
+  body:not(.type-newsletter) .site-footer {
+    margin-left: var(--rail-w);
+  }
+
+  /* Home page: the about strip and subscribe strip moved INTO the
+     rail on desktop — hide the in-column versions to avoid doubles.
+     Mobile keeps both, unchanged. */
+  body.home .about-strip,
+  body.home .subscribe-strip { display: none; }
+
+  /* The hidden header measures 0 — kill the stale clearance padding
+     the inline critical CSS sets before JS re-measures. */
+  body:not(.type-newsletter) #main-content { padding-top: 2rem !important; }
+}
+
+.rail-identity {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none !important;
+  margin-bottom: 8px;
+}
+
+.rail-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  transform-origin: 50% 85%;
+  animation: logo-avatar-bob 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .rail-avatar { animation: none; } }
+
+.rail-logo {
+  display: block;
+  width: 160px;
+  height: auto;
+}
+
+.rail-greeting {
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin: 0 0 2px;
+}
+
+.rail-tagline {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0 0 10px;
+  transition: opacity 0.25s;
+}
+
+.rail-about {
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+}
+.rail-about a { color: var(--color-terra); text-decoration: none; font-weight: 600; }
+.rail-about a:hover { color: var(--color-terra-dark); }
+.rail-about span { color: var(--color-text-light); padding: 0 4px; }
+
+.rail-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+
+.rail-nav a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.rail-nav a .tgo-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.rail-nav a:hover { color: var(--color-terra); }
+
+/* Active pill: terracotta tint on the light skies. After dark that
+   10% terra wash mixes into muddy brown on the navy (Toby's catch,
+   July 22) — night uses a clean white lift + the light night terra. */
+.rail-nav a.active {
+  color: var(--color-terra);
+  background: rgba(196, 98, 45, 0.10);
+}
+body.tgo-night .rail-nav a.active {
+  color: #E0906B;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rail-subscribe {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rail-sub-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-navy);
+  margin: 0 0 2px;
+}
+
+.rail-sub-text {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  margin: 0 0 4px;
+}
+
+.rail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1.5px solid var(--color-terra);
+  min-height: 34px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.rail-btn .tgo-icon { width: 14px; height: 14px; }
+
+.rail-btn--primary {
+  background: var(--color-terra);
+  color: #FFFFFF;
+}
+.rail-btn--primary:hover { background: var(--color-terra-dark); border-color: var(--color-terra-dark); color: #FFFFFF; }
+
+.rail-btn--quiet {
+  background: transparent;
+  color: var(--color-terra);
+}
+.rail-btn--quiet:hover { color: var(--color-terra-dark); border-color: var(--color-terra-dark); }
+
+/* Copied! state for the two RSS buttons — same swap the strip
+   button does: rss icon out, check icon in. */
+.rail-btn .tgo-check-icon { display: none; }
+.rail-btn.is-copied .tgo-check-icon { display: inline-block; }
+.rail-btn.is-copied .tgo-rss-icon { display: none; }
+
+.rail-newsletters {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.rail-newsletters:hover { color: var(--color-terra); }
+
+/* Sky toggle slot — pinned to the rail's bottom. The sky script
+   appends a .tgo-sky-btn--rail button here; it stays hidden during
+   pure daytime like the header/nav copies. */
+.rail-sky-slot {
+  margin-top: auto;
+  padding-top: 10px;
+}
+@media (min-width: 1024px) {
+  .tgo-sky-btn--rail { display: inline-flex; }
+}
+
+/* Short desktop windows (older laptops, ~768px-tall screens minus
+   browser chrome): trim the rail further so it still fits with no
+   scrolling on effectively every resolution. overflow-y:auto above
+   remains the last-resort safety net. */
+@media (min-width: 1024px) and (max-height: 720px) {
+  .site-rail { padding-top: 12px; }
+  .rail-avatar { width: 40px; height: 40px; }
+  .rail-logo { width: 140px; }
+  .rail-sub-text { display: none; }
+  .rail-nav a { padding: 5px 14px; }
+  .rail-tagline { margin-bottom: 6px; }
+  .rail-about { margin-bottom: 10px; }
+  .rail-nav { margin-bottom: 10px; }
+}
+
+
+/* ------------------------------------------------------------
+   53. JOURNAL FEED — RECENT GEEKOUTS (July 22, 2026)
+   Toby's home feed redesign: log/journal style. Each entry is one
+   row — the same day/month/year date block the cards had (day at
+   full 1.4rem), the title at the SAME 1.4rem so date and title
+   read as one balanced object (Toby picked "match date"), a thin
+   line between entries, nothing else. The whole row is the
+   permalink. Filtering lives in index.html: titled posts only;
+   Spotlight, Movie Reviews, TV Reviews, Bookshelf, and Reel and
+   Remote excluded. Everything rides the sky tokens.
+   Post-card CSS above stays — category/archive list pages still
+   use the card layout. */
+
+.journal-entry {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+}
+
+.journal-date {
+  min-width: 52px;
+  text-align: center;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.journal-date-day {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-terra);
+}
+
+.journal-date-month,
+.journal-date-year {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.journal-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem; /* July 22 rev 2 (Toby): matched to the Reel and Remote list at ALL sizes — 1.4rem read oversized. Date block stays full size. */
+  font-weight: 700;
+  color: var(--color-navy);
+  line-height: 1.3;
+  transition: color 0.15s;
+}
+
+.journal-entry:hover .journal-title,
+.journal-entry:focus .journal-title,
+.journal-entry:active .journal-title {
+  color: var(--color-terra);
+}
+
+
+/* ------------------------------------------------------------
+   54. REEL AND REMOTE — HOME SECTION (July 22, 2026)
+   Toby's watching shelf: mixed activity from Movie Reviews,
+   TV Reviews, and Reel and Remote — rated watches, watchlist
+   entries, currently-watching notes. Top 3 = newest RATED posts
+   as tiles (stars pulled from each post's own movie-card markup
+   by findRE in index.html); next 3 newest of any type as compact
+   rows, stars when present. Small quiet dates on both (Toby's
+   call). Tiles collapse into the same rows under 640px so phones
+   see six consistent one-liners. Everything rides the sky tokens.
+   ------------------------------------------------------------ */
+
+.reel-section {
+  margin-top: var(--space-2xl);
+}
+
+.reel-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 14px 0 8px;
+}
+
+.reel-tile {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 18px 14px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 108px;
+  transition: border-color 0.15s;
+}
+.reel-tile:hover { border-color: var(--color-terra); }
+
+.reel-tile-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.15s;
+}
+.reel-tile:hover .reel-tile-title { color: var(--color-terra); }
+
+.reel-stars {
+  font-size: 0.9rem;
+  color: var(--color-terra);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.reel-date {
+  font-size: 0.68rem;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
+
+.reel-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 4px;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+}
+
+.reel-entry-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+.reel-entry:hover .reel-entry-title { color: var(--color-terra); }
+
+.reel-entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.reel-cta {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.reel-cta a {
+  color: var(--color-terra);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.reel-cta a:hover { color: var(--color-terra-dark); }
+
+/* Phones: tiles become the same one-line rows — six consistent
+   entries, nothing squeezed into slivers. */
+@media (max-width: 639px) {
+  .reel-tiles { display: block; margin: 0; }
+  /* Toby's call (July 22 rev 2): NO title truncation on phones —
+     the full title wraps freely on its own line(s), and the rating
+     + date drop to a second line underneath. */
+  .reel-tile {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    text-align: left;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: 9px 4px;
+    min-height: 0;
+    gap: 4px 14px;
+  }
+  .reel-tile-title {
+    font-size: 1.05rem;
+    display: block;
+    width: 100%;
+    white-space: normal;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+  .reel-entry {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 4px 14px;
+  }
+  .reel-entry-title {
+    width: 100%;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   55. HOVER UNDERLINE SUPPRESSION (July 22, 2026)
+   Bootstrap (loaded by the blogroll widget) sets a:hover
+   text-decoration: underline, which leaked a tight, wrong-colored
+   underline onto title-style links on hover — Toby caught it live
+   on "More in the Spotlight" (screenshot) and the journal rows.
+   These links signal hover by COLOR, never underline; this pins
+   that down against third-party CSS in every state.
+   ------------------------------------------------------------ */
+
+.featured-more-item:hover, .featured-more-item:focus, .featured-more-item:active,
+.journal-entry:hover, .journal-entry:focus, .journal-entry:active,
+.reel-entry:hover, .reel-entry:focus, .reel-entry:active,
+.reel-tile:hover, .reel-tile:focus, .reel-tile:active,
+.reel-cta a:hover, .reel-cta a:focus, .reel-cta a:active,
+.rail-nav a:hover, .rail-nav a:focus, .rail-nav a:active,
+.rail-about a:hover, .rail-about a:focus, .rail-about a:active,
+.rail-newsletters:hover, .rail-newsletters:focus, .rail-newsletters:active,
+.rail-btn:hover, .rail-btn:focus, .rail-btn:active,
+.rail-identity:hover, .rail-identity:focus, .rail-identity:active,
+.btn-featured:hover, .btn-featured:focus, .btn-featured:active,
+.btn-archive:hover, .btn-archive:focus, .btn-archive:active {
+  text-decoration: none !important;
+}
+
+
+/* ------------------------------------------------------------
+   56. THE BOOKSHELF — HOME SECTION (July 22, 2026)
+   Books before Reel and Remote (Toby's call). Bookshelf + Book
+   Review rows reuse the .reel-entry styles; this section only
+   styles the Currently Reading entries: stripped book title,
+   thin terracotta progress bar filled to the % pulled from the
+   post's own book card, page count + quiet date underneath.
+   Currently Reading and Book Reviews render NOTHING until posts
+   in those categories exist. Everything rides the sky tokens.
+   ------------------------------------------------------------ */
+
+.books-section {
+  margin-top: var(--space-2xl);
+}
+
+.book-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+}
+.book-entry:hover, .book-entry:focus, .book-entry:active {
+  text-decoration: none !important;
+}
+
+.book-entry-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+}
+
+.book-entry-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  line-height: 1.3;
+  transition: color 0.15s;
+}
+.book-entry:hover .book-entry-title { color: var(--color-terra); }
+
+.book-progress {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.book-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-terra);
+}
+
+.book-entry-metaline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* One-line Currently Reading rows on wider screens (Toby's call,
+   July 22): label · title · bar stretching through the middle ·
+   pages/%/date at the end. Below 640px the stacked layout above
+   stays — phones keep the two-line look. */
+@media (min-width: 640px) {
+  .book-entry {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .book-entry-eyebrow { flex-shrink: 0; }
+  .book-entry-title {
+    /* Long titles flex into available room and ellipsize only when
+       they truly run out — no fixed cap now that the bar is fixed. */
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .book-progress {
+    /* Fixed short bar (Toby: "not at the great length") — sits beside
+       the title instead of stretching across the whole row. */
+    flex: 0 0 180px;
+    width: 180px;
+    max-width: 180px;
+  }
+  /* Pages + % sit right beside the bar; only the date floats to the
+     far end of the row (Toby's call). display:contents promotes the
+     metaline's children to row items while inheritance keeps their
+     small muted styling. */
+  .book-entry-metaline {
+    display: contents;
+  }
+  .book-entry-metaline > span {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .book-entry .reel-date {
+    margin-left: auto;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   57. BOOK CARD — CLASS-BASED (July 22, 2026)
+   Same treatment the movie card got in section 44: Perch emits
+   colorless markup with classes, custom.css owns every color via
+   tokens so the card rides the timed sky day AND night. The old
+   small-cover rules (section 21-era .book-card img float, card
+   padding) are neutralized for new-format cards — identified by
+   their classed children via :has() — without touching how
+   already-published old cards render.
+   ------------------------------------------------------------ */
+
+/* New-format card container: kill the old card's padding (the new
+   markup pads its own td), keep bg transparent over the sky. */
+.book-card:has(.book-card-title) {
+  padding: 0;
+  background: transparent !important;
+  border-color: var(--color-border) !important;
+}
+
+.book-card-emoji {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  color: var(--color-terra);
+}
+
+.book-card-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  line-height: 1.15;
+  font-family: var(--font-display);
+  color: var(--color-navy);
+}
+
+.book-card-title a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--color-terra);
+  text-underline-offset: 5.5px;
+}
+
+.book-card-byline {
+  color: var(--color-text-muted);
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+}
+
+.book-card-poster { padding: 0 0 0 14px; width: 180px; min-width: 180px; }
+
+/* Beats the old .book-card img 72px float rule (same specificity,
+   later in the cascade, both !important — later wins). */
+.book-card-poster img {
+  float: none !important;
+  width: 180px !important;
+  height: 265px !important;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 0 !important;
+}
+
+.book-card-progress {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.book-card-progress-page {
+  margin: 0 0 8px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.book-card-progress-pct {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  font-family: var(--font-body);
+  color: var(--color-terra);
+}
+
+.book-card-progress-track {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--color-border-light);
+}
+
+.book-card-progress-fill {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-terra);
+}
+
+
+/* ------------------------------------------------------------
+   58. MICROS — HOME SECTION (July 22, 2026)
+   Quick untitled thoughts (≤300 chars, category "Micro"), shown in
+   FULL — no truncation, no tease. Lora reading text with the mobile
+   visibility bump matched, quiet date-permalink underneath. Sits
+   after Recent Geekouts, before The Bookshelf. Renders nothing
+   until Micro-categorized posts exist. Rides the sky tokens.
+   ------------------------------------------------------------ */
+
+.micro-section {
+  margin-top: var(--space-2xl);
+}
+
+.micro-entry {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.micro-entry-text,
+.micro-entry-text p {
+  font-family: var(--font-reading);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.micro-entry-text p + p { margin-top: 6px; }
+
+.micro-entry-date {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+.micro-entry-date:hover,
+.micro-entry-date:focus,
+.micro-entry-date:active {
+  color: var(--color-terra);
+  text-decoration: none !important;
+}
+
+/* Match the mobile/foldable Lora visibility bump */
+@media (max-width: 1023px) {
+  .micro-entry-text,
+  .micro-entry-text p {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
 }

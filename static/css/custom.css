@@ -5083,3 +5083,73 @@ body.tgo-night .rail-nav a.active {
     font-weight: 500;
   }
 }
+
+
+/* ------------------------------------------------------------
+   59. BROWSE BY CATEGORY (July 23, 2026)
+   Quiet text row above the archive door (Toby chose this over
+   pills: less trendy, matches the archive link's spirit and the
+   archive's own category styling). Top 6 real topics by post
+   count; plumbing categories are excluded in the template.
+   Separators are CSS-drawn so the template loop stays clean.
+   Rides the sky tokens day and night.
+   ------------------------------------------------------------ */
+
+.catrow-section {
+  margin-top: var(--space-2xl);
+}
+
+.catrow-label {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  margin: 0 0 14px;
+}
+
+.catrow {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 2.1;
+  color: var(--color-text-muted);
+}
+
+.catrow-item { white-space: nowrap; }
+
+/* Dot separators between items, drawn by CSS */
+.catrow-item + .catrow-item::before {
+  content: "\00B7";
+  opacity: 0.45;
+  margin: 0 9px 0 5px;
+}
+
+.catrow-item a {
+  font-weight: 600;
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--color-terra);
+  text-underline-offset: 5.5px;
+  transition: color 0.15s;
+}
+.catrow-item a:hover,
+.catrow-item a:focus,
+.catrow-item a:active {
+  color: var(--color-terra);
+  text-decoration: underline;
+}
+
+.catrow-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.55;
+  color: var(--color-text-muted);
+}
+
+/* Night: keep the ink readable over the night sky */
+body.tgo-night .catrow-label { color: #E0906B; }
+body.tgo-night .catrow-item a { color: var(--color-text); text-decoration-color: #E0906B; }
+body.tgo-night .catrow-item a:hover,
+body.tgo-night .catrow-item a:focus,
+body.tgo-night .catrow-item a:active { color: #E0906B; }

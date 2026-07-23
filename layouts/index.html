@@ -324,6 +324,33 @@
     </div>
   </div>
   {{ end }}
+  {{/* Browse by Category (July 23, 2026, Toby's pick: quiet text row,
+       Option B over pills). Top 6 categories by post count, sorted
+       biggest-first by Hugo on every publish. Plumbing categories that
+       already have their own home sections are skipped — only real
+       browsing topics show. Counts render small and faded; separators
+       come from CSS (catrow-item + catrow-item::before). */}}
+  {{ $catSkip := slice "spotlight" "bookshelf" "currently reading" "book reviews" "movie reviews" "tv reviews" "reel and remote" "micro" }}
+  {{ $catShown := 0 }}
+  {{ $catItems := slice }}
+  {{ range site.Taxonomies.categories.ByCount }}
+    {{ if and (lt $catShown 6) (not (in $catSkip (lower .Name))) }}
+      {{ $count := .Count }}
+      {{ with site.GetPage (printf "/categories/%s" (urlize .Name)) }}
+        {{ $catShown = add $catShown 1 }}
+        {{ $catItems = $catItems | append (dict "title" .Title "url" .Permalink "count" $count) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $catItems }}
+  <div class="catrow-section">
+    <h2 class="catrow-label">Browse by Category</h2>
+    <div class="catrow">
+      {{ range $catItems }}<span class="catrow-item"><a href="{{ .url }}">{{ .title }}</a> <span class="catrow-count">{{ .count }}</span></span>
+      {{ end }}
+    </div>
+  </div>
+  {{ end }}
   {{/* Single archive door instead of numbered pagination — the full
        chronological record lives on /archive/. */}}
   <div class="feed-archive-cta">

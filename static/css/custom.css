@@ -5153,3 +5153,19 @@ body.tgo-night .catrow-item a { color: var(--color-text); text-decoration-color:
 body.tgo-night .catrow-item a:hover,
 body.tgo-night .catrow-item a:focus,
 body.tgo-night .catrow-item a:active { color: #E0906B; }
+
+/* Mobile/foldable: the inline dots lead wrapped lines and look wrong.
+   Switch to flex-wrap with gap spacing and drop the dots entirely —
+   the underlined links + faded counts already separate the items. */
+@media (max-width: 1023px) {
+  .catrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    line-height: 1.6;
+  }
+  .catrow-item + .catrow-item::before {
+    content: none;
+    margin: 0;
+  }
+}

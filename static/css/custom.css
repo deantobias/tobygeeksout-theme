@@ -5169,3 +5169,23 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
     margin: 0;
   }
 }
+
+
+/* ------------------------------------------------------------
+   60. MOBILE TITLE SCALE (July 23, 2026)
+   Toby's call: on mobile, list titles (1.05rem) sat SMALLER than
+   reading text (1.25rem Lora), which broke the usual rule that
+   titles >= body. All tappable list titles now match the reading
+   size on <=1023px — hierarchy comes from bold Bricolage vs Lora,
+   not from titles being smaller. Desktop untouched.
+   ------------------------------------------------------------ */
+
+@media (max-width: 1023px) {
+  .journal-title,
+  .reel-entry-title,
+  .reel-tile-title,
+  .book-entry-title,
+  .featured-more-title {
+    font-size: 1.25rem;
+  }
+}

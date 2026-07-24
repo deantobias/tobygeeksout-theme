@@ -4360,15 +4360,17 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    Sized COMPACT on purpose (Toby, July 22): the whole rail must
    fit a single screen with no scrolling — overflow-y:auto stays
    only as a safety net for very short windows.
-   Mobile and tablet (<1024px) are COMPLETELY untouched: same
+   July 24 (Toby): rail extended down to 768px so unfolded
+   foldables and portrait tablets get it too, with a compact
+   variant below. Phones (<768px) are COMPLETELY untouched: same
    header, same tab bar. The newsletter reader keeps the compact
-   top header on desktop too — its locked full-viewport panels
+   top header at all widths — its locked full-viewport panels
    assume full page width.
    ------------------------------------------------------------ */
 
 .site-rail { display: none; }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   body:not(.type-newsletter) .site-header { display: none !important; }
 
   body:not(.type-newsletter) .site-rail {
@@ -4561,7 +4563,7 @@ body.tgo-night .rail-nav a.active {
   margin-top: auto;
   padding-top: 10px;
 }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .tgo-sky-btn--rail { display: inline-flex; }
 }
 
@@ -4569,7 +4571,7 @@ body.tgo-night .rail-nav a.active {
    browser chrome): trim the rail further so it still fits with no
    scrolling on effectively every resolution. overflow-y:auto above
    remains the last-resort safety net. */
-@media (min-width: 1024px) and (max-height: 720px) {
+@media (min-width: 768px) and (max-height: 720px) {
   .site-rail { padding-top: 12px; }
   .rail-avatar { width: 40px; height: 40px; }
   .rail-logo { width: 140px; }
@@ -4578,6 +4580,25 @@ body.tgo-night .rail-nav a.active {
   .rail-tagline { margin-bottom: 6px; }
   .rail-about { margin-bottom: 10px; }
   .rail-nav { margin-bottom: 10px; }
+}
+
+/* Foldable/tablet compact rail (July 24, Toby): 768–1023px gets the
+   same rail, sized down so the content column keeps room — narrower
+   width, smaller logo, tighter blocks. Everything else inherits the
+   desktop rail rules above. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root { --rail-w: 220px; }
+  body:not(.type-newsletter) .site-rail { padding: 16px 14px 12px; }
+  .rail-logo { width: 130px; }
+  .rail-avatar { width: 42px; height: 42px; }
+  .rail-sub-text { display: none; }
+  .rail-nav a { padding: 6px 12px; font-size: 0.85rem; }
+  .rail-btn { padding: 6px 10px; font-size: 0.75rem; min-height: 31px; }
+  .rail-about { margin-bottom: 10px; }
+  .rail-nav { margin-bottom: 10px; }
+  /* Keep short links from breaking mid-phrase in the narrow rail */
+  .rail-about a { white-space: nowrap; }
+  .rail-newsletters { white-space: nowrap; font-size: 0.72rem; }
 }
 
 

@@ -5214,3 +5214,152 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
     font-size: 1.25rem;
   }
 }
+
+
+/* ------------------------------------------------------------
+   61. COVER ART IN HOME LISTS (July 25, 2026)
+   Book covers pulled out of each post's own card markup by
+   findRE in layouts/index.html, then rendered as a fixed 2:3
+   crop so rows stay even no matter what shape the source file
+   is. Fluid clamp() instead of breakpoints: foldables glide
+   between folded (344px) and unfolded (~700px) with no jump.
+   Google Books ships covers at 128px with a page-curl artifact;
+   index.html asks for the larger clean size instead, landing at
+   300px - right for a 150px cover on a 2x screen. Sizes are
+   Toby's call: 80 cap for list rows, 150 for rating tiles.
+   Rows/tiles WITHOUT a cover are untouched - the body span is
+   display:contents until the cover class appears.
+   ------------------------------------------------------------ */
+
+.media-cover {
+  width: clamp(64px, 20vw, 80px);
+  aspect-ratio: var(--cover-ratio, 2 / 3);
+  height: auto;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: block;
+  background-color: var(--color-border);
+}
+
+.media-cover--rating {
+  width: clamp(96px, 28vw, 150px);
+  border-radius: 4px;
+}
+
+/* For 16:9 stills (TV backdrops) if those ever land here. */
+.media-cover--wide { --cover-ratio: 16 / 9; }
+
+/* Transparent by default so coverless rows keep the exact
+   title-left / date-right layout section 54 gives them. */
+.reel-entry-body,
+.reel-tile-body { display: contents; }
+
+.reel-entry--cover {
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 14px;
+}
+
+.reel-entry--cover .reel-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  /* min-width:0 or a long unbroken title forces the flex row
+     wider than the screen - shows up only on the folded state. */
+  min-width: 0;
+}
+
+.reel-entry--cover .reel-entry-meta { justify-content: flex-start; }
+
+@media (max-width: 639px) {
+  /* Section 54 wraps these rows and gives the title width:100%,
+     which would drop the cover onto a line of its own. With a
+     cover present the row stays side-by-side instead. */
+  .reel-entry--cover { flex-wrap: nowrap; }
+  .reel-entry--cover .reel-entry-title { width: auto; }
+
+  .reel-tile--cover {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .reel-tile--cover .reel-tile-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .reel-tile--cover .reel-tile-title { width: auto; }
+}
+
+
+/* ------------------------------------------------------------
+   62. CURRENTLY READING - COVER ROWS (July 25, 2026)
+   Toby's call: the per-row "Currently reading" eyebrow repeated
+   on every line was noise, so the label moved up to one section
+   subhead and the rows became cover + title + progress. Rows
+   stack their text in a column at every width now, which means
+   the section 56 desktop trick (metaline display:contents, date
+   pushed to the far end) has to be undone for covered rows.
+   ------------------------------------------------------------ */
+
+.books-subhead {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  margin: var(--space-lg) 0 2px;
+}
+
+/* Transparent until a cover exists, same trick as section 61. */
+.book-entry-body { display: contents; }
+
+.book-entry--cover {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.book-entry--cover .book-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  /* Undo section 56's one-line desktop row for covered entries. */
+  .book-entry--cover .book-entry-title {
+    flex: none;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .book-entry--cover .book-entry-metaline {
+    display: flex;
+    gap: 12px;
+  }
+  .book-entry--cover .book-progress {
+    flex: none;
+    width: 100%;
+    max-width: 260px;
+  }
+  .book-entry--cover .reel-date { margin-left: 0; }
+}
+
+/* Each labelled group inside The Bookshelf is its own list.
+   A group following another gets real air plus a 2px rule -
+   heavier than the 1px hairlines between rows, so the break
+   reads as "new list", not "next row" (Toby's call, July 25). */
+.books-group + .books-group {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 2px solid var(--color-border);
+}
+.books-group > .books-subhead:first-child { margin-top: 0; }

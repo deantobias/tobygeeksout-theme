@@ -179,6 +179,8 @@
     {{/* Dedupe by book title (Toby has 4 books going + will post
          progress updates per book over time — each book shows ONCE,
          always its newest post). Cap 4 active books. */}}
+    {{ if $crPool }}<div class="books-group">
+    <p class="books-subhead">📖 Currently Reading</p>{{ end }}
     {{ $seenBooks := slice }}
     {{ $crShown := 0 }}
     {{ range $crPool }}
@@ -193,37 +195,63 @@
     {{ $crPlain := .Content | plainify }}
     {{ $pages := findRE `Page \d+ of \d+` $crPlain 1 }}
     {{ $pct := findRE `\d{1,3}%` $crPlain 1 }}
-    <a href="{{ .Permalink }}" class="book-entry u-url">
-      <span class="book-entry-eyebrow">📖 Currently reading</span>
-      <span class="book-entry-title">{{ $bookTitle }}</span>
-      {{ with $pct }}
-      <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
-        <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
-      </span>
-      {{ end }}
-      <span class="book-entry-metaline">
-        {{ with $pages }}<span>{{ index . 0 }}</span>{{ end }}
-        {{ with $pct }}<span>{{ index . 0 }}</span>{{ end }}
-        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+    {{/* Cover art (July 25, 2026, Toby): first image in the post is the
+         book cover from the card markup. */}}
+    {{ $cover := "" }}
+    {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+    {{/* Eyebrow removed July 25 (Toby): the label repeated on every row;
+         it lives once in the group subhead above now. */}}
+    <a href="{{ .Permalink }}" class="book-entry{{ if $cover }} book-entry--cover{{ end }} u-url">
+      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
+      <span class="book-entry-body">
+        <span class="book-entry-title">{{ $bookTitle }}</span>
+        {{ with $pct }}
+        <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
+          <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
+        </span>
+        {{ end }}
+        <span class="book-entry-metaline">
+          {{ with $pages }}<span>{{ index . 0 }}</span>{{ end }}
+          {{ with $pct }}<span>{{ index . 0 }}</span>{{ end }}
+          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        </span>
       </span>
     </a>
     {{ end }}
     {{ end }}
+    {{ if $crPool }}</div>{{ end }}
     {{/* Book Reviews = TILES (Toby's call, July 22) — rated books get
          the same trophy treatment as the movie tiles; reuses the
          reel-tile styles. Hidden until rated book posts exist. */}}
     {{ if $br }}
+    <div class="books-group">
+    <p class="books-subhead">⭐ Book Reviews</p>
     <div class="reel-tiles">
       {{ range $br }}
       {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
-      <a href="{{ .Permalink }}" class="reel-tile u-url">
-        <span class="reel-tile-title">{{ .Title }}</span>
-        {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
-        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      {{/* Cover art (July 25, 2026, Toby): first image in the post is the
+           book cover from the card markup. Google Books serves 128px with a
+           page-curl artifact - the larger clean size lands at 300px. */}}
+      {{ $cover := "" }}
+      {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
+      {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+      {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+      <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
+        {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
+        <span class="reel-tile-body">
+          <span class="reel-tile-title">{{ .Title }}</span>
+          {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
+          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        </span>
       </a>
       {{ end }}
     </div>
+    </div>
     {{ end }}
+    {{ if $shelfPool }}<div class="books-group">
+    <p class="books-subhead">📚 On the Shelf</p>{{ end }}
     {{ $shelfShown := 0 }}
     {{ range $shelfPool }}
     {{ if lt $shelfShown 3 }}
@@ -251,15 +279,26 @@
     {{ end }}
     {{ if $t }}
     {{ $shelfShown = add $shelfShown 1 }}
-    <a href="{{ .Permalink }}" class="reel-entry u-url">
-      <span class="reel-entry-title">{{ $t }}</span>
-      <span class="reel-entry-meta">
-        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+    {{/* Cover art (July 25, 2026, Toby): first image in the post is the
+         book cover from the card markup. Google Books serves 128px with a
+         page-curl artifact - the larger clean size lands at 300px. */}}
+    {{ $cover := "" }}
+    {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+    <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
+      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="110" height="165">{{ end }}
+      <span class="reel-entry-body">
+        <span class="reel-entry-title">{{ $t }}</span>
+        <span class="reel-entry-meta">
+          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        </span>
       </span>
     </a>
     {{ end }}
     {{ end }}
     {{ end }}
+    {{ if $shelfPool }}</div>{{ end }}
     <div class="reel-cta">
       <a href="{{ "/categories/bookshelf/" | absURL }}">All of the Bookshelf →</a>
     </div>

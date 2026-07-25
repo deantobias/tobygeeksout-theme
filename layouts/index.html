@@ -180,7 +180,8 @@
          progress updates per book over time — each book shows ONCE,
          always its newest post). Cap 4 active books. */}}
     {{ if $crPool }}<div class="books-group">
-    <p class="books-subhead">📖 Currently Reading</p>{{ end }}
+    <p class="books-subhead">📖 Currently Reading</p>
+    <div class="books-grid">{{ end }}
     {{ $seenBooks := slice }}
     {{ $crShown := 0 }}
     {{ range $crPool }}
@@ -226,7 +227,7 @@
     </a>
     {{ end }}
     {{ end }}
-    {{ if $crPool }}</div>{{ end }}
+    {{ if $crPool }}</div></div>{{ end }}
     {{/* Book Reviews = TILES (Toby's call, July 22) — rated books get
          the same trophy treatment as the movie tiles; reuses the
          reel-tile styles. Hidden until rated book posts exist. */}}
@@ -260,10 +261,11 @@
     </div>
     {{ end }}
     {{ if $shelfPool }}<div class="books-group">
-    <p class="books-subhead">📚 On the Shelf</p>{{ end }}
+    <p class="books-subhead">📚 On the Shelf</p>
+    <div class="books-grid">{{ end }}
     {{ $shelfShown := 0 }}
     {{ range $shelfPool }}
-    {{ if lt $shelfShown 3 }}
+    {{ if lt $shelfShown 4 }}
     {{/* Display title: the post's own title when it has one; otherwise
          the "want to read: Book by Author" phrase extracted from the
          prose (Toby's untitled bookshelf microposts name the book that
@@ -315,7 +317,7 @@
     {{ end }}
     {{ end }}
     {{ end }}
-    {{ if $shelfPool }}</div>{{ end }}
+    {{ if $shelfPool }}</div></div>{{ end }}
     <div class="reel-cta">
       <a href="{{ "/categories/bookshelf/" | absURL }}">All of the Bookshelf →</a>
     </div>

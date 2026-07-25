@@ -5363,3 +5363,45 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   border-top: 2px solid var(--color-border);
 }
 .books-group > .books-subhead:first-child { margin-top: 0; }
+
+
+/* ------------------------------------------------------------
+   63. BOOKSHELF TWO-COLUMN GRIDS (July 25, 2026)
+   Currently Reading and On the Shelf were full-width rows with an
+   80px cover and a short title, so most of each row was empty air.
+   Two columns use that space and halve the vertical run of the
+   section (Toby's call). 700px is the switch point: an unfolded
+   foldable gets two columns, a folded one and every phone gets a
+   single column. Book Reviews stays on the 3-across .reel-tiles
+   grid. Row gap stays 0 so the hairline borders line up like a
+   ledger; the air between columns comes from column-gap.
+   If this CSS ever fails to load the grid degrades to a plain
+   stack - which is the old layout, so there is no broken state.
+   ------------------------------------------------------------ */
+
+.books-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: var(--space-xl);
+}
+
+@media (min-width: 700px) {
+  /* minmax(0, 1fr), not 1fr: a plain 1fr floors at the content's
+     min width, so one long title made the columns uneven. */
+  .books-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* Section 54 gives these rows nowrap + ellipsis, which was fine at
+   full width but started cutting titles off once the columns halved.
+   There is vertical room beside a 120px cover, so wrap to two lines
+   instead of truncating. Scoped to the grid: the full-width Reel and
+   Remote rows keep the single-line treatment. */
+.books-grid .reel-entry-title,
+.books-grid .book-entry-title {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: clip;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

@@ -5370,3 +5370,78 @@ h4, h5, h6 {
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+
+/* ------------------------------------------------------------
+   65. RECENT GEEKOUTS THUMBNAILS (July 25, 2026)
+   Option A from the mockup (Toby's pick): a small 3:2 thumb at the
+   right edge, nothing reserved on rows without one. 96px wide caps
+   the height at 64px, which is about what a text row already stands
+   at - so rows barely change height. That matters because images are
+   the EXCEPTION here: only about 1 in 3 posts has one, and a reserved
+   slot would leave most rows looking broken.
+   3:2 landscape, NOT the 2:3 of the book covers - these are photos.
+   Source rule lives in index.html: Toby's own uploads only, never
+   book or movie card art.
+   ------------------------------------------------------------ */
+
+.journal-thumb {
+  width: clamp(76px, 24vw, 96px);
+  aspect-ratio: 3 / 2;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: block;
+  margin-left: auto;
+  background-color: var(--color-border);
+}
+
+/* Lets the title fill the row so the thumb sits flush right, and
+   min-width:0 keeps a long unbroken title from pushing the row wider
+   than the screen. Harmless on rows with no thumb - the title still
+   starts at the same place, it just occupies the slack. */
+.journal-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+
+/* ------------------------------------------------------------
+   66. ARCHIVE PAGE HEADING (July 25, 2026)
+   The archive heading has to line up with the ARCHIVE's own column,
+   not the one Now/About/Search use. Those pages sit in
+   .page-wrapper (1120px); the archive body is its own narrower
+   720px column (.archive-wrapper and .archive-categories-fold,
+   CSS 14). Dropping a bare .page-header into main left the title
+   full-width and ~300px left of the content underneath it - Toby
+   caught it immediately. These values mirror .archive-wrapper
+   exactly so the three line up. Vertical padding still comes from
+   .page-header; only the horizontal box is overridden here.
+   ------------------------------------------------------------ */
+
+/* Match the width Now/About/Search use (Toby, July 25): those pages
+   sit in article.page-wrapper - 1120px wide with 30px side padding.
+   The archive had its own narrower 720px column (CSS 14), so even
+   once the heading lined up with the archive body, the whole page
+   still read narrower than the other three - clicking through the
+   nav made one page visibly jump. Rather than restructure the
+   archive template to nest everything in .page-wrapper, this
+   re-points the archive's own boxes at page-wrapper's numbers -
+   pure CSS, no template rebuild needed. That matters because the
+   archive page rebuilds much more slowly than the rest of the site,
+   so a template-dependent fix would have left a broken interim.
+   `main > .page-header` matches the archive and ONLY the archive:
+   verified across home, a category page, archive, now, about and
+   search - the other three nest their header inside .page-wrapper,
+   so they are not direct children of main. */
+main > .page-header,
+.archive-page-header,
+.archive-categories-fold,
+.archive-wrapper {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 30px;
+  padding-right: 30px;
+}

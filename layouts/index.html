@@ -109,6 +109,23 @@
   {{ range $recent }}
     {{/* Journal entry — the whole row is the permalink. Date block
          keeps the exact same day/month/year setup the cards had. */}}
+    {{/* Thumbnail (July 25, 2026, Toby): ONLY images Toby uploaded
+         himself, and never card art. Two conditions, both needed -
+         host must be cdn.uploads.micro.blog, AND the image must not be
+         sitting in a book/movie card poster cell, because covers Toby
+         uploads by hand live on that same host. Without the second
+         test, "An Unplanned Offline Day" would show a Google Books
+         cover as its thumbnail. Posts with no photo of their own get
+         no thumb at all - the row is simply shorter. */}}
+    {{ $posters := slice }}
+    {{ range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
+      {{ $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) }}
+    {{ end }}
+    {{ $thumb := "" }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $thumb) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) }}{{ $thumb = $u }}{{ end }}
+    {{ end }}
     <a href="{{ .Permalink }}" class="journal-entry u-url">
       <span class="journal-date" aria-hidden="true">
         <span class="journal-date-day">{{ .Date.Format "2" }}</span>
@@ -116,6 +133,7 @@
         <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
       </span>
       <span class="journal-title">{{ .Title }}</span>
+      {{ with $thumb }}<img class="journal-thumb" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="96" height="64">{{ end }}
     </a>
   {{ end }}
   {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,

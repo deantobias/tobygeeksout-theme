@@ -1,4 +1,12 @@
 {{ define "main" }}
+  {{/* Page heading (July 25, 2026, Toby): the archive was the only
+       one of the four utility pages without one - Now, About and Search
+       all render .page-header > h1.page-title. Same markup here, so it
+       picks up the existing gradient rule under the title (CSS 14) with
+       no new styles. */}}
+  <header class="page-header archive-page-header">
+    <h1 class="page-title">Archive</h1>
+  </header>
   <div>
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
   {{ if gt (len $list) 0 }}

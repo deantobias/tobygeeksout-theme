@@ -195,11 +195,16 @@
     {{ $crPlain := .Content | plainify }}
     {{ $pages := findRE `Page \d+ of \d+` $crPlain 1 }}
     {{ $pct := findRE `\d{1,3}%` $crPlain 1 }}
-    {{/* Cover art (July 25, 2026, Toby): first image in the post is the
-         book cover from the card markup. */}}
+    {{/* Cover art (July 25, 2026, Toby): posters and book covers ONLY -
+         an allowlist, not "first image in the post". Movie/TV posts also
+         embed YouTube trailer thumbnails, which are 16:9 and would be
+         cropped to ribbons in a 2:3 frame. Google Books covers arrive at
+         128px with a page-curl artifact; both are fixed on the way out. */}}
     {{ $cover := "" }}
-    {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
-    {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
     {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
     {{/* Eyebrow removed July 25 (Toby): the label repeated on every row;
          it lives once in the group subhead above now. */}}
@@ -231,12 +236,16 @@
     <div class="reel-tiles">
       {{ range $br }}
       {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
-      {{/* Cover art (July 25, 2026, Toby): first image in the post is the
-           book cover from the card markup. Google Books serves 128px with a
-           page-curl artifact - the larger clean size lands at 300px. */}}
+      {{/* Cover art (July 25, 2026, Toby): posters and book covers ONLY -
+           an allowlist, not "first image in the post". Movie/TV posts also
+           embed YouTube trailer thumbnails, which are 16:9 and would be
+           cropped to ribbons in a 2:3 frame. Google Books covers arrive at
+           128px with a page-curl artifact; both are fixed on the way out. */}}
       {{ $cover := "" }}
-      {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
-      {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+      {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+        {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+        {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+      {{ end }}
       {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
       <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
         {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
@@ -276,15 +285,23 @@
       {{/* Home page only: capitalize the leading "want" so the row reads
            "Want to read: ..." (July 22, Toby). The post itself is untouched. */}}
       {{ if $t }}{{ $t = printf "%s%s" (upper (substr $t 0 1)) (substr $t 1) }}{{ end }}
+      {{/* Colon -> em dash on the home page rows (July 25, Toby):
+           "Want to read: Title" reads better as "Want to read - Title".
+           The post itself is untouched, this is display only. */}}
+      {{ if $t }}{{ $t = replaceRE `(?i)^(want to read)\s*:\s*` "$1 — " $t }}{{ end }}
     {{ end }}
     {{ if $t }}
     {{ $shelfShown = add $shelfShown 1 }}
-    {{/* Cover art (July 25, 2026, Toby): first image in the post is the
-         book cover from the card markup. Google Books serves 128px with a
-         page-curl artifact - the larger clean size lands at 300px. */}}
+    {{/* Cover art (July 25, 2026, Toby): posters and book covers ONLY -
+         an allowlist, not "first image in the post". Movie/TV posts also
+         embed YouTube trailer thumbnails, which are 16:9 and would be
+         cropped to ribbons in a 2:3 frame. Google Books covers arrive at
+         128px with a page-curl artifact; both are fixed on the way out. */}}
     {{ $cover := "" }}
-    {{ $cm := findRE `<img[^>]+src="[^"]+"` .Content 1 }}
-    {{ with $cm }}{{ $cover = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) }}{{ end }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
     {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
     <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="110" height="165">{{ end }}
@@ -340,21 +357,49 @@
     {{ if $tiles }}
     <div class="reel-tiles">
       {{ range $tiles }}
-      <a href="{{ .Permalink }}" class="reel-tile u-url">
-        <span class="reel-tile-title">{{ .Title }}</span>
-        <span class="reel-stars">{{ index (findRE `[★☆½]{3,}` .Content 1) 0 }}</span>
-        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+      {{/* Cover art (July 25, 2026, Toby): posters and book covers ONLY -
+           an allowlist, not "first image in the post". Movie/TV posts also
+           embed YouTube trailer thumbnails, which are 16:9 and would be
+           cropped to ribbons in a 2:3 frame. Google Books covers arrive at
+           128px with a page-curl artifact; both are fixed on the way out. */}}
+      {{ $cover := "" }}
+      {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+        {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+        {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+      {{ end }}
+      {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+      <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
+        {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
+        <span class="reel-tile-body">
+          <span class="reel-tile-title">{{ .Title }}</span>
+          <span class="reel-stars">{{ index (findRE `[★☆½]{3,}` .Content 1) 0 }}</span>
+          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+        </span>
       </a>
       {{ end }}
     </div>
     {{ end }}
     {{ range $rows }}
     {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
-    <a href="{{ .Permalink }}" class="reel-entry u-url">
-      <span class="reel-entry-title">{{ .Title }}</span>
-      <span class="reel-entry-meta">
-        <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
+    {{/* Cover art (July 25, 2026, Toby): posters and book covers ONLY -
+         an allowlist, not "first image in the post". Movie/TV posts also
+         embed YouTube trailer thumbnails, which are 16:9 and would be
+         cropped to ribbons in a 2:3 frame. Google Books covers arrive at
+         128px with a page-curl artifact; both are fixed on the way out. */}}
+    {{ $cover := "" }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+    <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
+      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
+      <span class="reel-entry-body">
+        <span class="reel-entry-title">{{ .Title }}</span>
+        <span class="reel-entry-meta">
+          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+          {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
+        </span>
       </span>
     </a>
     {{ end }}

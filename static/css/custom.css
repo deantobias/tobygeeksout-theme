@@ -4366,14 +4366,18 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    header, same tab bar. The newsletter reader keeps the compact
    top header at all widths — its locked full-viewport panels
    assume full page width.
+   July 25 (Toby): single posts (type-post) are exempt too — they
+   keep the same compact top header as the newsletter (section 7
+   already styles post + newsletter headers together). The rail is
+   for the home page and list pages only.
    ------------------------------------------------------------ */
 
 .site-rail { display: none; }
 
 @media (min-width: 768px) {
-  body:not(.type-newsletter) .site-header { display: none !important; }
+  body:not(.type-newsletter):not(.type-post) .site-header { display: none !important; }
 
-  body:not(.type-newsletter) .site-rail {
+  body:not(.type-newsletter):not(.type-post) .site-rail {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -4393,8 +4397,8 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 
   /* Content and footer clear the rail; footer stays under the
      content column (Toby reverted the full-width version). */
-  body:not(.type-newsletter) #main-content,
-  body:not(.type-newsletter) .site-footer {
+  body:not(.type-newsletter):not(.type-post) #main-content,
+  body:not(.type-newsletter):not(.type-post) .site-footer {
     margin-left: var(--rail-w);
   }
 
@@ -4406,7 +4410,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 
   /* The hidden header measures 0 — kill the stale clearance padding
      the inline critical CSS sets before JS re-measures. */
-  body:not(.type-newsletter) #main-content { padding-top: 2rem !important; }
+  body:not(.type-newsletter):not(.type-post) #main-content { padding-top: 2rem !important; }
 }
 
 .rail-identity {
@@ -4588,7 +4592,7 @@ body.tgo-night .rail-nav a.active {
    desktop rail rules above. */
 @media (min-width: 768px) and (max-width: 1023px) {
   :root { --rail-w: 220px; }
-  body:not(.type-newsletter) .site-rail { padding: 16px 14px 12px; }
+  body:not(.type-newsletter):not(.type-post) .site-rail { padding: 16px 14px 12px; }
   .rail-logo { width: 130px; }
   .rail-avatar { width: 42px; height: 42px; }
   .rail-sub-text { display: none; }

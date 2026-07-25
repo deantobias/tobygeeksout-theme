@@ -1503,8 +1503,9 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .archive_categories a { color: var(--color-terra); text-decoration: none; font-weight: 500; font-family: var(--font-body); }
-/* Explicit hover color (July 13, 2026) — Bootstrap (loaded by the
-   blogroll widget) sets a:hover blue and won the cascade tie here */
+/* Wavy terracotta hover (July 13, 2026). Originally written to beat
+   Bootstrap's blue a:hover; that plug-in is gone as of July 25, 2026,
+   but the wavy underline is deliberate styling, so this rule stays. */
 .archive_categories a:hover { color: var(--color-terra-dark); text-decoration: underline wavy; text-underline-offset: 5.5px; }
 .archive_categories p { display: inline !important; margin: 0 !important; padding: 0 !important; }
 .archive_categories p::after { content: ', '; }
@@ -2421,13 +2422,11 @@ body.page .post-header {
   box-shadow: 0 0 0 3px var(--color-terra-light);
 }
 
-/* The [type="text"] variant + explicit height/margin/box-shadow exist
-   to out-rank the blogroll/FeedLand plugin's Bootstrap (loaded from
-   scripting.com AFTER custom.css) — its input[type="text"] rule tied
-   this one on specificity and was shrinking the box to a 20px-tall
-   14px-font default (found live July 11, 2026). */
-.homepage-search-inner input,
-.homepage-search-inner input[type="text"] {
+/* The [type="text"] duplicate selector was removed July 25, 2026 - it
+   only existed to out-rank the blogroll/FeedLand plugin's Bootstrap,
+   which shrank this box to a 20px-tall 14px-font default. Those
+   plug-ins are uninstalled, so the plain selector is enough now. */
+.homepage-search-inner input {
   flex: 1;
   width: 100%;
   height: auto;
@@ -2446,8 +2445,7 @@ body.page .post-header {
   appearance: none;
 }
 
-.homepage-search-inner input:focus,
-.homepage-search-inner input[type="text"]:focus {
+.homepage-search-inner input:focus {
   border: none;
   box-shadow: none;
   outline: none;
@@ -4221,40 +4219,6 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 }
 
 /* ------------------------------------------------------------
-   49. LINK FOCUS/ACTIVE GUARD (July 13, 2026)
-   Bootstrap (loaded by the blogroll widget, after custom.css)
-   paints a:focus / a:active blue on any link without an explicit
-   state color — the blue blink when clicking links. Mirror each
-   link group's hover ink on focus/active so clicks stay
-   in-palette on every sky.
-   ------------------------------------------------------------ */
-
-:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a:focus,
-:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a:active {
-  color: var(--color-terra-dark);
-  text-decoration-color: var(--color-terra-dark);
-}
-
-.site-nav li a:focus, .site-nav li a:active,
-.archive_categories a:focus, .archive_categories a:active,
-.pagination a:focus, .pagination a:active {
-  color: var(--color-terra-dark);
-}
-
-.post-card-title a:focus, .post-card-title a:active,
-.archive-item a:focus, .archive-item a:active,
-#list_results a:focus, #list_results a:active,
-.section.section-newsletters .h-entry a:focus, .section.section-newsletters .h-entry a:active,
-.newsletter-list-panel-header a:focus, .newsletter-list-panel-header a:active,
-.replying-to a:focus, .replying-to a:active,
-.now-list a:focus, .now-list a:active,
-#long-reads ul li a:focus, #long-reads ul li a:active {
-  color: var(--color-terra);
-}
-
-.bh-name a:focus, .bh-name a:active { color: var(--dot-color); }
-
-/* ------------------------------------------------------------
    50. SOCIAL EMBED (PERCH) — July 14, 2026
    Perch's social media insert (X/etc. screenshot linking out).
    Perch markup keeps only structural inline styles (widths,
@@ -4820,32 +4784,6 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   55. HOVER UNDERLINE SUPPRESSION (July 22, 2026)
-   Bootstrap (loaded by the blogroll widget) sets a:hover
-   text-decoration: underline, which leaked a tight, wrong-colored
-   underline onto title-style links on hover — Toby caught it live
-   on "More in the Spotlight" (screenshot) and the journal rows.
-   These links signal hover by COLOR, never underline; this pins
-   that down against third-party CSS in every state.
-   ------------------------------------------------------------ */
-
-.featured-more-item:hover, .featured-more-item:focus, .featured-more-item:active,
-.journal-entry:hover, .journal-entry:focus, .journal-entry:active,
-.reel-entry:hover, .reel-entry:focus, .reel-entry:active,
-.reel-tile:hover, .reel-tile:focus, .reel-tile:active,
-.reel-cta a:hover, .reel-cta a:focus, .reel-cta a:active,
-.rail-nav a:hover, .rail-nav a:focus, .rail-nav a:active,
-.rail-about a:hover, .rail-about a:focus, .rail-about a:active,
-.rail-newsletters:hover, .rail-newsletters:focus, .rail-newsletters:active,
-.rail-btn:hover, .rail-btn:focus, .rail-btn:active,
-.rail-identity:hover, .rail-identity:focus, .rail-identity:active,
-.btn-featured:hover, .btn-featured:focus, .btn-featured:active,
-.btn-archive:hover, .btn-archive:focus, .btn-archive:active {
-  text-decoration: none !important;
-}
-
-
-/* ------------------------------------------------------------
    56. THE BOOKSHELF — HOME SECTION (July 22, 2026)
    Books before Reel and Remote (Toby's call). Bookshelf + Book
    Review rows reuse the .reel-entry styles; this section only
@@ -5404,4 +5342,31 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+
+/* ------------------------------------------------------------
+   64. HEADING MARGINS (July 25, 2026)
+   This theme never set margins on h1-h6 (section 5 sets only font,
+   weight, line-height, colour). Bootstrap - dragged in by the
+   blogroll/FeedLand plug-ins - had been silently supplying them all
+   along. Uninstalling those plug-ins on July 25 handed headings back
+   to the browser default, which is em-based, so the biggest headings
+   blew out the most: the 65px post title jumped to a 98px top margin
+   and the 42px Spotlight title to 63px (Toby caught the Spotlight one
+   on screenshot). Small headings barely moved, which is why it looked
+   like a Spotlight-only bug rather than a global one.
+   These are Bootstrap's own flat values, so nothing shifts from how
+   the site looked yesterday - the difference is the theme now owns
+   them instead of inheriting them from a third-party plug-in.
+   ------------------------------------------------------------ */
+
+h1, h2, h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+h4, h5, h6 {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

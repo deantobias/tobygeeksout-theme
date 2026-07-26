@@ -242,7 +242,7 @@ blockquote.reblog {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-blockquote:not(.reblog):not(.reblog-new):not(.card-wrap) {
+blockquote:not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap) {
   padding: var(--space-md) var(--space-lg) !important;
 }
 
@@ -393,6 +393,89 @@ blockquote.reblog-new table.reblog-attr img.reblog-avatar {
   max-width: none !important;
 }
 blockquote.reblog-new { max-width: 600px; margin: 8px auto !important; }
+
+/* ═══ ECHO v3 (July 26 2026): quoteback-style card, Perch blue ═══
+   Sits BELOW the existing v2 .reblog-new / .reblog-attr rules.
+   The markup's inline styles are the EMAIL/TIMELINE FALLBACK; on the live
+   blog THIS BLOCK owns palette + typography via !important — retune colors
+   and fonts here anytime without redeploying Perch.
+   Old published posts keep the v1/v2 rules — do not remove them. */
+
+/* Card shell — palette owner */
+blockquote.reblog-v3 {
+  background: #dde5ef !important;
+  border: 1px solid #b9c6d6 !important;
+  border-radius: 12px !important;
+  color: #1a2d42 !important;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+blockquote.reblog-v3:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.15);
+}
+
+/* Whole-card click (quoteback behavior): stretch the Go-to link over the
+   card. Markup carries position:relative inline. */
+blockquote.reblog-v3 a.reblog-v3-go::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+}
+
+/* Typography (July 26): the ENTIRE card is pinned to Inter — quote text
+   and head row — so quoted material reads as distinct from the Lora body.
+   Also kill the theme's decorative blockquote treatment inside v3 cards:
+   the giant terracotta \201C from blockquote::before, and the Georgia
+   italic muted look from blockquote p (both !important theme-side). */
+blockquote.reblog-v3 > div {
+  padding: 14px 16px !important;
+}
+blockquote.reblog-v3::before {
+  content: none !important;
+  display: none !important;
+}
+blockquote.reblog-v3 p {
+  font-family: Inter, system-ui, sans-serif !important;
+  font-style: normal !important;
+  font-size: inherit;
+  color: #1a2d42 !important;
+}
+blockquote.reblog-v3 table.reblog-v3-head a {
+  font-family: Inter, system-ui, sans-serif !important;
+  text-decoration: none !important;
+}
+
+/* Head row — palette + typography owner */
+blockquote.reblog-v3 a.reblog-v3-name {
+  color: #1a2d42 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
+}
+blockquote.reblog-v3 a.reblog-v3-go {
+  color: #4a6fa5 !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+}
+blockquote.reblog-v3 table.reblog-v3-head > tbody > tr > td {
+  border: 0 !important;
+  border-top: 1px solid #b9c6d6 !important;
+  background: transparent;
+}
+blockquote.reblog-v3 table.reblog-v3-head > tbody > tr > td[align="right"] {
+  border-left: 1px solid #b9c6d6 !important;
+}
+blockquote.reblog-v3 table.reblog-v3-head img.reblog-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  display: block !important;
+  max-width: none !important;
+}
+/* Note (July 26 2026): the REQUIRED companion edit is applied above —
+   the generic blockquote padding rule now reads
+   :not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap)
+   so it can't stomp the v3 card's inline padding:0. */
 
 blockquote.card-wrap {
   border: none !important;

@@ -300,7 +300,10 @@
       <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
         {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
         <span class="reel-tile-body">
-          <span class="reel-tile-title">{{ .Title }}</span>
+          {{/* Leading emoji comes off home page display (Toby, July 26) -
+               the section subhead already carries one, so per-title emoji
+               repeated it. Posts keep their titles. */}}
+          <span class="reel-tile-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
           {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
           <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
         </span>
@@ -454,7 +457,10 @@
       <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
         {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
         <span class="reel-tile-body">
-          <span class="reel-tile-title">{{ .Title }}</span>
+          {{/* Leading emoji comes off home page display (Toby, July 26) -
+               the section subhead already carries one, so per-title emoji
+               repeated it. Posts keep their titles. */}}
+          <span class="reel-tile-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
           <span class="reel-stars">{{ index (findRE `[★☆½]{3,}` .Content 1) 0 }}</span>
           <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
         </span>
@@ -495,7 +501,7 @@
     <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
       <span class="reel-entry-body">
-        <span class="reel-entry-title">{{ .Title }}</span>
+        <span class="reel-entry-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
         {{/* Stars removed July 26 (Toby): ratings live on the tiles
              and the review category pages only - rows stay quiet. */}}
         <span class="reel-entry-meta">

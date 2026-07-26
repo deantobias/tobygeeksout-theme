@@ -432,7 +432,6 @@
     </div>
     {{ end }}
     {{ range $rows }}
-    {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
     {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
          the card's own poster cell (book-card-poster / movie-card-poster).
          That is host-agnostic, so a cover Toby uploaded himself works the
@@ -456,14 +455,22 @@
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
       <span class="reel-entry-body">
         <span class="reel-entry-title">{{ .Title }}</span>
+        {{/* Stars removed July 26 (Toby): ratings live on the tiles
+             and the review category pages only - rows stay quiet. */}}
         <span class="reel-entry-meta">
           <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-          {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
         </span>
       </span>
     </a>
     {{ end }}
+    {{/* Category links added July 26 (Toby) alongside the star removal:
+         the rows no longer show ratings, so Movie/TV Reviews are the
+         "view more" path to the full rated lists. */}}
     <div class="reel-cta">
+      <a href="{{ "/categories/movie-reviews/" | absURL }}">Movie Reviews</a>
+      <span>·</span>
+      <a href="{{ "/categories/tv-reviews/" | absURL }}">TV Reviews</a>
+      <span>·</span>
       <a href="{{ "/categories/reel-and-remote/" | absURL }}">All of Reel and Remote →</a>
     </div>
   </div>

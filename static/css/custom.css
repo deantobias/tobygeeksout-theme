@@ -5232,6 +5232,15 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
     min-width: 0;
   }
   .reel-tile--cover .reel-tile-title { width: auto; }
+
+  /* Phones (Toby, July 25): tiles collapse into rows under 640px
+     (section 54), but their covers stayed on the large 150px rating
+     size - so the list showed three big covers over three small ones.
+     One size for every mobile row: the same 80px the list rows use. */
+  .media-cover--rating {
+    width: clamp(64px, 20vw, 80px);
+    border-radius: 3px;
+  }
 }
 
 
@@ -5445,3 +5454,9 @@ main > .page-header,
   padding-left: 30px;
   padding-right: 30px;
 }
+
+
+/* Separators in the Reel and Remote footer links (July 26, 2026) -
+   the CTA grew Movie/TV Reviews category links when the rows lost
+   their stars (ratings live on tiles and review pages only now). */
+.reel-cta span { color: var(--color-text-light); margin: 0 8px; }

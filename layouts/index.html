@@ -197,7 +197,7 @@
     {{/* Dedupe by book title (Toby has 4 books going + will post
          progress updates per book over time — each book shows ONCE,
          always its newest post). Cap 4 active books. */}}
-    {{ if $crPool }}<div class="books-group">
+    {{ if $crPool }}<div class="books-group books-group--shelf">
     <p class="books-subhead">📖 Currently Reading</p>
     <div class="books-grid">{{ end }}
     {{ $seenBooks := slice }}
@@ -235,22 +235,37 @@
     {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
     {{/* Eyebrow removed July 25 (Toby): the label repeated on every row;
          it lives once in the group subhead above now. */}}
+    {{/* The card already links the book's micro.blog page - the same
+         "add to your shelf" page the bookshelves embeds use. Nested
+         anchors are invalid HTML, so the slot wraps the row-anchor and
+         the add-link as siblings; the slot is display:contents on
+         phones, so rows render exactly as before (CSS 67). */}}
+    {{ $mb := "" }}
+    {{ with findRE `https://micro\.blog/books/\d+` .Content 1 }}{{ $mb = index . 0 }}{{ end }}
+    <span class="shelf-slot">
     <a href="{{ .Permalink }}" class="book-entry{{ if $cover }} book-entry--cover{{ end }} u-url">
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
       <span class="book-entry-body">
         <span class="book-entry-title">{{ $bookTitle }}</span>
+        {{/* Bar and its percent share a line (Toby, July 26) - the %
+             moved out of the metaline to sit beside the bar it labels;
+             the metaline keeps pages + date. */}}
         {{ with $pct }}
-        <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
-          <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
+        <span class="book-progress-row">
+          <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
+            <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
+          </span>
+          <span class="book-progress-pct">{{ index . 0 }}</span>
         </span>
         {{ end }}
         <span class="book-entry-metaline">
           {{ with $pages }}<span>{{ index . 0 }}</span>{{ end }}
-          {{ with $pct }}<span>{{ index . 0 }}</span>{{ end }}
           <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
         </span>
       </span>
     </a>
+    {{ with $mb }}<a class="shelf-add" href="{{ . }}">+ Add to your shelf</a>{{ end }}
+    </span>
     {{ end }}
     {{ end }}
     {{ if $crPool }}</div></div>{{ end }}
@@ -294,8 +309,8 @@
     </div>
     </div>
     {{ end }}
-    {{ if $shelfPool }}<div class="books-group">
-    <p class="books-subhead">📚 On the Shelf</p>
+    {{ if $shelfPool }}<div class="books-group books-group--shelf">
+    <p class="books-subhead">📚 The TBR Pile</p>
     <div class="books-grid">{{ end }}
     {{ $shelfShown := 0 }}
     {{ range $shelfPool }}
@@ -326,6 +341,15 @@
            The post itself is untouched, this is display only. */}}
       {{ if $t }}{{ $t = replaceRE `(?i)^(want to read)\s*:\s*` "$1 — " $t }}{{ end }}
     {{ end }}
+    {{/* July 26 (Toby, after going back and forth): the prefix comes
+         off EVERYWHERE on the home page - the group is headed "The TBR
+         Pile" at every width, so "Want to Read — ..." said it twice and
+         burned the shelf title's 2-line clamp truncating the actual
+         book title. Sits OUTSIDE the untitled-posts branch on purpose:
+         the first version was inside it and only stripped extracted
+         titles, missing real ones. Display only; posts keep their
+         titles for archive/category pages where titles stand alone. */}}
+    {{ if $t }}{{ $t = replaceRE `(?i)^want to read\s*[—:–-]\s*` "" $t }}{{ end }}
     {{ if $t }}
     {{ $shelfShown = add $shelfShown 1 }}
     {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
@@ -347,6 +371,9 @@
       {{ end }}
     {{ end }}
     {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+    {{ $mb := "" }}
+    {{ with findRE `https://micro\.blog/books/\d+` .Content 1 }}{{ $mb = index . 0 }}{{ end }}
+    <span class="shelf-slot">
     <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="110" height="165">{{ end }}
       <span class="reel-entry-body">
@@ -356,6 +383,8 @@
         </span>
       </span>
     </a>
+    {{ with $mb }}<a class="shelf-add" href="{{ . }}">+ Add to your shelf</a>{{ end }}
+    </span>
     {{ end }}
     {{ end }}
     {{ end }}
@@ -387,11 +416,13 @@
       {{ if findRE `[★☆½]{3,}` .Content 1 }}{{ $tiles = $tiles | append . }}{{ end }}
     {{ end }}
   {{ end }}
-  {{ $tileLinks := slice }}
-  {{ range $tiles }}{{ $tileLinks = $tileLinks | append .Permalink }}{{ end }}
+  {{/* Rows carry NO rated posts at all (Toby, July 26): ratings live
+       in the tiles and behind the More-ratings links. Before this, a
+       4th-newest rated post slid into the rows minus its stars, which
+       looked like an unrated post - Hunger Games caught it live. */}}
   {{ $rows := slice }}
   {{ range $reelPool }}
-    {{ if and (lt (len $rows) 3) (not (in $tileLinks .Permalink)) }}
+    {{ if and (lt (len $rows) 3) (not (findRE `[★☆½]{3,}` .Content 1)) }}
       {{ $rows = $rows | append . }}
     {{ end }}
   {{ end }}
@@ -430,6 +461,16 @@
       </a>
       {{ end }}
     </div>
+    {{/* Ratings links live HERE, tight under the rated tiles (Toby,
+         July 26) - they are the "more ratings" path, so they belong
+         next to the ratings, not after the unrated rows. Inside the
+         tiles condition on purpose: no rated tiles, no links. */}}
+    <p class="reel-ratings-links">
+      More ratings:
+      <a href="{{ "/categories/movie-reviews/" | absURL }}">Movie Reviews</a>
+      <span>·</span>
+      <a href="{{ "/categories/tv-reviews/" | absURL }}">TV Reviews</a>
+    </p>
     {{ end }}
     {{ range $rows }}
     {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
@@ -463,14 +504,7 @@
       </span>
     </a>
     {{ end }}
-    {{/* Category links added July 26 (Toby) alongside the star removal:
-         the rows no longer show ratings, so Movie/TV Reviews are the
-         "view more" path to the full rated lists. */}}
     <div class="reel-cta">
-      <a href="{{ "/categories/movie-reviews/" | absURL }}">Movie Reviews</a>
-      <span>·</span>
-      <a href="{{ "/categories/tv-reviews/" | absURL }}">TV Reviews</a>
-      <span>·</span>
       <a href="{{ "/categories/reel-and-remote/" | absURL }}">All of Reel and Remote →</a>
     </div>
   </div>

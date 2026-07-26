@@ -5460,3 +5460,228 @@ main > .page-header,
    the CTA grew Movie/TV Reviews category links when the rows lost
    their stars (ratings live on tiles and review pages only now). */
 .reel-cta span { color: var(--color-text-light); margin: 0 8px; }
+
+
+/* Ratings links row (July 26, 2026) - Toby's call: the Movie/TV
+   Reviews links are the "more ratings" path, so they sit tight
+   under the rated tiles instead of after the (unrated) rows where
+   they first landed. Lives inside the tiles block in index.html,
+   so no tiles = no links. Bottom CTA is back to the single
+   section link. */
+.reel-ratings-links {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin: 2px 0 18px;
+}
+.reel-ratings-links a {
+  color: var(--color-terra);
+  font-weight: 600;
+  text-decoration: none;
+}
+.reel-ratings-links a:hover { color: var(--color-terra-dark); }
+.reel-ratings-links span { margin: 0 8px; }
+
+
+/* ------------------------------------------------------------
+   67. THE 3-D BOOKSHELF (July 26, 2026)
+   Toby's design, Option 2 "deep shelf" from the mockup: on desktop
+   the Currently Reading and TBR Pile groups render as covers
+   standing on a rendered wooden plank - slanted top face, darker
+   front edge, soft cast shadow - with the title (post permalink)
+   centred under each book, plus a small "+ Add to your shelf" link
+   to the book's micro.blog page so readers can shelve it themselves.
+   PHONES KEEP THE ROWS: same rule as the reel tiles, decoration is
+   a big-screen luxury, under 640px nothing here applies and the
+   existing row layout (sections 61-63) is untouched.
+   Wood tones derive from the terra tokens (color-mix), so the plank
+   rides the timed sky like everything else. One markup serves both
+   modes: .shelf-slot is display:contents on phones (rows exactly as
+   before, add-link hidden) and a flex column on desktop.
+   Covers pin to 150px on the shelf - same size as the movie tiles,
+   Toby's call - so every book bottom lands on
+   the plank line; the plank overlaps the cover bottoms by 6px so
+   the books read as resting on it, not floating above it.
+   ------------------------------------------------------------ */
+
+.shelf-slot { display: contents; }
+.shelf-add { display: none; }
+
+@media (min-width: 640px) {
+  /* The plank hugs the books (Toby, July 26): fit-content width,
+     centred, so a 3-book shelf is a short shelf and a 4-book shelf a
+     longer one. The first version stretched the plank across the full
+     content column and the mostly-empty wood read as wrong. The 26px
+     side padding is the plank overhang past the end covers. */
+  .books-group--shelf .books-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 28px;
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 6px 26px 0;
+  }
+
+  /* the plank: slanted top face + darker front edge, one pseudo */
+  .books-group--shelf .books-grid::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 219px;
+    height: 26px;
+    z-index: 1;
+    border-radius: 2px 2px 4px 4px;
+    background:
+      linear-gradient(180deg,
+        var(--color-terra) 0,
+        var(--color-terra-dark) 14px,
+        color-mix(in srgb, var(--color-terra-dark) 70%, black) 14px,
+        color-mix(in srgb, var(--color-terra-dark) 55%, black) 100%);
+  }
+  /* cast shadow under the plank */
+  .books-group--shelf .books-grid::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 245px;
+    height: 16px;
+    background: radial-gradient(ellipse at 50% 0,
+      color-mix(in srgb, var(--color-navy) 30%, transparent), transparent 70%);
+  }
+
+  .books-group--shelf .shelf-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 168px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* the row anchor becomes a column: cover on the plank, title below */
+  .books-group--shelf .reel-entry--cover,
+  .books-group--shelf .book-entry--cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    border-bottom: none;
+    width: 100%;
+  }
+
+  .books-group--shelf .media-cover {
+    width: 150px;
+    border-radius: 2px 4px 4px 2px;
+    box-shadow:
+      inset 3px 0 6px color-mix(in srgb, var(--color-navy) 35%, transparent),
+      0 12px 10px -9px color-mix(in srgb, var(--color-navy) 55%, transparent);
+  }
+
+  /* title clears the plank face + shadow before it starts */
+  .books-group--shelf .reel-entry-body,
+  .books-group--shelf .book-entry-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 5px;
+    margin-top: 34px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* min-height reserves the full 2-line clamp even for 1-line
+     titles, so bars, percents, pages, dates and add-links line up
+     across every slot regardless of title length (Toby, July 26 -
+     "Havoc" vs "The Burial Hour" left the columns ragged). */
+  .books-group--shelf .reel-entry-title,
+  .books-group--shelf .book-entry-title {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    min-height: 2.05rem;
+    white-space: normal;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .books-group--shelf .reel-entry-meta { justify-content: center; }
+  .books-group--shelf .reel-date { font-size: 0.62rem; }
+
+  /* Currently Reading: undo section 62's desktop row, back to column */
+  /* Wrap allowed + width pinned to the slot: section 62 gives these
+     spans nowrap for the one-line desktop row, and a ~200px metaline
+     inside a 122px slot was spilling into the neighbouring books
+     (caught on the first live render). Spans stay nowrap individually;
+     the line breaks BETWEEN them. */
+  .books-group--shelf .book-entry--cover .book-entry-metaline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 2px 8px;
+    font-size: 0.62rem;
+  }
+  .books-group--shelf .book-entry--cover .book-entry-metaline > span {
+    flex-shrink: 1;
+  }
+  .books-group--shelf .book-entry--cover .book-progress {
+    flex: none;
+    width: 110px;
+    max-width: 110px;
+  }
+  .books-group--shelf .book-entry--cover .reel-date { margin-left: 0; }
+
+  .books-group--shelf .shelf-add {
+    display: block;
+    margin-top: 7px;
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-decoration: none;
+  }
+  .books-group--shelf .shelf-add:hover { color: var(--color-terra); }
+}
+
+
+/* Bar + percent on one line (July 26, 2026, Toby) - the % moved out
+   of the metaline to sit beside the bar it labels; pages and date
+   stay below. Appended after section 62 on purpose so the flex
+   overrides win over 62's fixed-width bar. */
+.book-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+.book-progress-row .book-progress {
+  flex: 1 1 auto;
+  width: auto;
+  max-width: none;
+}
+.book-progress-pct {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .books-group--shelf .book-progress-row {
+    justify-content: center;
+    width: 100%;
+    max-width: none;
+    gap: 6px;
+  }
+  .books-group--shelf .book-progress-pct { font-size: 0.62rem; }
+}

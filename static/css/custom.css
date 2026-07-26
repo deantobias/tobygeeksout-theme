@@ -4100,12 +4100,13 @@ body.tgo-night blockquote::before {
 
 .ouldhh-badge { display: inline-flex; align-items: center; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--color-terra-dark); background: var(--color-terra-light); padding: 2px 8px; border-radius: 3px; margin-bottom: 0.75rem; text-decoration: none !important; }
 
-#long-reads ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
-#long-reads ul li { padding: 0.6rem 0 !important; border-bottom: 1px solid var(--color-border) !important; display: flex !important; align-items: baseline !important; gap: 0.6rem !important; }
-#long-reads ul li:last-child { border-bottom: none !important; }
-#long-reads ul li::before { content: '→' !important; color: var(--color-terra) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
-#long-reads ul li a { color: var(--color-text) !important; text-decoration: none !important; }
-#long-reads ul li a:hover { color: var(--color-terra) !important; }
+#spotlights ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+#spotlights ul li { padding: 0.6rem 0 !important; border-bottom: 1px solid var(--color-border) !important; display: flex !important; align-items: baseline !important; gap: 0.6rem !important; }
+#spotlights ul li:last-child { border-bottom: none !important; }
+#spotlights ul li::before { content: '→' !important; color: var(--color-terra) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
+#spotlights ul li a { color: var(--color-text) !important; text-decoration: none !important; }
+#spotlights ul li a:hover { color: var(--color-terra) !important; }
+#spotlights ul.postlist li:nth-child(-n+3) { display: none !important; }
 
 #now-reading .bookshelf--variant-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important; gap: 0.75rem !important; }
 #now-reading .bookshelf--variant-grid .bookshelf__cover { height: 140px !important; object-fit: cover !important; object-position: top !important; width: 100% !important; display: block !important; aspect-ratio: unset !important; }

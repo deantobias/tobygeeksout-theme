@@ -4674,7 +4674,7 @@ body.tgo-night .rail-nav a.active {
 
 .reel-tile-title {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 0.95rem; /* was 1rem - July 26, fewer 3-line wraps on foldables */
   font-weight: 700;
   color: var(--color-navy);
   line-height: 1.25;
@@ -5513,17 +5513,25 @@ main > .page-header,
      longer one. The first version stretched the plank across the full
      content column and the mostly-empty wood read as wrong. The 26px
      side padding is the plank overhang past the end covers. */
+  /* Foldable fix (Toby caught it, July 26): 4 slots at fixed 150px
+     covers need ~808px, an unfolded foldable has ~700, and nowrap +
+     unshrinkable covers meant overlap. One fluid size, no breakpoint:
+     covers glide 104-150px with the viewport and the plank, slots,
+     gaps and progress bars all track the cover via calc(). Desktop
+     still lands on exactly 150. */
+  .books-group--shelf { --shelf-cover-w: clamp(104px, 15vw, 150px); }
+
   .books-group--shelf .books-grid {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
     align-items: flex-start;
-    gap: 28px;
+    gap: clamp(16px, 2vw, 28px);
     position: relative;
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
-    padding: 6px 26px 0;
+    padding: 6px clamp(16px, 2vw, 26px) 0;
   }
 
   /* the plank: slanted top face + darker front edge, one pseudo */
@@ -5532,7 +5540,7 @@ main > .page-header,
     position: absolute;
     left: 0;
     right: 0;
-    top: 219px;
+    top: calc(var(--shelf-cover-w) * 1.5 - 6px);
     height: 26px;
     z-index: 1;
     border-radius: 2px 2px 4px 4px;
@@ -5549,7 +5557,7 @@ main > .page-header,
     position: absolute;
     left: 14px;
     right: 14px;
-    top: 245px;
+    top: calc(var(--shelf-cover-w) * 1.5 + 20px);
     height: 16px;
     background: radial-gradient(ellipse at 50% 0,
       color-mix(in srgb, var(--color-navy) 30%, transparent), transparent 70%);
@@ -5559,7 +5567,7 @@ main > .page-header,
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 168px;
+    width: calc(var(--shelf-cover-w) + 18px);
     position: relative;
     z-index: 2;
   }
@@ -5577,7 +5585,7 @@ main > .page-header,
   }
 
   .books-group--shelf .media-cover {
-    width: 150px;
+    width: var(--shelf-cover-w);
     border-radius: 2px 4px 4px 2px;
     box-shadow:
       inset 3px 0 6px color-mix(in srgb, var(--color-navy) 35%, transparent),
@@ -5636,8 +5644,8 @@ main > .page-header,
   }
   .books-group--shelf .book-entry--cover .book-progress {
     flex: none;
-    width: 110px;
-    max-width: 110px;
+    width: calc(var(--shelf-cover-w) - 40px);
+    max-width: none;
   }
   .books-group--shelf .book-entry--cover .reel-date { margin-left: 0; }
 
@@ -5684,4 +5692,18 @@ main > .page-header,
     gap: 6px;
   }
   .books-group--shelf .book-progress-pct { font-size: 0.62rem; }
+}
+
+
+/* Movie tiles: posters top, ratings bottom (July 26, 2026, Toby
+   caught it) - "Masters of the Universe (2026)" wraps to 2 lines on
+   desktop and 3 on a foldable while short titles take 1, and with
+   center-justified tiles that shoved the posters to different
+   heights. Pinning the poster to the tile top and the stars+date to
+   the bottom keeps both aligned across the row at any width; only
+   the empty middle varies. The body is display:contents (61), so
+   the tile's own column flex handles the children directly. */
+@media (min-width: 640px) {
+  .reel-tile--cover { justify-content: flex-start; }
+  .reel-tile--cover .reel-stars { margin-top: auto; }
 }

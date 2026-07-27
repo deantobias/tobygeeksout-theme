@@ -1,0 +1,263 @@
+{{/* ------------------------------------------------------------
+     THE QUEUE (July 26, 2026, Toby's design)
+     Shortcode for the /the-queue/ page. A clean, public view of
+     everything Toby wants to watch, so he can tell at a glance what
+     has actually come out yet.
+
+     WHAT COUNTS AS A QUEUE ENTRY — the post's own movie card, not its
+     title. Title matching ("Watchlist:") only found 8 of these; the
+     card test finds 19 with zero false positives across the whole
+     site (verified July 26 against every post in the main feed plus
+     the Reel/Movie/TV category feeds). It picks up Toby's UNTITLED
+     watchlist micro-posts (The Death of Robin Hood, Cold Storage,
+     Whalefall) and the titled ones that never say "Watchlist" at all
+     (On my radar: Hexed, The Devil's Mouth, The Last House). Rule:
+     the content carries a .movie-card AND the card says "Want to
+     Watch". A watched/rated post never says that, so reviews stay out.
+
+     RELEASE DATES — the card carries one more often than not, as a
+     standalone <p> or <span> holding nothing but "November 11, 2026".
+     Sometimes that element is .movie-card-byline (Ebenezer, Hope,
+     Digger) and sometimes it is unclassed (the older cards), so the
+     match is on the SHAPE of the element's text, not its class. When
+     there is no full date, a bare year is accepted; failing that, the
+     "(2026)" in the post title. Failing that, undated.
+
+     GROUPS, in order: "Out now" (release date already passed - Toby's
+     go-check-availability list), then one group per upcoming month
+     soonest first, then "Sometime in YYYY" for year-only entries,
+     then "No release date yet". Out now runs newest-first; every
+     other group runs soonest-first.
+
+     RATINGS HOOK (Toby, July 26): ratings are deliberately NOT part
+     of the queue yet, but the star run is read exactly the way the
+     home page reads it. A post with no stars renders no star span at
+     all, so switching ratings on later costs nothing here - they just
+     start appearing.
+
+     No {{ define }} block on purpose: groups are assembled into one
+     ordered slice first, then rendered by a single range, so the
+     whole shortcode stays inside one template. Safer across Hugo
+     versions than defining a partial inside a shortcode file.
+
+     Usage in the page body: the queue shortcode, called with the
+     standard angle-bracket delimiters. Do NOT write the escaped form
+     of that call inside this comment block - the escape sequence ends
+     a Hugo comment early and the whole template fails to parse
+     ("comment ends before closing delimiter"). Cost one build.
+     Styles: custom.css section 68.
+     ------------------------------------------------------------ */}}
+
+{{ $today := now.Format "2006-01-02" }}
+{{ $thisYear := now.Format "2006" }}
+{{ $mNum := dict
+  "January" "01" "February" "02" "March" "03" "April" "04"
+  "May" "05" "June" "06" "July" "07" "August" "08"
+  "September" "09" "October" "10" "November" "11" "December" "12" }}
+
+{{ $items := slice }}
+{{ range (where .Site.Pages "Type" "post").ByDate.Reverse }}
+{{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}
+
+  {{/* ---- Title. The card's own <h3> is the film name and it is
+       present on every card format, titled post or not. The post
+       title is only a fallback, and gets its emoji, "Watchlist:"
+       prefix and trailing year stripped - the page heading and the
+       group header already say all three. Posts themselves are
+       never modified. */}}
+  {{ $t := "" }}
+  {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+    {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if not $t }}
+    {{ $t = .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+    {{ $t = replaceRE `(?i)^\s*(?:watchlist|on my radar):\s*` "" $t }}
+    {{ $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $t }}
+  {{ end }}
+
+  {{/* ---- Release date. Priority 1: an element whose ENTIRE text is
+       a full date. Matching on shape rather than class is deliberate -
+       the same date lives in .movie-card-byline on the new cards and
+       in an unclassed <p> on the old ones. Priority 2: an element
+       holding nothing but a year. Priority 3: the "(2026)" in the
+       post title. */}}
+  {{ $relFull := "" }}{{ $relYear := "" }}{{ $altByline := "" }}
+  {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+    {{ $relFull = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+  {{ end }}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+      {{ $relYear = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{/* Priority 2b — a THIRD card format Toby caught after launch
+       (Kraken, Strung): the year and the director share one line,
+       "2026 · Malcolm D. Lee". The priority-2 rule above wants the
+       element's entire text to be a year, so these fell through to
+       undated and lost their director too. Here the year comes off
+       the front and the remainder is kept as a byline candidate.
+       Lesson: this blog has at least three generations of movie card
+       and the date can be alone, inside .movie-card-byline, or
+       prefixed to the byline. Assume a fourth exists. */}}
+  {{ if and (not $relFull) (not $relYear) }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:19|20)\d{2}\s*[^<\w\s][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relYear = index (findRE `(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if and (not $relFull) (not $relYear) }}
+    {{ with findRE `\((?:19|20)\d{2}\)` .Title 1 }}
+      {{ $relYear = replaceRE `[()]` "" (index . 0) }}
+    {{ end }}
+  {{ end }}
+
+  {{/* ---- Sort keys. dateKey orders the cards INSIDE a group;
+       groupKey orders the GROUPS, and its prefixes do all the work, so
+       a plain string sort needs no special-casing:
+         0          Out now
+         1-YYYY     year-only, year already reached (Toby, July 26 - a
+                    2026 card with no month may well be out already,
+                    like Kraken, so it sits next to Out now rather than
+                    after every dated month)
+         2-YYYY-MM  dated months, soonest first
+         3-YYYY     year-only, year still ahead (2027 - definitely not out)
+         4          no date at all */}}
+  {{ $groupKey := "4" }}{{ $groupLabel := "No release date yet" }}
+  {{ $dateKey := "9999-99-99" }}{{ $relLabel := "" }}
+
+  {{ if $relFull }}
+    {{ $bits := split (replaceRE `,` "" $relFull) " " }}
+    {{ $mo := index $bits 0 }}
+    {{ $dy := int (index $bits 1) }}
+    {{ $yr := index $bits 2 }}
+    {{ $mm := index $mNum $mo }}
+    {{ $dateKey = printf "%s-%s-%02d" $yr $mm $dy }}
+    {{ $relLabel = $relFull }}
+    {{ if le $dateKey $today }}
+      {{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}
+    {{ else }}
+      {{ $groupKey = printf "2-%s-%s" $yr $mm }}
+      {{ $groupLabel = printf "%s %s" $mo $yr }}
+    {{ end }}
+  {{ else if $relYear }}
+    {{ $dateKey = printf "%s-99-99" $relYear }}
+    {{ $relLabel = $relYear }}
+    {{ if le $relYear $thisYear }}
+      {{ $groupKey = printf "1-%s" $relYear }}
+    {{ else }}
+      {{ $groupKey = printf "3-%s" $relYear }}
+    {{ end }}
+    {{/* Just the bare year (Toby, July 26). "Sometime in 2026" read as
+         still-to-come, but a year-only card can equally be something
+         already out - Kraken was released in June and its card carries
+         no month. The plain year claims neither. */}}
+    {{ $groupLabel = $relYear }}
+  {{ end }}
+
+  {{/* ---- Cover art. Logic lifted verbatim from layouts/index.html
+       (July 25). Priority 1: the image sitting in the card's own
+       poster cell - host-agnostic, and it can never grab a YouTube
+       trailer thumbnail or an avatar, since neither lives in a poster
+       cell. Priority 2: a known poster host anywhere in the post,
+       which is what carries the older cards - their posters sit in a
+       plain <td>. Google Books covers arrive at 128px with a
+       page-curl artifact; both fixed on the way out. */}}
+  {{ $cover := "" }}
+  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+  {{ end }}
+  {{ if not $cover }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+
+  {{/* ---- Byline. Suppressed when it turns out to BE the release
+       date - on Ebenezer, Hope and Digger the byline slot holds the
+       date, not the director, and printing it twice reads as a bug. */}}
+  {{ $byline := "" }}
+  {{ with findRE `(?s)<p[^>]*movie-card-byline[^>]*>.*?</p>` .Content 1 }}
+    {{ $byline = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if or (eq $byline $relFull) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*$` $byline 1) }}
+    {{ $byline = "" }}
+  {{ end }}
+  {{/* The "2026 · Director" cards have no .movie-card-byline at all,
+       so the director recovered above is used when nothing else set one. */}}
+  {{ if not $byline }}{{ $byline = $altByline }}{{ end }}
+
+  {{/* ---- Dormant ratings hook, see the note at the top. */}}
+  {{ $stars := "" }}
+  {{ with findRE `[★☆½]{3,}` .Content 1 }}{{ $stars = index . 0 }}{{ end }}
+
+  {{ $items = $items | append (dict
+      "url" .Permalink "title" $t "cover" $cover "byline" $byline
+      "stars" $stars "added" (.Date.Format "Jan 2, 2006")
+      "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
+      "dateKey" $dateKey) }}
+{{ end }}
+{{ end }}
+
+{{ if $items }}
+
+{{/* Distinct group keys, sorted ascending - the "0 / 1- / 2- / 3"
+     prefixes do all the ordering work, so a plain string sort puts
+     Out now first and undated last with no special-casing. */}}
+{{ $keys := slice }}
+{{ range $items }}
+  {{ if not (in $keys .groupKey) }}{{ $keys = $keys | append .groupKey }}{{ end }}
+{{ end }}
+{{ $keys = sort $keys }}
+
+<div class="queue">
+
+  <p class="queue-count">{{ len $items }} title{{ if ne (len $items) 1 }}s{{ end }} in the queue</p>
+
+  {{ range $keys }}
+  {{ $group := where $items "groupKey" . }}
+  {{/* Out now reads best newest-release-first; everything ahead of
+       today reads best soonest-first. */}}
+  {{ if eq . "0" }}{{ $group = sort $group "dateKey" "desc" }}{{ else }}{{ $group = sort $group "dateKey" }}{{ end }}
+  <section class="queue-group{{ if eq . "0" }} queue-group--out{{ end }}">
+    <h2 class="queue-heading">{{ (index $group 0).groupLabel }}</h2>
+    <div class="queue-grid">
+      {{ range $group }}
+      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url">
+        {{ if .cover }}
+        <img class="queue-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
+        {{ else }}
+        {{/* Placeholder rather than a collapsed slot, so a post with
+             no poster still lines up on the grid. */}}
+        <span class="queue-cover queue-cover--empty" aria-hidden="true">{{ substr .title 0 1 }}</span>
+        {{ end }}
+        <span class="queue-card-body">
+          <span class="queue-title">{{ .title }}</span>
+          {{ with .rel }}<span class="queue-rel">{{ . }}</span>{{ end }}
+          {{ with .byline }}<span class="queue-byline">{{ . }}</span>{{ end }}
+          {{ with .stars }}<span class="queue-stars">{{ . }}</span>{{ end }}
+          <span class="queue-added">Added {{ .added }}</span>
+        </span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* Cross-link to Watched (Toby, July 27) - the two pages are the
+       same shelf in two states, so each one ends by pointing at the
+       other rather than dead-ending at the category archive. */}}
+  <div class="reel-cta">
+    <a href="{{ "/categories/reel-and-remote/" | absURL }}">All of Reel and Remote</a>
+    <span>·</span>
+    <a href="{{ "/watched/" | absURL }}">Watched →</a>
+  </div>
+
+</div>
+
+{{ else }}
+<p class="queue-empty">Nothing in the queue yet.</p>
+{{ end }}

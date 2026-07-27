@@ -1,0 +1,316 @@
+{{/* ------------------------------------------------------------
+     WATCHED (July 27, 2026, Toby's design)
+     Shortcode for the /watched/ page - the companion to The Queue.
+     The Queue is what Toby wants to see; this is everything he has
+     already reviewed, grouped by the YEAR HE POSTED THE REVIEW,
+     newest year first. He started reviewing in 2026, so today that
+     is one group; 2027 and beyond add themselves.
+
+     WHAT COUNTS AS A REVIEW - a star run in the content, plus a
+     movie/TV category. The star run is the only thing all 56 current
+     reviews have in common; titles, cards and posters vary wildly.
+     The category test is what keeps rated BOOK posts out (there is
+     one, tagged Reading, which would otherwise sail straight in).
+
+     THE HARD PART: TITLES. 39 of the 56 carry an <h3> with the film
+     name. The other 17 are older prose micro-posts with no title
+     anywhere a machine can see - "Watched: Sisu: Road to Revenge",
+     "The Running Man ★★★★☆ 2025 • Edgar Wright", "Finally, I watched
+     Good Luck, Have Fun, Don't Die last night, and I thought...".
+     The cascade below was built by testing against all 17 live and
+     tuning until every one came out right (Toby's call: include
+     everything, best effort). If a future post lands in the wrong
+     shape here, the cheapest fix is to add an <h3> to that post
+     rather than to widen these regexes further.
+
+     DIRECTOR AND YEAR ARE BEST-EFFORT, by Toby's explicit call:
+     "if some movies does not have director, whatever, but have
+     ratings, just fill what the best you can". Currently 41 of 56
+     yield a year and 34 a director; the rest simply omit those
+     lines. Nothing is invented and no placeholder text is shown.
+
+     Do NOT write the escaped form of a shortcode call inside this
+     comment block - the escape sequence ends a Hugo comment early
+     and the whole template fails to parse. That cost a build on
+     July 26 while building The Queue.
+
+     Styles: custom.css section 69 (shares .queue-* card styles).
+     ------------------------------------------------------------ */}}
+
+{{ $cats := slice "Movie Reviews" "TV Reviews" "Reel and Remote" }}
+{{ $items := slice }}
+
+{{ range (where .Site.Pages "Type" "post").ByDate.Reverse }}
+{{ $isReview := false }}
+{{ $isBook := false }}
+{{ range .Params.categories }}
+  {{ if in $cats . }}{{ $isReview = true }}{{ end }}
+  {{ if in (slice "Reading" "Bookshelf" "Book Reviews") . }}{{ $isBook = true }}{{ end }}
+{{ end }}
+{{/* ---- RATING. Three separate problems, one solution.
+
+     (a) STARS COME FROM THE TAG-STRIPPED CONTENT, not the raw HTML.
+     Toby greys out the unfilled part of a rating with a span, so the
+     markup reads ★★</span><span style="color: lightgray;">½☆☆☆ and a
+     regex over raw HTML sees two runs. Reading the first gave The Yeti
+     "½☆☆☆", and silently turned two ★★★★☆ into ★★★★★. Stripping tags
+     with an EMPTY replacement (not a space) rejoins the run.
+
+     (b) LONGEST RUN, NOT FIRST, and {2,} not {3,}. A bare "★★" is a
+     legitimate two-star rating and {3,} would drop that review from
+     the page entirely and silently; taking the longest run means a
+     stray decorative pair can never outrank the real rating.
+
+     (c) NORMALISED TO FIVE POSITIONS. Several older posts wrote only
+     the filled part - "★★★★", "★★½" - so the page showed four stars
+     with nothing after them (Toby spotted it on GOAT and Good Luck,
+     Have Fun, Don't Die). Counting the fills and padding with ☆ to
+     five fixes those AND the two runs that came out six glyphs long,
+     while leaving the 49 already-correct ratings byte-identical.
+     Every card now shows exactly five positions. */}}
+{{ $bare := replaceRE `(?s)<[^>]*>` "" .Content }}
+{{ $run := "" }}
+{{ range findRE `[★☆½]{2,}` $bare }}
+  {{ if gt (len .) (len $run) }}{{ $run = . }}{{ end }}
+{{ end }}
+{{ if and $isReview (not $isBook) $run (findRE `★` $run 1) }}
+
+  {{ $full := len (findRE `★` $run) }}
+  {{ if gt $full 5 }}{{ $full = 5 }}{{ end }}
+  {{ $half := 0 }}
+  {{ if findRE `½` $run 1 }}{{ $half = 1 }}{{ end }}
+  {{ $empty := sub 5 (add $full $half) }}
+  {{ if lt $empty 0 }}{{ $empty = 0 }}{{ end }}
+  {{ $stars := printf "%s%s%s" (strings.Repeat $full "★") (strings.Repeat $half "½") (strings.Repeat $empty "☆") }}
+
+  {{/* ---- TITLE, in four descending degrees of confidence. */}}
+  {{ $t := "" }}
+
+  {{/* 1. The card's own <h3>. Covers 39 of 56 and is always right. */}}
+  {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+    {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+
+  {{ if not $t }}
+    {{/* Plain text of the post, tags out, whitespace collapsed. */}}
+    {{ $plain := trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content))) " " }}
+
+    {{/* 2. Everything before the star run, when it is short enough to
+           be a title rather than a paragraph and does not itself talk
+           about watching. Catches "The Running Man ★★★★☆", "Hoppers",
+           "Project Hail Mary", "Mercy", "The Yeti". */}}
+    {{/* Cut at {2,} not {3,}: a bare "★★" rating would otherwise stay
+           glued to the title ("The Yeti ★★"), and on the grey-span
+           posts the first 3+ run is the ½☆☆☆ half, which leaves the
+           ★★ behind too. */}}
+    {{ $before := trim (replaceRE `(?s)[★☆½]{2,}[\s\S]*$` "" $plain) " " }}
+    {{ if and $before (le (len $before) 45) (not (findRE `(?i)watch` $before 1)) }}
+      {{ $t = $before }}
+    {{ else }}
+      {{/* 3. Strip a "Watched:" / "Finally watched:" / "Watched two
+             days ago:" preamble, then cut at the first sentence end,
+             star run or emoji, then remove the trailing "last night",
+             "on Netflix" and ", and I thought..." tails that turn a
+             title into a sentence. */}}
+      {{ $x := $plain }}
+      {{ $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\b[^:.!?]{0,40}:\s*` "" $x }}
+      {{ $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\s+` "" $x }}
+      {{ $x = replaceRE `(?s)^([^★☆½.!?…\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}]*)[\s\S]*$` "$1" $x }}
+      {{ $x = replaceRE `(?i)\s+(?:last night|tonight|yesterday|this weekend|two or three nights ago|a while ago|two days ago|a few days ago|on (?:Netflix|Hulu|Max|Prime Video|Prime|Disney\+?|Apple TV\+?|Peacock|Paramount\+?|Shudder))\b` "" $x }}
+      {{ $x = replaceRE `(?i),?\s+(?:and|but|which|though|so)\s+i\b[\s\S]*$` "" $x }}
+      {{ $x = trim (replaceRE `[\s,;:–—-]+$` "" $x) " " }}
+      {{ $t = $x }}
+    {{ end }}
+  {{ end }}
+
+  {{/* 4. Last resort: the post's own title, cleaned the same way the
+         home page cleans it. Only reachable if a post somehow has
+         neither an <h3> nor any usable prose. */}}
+  {{ if not $t }}
+    {{ $t = .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+    {{ $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $t }}
+  {{ end }}
+  {{/* Leading emoji off the display title either way - the group
+       heading and the page title already carry the context. */}}
+  {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+  {{/* Belt and braces: no rating glyph ever survives into a title,
+       whatever route the title came in by. */}}
+  {{ $t = trim (replaceRE `[★☆½]+` "" $t) " " }}
+
+  {{/* ---- RELEASE YEAR. Priority 1: an element holding nothing but a
+       year - the review cards put the director and the year on two
+       separate byline lines. Priority 2: the older "2026 • Director"
+       single line. Priority 3: the "(2026)" in the post title. */}}
+  {{ $ry := "" }}
+  {{ with findRE `>\s*(?:19|20)\d{2}\s*<` .Content 1 }}
+    {{ $ry = replaceRE `\D` "" (index . 0) }}
+  {{ end }}
+  {{ if not $ry }}
+    {{ with findRE `>\s*(?:19|20)\d{2}\s*[•·|]\s*[^<>]{2,45}?\s*<` .Content 1 }}
+      {{ $ry = replaceRE `(?s)^[^0-9]*((?:19|20)\d{2})[\s\S]*$` "$1" (index . 0) }}
+    {{ end }}
+  {{ end }}
+  {{/* Priority 3: the combined line sitting in loose prose rather than
+       its own element - same case the director's last resort covers. */}}
+  {{ if not $ry }}
+    {{ $plain3 := htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content) }}
+    {{ with findRE `(?:19|20)\d{2}\s*[•·|]\s*[A-Z]` $plain3 1 }}
+      {{ $ry = replaceRE `(?s)^((?:19|20)\d{2})[\s\S]*$` "$1" (index . 0) }}
+    {{ end }}
+  {{ end }}
+  {{/* Priority 4: the "(2026)" in the post title. */}}
+  {{ if not $ry }}
+    {{ with findRE `\((?:19|20)\d{2}\)` .Title 1 }}
+      {{ $ry = replaceRE `[()]` "" (index . 0) }}
+    {{ end }}
+  {{ end }}
+
+  {{/* ---- DIRECTOR. Priority 1: a .movie-card-byline holding no
+       digits and no stars (the year lives in its own byline line, so
+       excluding digits is what separates the two). Priority 2: the
+       first element after the </h3> that fits the same shape - this
+       is what the older unclassed cards need, and the star exclusion
+       matters because on several of them the element right after the
+       h3 IS the rating. Priority 3: the name half of "2026 • Name". */}}
+  {{ $dir := "" }}
+  {{ with findRE `(?s)<[^>]*movie-card-byline[^>]*>\s*[^<>0-9★☆½]{2,45}?\s*</` .Content 1 }}
+    {{ $dir = trim (htmlUnescape (replaceRE `(?s)<[^>]*>|>|</` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{/* The combined line is checked BEFORE the after-the-h3 sweep on
+       purpose: on a card that has one, the sweep would otherwise walk
+       past it (it contains digits) and land on the synopsis. */}}
+  {{ if not $dir }}
+    {{ with findRE `>\s*(?:19|20)\d{2}\s*[•·|]\s*[^<>]{2,45}?\s*<` .Content 1 }}
+      {{ $dir = trim (replaceRE `(?s)^[^•·|]*[•·|]\s*([^<>]*?)\s*<[\s\S]*$` "$1" (index . 0)) " " }}
+    {{ end }}
+  {{ end }}
+  {{/* Tag list is explicit rather than <[^>]*> so this can never pick
+       up a blockquote.card-quote - the synopsis has no digits and no
+       stars either, so shape alone does not exclude it, and RE2 has
+       no negative lookahead to spell "any tag but blockquote". */}}
+  {{ if not $dir }}
+    {{ with findRE `(?s)</h3>[\s\S]{0,500}` .Content 1 }}
+      {{ with findRE `(?s)<(?:p|div|span|em|strong|h4|small)[^>]*>\s*[^<>0-9★☆½]{2,45}?\s*</` (index . 0) 1 }}
+        {{ $dir = trim (htmlUnescape (replaceRE `(?s)<[^>]*>|>|</` "" (index . 0))) " \n\t" }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{/* Last resort: the combined line living in loose prose rather than
+       its own element ("… ★★★★☆ 2025 • Edgar Wright In a near-future
+       America …"). Capped at two capitalised words because there is no
+       reliable boundary between the end of the name and the start of
+       the synopsis - two words gets Edgar Wright and Daniel Chong
+       right, and longer names only ever appear inside their own
+       element, which the rules above already handle. */}}
+  {{ if not $dir }}
+    {{ $plain2 := trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content))) " " }}
+    {{ with findRE `(?:19|20)\d{2}\s*[•·|]\s*[A-Z][^\s]*(?:\s+[A-Z][^\s]*)?` $plain2 1 }}
+      {{ $dir = trim (replaceRE `(?s)^[^•·|]*[•·|]\s*` "" (index . 0)) " " }}
+    {{ end }}
+  {{ end }}
+  {{/* Reject the card's own furniture and anything with no letters. */}}
+  {{ if or (findRE `(?i)^(?:my thoughts|watch on youtube|trailer|watched|synopsis)$` $dir 1) (not (findRE `[A-Za-z]` $dir 1)) }}
+    {{ $dir = "" }}
+  {{ end }}
+
+  {{/* ---- POSTER. Same cascade as The Queue, plus Toby's own
+       uploads: on the older prose reviews the poster was uploaded to
+       Micro.blog rather than pulled from TMDB, so cdn.uploads is a
+       legitimate third source here (it is NOT in The Queue, where a
+       watchlist post's only image is always the fetched poster). */}}
+  {{ $cover := "" }}
+  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+  {{ end }}
+  {{ if not $cover }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "cdn.micro.blog/books") (in $u "cdn.uploads.micro.blog")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+
+  {{ $items = $items | append (dict
+      "url" .Permalink "title" $t "cover" $cover "stars" $stars
+      "dir" $dir "ry" $ry
+      "year" (.Date.Format "2006")
+      "reviewed" (.Date.Format "Jan 2, 2006")
+      "sortKey" (.Date.Format "2006-01-02")) }}
+{{ end }}
+{{ end }}
+
+{{ if $items }}
+
+{{/* Distinct review years, newest first. Index arithmetic rather than
+     a reverse helper, same reasoning as The Queue - it behaves the
+     same on every Hugo version Micro.blog has shipped. */}}
+{{ $years := slice }}
+{{ range $items }}
+  {{ if not (in $years .year) }}{{ $years = $years | append .year }}{{ end }}
+{{ end }}
+{{ $years = sort $years }}
+{{ $n := len $years }}
+
+<div class="queue watched">
+
+  <p class="queue-count">{{ len $items }} review{{ if ne (len $items) 1 }}s{{ end }}</p>
+
+  {{ range $i, $_ := $years }}
+  {{ $y := index $years (sub (sub $n 1) $i) }}
+  {{ $group := sort (where $items "year" $y) "sortKey" "desc" }}
+  <section class="queue-group">
+    {{/* No per-year count (Toby, July 27): the total sits right above
+         in .queue-count, so "2026 56" said it twice. */}}
+    <h2 class="queue-heading">{{ $y }}</h2>
+    <div class="queue-grid">
+      {{ range $group }}
+      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url">
+        {{ if .cover }}
+        <img class="queue-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
+        {{ else }}
+        <span class="queue-cover queue-cover--empty" aria-hidden="true">{{ substr .title 0 1 }}</span>
+        {{ end }}
+        <span class="queue-card-body">
+          <span class="queue-title">{{ .title }}</span>
+          <span class="queue-stars">{{ .stars }}</span>
+          {{/* Year and director share a line when both exist, and the
+               line disappears entirely when neither does - no empty
+               row, no "Unknown". */}}
+          {{ if or .ry .dir }}
+          <span class="queue-byline">
+            {{- with .ry }}{{ . }}{{ end -}}
+            {{- if and .ry .dir }} · {{ end -}}
+            {{- with .dir }}{{ . }}{{ end -}}
+          </span>
+          {{ end }}
+          <span class="queue-added">Reviewed {{ .reviewed }}</span>
+        </span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* Honest footnote (Toby, July 27): the older reviews were plain
+       text posts with no poster, so their tiles show a letter instead
+       of art. Saying so beats leaving it looking broken. Counts
+       itself, and disappears when every review has a poster. */}}
+  {{ $noCover := len (where $items "cover" "") }}
+  {{ if gt $noCover 0 }}
+  <p class="queue-note">{{ $noCover }} of these were plain text posts without a poster, so they show a letter tile instead.</p>
+  {{ end }}
+
+  <div class="reel-cta">
+    <a href="{{ "/categories/movie-reviews/" | absURL }}">Movie Reviews</a>
+    <span>·</span>
+    <a href="{{ "/categories/tv-reviews/" | absURL }}">TV Reviews</a>
+    <span>·</span>
+    <a href="{{ "/the-queue/" | absURL }}">The Queue →</a>
+  </div>
+
+</div>
+
+{{ else }}
+<p class="queue-empty">No reviews yet.</p>
+{{ end }}

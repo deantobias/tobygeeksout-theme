@@ -4389,6 +4389,26 @@ body.type-newsletter .newsletter-preview-panel .page-body {
   .featured-excerpt {
     font-weight: 500;
   }
+  /* NIGHT DROPS BACK TO 400 (Toby, July 27, reading on his phone after
+     dark: 500 "felt heavy"). It was, but only after sunset. Light text
+     on a dark background optically GAINS weight - the bright glyphs
+     bleed into the dark around them - so Lora 500 was reading closer to
+     600 at night, and Lora's high stroke contrast (thick stems,
+     hairline serifs) made the stems bloom while the serifs did not.
+     Dark-mode text generally wants a step LIGHTER, not heavier.
+     Daylight keeps 500: the July 22 bump was judged in daylight and
+     looks right there, so only the broken condition changes.
+     body.tgo-night is set by the sky script at full night only, so
+     dusk keeps 500 (the background is still light then) and a reader
+     with "Sky: off" never sees this rule at all - no dark background,
+     no irradiation, nothing to correct. */
+  body.tgo-night .post-body,
+  body.tgo-night .post-body p, body.tgo-night .post-body li,
+  body.tgo-night .post-card-excerpt,
+  body.tgo-night .post-card-excerpt p, body.tgo-night .post-card-excerpt li,
+  body.tgo-night .featured-excerpt {
+    font-weight: 400;
+  }
   /* Cards match the single-post reading size exactly (Toby, July 22:
      "I like the single font size better") — no smaller teaser text. */
   .post-card-excerpt,
@@ -5129,6 +5149,12 @@ body.tgo-night .rail-nav a.active {
     font-size: 1.25rem;
     font-weight: 500;
   }
+  /* Same night drop as section 51 - Micros is reading text too, so it
+     should never sit heavier than a post body. */
+  body.tgo-night .micro-entry-text,
+  body.tgo-night .micro-entry-text p {
+    font-weight: 400;
+  }
 }
 
 
@@ -5791,3 +5817,265 @@ main > .page-header,
   .reel-tile--cover { justify-content: flex-start; }
   .reel-tile--cover .reel-stars { margin-top: auto; }
 }
+
+
+/* ------------------------------------------------------------
+   68. THE QUEUE — /the-queue/ (July 26, 2026, Toby's design)
+   The public watchlist page. Markup comes from the {{< queue >}}
+   shortcode (layouts/shortcodes/queue.html), which collects every
+   post carrying a "Want to Watch" movie card and groups them by
+   release date: "Out now" first, then one group per upcoming month,
+   then year-only entries, then undated.
+
+   Sizing follows the foldable lesson from the 3-D bookshelf earlier
+   today: ONE fluid cover width, no breakpoint. --queue-cover-w is a
+   clamp and the grid is auto-fill against that same variable, so the
+   column count falls out of the available width by itself — phone,
+   unfolded foldable, tablet and desktop all glide instead of jumping,
+   and there is no width at which covers can overlap.
+
+   Everything rides the design tokens, so the page follows the
+   sunrise/sunset sky (section 43) with no extra night rules.
+   ------------------------------------------------------------ */
+
+.queue {
+  --queue-cover-w: clamp(96px, 20vw, 150px);
+  /* No top margin (Toby, July 26): .page-body already pads 30px under
+     the title rule, and stacking space-lg on top of it left a dead band
+     above the count line. */
+  margin-top: 0;
+}
+
+.queue-count {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin: 0 0 var(--space-md);
+  letter-spacing: 0.02em;
+}
+
+.queue-group {
+  margin-bottom: var(--space-2xl);
+}
+
+.queue-heading {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-md);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* "Out now" is the group Toby actually acts on — the one worth going
+   and checking availability for — so it gets the terracotta and the
+   rest stay quiet. Deliberately the only coloured heading on the
+   page; if everything shouts, nothing does. */
+.queue-group--out .queue-heading {
+  color: var(--color-terra);
+  border-bottom-color: var(--color-terra-light);
+}
+
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--queue-cover-w), 1fr));
+  gap: var(--space-lg) var(--space-md);
+  /* stretch, not start: cards fill the tallest slot in their row so
+     the "Added" line can be pinned to the bottom. Without it, a card
+     carrying a byline pushed its dates below its neighbours' and the
+     row read as ragged. Same slot-parity fix as the bookshelf. */
+  align-items: stretch;
+}
+
+.queue-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  text-decoration: none;
+  text-align: center;
+}
+
+.queue-cover {
+  width: 100%;
+  max-width: var(--queue-cover-w);
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 18%);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.queue-card:hover .queue-cover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgb(0 0 0 / 24%);
+}
+
+/* A post with no poster keeps its slot rather than collapsing the
+   grid — same reasoning as the placeholder spine still open on the
+   bookshelf, solved here up front. */
+.queue-cover--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+}
+
+.queue-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+/* min-height reserves the full 2-line clamp so the release date,
+   byline and added-date all sit at the same height across every card
+   in a row, however long the titles are. Same fix that levelled the
+   bookshelf slots this morning. */
+.queue-title {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.25;
+  min-height: 2.2em;
+  color: var(--color-navy);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.15s;
+}
+.queue-card:hover .queue-title { color: var(--color-terra); }
+
+/* The release date is the whole reason this page exists, so it is the
+   one line on the card allowed any weight. */
+.queue-rel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-terra);
+  white-space: nowrap;
+}
+
+.queue-byline {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
+/* Dormant until watchlist posts carry stars — see the ratings note in
+   the shortcode. Styled now so switching them on needs no CSS. */
+.queue-stars {
+  font-size: 0.78rem;
+  color: var(--color-terra);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.queue-added {
+  margin-top: auto;
+  padding-top: 3px;
+  font-size: 0.62rem;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
+
+.queue-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+
+/* Spacing corrections after Toby saw it live (July 26): the gap
+   under the page title and between groups was a canyon. Cause was
+   section 64 (HEADING MARGINS), whose selector is more specific than
+   a bare .queue-heading, so it kept winning with a 60px top margin
+   and stacked that on top of each group's own 60px bottom margin.
+   Scoped overrides rather than touching section 64, which every
+   other page depends on. */
+.queue .queue-heading { margin-top: 0; }
+.queue .queue-count { margin-bottom: var(--space-sm); }
+
+
+/* ------------------------------------------------------------
+   69. WATCHED — /watched/ (July 27, 2026, Toby's design)
+   The companion to The Queue: every movie/TV review, grouped by the
+   year Toby posted it, newest first. Markup comes from the watched
+   shortcode (layouts/shortcodes/watched.html).
+
+   Deliberately reuses section 68's .queue-* card styles rather than
+   cloning them — the two pages are the same object in two states
+   (want to see / have seen), and a visitor moving between them
+   should feel one design, not two. The wrapper carries BOTH classes
+   (.queue .watched), so everything in 68 applies and this section
+   only states the differences.
+
+   The only structural difference is density: The Queue holds ~19
+   cards, Watched holds 56 and grows every week, so the cover clamp
+   drops from 150px to 120px max. Still one fluid width and no
+   breakpoint, same foldable-safe rule as 68 — the grid's auto-fill
+   is bound to this same variable, so the column count follows the
+   available width by itself.
+   ------------------------------------------------------------ */
+
+.watched {
+  --queue-cover-w: clamp(84px, 15vw, 120px);
+}
+
+/* Ratings carry more weight here than on The Queue, where they are
+   dormant — on this page the stars are the reason to look. */
+.watched .queue-stars {
+  font-size: 0.82rem;
+  letter-spacing: 1.5px;
+}
+
+.watched .queue-title {
+  font-size: 0.82rem;
+  min-height: 2.1em;
+}
+
+/* Footer link row: same quiet separators as the home page Reel CTA. */
+.watched .reel-cta span {
+  color: var(--color-text-light);
+  margin: 0 4px;
+}
+
+/* Footnote under the grid (July 27) - explains the letter tiles on
+   the older plain-text reviews. Small, muted, centred: it is a note,
+   not a warning. */
+.queue-note {
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  text-align: center;
+  font-style: italic;
+  margin: var(--space-md) 0 0;
+}
+
+/* Both pages now end with a multi-link row, so the separators need
+   the same treatment The Queue already gives its own. */
+.queue .reel-cta span {
+  color: var(--color-text-light);
+  margin: 0 4px;
+}
+
+/* Quiet CTA (Toby, July 27): the "More of the watchlist: The Queue"
+   line sits directly under the "More ratings: Watched" line in the
+   same section, and the two were different sizes and colours - the
+   ratings line is 0.8rem with a muted label, the plain .reel-cta
+   inherits 1rem with body-coloured text and a 0.9rem link. This
+   modifier makes the pair identical. Scoped to a modifier class so
+   the Bookshelf CTA and the Watched footer keep their own weight. */
+.reel-cta--quiet {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+}
+.reel-cta--quiet a { font-size: 0.8rem; }

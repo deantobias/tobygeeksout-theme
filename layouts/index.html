@@ -6,7 +6,26 @@
      Bookshelf, Reel and Remote (reviews/reading live on their category
      pages). Untitled microposts live in the archive. Everything is
      always reachable from the archive link below. */}}
-{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Bookshelf" "Reel and Remote" }}
+{{/* July 27, 2026 (Toby). Three additions, one of them a near-miss.
+     NEAR-MISS: the plan was to REMOVE "Bookshelf" here, on the reasoning
+     that the TBR Pile no longer reads posts so the category has no
+     home-page job. Checking the live data first showed that would have
+     been a regression: every Currently Reading post is tagged BOTH
+     "Bookshelf" and "Currently Reading", so "Bookshelf" is the only
+     reason those four titled posts are not already duplicating the
+     shelf down here - and the three old titled "Want to Read - ..."
+     posts would have surfaced in the journal feed the same day Toby
+     retired that whole habit. Bookshelf stays.
+     ADDED "Currently Reading" and "Book Reviews": both own a section of
+     the shelf above, so neither belongs in this feed - and after this
+     they are excluded on their own merit rather than depending on Toby
+     remembering to double-tag with Bookshelf.
+     ADDED "Micro": Micros has no title requirement and this feed does,
+     so an UNTITLED micro could never double up - but a TITLED post
+     tagged Micro would have rendered in both boxes.
+     Book writing and book photos should be tagged "Reading", which is
+     deliberately NOT excluded and lands them here. */}}
+{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
   {{ $skip := false }}
@@ -173,25 +192,30 @@
        Reuses the reel-entry row styles; CR rows are .book-entry (CSS 56). */}}
   {{ $crPool := slice }}
   {{ $brPool := slice }}
-  {{ $shelfPool := slice }}
   {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-    {{ $isCR := false }}{{ $isBR := false }}{{ $isShelf := false }}
+    {{ $isCR := false }}{{ $isBR := false }}
     {{ range .Params.categories }}
       {{ if eq . "Currently Reading" }}{{ $isCR = true }}{{ end }}
       {{ if eq . "Book Reviews" }}{{ $isBR = true }}{{ end }}
-      {{ if eq . "Bookshelf" }}{{ $isShelf = true }}{{ end }}
     {{ end }}
     {{ if and $isCR .Title }}{{ $crPool = $crPool | append . }}{{ end }}
     {{ if and $isBR .Title }}{{ $brPool = $brPool | append . }}{{ end }}
-    {{/* Shelf accepts untitled posts too — most bookshelf activity is
-         untitled "want to read" microposts; the display title is
-         extracted from the prose below. */}}
-    {{ if and $isShelf (not $isCR) (not $isBR) }}{{ $shelfPool = $shelfPool | append . }}{{ end }}
   {{ end }}
   {{ $cr := first 3 $crPool }}
   {{ $br := first 3 $brPool }}
-  {{ $shelf := first 6 $shelfPool }}{{/* pool slice for the exists-check; display loop below caps at 3 rendered rows */}}
-  {{ if or $cr $br $shelf }}
+  {{/* THE TBR PILE IS GONE FROM THE HOME PAGE (Toby, July 27).
+       He has stopped posting want-to-read entries - such a post carried
+       a title, a cover and a date meaning "the day Toby clicked add",
+       with no progress, no rating and no opinion, and the Micro.blog
+       shelf already held all of them (62 against the 3 that had posts).
+       A shelf-data version of this grid was built and working, reading
+       .Site.Data.bookshelves.wanttoread, before Toby chose to drop the
+       section entirely and let the link below carry it - the home page
+       has been getting simpler on purpose. Currently Reading stays
+       POST-driven above: progress bars and dates are real content.
+       If the section ever reads bare, the shelf-data grid is in the
+       July 27 Theme Work Logs entry and drops straight back in. */}}
+  {{ if or $cr $br }}
   <div class="books-section">
     <p class="feed-label">📚 The Bookshelf</p>
     {{/* Dedupe by book title (Toby has 4 books going + will post
@@ -312,88 +336,12 @@
     </div>
     </div>
     {{ end }}
-    {{ if $shelfPool }}<div class="books-group books-group--shelf">
-    <p class="books-subhead">📚 The TBR Pile</p>
-    <div class="books-grid">{{ end }}
-    {{ $shelfShown := 0 }}
-    {{ range $shelfPool }}
-    {{ if lt $shelfShown 4 }}
-    {{/* Display title: the post's own title when it has one; otherwise
-         the "want to read: Book by Author" phrase extracted from the
-         prose (Toby's untitled bookshelf microposts name the book that
-         way). Posts with neither are skipped. */}}
-    {{ $t := .Title }}
-    {{/* Finished-book checkpoints (July 22, Toby's lifecycle): once the
-         Currently Reading category comes off a "Currently Reading: ..."
-         titled post, it's reading HISTORY, not a shelf item — skip it
-         here. It stays in the archive and on the Bookshelf category
-         page; the book's home-page presence becomes its review. */}}
-    {{ if and $t (findRE `(?i)currently reading:` $t 1) }}{{ $t = "" }}{{ end }}
-    {{ if not $t }}
-      {{/* htmlUnescape: plainify leaves entities like &rsquo; encoded,
-           which then render literally. Emoji excluded from the grab so
-           the trailing 📚 doesn't ride along; trim cleans edges. */}}
-      {{ $plain := .Content | plainify }}
-      {{ $m := findRE `(?i)want to read: [^.!?📚🎬📺\n]{3,70}` $plain 1 }}
-      {{ with $m }}{{ $t = trim (htmlUnescape (index . 0)) " " }}{{ end }}
-      {{/* Home page only: capitalize the leading "want" so the row reads
-           "Want to read: ..." (July 22, Toby). The post itself is untouched. */}}
-      {{ if $t }}{{ $t = printf "%s%s" (upper (substr $t 0 1)) (substr $t 1) }}{{ end }}
-      {{/* Colon -> em dash on the home page rows (July 25, Toby):
-           "Want to read: Title" reads better as "Want to read - Title".
-           The post itself is untouched, this is display only. */}}
-      {{ if $t }}{{ $t = replaceRE `(?i)^(want to read)\s*:\s*` "$1 — " $t }}{{ end }}
-    {{ end }}
-    {{/* July 26 (Toby, after going back and forth): the prefix comes
-         off EVERYWHERE on the home page - the group is headed "The TBR
-         Pile" at every width, so "Want to Read — ..." said it twice and
-         burned the shelf title's 2-line clamp truncating the actual
-         book title. Sits OUTSIDE the untitled-posts branch on purpose:
-         the first version was inside it and only stripped extracted
-         titles, missing real ones. Display only; posts keep their
-         titles for archive/category pages where titles stand alone. */}}
-    {{ if $t }}{{ $t = replaceRE `(?i)^want to read\s*[—:–-]\s*` "" $t }}{{ end }}
-    {{ if $t }}
-    {{ $shelfShown = add $shelfShown 1 }}
-    {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
-         the card's own poster cell (book-card-poster / movie-card-poster).
-         That is host-agnostic, so a cover Toby uploaded himself works the
-         same as a Google Books or TMDB one, and it can never pick up a
-         YouTube trailer thumbnail or an avatar - neither lives in a poster
-         cell. Priority 2: a known poster host anywhere in the post, for
-         older posts written before the card markup. Google Books covers
-         arrive at 128px with a page-curl artifact; both fixed on the way out. */}}
-    {{ $cover := "" }}
-    {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
-      {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
-    {{ end }}
-    {{ if not $cover }}
-      {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
-        {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
-        {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
-      {{ end }}
-    {{ end }}
-    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
-    {{ $mb := "" }}
-    {{ with findRE `https://micro\.blog/books/\d+` .Content 1 }}{{ $mb = index . 0 }}{{ end }}
-    <span class="shelf-slot">
-    <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
-      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="110" height="165">{{ end }}
-      <span class="reel-entry-body">
-        <span class="reel-entry-title">{{ $t }}</span>
-        <span class="reel-entry-meta">
-          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </span>
-      </span>
-    </a>
-    {{ with $mb }}<a class="shelf-add" href="{{ . }}">+ Add to your shelf</a>{{ end }}
-    </span>
-    {{ end }}
-    {{ end }}
-    {{ end }}
-    {{ if $shelfPool }}</div></div>{{ end }}
-    <div class="reel-cta">
-      <a href="{{ "/categories/bookshelf/" | absURL }}">All of the Bookshelf →</a>
+
+    {{/* Points at /reading/ now (Toby, July 27) - that page carries the
+         full shelves straight from Micro.blog, where the Bookshelf
+         category is a closed archive of the old want-to-read posts. */}}
+    <div class="reel-cta reel-cta--quiet">
+      All the books: <a href="{{ "/reading/" | absURL }}">Reading →</a>
     </div>
   </div>
   {{ end }}
@@ -471,11 +419,12 @@
          July 26) - they are the "more ratings" path, so they belong
          next to the ratings, not after the unrated rows. Inside the
          tiles condition on purpose: no rated tiles, no links. */}}
+    {{/* Points at Watched now instead of the two category archives
+         (Toby, July 27): Watched IS the ratings page, it carries all
+         56 with posters and stars, and the categories are still one
+         click further in from there. */}}
     <p class="reel-ratings-links">
-      More ratings:
-      <a href="{{ "/categories/movie-reviews/" | absURL }}">Movie Reviews</a>
-      <span>·</span>
-      <a href="{{ "/categories/tv-reviews/" | absURL }}">TV Reviews</a>
+      More ratings: <a href="{{ "/watched/" | absURL }}">Watched →</a>
     </p>
     {{ end }}
     {{ range $rows }}
@@ -510,8 +459,15 @@
       </span>
     </a>
     {{ end }}
-    <div class="reel-cta">
-      <a href="{{ "/categories/reel-and-remote/" | absURL }}">All of Reel and Remote →</a>
+    {{/* The rows above are watchlist entries, so the link under them
+         is the watchlist page, not the category archive (Toby, July 27:
+         the footer already carries browse-all-archives). */}}
+    {{/* The label sits OUTSIDE the anchor, exactly like the ratings
+         line above it (Toby, July 27). With it inside, the whole line
+         went terracotta while "More ratings:" stayed grey - matching
+         the CSS was not enough, the markup had to match too. */}}
+    <div class="reel-cta reel-cta--quiet">
+      More of the watchlist: <a href="{{ "/the-queue/" | absURL }}">The Queue →</a>
     </div>
   </div>
   {{ end }}

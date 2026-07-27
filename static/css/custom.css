@@ -11,9 +11,9 @@
   Changes: CSS modernization pass
            text-wrap: balance on headings
            text-wrap: pretty on body paragraphs
-           :is() selector consolidation (sections 5, 11, 12)
-           Added Section 5a: .book-card a — solid underline override
-           Added Section 5b: .movie-card a — solid underline override
+           :is() selector consolidation (sections 6, 15, 16)
+           Added Section 7: .book-card a — solid underline override
+           Added Section 8: .movie-card a — solid underline override
   ============================================================ */
 
 /* ------------------------------------------------------------
@@ -515,7 +515,7 @@ figcaption {
 
 
 /* ------------------------------------------------------------
-   4a. CONTENT LISTS (shared: post, page, micro, timeline)
+   5. CONTENT LISTS (shared: post, page, micro, timeline)
    ------------------------------------------------------------ */
 
 :is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) :is(ul, ol) {
@@ -538,7 +538,7 @@ figcaption {
 
 
 /* ------------------------------------------------------------
-   5. LINKS
+   6. LINKS
    ------------------------------------------------------------ */
 
 :is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a {
@@ -573,7 +573,7 @@ figcaption {
 }
 
 /* ------------------------------------------------------------
-   5a. BOOK CARD LINKS
+   7. BOOK CARD LINKS
    ------------------------------------------------------------ */
 
 .book-card a {
@@ -589,7 +589,7 @@ figcaption {
 }
 
 /* ------------------------------------------------------------
-   5b. MOVIE CARD LINKS
+   8. MOVIE CARD LINKS
    ------------------------------------------------------------ */
 
 .movie-card a {
@@ -606,7 +606,7 @@ figcaption {
 
 
 /* ------------------------------------------------------------
-   6. SITE HEADER — Glass Morph Capsule
+   9. SITE HEADER — Glass Morph Capsule
    ------------------------------------------------------------ */
 
 /* Scroll progress bar */
@@ -856,7 +856,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 /* ------------------------------------------------------------
-   6a. SINGLE POST — compact header
+   10. SINGLE POST — compact header
    Single posts already have their own big terracotta header with
    the title and meta right below this bar, so the top identity bar
    only needs to whisper "still on Toby Geeks Out", not repeat a
@@ -935,7 +935,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   7. FEATURED POST BANNER
+   11. FEATURED POST BANNER
    ------------------------------------------------------------ */
 
 /* Simplified spotlight (July 22, 2026 — Toby's call, distraction-free
@@ -1102,7 +1102,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   8. FEED LAYOUT
+   12. FEED LAYOUT
    ------------------------------------------------------------ */
 
 .feed-wrapper {
@@ -1128,7 +1128,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   9. POST CARD (long-form in feed)
+   13. POST CARD (long-form in feed)
    ------------------------------------------------------------ */
 
 .post-card {
@@ -1246,7 +1246,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 /* ------------------------------------------------------------
-   9a. POST CARD — Mobile editorial date layout
+   14. POST CARD — Mobile editorial date layout
    ------------------------------------------------------------ */
 
 @media (max-width: 599px) {
@@ -1272,7 +1272,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 /* ------------------------------------------------------------
-   11. SINGLE POST PAGE
+   15. SINGLE POST PAGE
    ------------------------------------------------------------ */
 
 /* Streamlined header (July 13, 2026): terracotta banner retired.
@@ -1501,7 +1501,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   12. STATIC PAGES (About, Now, etc.)
+   16. STATIC PAGES (About, Now, etc.)
    ------------------------------------------------------------ */
 
 .page-wrapper { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--page-pad); }
@@ -1535,7 +1535,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   13. IMAGES
+   17. IMAGES
    ------------------------------------------------------------ */
 
 :is(.post-body img, .micro-body img, .post-card-content img) { max-width: 100%; height: auto; }
@@ -1547,7 +1547,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 /* ------------------------------------------------------------
-   13a. MULTI-PHOTO MOSAIC (2+ bare images → 2-column masonry)
+   18. MULTI-PHOTO MOSAIC (2+ bare images → 2-column masonry)
    Triggers only when a post has 2+ direct-child images.
    Single photos stay full-width. Text/embeds span all columns.
    ------------------------------------------------------------ */
@@ -1573,7 +1573,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   14. ARCHIVE PAGE
+   19. ARCHIVE PAGE
    ------------------------------------------------------------ */
 
 .archive_categories {
@@ -1719,7 +1719,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   15. CATEGORY PAGE
+   20. CATEGORY PAGE
    ------------------------------------------------------------ */
 
 .category-page-header {
@@ -1740,7 +1740,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   16. TAGS
+   21. TAGS
    ------------------------------------------------------------ */
 
 .tag-cloud {
@@ -1778,7 +1778,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   17. LANDING PAGE COMPONENTS
+   22. LANDING PAGE COMPONENTS
    ------------------------------------------------------------ */
 
 .about-strip {
@@ -1956,7 +1956,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   18. RELATED POSTS — "More like this" card grid
+   23. RELATED POSTS — "More like this" card grid
    ------------------------------------------------------------ */
 
 .related-posts {
@@ -2038,7 +2038,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   19. REPLY BY EMAIL
+   24. REPLY BY EMAIL
    ------------------------------------------------------------ */
 
 .reply-email-wrap { text-align: center; margin: var(--space-xl) 0; }
@@ -2066,7 +2066,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   20. SURPRISE ME BUTTON
+   25. SURPRISE ME BUTTON
    ------------------------------------------------------------ */
 
 .surprise-wrap {
@@ -2090,7 +2090,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   21. CONVERSATION BOX (Micro.blog)
+   26. CONVERSATION BOX (Micro.blog)
    ------------------------------------------------------------ */
 
 .microblog_conversation { max-width: var(--max-width); margin: 0 auto; }
@@ -2186,7 +2186,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 
 /* ------------------------------------------------------------
-   22. SEARCH PAGE
+   27. SEARCH PAGE
    ------------------------------------------------------------ */
 
 :is(#search-page form, .search form) { display: block !important; max-width: var(--max-width); margin: 0 auto; }
@@ -2237,7 +2237,7 @@ body.tgo-search-empty .site-footer {
 
 
 /* ------------------------------------------------------------
-   23. PAGINATION
+   28. PAGINATION
    ------------------------------------------------------------ */
 
 .pagination {
@@ -2261,7 +2261,7 @@ body.tgo-search-empty .site-footer {
 
 
 /* ------------------------------------------------------------
-   24. SITE FOOTER
+   29. SITE FOOTER
    ------------------------------------------------------------ */
 
 /* Simplified July 22, 2026 (Toby's call): no navy panel, no logo, no
@@ -2292,7 +2292,7 @@ body.tgo-search-empty .site-footer {
 
 
 /* ------------------------------------------------------------
-   25. UTILITY CLASSES
+   30. UTILITY CLASSES
    ------------------------------------------------------------ */
 
 .sr-only {
@@ -2315,7 +2315,7 @@ body.tgo-search-empty .site-footer {
 
 
 /* ------------------------------------------------------------
-   26. SCROLL PROGRESS BAR
+   31. SCROLL PROGRESS BAR
    ------------------------------------------------------------ */
 
 #scroll-progress {
@@ -2330,7 +2330,7 @@ body.tgo-search-empty .site-footer {
 }
 
 /* ------------------------------------------------------------
-   27. TABLE OF CONTENTS (desktop only, Long Read posts)
+   32. TABLE OF CONTENTS (desktop only, Long Read posts)
    ------------------------------------------------------------ */
 
 .post-layout { display: block; }
@@ -2408,7 +2408,7 @@ body.tgo-search-empty .site-footer {
 
 
 /* ------------------------------------------------------------
-   28. SINGLE POST — wider layout
+   33. SINGLE POST — wider layout
    ------------------------------------------------------------ */
 
 :is(body.page .post-body,
@@ -2425,7 +2425,7 @@ body.page .post-header {
 
 
 /* ------------------------------------------------------------
-   29. POST HEADER — meta styling
+   34. POST HEADER — meta styling
    ------------------------------------------------------------ */
 
 .post-header-meta {
@@ -2461,7 +2461,7 @@ body.page .post-header {
 
 
 /* ==========================================================================
-   30. FEATURED POST
+   35. FEATURED POST
    ========================================================================== */
 
 .featured-banner { position: relative; }
@@ -2475,7 +2475,7 @@ body.page .post-header {
 
 
 /* ------------------------------------------------------------
-   31. HOMEPAGE SEARCH
+   36. HOMEPAGE SEARCH
    ------------------------------------------------------------ */
 
 .homepage-search {
@@ -2556,7 +2556,7 @@ body.page .post-header {
 
 
 /* ------------------------------------------------------------
-   32. YouTube & Instagram Embeds
+   37. YouTube & Instagram Embeds
    ------------------------------------------------------------ */
 
 .yt-embed {
@@ -2689,7 +2689,7 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
 }
 
 /* ------------------------------------------------------------
-   35. NEWSLETTER LIST PAGE
+   38. NEWSLETTER LIST PAGE
    Original design, restored: banner image, then a numbered list
    (1, 2, 3...) of recent newsletters with title, date, and excerpt.
    This page isn't controlled by layouts/newsletters/list.html the
@@ -2818,7 +2818,7 @@ body.section-newsletters {
 }
 
 /* ------------------------------------------------------------
-   36a. NEWSLETTER READER — email-client style single view
+   39. NEWSLETTER READER — email-client style single view
    Desktop: fixed full-viewport frame below the header, list panel
    and preview panel each scroll independently, page itself never
    scrolls. Mobile: list panel hides, preview becomes a normal
@@ -3358,7 +3358,7 @@ body.type-newsletter .site-footer {
 
 
 /* ------------------------------------------------------------
-   37. REPLYING TO (manual, per-post)
+   40. REPLYING TO (manual, per-post)
    Usage — paste at the top of a post in HTML mode:
    <p class="replying-to">Replying to <a href="URL">Title</a></p>
    Quotes around the title are added automatically.
@@ -3413,7 +3413,7 @@ body.type-newsletter .site-footer {
 
 
 /* ------------------------------------------------------------
-   38. LINK PREVIEW CARD (Perch composer)
+   41. LINK PREVIEW CARD (Perch composer)
    The composer outputs an email-safe table with inline styles;
    email uses those as-is. On the blog, these overrides re-map
    colors to theme variables and add hover polish.
@@ -3455,7 +3455,7 @@ table.link-card a[style*="inline-block"] {
 
 
 /* ------------------------------------------------------------
-   39. VIEW TRANSITIONS (cross-document, CSS-only)
+   42. VIEW TRANSITIONS (cross-document, CSS-only)
    Crossfade between pages; site header stays fixed in place.
    Firefox and older browsers ignore this block and navigate
    normally. Reduced-motion users get plain navigation.
@@ -3510,7 +3510,7 @@ table.link-card a[style*="inline-block"] {
 }
 
 /* ------------------------------------------------------------
-   33. POST SUBSCRIBE LINE (single posts)
+   43. POST SUBSCRIBE LINE (single posts)
    One quiet row right after the post body — catches readers who
    land on a post from a link/search and never see the home page
    subscribe strip. Deliberately compact: the post footer already
@@ -3602,7 +3602,7 @@ table.link-card a[style*="inline-block"] {
 
 
 /* ------------------------------------------------------------
-   34. SKIP LINK (keyboard accessibility)
+   44. SKIP LINK (keyboard accessibility)
    First tab stop on every page. Visually hidden until focused,
    then drops in as a terracotta pill above the fixed header so
    keyboard users can jump straight past the nav to the content.
@@ -3655,7 +3655,7 @@ body.kb-open .mobile-tab-bar {
 }
 
 /* ------------------------------------------------------------
-   40. HOME FEED — archive door + excerpt tease fade
+   45. HOME FEED — archive door + excerpt tease fade
    (July 11, 2026 — numbered pagination retired; feed shows the
    6 latest non-Spotlight posts, everything else lives in the
    archive. Fade applies ONLY to the >800-char truncation branch
@@ -3702,7 +3702,7 @@ body.kb-open .mobile-tab-bar {
 }
 
 /* ------------------------------------------------------------
-   41. SINGLE POST — mobile tab bar tuck + back pill
+   46. SINGLE POST — mobile tab bar tuck + back pill
    (July 11, 2026 — single posts only, mobile only. Scroll down
    past ~80px and the tab bar slides away so the reading view is
    clean; scroll up and it returns. body.tab-bar-tucked is toggled
@@ -3756,7 +3756,7 @@ body.kb-open .mobile-tab-bar {
 }
 
 /* ------------------------------------------------------------
-   42. ARCHIVE — titled vs. untitled entries
+   47. ARCHIVE — titled vs. untitled entries
    (July 11, 2026 — titled posts read as bold display-font
    entries; untitled micro posts fall back to italic body-font
    summary text, so the two are distinguishable at a glance.)
@@ -3776,7 +3776,7 @@ body.kb-open .mobile-tab-bar {
 
 
 /* ------------------------------------------------------------
-   37a. REPLYING TO — WRAP FIX (addendum to section 37)
+   48. REPLYING TO — WRAP FIX (addendum to section 40)
    Reply icon: stay on the first line when the link title
    wraps on mobile.
    ------------------------------------------------------------ */
@@ -3790,7 +3790,7 @@ body.kb-open .mobile-tab-bar {
 
 
 /* ------------------------------------------------------------
-   43. SUNRISE/SUNSET SKY (July 12, 2026)
+   49. SUNRISE/SUNSET SKY (July 12, 2026)
    The whole page follows the sun, on every page including
    singles. Reader's clock (device time, no geolocation).
    Daytime = EXACTLY the stock tokens — the script removes all
@@ -3946,12 +3946,12 @@ body.tgo-night .about-text a { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   44. MOVIE CARD — CLASS-BASED (July 12, 2026)
+   50. MOVIE CARD — CLASS-BASED (July 12, 2026)
    Replaces the inline styles Perch used to emit. Everything is
    tokens, so the card restyles itself through the sunset/night
    cycle automatically. Perch emits the bare table markup with
    these classes; no style attributes needed except width/height
-   attrs on images. Section 5b (.movie-card a) still supplies the
+   attrs on images. Section 8 (.movie-card a) still supplies the
    terracotta link treatment for links not covered here.
    ------------------------------------------------------------ */
 
@@ -4082,7 +4082,7 @@ body.tgo-night .about-text a { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   45. PERCH CARDS — THEME-OWNED COLORS (July 12, 2026)
+   51. PERCH CARDS — THEME-OWNED COLORS (July 12, 2026)
    Based on Perch's proposal, with every hex swapped for a theme
    token so all four card types (movie, book, link, define) follow
    the sunrise/sunset cycle — old posts included. The !important
@@ -4151,7 +4151,7 @@ body.tgo-night blockquote::before {
 
 
 /* ------------------------------------------------------------
-   46. NOW PAGE (July 12, 2026)
+   52. NOW PAGE (July 12, 2026)
    Moved here from the Now page's own <style> block so the page
    carries no styling. All tokens — follows the sunrise/sunset
    cycle. The tinkering card keeps FIXED navy on purpose: it is a
@@ -4207,10 +4207,10 @@ body.tgo-night blockquote::before {
 
 
 /* ------------------------------------------------------------
-   47. NEWSLETTERS AT NIGHT (July 12, 2026)
+   53. NEWSLETTERS AT NIGHT (July 12, 2026)
    Two rules discovered by night-testing the reader:
    1) The EMAIL IS PAPER. The reader renders the email inline, so
-      the section 45 card overrides and token flips were re-tinting
+      the section 51 card overrides and token flips were re-tinting
       content inside the always-white email pane (light gray byline
       on white). Everything inside a newsletter page is pinned back
       to fixed day colors.
@@ -4284,7 +4284,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 }
 
 /* ------------------------------------------------------------
-   48. DROPCAP (July 13, 2026)
+   54. DROPCAP (July 13, 2026)
    Used via <p class="dropcap"> on long-form openers. The rule
    was referenced in posts but missing from the theme — likely
    lost in an earlier refactor. Tokens only, so it follows every
@@ -4303,7 +4303,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 }
 
 /* ------------------------------------------------------------
-   50. SOCIAL EMBED (PERCH) — July 14, 2026
+   55. SOCIAL EMBED (PERCH) — July 14, 2026
    Perch's social media insert (X/etc. screenshot linking out).
    Perch markup keeps only structural inline styles (widths,
    border-radius); color and type live here so the caption rides
@@ -4329,18 +4329,18 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 
 
 /* ------------------------------------------------------------
-   51. READING FONT — LORA (July 22, 2026)
+   56. READING FONT — LORA (July 22, 2026)
    Toby's call after the rail mockup session: Lora for anything
    you READ (post bodies, excerpts), Inter stays for anything
    you TAP (nav, buttons, labels, metadata), Bricolage keeps
    titles. Footer is EXEMPT (Toby, July 22): Bricolage tagline +
-   Inter credits, exactly as section 24 already styles it. Slightly taller line-height than Inter needs —
+   Inter credits, exactly as section 29 already styles it. Slightly taller line-height than Inter needs —
    serif strokes want the extra air, especially on the dark skies.
    ------------------------------------------------------------ */
 
 /* Descendant selectors on purpose: the base p rule (section 1),
    the :is(.post-body...) :is(p, li) rule (section 3), and
-   .post-body p (section 15) all pin Inter on paragraphs — these
+   .post-body p (section 20) all pin Inter on paragraphs — these
    later rules out-cascade them at equal specificity. The social
    embed blockquotes (card-quote/reblog/card-wrap) keep their
    !important Inter — those are UI cards, not reading text. */
@@ -4382,33 +4382,6 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    bold. Covers everything below the desktop rail breakpoint, so
    foldables and tablets get the same treatment as phones. */
 @media (max-width: 1023px) {
-  .post-body,
-  .post-body p, .post-body li,
-  .post-card-excerpt,
-  .post-card-excerpt p, .post-card-excerpt li,
-  .featured-excerpt {
-    font-weight: 500;
-  }
-  /* NIGHT DROPS BACK TO 400 (Toby, July 27, reading on his phone after
-     dark: 500 "felt heavy"). It was, but only after sunset. Light text
-     on a dark background optically GAINS weight - the bright glyphs
-     bleed into the dark around them - so Lora 500 was reading closer to
-     600 at night, and Lora's high stroke contrast (thick stems,
-     hairline serifs) made the stems bloom while the serifs did not.
-     Dark-mode text generally wants a step LIGHTER, not heavier.
-     Daylight keeps 500: the July 22 bump was judged in daylight and
-     looks right there, so only the broken condition changes.
-     body.tgo-night is set by the sky script at full night only, so
-     dusk keeps 500 (the background is still light then) and a reader
-     with "Sky: off" never sees this rule at all - no dark background,
-     no irradiation, nothing to correct. */
-  body.tgo-night .post-body,
-  body.tgo-night .post-body p, body.tgo-night .post-body li,
-  body.tgo-night .post-card-excerpt,
-  body.tgo-night .post-card-excerpt p, body.tgo-night .post-card-excerpt li,
-  body.tgo-night .featured-excerpt {
-    font-weight: 400;
-  }
   /* Cards match the single-post reading size exactly (Toby, July 22:
      "I like the single font size better") — no smaller teaser text. */
   .post-card-excerpt,
@@ -4418,8 +4391,45 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 }
 
 
+/* READING WEIGHT FOLLOWS THE SKY, NOT THE BREAKPOINT (Toby, July 27).
+   These lived inside the max-width:1023px block until now, which meant
+   desktop sat at 400 and mobile at 500 in the SAME daylight - and
+   measurement showed there was no principle holding them apart: post
+   bodies are 20px, #1A1A18 on #FAF8F5, 16.4:1 contrast, high-DPI, on
+   both. Same size, same ink, same light; only the weight differed,
+   because the July 22 bump happened to be written inside a mobile
+   query and desktop was never revisited.
+
+   The real variable is which way the ink runs. Dark-on-light: the
+   bright background bleeds INTO the letterforms, so text optically
+   LOSES weight - Lora's hairline serifs make that read thin, which is
+   what Toby felt on the desktop in daylight. Light-on-dark at night:
+   the reverse, glyphs bleed outward and GAIN weight, which is what
+   read heavy on his phone after dark. One effect, two directions.
+
+   So: 500 in daylight, 400 at night, at every width. Two cases instead
+   of three, and desktop and mobile finally agree in the same light.
+   body.tgo-night is set at full night only, so dusk keeps 500 while
+   the page is still light, and a reader with "Sky: off" never matches
+   the night rule - no dark background, nothing to correct. */
+.post-body,
+.post-body p, .post-body li,
+.post-card-excerpt,
+.post-card-excerpt p, .post-card-excerpt li,
+.featured-excerpt {
+  font-weight: 500;
+}
+body.tgo-night .post-body,
+body.tgo-night .post-body p, body.tgo-night .post-body li,
+body.tgo-night .post-card-excerpt,
+body.tgo-night .post-card-excerpt p, body.tgo-night .post-card-excerpt li,
+body.tgo-night .featured-excerpt {
+  font-weight: 400;
+}
+
+
 /* ------------------------------------------------------------
-   52. DESKTOP RAIL SIDEBAR (July 22, 2026)
+   57. DESKTOP RAIL SIDEBAR (July 22, 2026)
    Replaces the fixed top header on ≥1024px screens: avatar, logo,
    greeting, cycling tagline, about links, vertical nav, and the
    full subscribe block live in a fixed left rail. Everything
@@ -4435,7 +4445,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    top header at all widths — its locked full-viewport panels
    assume full page width.
    July 25 (Toby): single posts (type-post) are exempt too — they
-   keep the same compact top header as the newsletter (section 7
+   keep the same compact top header as the newsletter (section 11
    already styles post + newsletter headers together). The rail is
    for the home page and list pages only.
    ------------------------------------------------------------ */
@@ -4675,7 +4685,7 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   53. JOURNAL FEED — RECENT GEEKOUTS (July 22, 2026)
+   58. JOURNAL FEED — RECENT GEEKOUTS (July 22, 2026)
    Toby's home feed redesign: log/journal style. Each entry is one
    row — the same day/month/year date block the cards had (day at
    full 1.4rem), the title at the SAME 1.4rem so date and title
@@ -4738,7 +4748,7 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   54. REEL AND REMOTE — HOME SECTION (July 22, 2026)
+   59. REEL AND REMOTE — HOME SECTION (July 22, 2026)
    Toby's watching shelf: mixed activity from Movie Reviews,
    TV Reviews, and Reel and Remote — rated watches, watchlist
    entries, currently-watching notes. Top 3 = newest RATED posts
@@ -4888,7 +4898,7 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   56. THE BOOKSHELF — HOME SECTION (July 22, 2026)
+   60. THE BOOKSHELF — HOME SECTION (July 22, 2026)
    Books before Reel and Remote (Toby's call). Bookshelf + Book
    Review rows reuse the .reel-entry styles; this section only
    styles the Currently Reading entries: stripped book title,
@@ -5002,11 +5012,11 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   57. BOOK CARD — CLASS-BASED (July 22, 2026)
-   Same treatment the movie card got in section 44: Perch emits
+   61. BOOK CARD — CLASS-BASED (July 22, 2026)
+   Same treatment the movie card got in section 50: Perch emits
    colorless markup with classes, custom.css owns every color via
    tokens so the card rides the timed sky day AND night. The old
-   small-cover rules (section 21-era .book-card img float, card
+   small-cover rules (section 26-era .book-card img float, card
    padding) are neutralized for new-format cards — identified by
    their classed children via :has() — without touching how
    already-published old cards render.
@@ -5100,7 +5110,7 @@ body.tgo-night .rail-nav a.active {
 
 
 /* ------------------------------------------------------------
-   58. MICROS — HOME SECTION (July 22, 2026)
+   62. MICROS — HOME SECTION (July 22, 2026)
    Quick untitled thoughts (≤300 chars, category "Micro"), shown in
    FULL — no truncation, no tease. Lora reading text with the mobile
    visibility bump matched, quiet date-permalink underneath. Sits
@@ -5142,24 +5152,29 @@ body.tgo-night .rail-nav a.active {
   text-decoration: none !important;
 }
 
-/* Match the mobile/foldable Lora visibility bump */
+/* Match the mobile/foldable Lora size bump */
 @media (max-width: 1023px) {
   .micro-entry-text,
   .micro-entry-text p {
     font-size: 1.25rem;
-    font-weight: 500;
   }
-  /* Same night drop as section 51 - Micros is reading text too, so it
-     should never sit heavier than a post body. */
-  body.tgo-night .micro-entry-text,
-  body.tgo-night .micro-entry-text p {
-    font-weight: 400;
-  }
+}
+
+/* Weight follows the sky, not the breakpoint - same rule and same
+   reasoning as section 56. Micros is reading text, so it must never
+   sit heavier than a post body in either light. */
+.micro-entry-text,
+.micro-entry-text p {
+  font-weight: 500;
+}
+body.tgo-night .micro-entry-text,
+body.tgo-night .micro-entry-text p {
+  font-weight: 400;
 }
 
 
 /* ------------------------------------------------------------
-   59. BROWSE BY CATEGORY (July 23, 2026)
+   63. BROWSE BY CATEGORY (July 23, 2026)
    Quiet text row above the archive door (Toby chose this over
    pills: less trendy, matches the archive link's spirit and the
    archive's own category styling). Top 6 real topics by post
@@ -5245,7 +5260,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   60. MOBILE TITLE SCALE (July 23, 2026)
+   64. MOBILE TITLE SCALE (July 23, 2026)
    Toby's call: on mobile, list titles (1.05rem) sat SMALLER than
    reading text (1.25rem Lora), which broke the usual rule that
    titles >= body. All tappable list titles now match the reading
@@ -5265,7 +5280,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   61. COVER ART IN HOME LISTS (July 25, 2026)
+   65. COVER ART IN HOME LISTS (July 25, 2026)
    Book covers pulled out of each post's own card markup by
    findRE in layouts/index.html, then rendered as a fixed 2:3
    crop so rows stay even no matter what shape the source file
@@ -5299,7 +5314,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 .media-cover--wide { --cover-ratio: 16 / 9; }
 
 /* Transparent by default so coverless rows keep the exact
-   title-left / date-right layout section 54 gives them. */
+   title-left / date-right layout section 59 gives them. */
 .reel-entry-body,
 .reel-tile-body { display: contents; }
 
@@ -5322,7 +5337,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 .reel-entry--cover .reel-entry-meta { justify-content: flex-start; }
 
 @media (max-width: 639px) {
-  /* Section 54 wraps these rows and gives the title width:100%,
+  /* Section 59 wraps these rows and gives the title width:100%,
      which would drop the cover onto a line of its own. With a
      cover present the row stays side-by-side instead. */
   .reel-entry--cover { flex-wrap: nowrap; }
@@ -5344,7 +5359,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   .reel-tile--cover .reel-tile-title { width: auto; }
 
   /* Phones (Toby, July 25): tiles collapse into rows under 640px
-     (section 54), but their covers stayed on the large 150px rating
+     (section 59), but their covers stayed on the large 150px rating
      size - so the list showed three big covers over three small ones.
      One size for every mobile row: the same 80px the list rows use. */
   .media-cover--rating {
@@ -5355,12 +5370,12 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   62. CURRENTLY READING - COVER ROWS (July 25, 2026)
+   66. CURRENTLY READING - COVER ROWS (July 25, 2026)
    Toby's call: the per-row "Currently reading" eyebrow repeated
    on every line was noise, so the label moved up to one section
    subhead and the rows became cover + title + progress. Rows
    stack their text in a column at every width now, which means
-   the section 56 desktop trick (metaline display:contents, date
+   the section 60 desktop trick (metaline display:contents, date
    pushed to the far end) has to be undone for covered rows.
    ------------------------------------------------------------ */
 
@@ -5373,7 +5388,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   margin: var(--space-lg) 0 2px;
 }
 
-/* Transparent until a cover exists, same trick as section 61. */
+/* Transparent until a cover exists, same trick as section 65. */
 .book-entry-body { display: contents; }
 
 .book-entry--cover {
@@ -5391,7 +5406,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 }
 
 @media (min-width: 640px) {
-  /* Undo section 56's one-line desktop row for covered entries. */
+  /* Undo section 60's one-line desktop row for covered entries. */
   .book-entry--cover .book-entry-title {
     flex: none;
     white-space: normal;
@@ -5423,7 +5438,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   63. BOOKSHELF TWO-COLUMN GRIDS (July 25, 2026)
+   67. BOOKSHELF TWO-COLUMN GRIDS (July 25, 2026)
    Currently Reading and On the Shelf were full-width rows with an
    80px cover and a short title, so most of each row was empty air.
    Two columns use that space and halve the vertical run of the
@@ -5448,7 +5463,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   .books-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 
-/* Section 54 gives these rows nowrap + ellipsis, which was fine at
+/* Section 59 gives these rows nowrap + ellipsis, which was fine at
    full width but started cutting titles off once the columns halved.
    There is vertical room beside a 120px cover, so wrap to two lines
    instead of truncating. Scoped to the grid: the full-width Reel and
@@ -5465,8 +5480,8 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   64. HEADING MARGINS (July 25, 2026)
-   This theme never set margins on h1-h6 (section 5 sets only font,
+   68. HEADING MARGINS (July 25, 2026)
+   This theme never set margins on h1-h6 (section 6 sets only font,
    weight, line-height, colour). Bootstrap - dragged in by the
    blogroll/FeedLand plug-ins - had been silently supplying them all
    along. Uninstalling those plug-ins on July 25 handed headings back
@@ -5492,7 +5507,7 @@ h4, h5, h6 {
 
 
 /* ------------------------------------------------------------
-   65. RECENT GEEKOUTS THUMBNAILS (July 25, 2026)
+   69. RECENT GEEKOUTS THUMBNAILS (July 25, 2026)
    Option A from the mockup (Toby's pick): a small 3:2 thumb at the
    right edge, nothing reserved on rows without one. 96px wide caps
    the height at 64px, which is about what a text row already stands
@@ -5527,12 +5542,12 @@ h4, h5, h6 {
 
 
 /* ------------------------------------------------------------
-   66. ARCHIVE PAGE HEADING (July 25, 2026)
+   70. ARCHIVE PAGE HEADING (July 25, 2026)
    The archive heading has to line up with the ARCHIVE's own column,
    not the one Now/About/Search use. Those pages sit in
    .page-wrapper (1120px); the archive body is its own narrower
    720px column (.archive-wrapper and .archive-categories-fold,
-   CSS 14). Dropping a bare .page-header into main left the title
+   CSS 19). Dropping a bare .page-header into main left the title
    full-width and ~300px left of the content underneath it - Toby
    caught it immediately. These values mirror .archive-wrapper
    exactly so the three line up. Vertical padding still comes from
@@ -5541,7 +5556,7 @@ h4, h5, h6 {
 
 /* Match the width Now/About/Search use (Toby, July 25): those pages
    sit in article.page-wrapper - 1120px wide with 30px side padding.
-   The archive had its own narrower 720px column (CSS 14), so even
+   The archive had its own narrower 720px column (CSS 19), so even
    once the heading lined up with the archive body, the whole page
    still read narrower than the other three - clicking through the
    nav made one page visibly jump. Rather than restructure the
@@ -5594,7 +5609,7 @@ main > .page-header,
 
 
 /* ------------------------------------------------------------
-   67. THE 3-D BOOKSHELF (July 26, 2026)
+   71. THE 3-D BOOKSHELF (July 26, 2026)
    Toby's design, Option 2 "deep shelf" from the mockup: on desktop
    the Currently Reading and TBR Pile groups render as covers
    standing on a rendered wooden plank - slanted top face, darker
@@ -5603,7 +5618,7 @@ main > .page-header,
    to the book's micro.blog page so readers can shelve it themselves.
    PHONES KEEP THE ROWS: same rule as the reel tiles, decoration is
    a big-screen luxury, under 640px nothing here applies and the
-   existing row layout (sections 61-63) is untouched.
+   existing row layout (sections 65-67) is untouched.
    Wood tones derive from the terra tokens (color-mix), so the plank
    rides the timed sky like everything else. One markup serves both
    modes: .shelf-slot is display:contents on phones (rows exactly as
@@ -5615,7 +5630,6 @@ main > .page-header,
    ------------------------------------------------------------ */
 
 .shelf-slot { display: contents; }
-.shelf-add { display: none; }
 
 @media (min-width: 640px) {
   /* The plank hugs the books (Toby, July 26): fit-content width,
@@ -5735,8 +5749,8 @@ main > .page-header,
   .books-group--shelf .reel-entry-meta { justify-content: center; }
   .books-group--shelf .reel-date { font-size: 0.62rem; }
 
-  /* Currently Reading: undo section 62's desktop row, back to column */
-  /* Wrap allowed + width pinned to the slot: section 62 gives these
+  /* Currently Reading: undo section 66's desktop row, back to column */
+  /* Wrap allowed + width pinned to the slot: section 66 gives these
      spans nowrap for the one-line desktop row, and a ~200px metaline
      inside a 122px slot was spilling into the neighbouring books
      (caught on the first live render). Spans stay nowrap individually;
@@ -5758,22 +5772,12 @@ main > .page-header,
     max-width: none;
   }
   .books-group--shelf .book-entry--cover .reel-date { margin-left: 0; }
-
-  .books-group--shelf .shelf-add {
-    display: block;
-    margin-top: 7px;
-    font-size: 0.64rem;
-    font-weight: 600;
-    color: var(--color-text-light);
-    text-decoration: none;
-  }
-  .books-group--shelf .shelf-add:hover { color: var(--color-terra); }
 }
 
 
 /* Bar + percent on one line (July 26, 2026, Toby) - the % moved out
    of the metaline to sit beside the bar it labels; pages and date
-   stay below. Appended after section 62 on purpose so the flex
+   stay below. Appended after section 66 on purpose so the flex
    overrides win over 62's fixed-width bar. */
 .book-progress-row {
   display: flex;
@@ -5820,7 +5824,7 @@ main > .page-header,
 
 
 /* ------------------------------------------------------------
-   68. THE QUEUE — /the-queue/ (July 26, 2026, Toby's design)
+   72. THE QUEUE — /the-queue/ (July 26, 2026, Toby's design)
    The public watchlist page. Markup comes from the {{< queue >}}
    shortcode (layouts/shortcodes/queue.html), which collects every
    post carrying a "Want to Watch" movie card and groups them by
@@ -5835,7 +5839,7 @@ main > .page-header,
    and there is no width at which covers can overlap.
 
    Everything rides the design tokens, so the page follows the
-   sunrise/sunset sky (section 43) with no extra night rules.
+   sunrise/sunset sky (section 49) with no extra night rules.
    ------------------------------------------------------------ */
 
 .queue {
@@ -5997,22 +6001,22 @@ main > .page-header,
 
 /* Spacing corrections after Toby saw it live (July 26): the gap
    under the page title and between groups was a canyon. Cause was
-   section 64 (HEADING MARGINS), whose selector is more specific than
+   section 68 (HEADING MARGINS), whose selector is more specific than
    a bare .queue-heading, so it kept winning with a 60px top margin
    and stacked that on top of each group's own 60px bottom margin.
-   Scoped overrides rather than touching section 64, which every
+   Scoped overrides rather than touching section 68, which every
    other page depends on. */
 .queue .queue-heading { margin-top: 0; }
 .queue .queue-count { margin-bottom: var(--space-sm); }
 
 
 /* ------------------------------------------------------------
-   69. WATCHED — /watched/ (July 27, 2026, Toby's design)
+   73. WATCHED — /watched/ (July 27, 2026, Toby's design)
    The companion to The Queue: every movie/TV review, grouped by the
    year Toby posted it, newest first. Markup comes from the watched
    shortcode (layouts/shortcodes/watched.html).
 
-   Deliberately reuses section 68's .queue-* card styles rather than
+   Deliberately reuses section 72's .queue-* card styles rather than
    cloning them — the two pages are the same object in two states
    (want to see / have seen), and a visitor moving between them
    should feel one design, not two. The wrapper carries BOTH classes

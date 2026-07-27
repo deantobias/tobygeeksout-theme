@@ -259,13 +259,17 @@
     {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
     {{/* Eyebrow removed July 25 (Toby): the label repeated on every row;
          it lives once in the group subhead above now. */}}
-    {{/* The card already links the book's micro.blog page - the same
-         "add to your shelf" page the bookshelves embeds use. Nested
-         anchors are invalid HTML, so the slot wraps the row-anchor and
-         the add-link as siblings; the slot is display:contents on
-         phones, so rows render exactly as before (CSS 67). */}}
-    {{ $mb := "" }}
-    {{ with findRE `https://micro\.blog/books/\d+` .Content 1 }}{{ $mb = index . 0 }}{{ end }}
+    {{/* The "+ Add to your shelf" link was removed July 27 (Toby).
+         It pointed at the book's Micro.blog page, which only helps a
+         reader who already has a Micro.blog account, and it repeated
+         under every book in Currently Reading - a section whose job
+         is showing progress. It was never put here on purpose: it
+         belonged to the TBR Pile and inherited the group class when
+         that block came out earlier today.
+         The .shelf-slot wrapper STAYS. It is display:contents on
+         phones, but on desktop it is the flex column that stands each
+         book on the plank (section 71 after the July 27 renumber,
+         was 67) - removing it collapses the 3-D bookshelf. */}}
     <span class="shelf-slot">
     <a href="{{ .Permalink }}" class="book-entry{{ if $cover }} book-entry--cover{{ end }} u-url">
       {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
@@ -288,7 +292,6 @@
         </span>
       </span>
     </a>
-    {{ with $mb }}<a class="shelf-add" href="{{ . }}">+ Add to your shelf</a>{{ end }}
     </span>
     {{ end }}
     {{ end }}

@@ -5,3 +5,7 @@
 # Temp banner preview files
 banner-preview.html
 banner-preview-email.html
+
+# Session scratch — safe to delete
+_git_stale_locks/
+_to_delete/

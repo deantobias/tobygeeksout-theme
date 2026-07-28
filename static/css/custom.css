@@ -5844,6 +5844,21 @@ main > .page-header,
 
 .queue {
   --queue-cover-w: clamp(96px, 20vw, 150px);
+  /* GRID MINIMUM, separate from the cover (Toby, July 28 - dates were
+     colliding on phones). The column used to be sized to the POSTER,
+     but the poster is not the widest thing in a card: "Added Jul 26,
+     2026" needs ~116px. At 390px and 414px - iPhone 12-15 and the XR -
+     three 96px columns fitted, so the date overran its own column by up
+     to 17px and left 4px between one date and the next. Size the track
+     to the widest ATOM instead and the phone falls to two columns on
+     its own. max() keeps the desktop value identical: above ~590px the
+     20vw term already exceeds 118px, so nothing changes there. */
+  /* 138px, not 118px (Toby, July 28): 118 was enough for the "Added"
+     line alone, but it left a band around 460-500px wide - his screen -
+     where The Queue broke to three columns while Watched was still on
+     two, so the two pages disagreed on the same phone. Both now use the
+     same minimum and flip at the same width. */
+  --queue-col-min: max(138px, var(--queue-cover-w));
   /* No top margin (Toby, July 26): .page-body already pads 30px under
      the title rule, and stacking space-lg on top of it left a dead band
      above the count line. */
@@ -5884,7 +5899,8 @@ main > .page-header,
 
 .queue-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--queue-cover-w), 1fr));
+  /* Falls back to the cover width if no page sets a column minimum. */
+  grid-template-columns: repeat(auto-fill, minmax(var(--queue-col-min, var(--queue-cover-w)), 1fr));
   gap: var(--space-lg) var(--space-md);
   /* stretch, not start: cards fill the tallest slot in their row so
      the "Added" line can be pinned to the bottom. Without it, a card
@@ -5915,6 +5931,20 @@ main > .page-header,
 .queue-card:hover .queue-cover {
   transform: translateY(-2px);
   box-shadow: 0 5px 12px rgb(0 0 0 / 24%);
+}
+
+/* PHONES: the poster fills its column (Toby, July 28). Once the grid
+   minimum was raised to stop the dates colliding, phones fell to two
+   columns of ~165px while the cover was still capped at 96px (Queue)
+   or 84px (Watched) - so the fix left ~35px of dead space around every
+   poster: bigger columns, same small art. Lifting the cap lets the
+   poster take the column it already has.
+   This IS a breakpoint, which this section otherwise avoids, and that
+   is deliberate: it changes only the cover CAP, never the column
+   count, so unlike a width breakpoint it cannot produce a column
+   narrower than its own contents. Desktop is untouched. */
+@media (max-width: 639px) {
+  .queue-cover { max-width: 100%; }
 }
 
 /* A post with no poster keeps its slot rather than collapsing the
@@ -6033,6 +6063,13 @@ main > .page-header,
 
 .watched {
   --queue-cover-w: clamp(84px, 15vw, 120px);
+  /* "Reviewed Jul 23, 2026" is longer than the queue's "Added" line -
+     ~134px - so this page needed a wider floor than 118px, and it was
+     overflowing on DESKTOP too, not just phones: 5-6 columns of ~120px
+     against 134px of text. Covers stay capped at 120px, so posters do
+     not grow; the columns just stop being narrower than their own
+     contents. */
+  --queue-col-min: max(138px, var(--queue-cover-w));
 }
 
 /* Ratings carry more weight here than on The Queue, where they are
@@ -6040,6 +6077,19 @@ main > .page-header,
 .watched .queue-stars {
   font-size: 0.82rem;
   letter-spacing: 1.5px;
+}
+
+/* Stars are the whole point of this page, and at 0.82rem (16px) they
+   read as decoration on a phone rather than as a rating (Toby, July
+   28). Bumped below the desktop rail breakpoint, which also covers a
+   Fold on its cover screen. Measured at 344, 390 and 673px: the row
+   comes to ~135px inside a 158-186px column, so it still fits with
+   room to spare. */
+@media (max-width: 1023px) {
+  .watched .queue-stars {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
 }
 
 .watched .queue-title {
@@ -6083,3 +6133,28 @@ main > .page-header,
   color: var(--color-text-light);
 }
 .reel-cta--quiet a { font-size: 0.8rem; }
+
+/* ------------------------------------------------------------
+   74. CARD TITLES ON PHONES (July 28, 2026)
+   ------------------------------------------------------------ */
+
+/* 0.88rem on The Queue and 0.82rem on Watched read as captions next to
+   the now full-width poster (Toby, July 28). 1.1rem sits right against
+   the art.
+   The third line is the important half. Bumping the size inside a
+   2-line clamp would have truncated MORE titles; allowing a third line
+   means the bigger type truncates LESS - measured on Watched at 390px,
+   3 clipped of 56 before, 2 after. min-height is relative (2.2em /
+   2.1em) so it scales with the new size and rows stay aligned.
+   TWO THINGS THIS RULE HAS TO GET PAST, both learned the hard way:
+   it lives at the END of the file because a first attempt sat above
+   the base .queue-title rule and lost on source order; and it names
+   both parents because .watched .queue-title is 0,2,0 and beats a bare
+   .queue-title no matter where it sits. */
+@media (max-width: 1023px) {
+  .queue .queue-title,
+  .watched .queue-title {
+    font-size: 1.1rem;
+    -webkit-line-clamp: 3;
+  }
+}

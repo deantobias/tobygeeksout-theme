@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three CSS ideas — Toby Geeks Out!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-terra:#C4622D; --color-terra-light:#F0DDD3; --color-terra-dark:#8B3E18;
+  --color-navy:#1E2D4A;  --color-navy-mid:#2E4470;
+  --color-bg:#FAF8F5;    --color-bg-warm:#F2EDE8;  --color-bg-card:#FFFFFF;
+  --color-border:#E5DDD5;--color-border-light:#EDE8E2;
+  --color-text:#1A1A18;  --color-text-muted:#6B645D; --color-text-light:#9C9489;
+  --font-display:'Bricolage Grotesque',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-reading:'Lora',Georgia,serif;
+}
+html{font-size:20px;scroll-behavior:smooth}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 1.25rem 6rem}
+h1{font-family:var(--font-display);font-size:2.2rem;font-weight:800;color:var(--color-navy);margin:2.5rem 0 .3rem;line-height:1.1}
+.sub{font-family:var(--font-reading);font-size:1rem;color:var(--color-text-muted);margin:0 0 2.5rem;line-height:1.5}
+h2{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--color-navy);margin:0 0 .2rem}
+.eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--color-terra);margin:0 0 .5rem}
+p{font-family:var(--font-reading);font-size:1.2rem;line-height:1.65;margin:0 0 1rem}
+.note{font-size:.875rem;font-family:var(--font-body);color:var(--color-text-muted);line-height:1.55;background:var(--color-bg-warm);border-left:3px solid var(--color-terra-light);padding:.7rem .9rem;border-radius:0 4px 4px 0}
+.note strong{color:var(--color-navy)}
+section.demo{border-top:1px solid var(--color-border);padding:2.5rem 0 1rem;margin-top:1rem}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;background:var(--color-bg-warm);padding:.1em .35em;border-radius:3px;color:var(--color-terra-dark)}
+.support{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2em .55em;border-radius:99px;margin-left:.4rem;vertical-align:middle}
+.ok{background:#E3EFE3;color:#2C5F2C}.partial{background:#F6E9D8;color:#8A5A16}
+
+/* ── 1. SCROLL REVEAL ───────────────────────────── */
+.card{background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:8px;padding:1.1rem 1.3rem;margin-bottom:.9rem}
+.card h3{font-family:var(--font-display);font-size:1.15rem;margin:0 0 .25rem;color:var(--color-navy)}
+.card p{font-size:1rem;margin:0;color:var(--color-text-muted)}
+@supports (animation-timeline: view()){
+  .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 5% cover 26%}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* ── 2. ANCHOR-POSITIONED TOOLTIP ───────────────── */
+.term{position:relative;color:var(--color-terra-dark);text-decoration:underline;text-decoration-color:var(--color-terra-light);text-decoration-thickness:2px;text-underline-offset:3px;cursor:help;font-weight:600}
+.term:nth-of-type(1){anchor-name:--t1}
+.term:nth-of-type(2){anchor-name:--t2}
+.tip{font-family:var(--font-body);font-size:.8rem;line-height:1.45;background:var(--color-navy);color:#F3F1EE;padding:.55rem .75rem;border-radius:6px;max-width:17rem;box-shadow:0 6px 18px rgba(30,45,74,.22);opacity:0;transition:opacity .15s;pointer-events:none}
+.tip b{color:#E8B98F}
+@supports (anchor-name: --x){
+  .tip{position:absolute;position-anchor:var(--a);position-area:block-end span-inline-end;margin-top:.4rem;
+       position-try-fallbacks:block-start span-inline-end, block-end span-inline-start, block-start span-inline-start}
+  .t1{--a:--t1}.t2{--a:--t2}
+  .term:hover + .tip,.term:focus + .tip{opacity:1}
+}
+@supports not (anchor-name: --x){
+  .tip{position:static;opacity:1;max-width:none;margin:.4rem 0 1rem;background:var(--color-bg-warm);color:var(--color-text);box-shadow:none;border-left:3px solid var(--color-terra)}
+  .tip b{color:var(--color-terra-dark)}
+  .fallback-note{display:block}
+}
+.fallback-note{display:none}
+
+/* ── 3. RELATIVE COLOUR ─────────────────────────── */
+.sky{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.2rem 0}
+.sky>div{border-radius:8px;overflow:hidden;border:1px solid var(--color-border)}
+.sky h4{font-family:var(--font-body);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin:0;padding:.5rem .7rem;background:var(--color-bg-warm);color:var(--color-text-muted);font-weight:700}
+.band{height:74px}
+.hand{background:linear-gradient(90deg,#F7E3D2,#E8A66F,#C4622D,#7E3F1E,#2E4470)}
+@supports (color:rgb(from red r g b)){
+  .derived{background:linear-gradient(90deg,
+    oklch(from var(--color-terra) 94% 4% h),
+    oklch(from var(--color-terra) 78% 60% h),
+    var(--color-terra),
+    oklch(from var(--color-terra) 42% 90% h),
+    var(--color-navy-mid))}
+  .relnote{display:none}
+}
+@supports not (color:rgb(from red r g b)){
+  .derived{background:repeating-linear-gradient(45deg,var(--color-bg-warm),var(--color-bg-warm) 8px,var(--color-border-light) 8px,var(--color-border-light) 16px)}
+}
+.relnote{font-size:.8rem;color:var(--color-text-muted);font-family:var(--font-body)}
+.swatchrow{display:flex;gap:.4rem;margin:.7rem 0 0;flex-wrap:wrap}
+.sw{width:52px;height:52px;border-radius:6px;border:1px solid rgba(0,0,0,.06)}
+@supports (color:rgb(from red r g b)){
+  .sw1{background:oklch(from var(--color-terra) 96% 3% h)}
+  .sw2{background:oklch(from var(--color-terra) 85% 35% h)}
+  .sw3{background:var(--color-terra)}
+  .sw4{background:oklch(from var(--color-terra) 55% 90% h)}
+  .sw5{background:oklch(from var(--color-terra) 35% 70% h)}
+}
+.spacer{height:38vh}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Three CSS ideas</h1>
+<p class="sub">Live demos in your own palette and type. Scroll slowly — the first one only shows itself as things enter the screen.</p>
+
+<section class="demo">
+  <p class="eyebrow">Idea 1</p>
+  <h2>Scroll reveal <span class="support ok">works today</span></h2>
+  <p>Cards lift into place as they enter the viewport. No JavaScript, no scroll listeners, no library — the browser drives the animation off scroll position itself.</p>
+  <p class="note"><strong>The tuning that matters:</strong> the distance and the range. Below is deliberately gentle — 22px of travel, finished by the time a card is a quarter of the way up. Anything more and the page starts to feel like it's loading rather than moving. It's also fully off for anyone with reduced-motion turned on.</p>
+  <div class="spacer"></div>
+  <div class="card reveal"><h3>An Unplanned Offline Day</h3><p>Jul 20, 2026</p></div>
+  <div class="card reveal"><h3>Word Nerd Alert: Lagom</h3><p>Jul 19, 2026</p></div>
+  <div class="card reveal"><h3>I Miss Reading Like I Used To</h3><p>Jul 19, 2026</p></div>
+  <div class="card reveal"><h3>The Web Is My Playground</h3><p>Jul 16, 2026</p></div>
+  <div class="card reveal"><h3>Paper Towels Turned Renaissance Art</h3><p>Jul 15, 2026</p></div>
+  <div class="card reveal"><h3>Is This Finally the End of Changing Our Clocks?</h3><p>Jul 15, 2026</p></div>
+</section>
+
+<section class="demo">
+  <p class="eyebrow">Idea 3</p>
+  <h2>Anchor-positioned tooltips <span class="partial support">newer browsers</span></h2>
+  <p>Hover or tap <span class="term" tabindex="0">lagom</span><span class="tip t1"><b>lagom</b> — Swedish. Not too little, not too much. The right amount, and that being the point rather than a compromise.</span> and the definition pins itself to the word. Try it near the edge too: <span class="term" tabindex="0">hygge</span><span class="tip t2"><b>hygge</b> — Danish. The warmth of a small, well-lit, unhurried moment. Usually involves being indoors while it is miserable outside.</span></p>
+  <p class="note"><strong>Why this is different from what you'd have built before:</strong> keeping a tooltip on screen near an edge has always meant JavaScript measuring the viewport and flipping the box. Here the browser does it — you list fallback positions and it picks the first that fits. For Geek Word posts that means a definition attached to the term itself instead of a footnote the reader has to go find.<span class="fallback-note"><br><br><strong>Your browser doesn't support this yet</strong>, so you're seeing the fallback: the definition sits inline underneath. That's the honest degradation — nothing breaks, it just stops floating.</span></p>
+</section>
+
+<section class="demo">
+  <p class="eyebrow">Idea 4</p>
+  <h2>Colours derived from your tokens <span class="partial support">newer browsers</span></h2>
+  <p>Both bands look similar. The difference is where the colours come from.</p>
+  <div class="sky">
+    <div><h4>Hand-coded today</h4><div class="band hand"></div></div>
+    <div><h4>Derived from --color-terra</h4><div class="band derived"></div></div>
+  </div>
+  <p class="relnote">Every swatch below is the same one terracotta token at a different lightness and saturation — none of these hex values exist anywhere in the stylesheet.</p>
+  <div class="swatchrow"><div class="sw sw1"></div><div class="sw sw2"></div><div class="sw sw3"></div><div class="sw sw4"></div><div class="sw sw5"></div></div>
+  <p class="note"><strong>Nothing looks different the day you ship it.</strong> The payoff is the next time you change a brand colour: today every sky gradient stop is a hand-picked hex, so changing terracotta means re-tuning all of them by hand. Written this way they're expressed as <code>oklch(from var(--color-terra) …)</code> — "the same hue, lighter" — so they move with the token automatically. It's a maintenance change, not a visual one, which is exactly why it's easy to keep putting off.</p>
+</section>
+
+<section class="demo">
+  <p class="eyebrow">Idea 2</p>
+  <h2>Enter animations — dropped</h2>
+  <p>You said no hover-and-popover behaviour on the blog, so <code>@starting-style</code> comes off the list. It only had a job if a lightbox or a newsletter popover existed, and neither does.</p>
+</section>
+
+</div>
+</body>
+</html>

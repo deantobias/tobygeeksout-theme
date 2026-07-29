@@ -541,7 +541,12 @@ figcaption {
    6. LINKS
    ------------------------------------------------------------ */
 
-:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a {
+/* .micro-entry-text added July 30, 2026: the Micros refactor
+   replaced .micro-body with .micro-entry-text, and links inside
+   micros silently lost this styling — they rendered as plain
+   body-colored text with no underline (Toby spotted a linkless-
+   looking Percy Jackson micro). */
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a {
   color: var(--color-terra);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -549,9 +554,28 @@ figcaption {
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
-:is(.post-body, .page-body, .micro-body, .post-card-content, .post-card-excerpt) a:hover {
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
+}
+
+/* Micros get a touch more underline air (7px vs the shared 5.5px,
+   July 30, 2026): micro text is Lora at 1.05rem with long descenders,
+   and the wavy crests eat upward into the gap, so the same 5.5px
+   read tighter to Toby's eye. Optical match, not mathematical. */
+.micro-entry-text a {
+  text-underline-offset: 7px;
+  /* Part the wave around descenders (y, p, g) — Chromium honors
+     'all'; engines that don't know it fall back to their default
+     'auto' skipping, no harm done. July 30, 2026. */
+  text-decoration-skip-ink: all;
+}
+
+/* Phones: Safari refuses to skip ink on wavy underlines, so the
+   only fix for descenders crossing the wave is distance — 9px
+   clears Lora's y/p/g entirely at the micro size. July 30, 2026. */
+@media (max-width: 639px) {
+  .micro-entry-text a { text-underline-offset: 9px; }
 }
 
 .read-more-link {
@@ -1461,7 +1485,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-sm);
-  border-top: 1px solid var(--color-border);
+  /* border-top removed July 29, 2026 — the nav cards have their own
+     borders, and the extra line under Surprise me read as clutter */
 }
 
 .post-nav-link {
@@ -6267,4 +6292,160 @@ main > .page-header,
     font-size: 1.1rem;
     -webkit-line-clamp: 3;
   }
+}
+
+
+/* ------------------------------------------------------------
+   75. SPOTLIGHT RABBIT (July 29, 2026)
+   Toby's mascot (his own Canva art, transparent PNG whose body
+   bleeds off its own right edge) peeking in at the right side of
+   the Spotlight banner on the home page. Anchored to
+   .featured-banner (position: relative), so it scrolls away with
+   the page and can't cover content — which is why the old
+   shrink-to-small behavior from the fixed-pin design was dropped.
+   Greeting: slides in with a fade, "Hey!" bubble in Caveat
+   (loaded by the script only when greeting), bubble reuses the
+   navy/bg tokens so it inverts through the timed skies. The
+   24-hour localStorage logic lives in layouts/index.html.
+   ------------------------------------------------------------ */
+
+.tgo-rabbit {
+  position: absolute;
+  right: 0;
+  width: 88px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.tgo-rabbit.is-in { opacity: 1; }
+
+/* Banner slot: anchored at the SPOTLIGHT eyebrow height at every
+   rail width (Toby, July 30 — same place on desktop and foldable,
+   no breakpoint special case). The eyebrow row is short, so the
+   Hey! bubble lands in the empty space beside it, never on text. */
+.tgo-rabbit--banner { top: 30px; transform: translateX(100%); }
+.tgo-rabbit--banner.is-in { transform: translateX(0); }
+
+/* Strip slot: vertically centered on the "Hi, I'm Toby" block */
+.tgo-rabbit--strip { top: 50%; transform: translateY(-50%) translateX(100%); }
+.tgo-rabbit--strip.is-in { transform: translateY(-50%) translateX(0); }
+
+.tgo-rabbit img { display: block; width: 100%; height: auto; }
+
+.tgo-rabbit-bubble {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 4px;
+  background: var(--color-navy);
+  color: var(--color-bg);
+  font-family: 'Caveat', 'Bradley Hand', cursive;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 8px 16px 10px;
+  border-radius: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s, transform 0.35s;
+}
+
+.tgo-rabbit-bubble::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-left-color: var(--color-navy);
+  border-right: 0;
+}
+
+.tgo-rabbit-bubble.is-shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Two slots, one visible per breakpoint (July 30, 2026): desktop
+   (rail layout, ≥1024px) keeps the rabbit beside the Spotlight;
+   below that the Spotlight is under the fold, so he peeks in next
+   to the "Hi, I'm Toby" strip instead. */
+.about-strip { position: relative; }
+.tgo-rabbit--strip { width: 60px; }
+
+/* Slot switch matches the REAL rail breakpoint — 768px, not 1024
+   (fixed July 30 after checking section 52: the rail + hidden
+   about-strip start at 768, so 768-1023 had no rabbit at all). */
+@media (max-width: 767px) {
+  .tgo-rabbit--banner { display: none; }
+  .tgo-rabbit-bubble { font-size: 1.15rem; padding: 6px 12px 8px; }
+}
+@media (min-width: 768px) {
+  .tgo-rabbit--strip { display: none; }
+}
+/* Foldable-width rails: the content column is tight, so the full
+   88px rabbit reads oversized — scale him down (Toby, July 30) */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .tgo-rabbit--banner { width: 64px; }
+}
+@media (max-width: 639px) {
+  .tgo-rabbit--strip { width: 52px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tgo-rabbit, .tgo-rabbit-bubble { transition: opacity 0.3s; }
+}
+
+
+/* ------------------------------------------------------------
+   76. EMAIL-TRUE PREVIEW PANE (July 29, 2026)
+   The reader pane was dressed in site clothes — warm bg, theme
+   webfonts, terracotta links. A real inbox strips all of that:
+   Toby's Gmail screenshot shows white paper, Georgia headings,
+   Arial body, and default blue underlined links (Gmail pins
+   unstyled message links to #1155CC). The preview now shows
+   what subscribers actually get. Inline-styled template pieces
+   (cards, buttons) are untouched — inline styles still win
+   here, same as in a mail client.
+   ------------------------------------------------------------ */
+
+/* White paper, day and night — email has no dark mode here */
+.newsletter-preview-panel { background: #FFFFFF; }
+
+/* Body copy: Arial, Gmail's default for unstyled text */
+body.type-newsletter .newsletter-preview-panel .page-body,
+body.type-newsletter .newsletter-preview-panel .page-body :is(p, li, blockquote p) {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Headings: Georgia, matching the template's inline font stack.
+   !important needed — the global h1–h6 rule pins
+   var(--font-display) with !important. */
+body.type-newsletter .newsletter-preview-panel .page-body :is(h1, h2, h3, h4, h5, h6) {
+  font-family: Georgia, 'Times New Roman', serif !important;
+}
+
+/* Links: Gmail blue with a plain solid underline.
+   COLOR — two layers, like Gmail: unstyled links go blue; links
+   the template inline-colors keep their inline color. Colorless
+   links need !important because the section 53 day-pins
+   (!important navy on card title links) would otherwise win —
+   in a real inbox those render blue (Toby's Gmail screenshot,
+   July 29). Note [style*="color"] also matches inline
+   background-color — close enough, template pieces set both.
+   UNDERLINE — !important to undo ".page-body a { text-decoration:
+   none !important }" (section 52), but skipped for links with an
+   inline text-decoration:none (both spellings), so template
+   buttons keep their button look exactly as Gmail honors them. */
+body.type-newsletter .newsletter-preview-panel .page-body a {
+  color: #1155CC;
+  text-underline-offset: auto;
+}
+body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="color"]) {
+  color: #1155CC !important;
+}
+body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-decoration:none"]):not([style*="text-decoration: none"]) {
+  text-decoration: underline solid currentColor !important;
 }

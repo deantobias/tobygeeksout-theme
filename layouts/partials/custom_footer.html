@@ -103,47 +103,61 @@
 </script>
 
 <script>
-/* Header clearance — detect page type by DOM, not body class */
+/* Header clearance — detect page type by DOM, not body class.
+   July 30, 2026: re-measures on resize. This used to run ONCE at
+   load, so a page loaded at rail width (header display:none,
+   measures 0) kept a stale -1px --header-actual-h if the window
+   was then narrowed into the mobile layout — "Hi, I'm Toby" and
+   page titles slid under the fixed header. Bit Toby in Brave,
+   whose classic scrollbars can also flip the layout band at the
+   same window size. */
 (function () {
   var main = document.getElementById('main-content');
   if (!main) return;
   var siteHeader = document.querySelector('.site-header');
-  var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 62;
 
-  // Subtract 1px so banner overlaps header bottom edge — prevents subpixel gap on mobile
-  document.documentElement.style.setProperty('--header-actual-h', (headerH - 1) + 'px');
+  var apply = function () {
+    var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 62;
 
-  // Post pages: .post-header has its own padding-top — zero out #main-content
-  if (document.querySelector('.post-header')) {
-    main.style.setProperty('padding-top', '0', 'important');
-    return;
-  }
+    // Subtract 1px so banner overlaps header bottom edge — prevents subpixel gap on mobile
+    document.documentElement.style.setProperty('--header-actual-h', (headerH - 1) + 'px');
 
-  // Newsletter reader: full-viewport email-client layout handles its own
-  // spacing and scrolling — zero out #main-content here too
-  if (document.querySelector('.newsletter-single')) {
-    main.style.setProperty('padding-top', '0', 'important');
-    return;
-  }
+    // Post pages: .post-header has its own padding-top — zero out #main-content
+    if (document.querySelector('.post-header')) {
+      main.style.setProperty('padding-top', '0', 'important');
+      return;
+    }
 
-  // Home page: .about-strip handles spacing
-  if (document.querySelector('.about-strip')) return;
+    // Newsletter reader: full-viewport email-client layout handles its own
+    // spacing and scrolling — zero out #main-content here too
+    if (document.querySelector('.newsletter-single')) {
+      main.style.setProperty('padding-top', '0', 'important');
+      return;
+    }
 
-  // Newsletter list: banner ::before handles spacing via margin-top
-  if (document.querySelector('.section-newsletters') ||
-      document.body.classList.contains('section-newsletters')) return;
+    // Home page: .about-strip handles spacing (via --header-actual-h above)
+    if (document.querySelector('.about-strip')) return;
 
-  // Desktop rail mode (July 22, 2026): the top header is display:none
-  // ≥1024px, so it measures 0 — a fixed 32px keeps page titles from
-  // hugging the viewport top instead of headerH+12 collapsing to 11px.
-  if (siteHeader && getComputedStyle(siteHeader).display === 'none') {
-    main.style.setProperty('padding-top', '32px', 'important');
-    return;
-  }
+    // Newsletter list: banner ::before handles spacing via margin-top
+    if (document.querySelector('.section-newsletters') ||
+        document.body.classList.contains('section-newsletters')) return;
 
-  // All other pages: push content below fixed header. +12 (was +32)
-  // so page titles sit close under the nav bar on every screen size.
-  main.style.setProperty('padding-top', (headerH + 12) + 'px', 'important');
+    // Desktop rail mode (July 22, 2026): the top header is display:none
+    // ≥1024px, so it measures 0 — a fixed 32px keeps page titles from
+    // hugging the viewport top instead of headerH+12 collapsing to 11px.
+    if (siteHeader && getComputedStyle(siteHeader).display === 'none') {
+      main.style.setProperty('padding-top', '32px', 'important');
+      return;
+    }
+
+    // All other pages: push content below fixed header. +12 (was +32)
+    // so page titles sit close under the nav bar on every screen size.
+    main.style.setProperty('padding-top', (headerH + 12) + 'px', 'important');
+  };
+
+  apply();
+  var t;
+  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(apply, 150); });
 })();
 </script>
 

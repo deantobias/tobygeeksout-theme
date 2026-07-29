@@ -37,15 +37,23 @@
 {{ end }}
 {{ $recent := first 6 $recentPool }}
 <div class="about-strip">
+  {{/* Mobile slot for the Spotlight rabbit (July 30, 2026) — on
+       phones/tablets the Spotlight sits below the fold, so the
+       rabbit peeks in next to "Hi, I'm Toby" instead. CSS section
+       75 shows exactly one slot per breakpoint; the greet script
+       below the banner drives whichever is visible. */}}
+  <div class="tgo-rabbit tgo-rabbit--strip" aria-hidden="true">
+    <span class="tgo-rabbit-bubble">Hey!</span>
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" loading="eager">
+  </div>
   <div class="about-text">
     <strong>Hi, I'm Toby</strong>
     <p class="about-greeting">Thanks for stopping by.</p>
     <p class="about-tagline" id="tgo-tagline" aria-live="polite">Technogeek.</p>
+    {{/* About + Now trimmed July 30, 2026 (Toby): both already live
+         in the nav — the greeting row keeps only the one link the
+         nav doesn't have. */}}
     <div class="about-links">
-      <a href="https://tobygeeksout.micro.blog/about-me/">About</a>
-      <span>·</span>
-      <a href="https://tobygeeksout.micro.blog/now/">Now</a>
-      <span>·</span>
       <a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
     </div>
   </div>
@@ -82,6 +90,38 @@
 {{ range first 1 $spotlightPosts }}
 {{ if .Title }}
 <div class="featured-banner">
+  {{/* Spotlight rabbit (July 29, 2026) — Toby's mascot, drawn by him
+       in Canva (transparent PNG, art bleeds off its own right edge).
+       Anchored to the banner's right side, scrolls with the page.
+       First visit per 24h: slides in and says Hey! in Caveat, then
+       stays full size (no shrink — that was for the old fixed-pin
+       plan). Repeat visits inside 24h: just sits there. Styled in
+       custom.css section 75. */}}
+  <div class="tgo-rabbit tgo-rabbit--banner" aria-hidden="true">
+    <span class="tgo-rabbit-bubble">Hey!</span>
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" loading="eager">
+  </div>
+  <script>
+  (function () {
+    var rabbits = document.querySelectorAll('.tgo-rabbit');
+    if (!rabbits.length) return;
+    var bubbles = document.querySelectorAll('.tgo-rabbit-bubble');
+    var KEY = 'tgo-rabbit-greet';
+    var DAY = 24 * 60 * 60 * 1000;
+    var last = 0;
+    try { last = Number(localStorage.getItem(KEY) || 0); } catch (e) {}
+    var setIn = function () { rabbits.forEach(function (r) { r.classList.add('is-in'); }); };
+    if (Date.now() - last < DAY) { setIn(); return; }
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap';
+    document.head.appendChild(l);
+    setTimeout(setIn, 400);
+    setTimeout(function () { bubbles.forEach(function (b) { b.classList.add('is-shown'); }); }, 1100);
+    setTimeout(function () { bubbles.forEach(function (b) { b.classList.remove('is-shown'); }); }, 5100);
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+  })();
+  </script>
   <div class="featured-shell">
     <div class="featured-inner">
       <div class="featured-eyebrow">

@@ -82,9 +82,38 @@
        in an unclassed <p> on the old ones. Priority 2: an element
        holding nothing but a year. Priority 3: the "(2026)" in the
        post title. */}}
-  {{ $relFull := "" }}{{ $relYear := "" }}{{ $altByline := "" }}
+  {{ $relFull := "" }}{{ $relYear := "" }}{{ $relMY := "" }}{{ $altByline := "" }}
   {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
     {{ $relFull = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+  {{ end }}
+  {{/* ---- Priority 1b - the FOURTH card format, right on schedule
+       (July 29): a FULL date and the director sharing one line,
+       "June 26, 2026 · Malcolm D. Lee" - Strung and Kraken, after
+       Toby upgraded their year-only lines to full dates. Same shape
+       as 2b below, full date instead of bare year: the date comes off
+       the front, the remainder is kept as a byline candidate. */}}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*[^<\w\s][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relFull = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{/* ---- Priority 1c (Toby, July 29): month-and-year only,
+       "October 2026" - alone in its element or in front of the
+       director. Groups under that month; a month that has fully
+       passed goes to Out now. */}}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+      {{ $relMY = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if and (not $relFull) (not $relMY) }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*[^<\w\s,][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relMY = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
   {{ end }}
   {{ if not $relFull }}
     {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
@@ -141,6 +170,20 @@
       {{ $groupKey = printf "2-%s-%s" $yr $mm }}
       {{ $groupLabel = printf "%s %s" $mo $yr }}
     {{ end }}
+  {{ else if $relMY }}
+    {{ $bits := split $relMY " " }}
+    {{ $mo := index $bits 0 }}
+    {{ $yr := index $bits 1 }}
+    {{ $mm := index $mNum $mo }}
+    {{ $dateKey = printf "%s-%s-99" $yr $mm }}
+    {{ $relLabel = $relMY }}
+    {{ if lt (printf "%s-%s" $yr $mm) (substr $today 0 7) }}
+      {{/* the whole month is behind us - it's out */}}
+      {{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}
+    {{ else }}
+      {{ $groupKey = printf "2-%s-%s" $yr $mm }}
+      {{ $groupLabel = printf "%s %s" $mo $yr }}
+    {{ end }}
   {{ else if $relYear }}
     {{ $dateKey = printf "%s-99-99" $relYear }}
     {{ $relLabel = $relYear }}
@@ -183,12 +226,29 @@
   {{ with findRE `(?s)<p[^>]*movie-card-byline[^>]*>.*?</p>` .Content 1 }}
     {{ $byline = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
   {{ end }}
-  {{ if or (eq $byline $relFull) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*$` $byline 1) }}
+  {{/* ...and a byline that is nothing but a bare year (Scooby-Doo:
+       Origins, July 29 - its byline slot holds "2027" with the
+       director unknown) prints the year twice. Any year-only or
+       month-year-only byline is the date wearing the wrong hat. */}}
+  {{ if or (eq $byline $relFull) (eq $byline $relMY) (eq $byline $relYear) (findRE `^\s*(?:19|20)\d{2}\s*$` $byline 1) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*$` $byline 1) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*$` $byline 1) }}
     {{ $byline = "" }}
   {{ end }}
   {{/* The "2026 · Director" cards have no .movie-card-byline at all,
        so the director recovered above is used when nothing else set one. */}}
   {{ if not $byline }}{{ $byline = $altByline }}{{ end }}
+
+  {{/* ---- Production status (Toby, July 29). Going forward a card
+       carries either a full release date OR a year plus a status
+       line ("In Production", "Post Production"). The status shows on
+       the queue ONLY when there is no full date - "2027 · In
+       Production" explains a missing date; on a dated card it's
+       trivia. */}}
+  {{ $status := "" }}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<p[^>]*movie-card-prodstatus[^>]*>.*?</p>` .Content 1 }}
+      {{ $status = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+    {{ end }}
+  {{ end }}
 
   {{/* ---- Dormant ratings hook, see the note at the top. */}}
   {{ $stars := "" }}
@@ -196,7 +256,7 @@
 
   {{ $items = $items | append (dict
       "url" .Permalink "title" $t "cover" $cover "byline" $byline
-      "stars" $stars "added" (.Date.Format "Jan 2, 2006")
+      "stars" $stars "status" $status "added" (.Date.Format "Jan 2, 2006")
       "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
       "dateKey" $dateKey) }}
 {{ end }}
@@ -238,8 +298,12 @@
           <span class="queue-title">{{ .title }}</span>
           {{ with .rel }}<span class="queue-rel">{{ . }}</span>{{ end }}
           {{ with .byline }}<span class="queue-byline">{{ . }}</span>{{ end }}
+          {{ with .status }}<span class="queue-status">{{ . }}</span>{{ end }}
           {{ with .stars }}<span class="queue-stars">{{ . }}</span>{{ end }}
-          <span class="queue-added">Added {{ .added }}</span>
+          {{/* "Added {{ .added }}" line removed (Toby, July 29) -
+               every entry now carries a release date, so the added-on
+               date was clutter. The .added field is still built above;
+               restore this span to bring it back. */}}
         </span>
       </a>
       {{ end }}

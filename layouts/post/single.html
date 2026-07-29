@@ -25,7 +25,17 @@
         {{ end }}
       </div>
       {{ if .Title }}
-        <h1 class="post-header-title p-name">{{ .Title }}</h1>
+        {{/* A leading emoji gets its own span (July 29): the title
+             gradient paints via background-clip: text, which turns
+             emoji into solid silhouettes. The span opts the emoji
+             back out (custom.css, .title-emoji). Same char class as
+             the queue shortcode's emoji stripper. */}}
+        {{ $emoji := "" }}{{ $rest := .Title }}
+        {{ with findRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+` .Title 1 }}
+          {{ $emoji = index . 0 }}
+          {{ $rest = strings.TrimPrefix $emoji $.Title }}
+        {{ end }}
+        <h1 class="post-header-title p-name">{{ with $emoji }}<span class="title-emoji">{{ . }}</span>{{ end }}{{ $rest }}</h1>
       {{ end }}
       <div class="post-header-meta">
         {{/* u-url + dt-published: the visible date doubles as the
@@ -60,32 +70,64 @@
     {{ end }}
   </div>
 
-  {{/* Compact subscribe line — catches new readers who land on a post
-       from a link/search and never see the home page strip. One quiet
-       row, right where someone who just finished (and liked) the post
-       is looking. RSS button reuses the home strip's copy-to-clipboard
-       script (custom_footer.html targets #tgo-rss-copy; only one page
-       type has the button at a time, so the id stays unique). */}}
-  <div class="post-subscribe">
-    <span class="post-subscribe-text">Enjoyed this? Get new posts in your inbox.</span>
-    <span class="post-subscribe-actions">
-      {{/* Short label on purpose — the line's text already says "get
-           new posts in your inbox", so the button doesn't repeat it.
-           Keeps the two pills balanced instead of one long, one stubby. */}}
-      <a class="post-subscribe-email" href="https://tobygeeksout.micro.blog/subscribe/">
-        {{ partial "icon.html" (dict "name" "mail") }} Email
-      </a>
-      <button type="button" class="post-subscribe-rss btn-subscribe-quiet" id="tgo-rss-copy"
-        data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
-        {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
-        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-        <span class="tgo-rss-label">RSS</span>
-      </button>
-    </span>
-  </div>
-
-  <div class="reply-email-wrap">
-    {{ partial "reply-by-email.html" . }}
+  {{/* Connect & Share (July 29, 2026) — replaces the old subscribe
+       line AND the standalone Reply by Email row. One card, two rows:
+       Follow (email, RSS, JSON — the feed pills copy their URL via
+       custom_footer's .tgo-rss-copy clipboard script) and Share
+       (Micro.blog app-or-web, Bluesky, Mastodon ask-once instance,
+       copy link, reply by email). Share text comes from data-title/
+       data-url; the script sits near the end of this template.
+       Styled in custom.css section 43. */}}
+  {{ $shareText := .Permalink }}{{ with .Title }}{{ $shareText = printf "%s %s" . $.Permalink }}{{ end }}
+  <div class="connect-share" id="connect-share" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+    <p class="connect-share-heading">Connect &amp; Share</p>
+    <p class="connect-share-tagline">Enjoyed this? Get new posts in your inbox.</p>
+    <div class="connect-share-row">
+      <span class="connect-share-label">Follow</span>
+      <span class="connect-share-pills">
+        <a class="cs-pill cs-pill--solid" href="https://tobygeeksout.micro.blog/subscribe/">
+          {{ partial "icon.html" (dict "name" "mail") }} Email
+        </a>
+        <button type="button" class="cs-pill tgo-rss-copy"
+          data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
+          {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+          {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+          <span class="tgo-rss-label">RSS</span>
+        </button>
+        <button type="button" class="cs-pill tgo-rss-copy" data-feed-url="{{ .Site.BaseURL }}feed.json">
+          {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
+          {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+          <span class="tgo-rss-label">JSON</span>
+        </button>
+      </span>
+    </div>
+    <div class="connect-share-row">
+      <span class="connect-share-label">Share</span>
+      <span class="connect-share-pills">
+        <button type="button" class="cs-pill" id="cs-microblog">
+          {{ partial "icon.html" (dict "name" "microblog") }} Micro.blog
+        </button>
+        <a class="cs-pill" href="https://bsky.app/intent/compose?text={{ $shareText | urlquery }}" target="_blank" rel="noopener">
+          {{ partial "icon.html" (dict "name" "bluesky") }} Bluesky
+        </a>
+        <button type="button" class="cs-pill" id="cs-mastodon">
+          {{ partial "icon.html" (dict "name" "mastodon") }} Mastodon
+        </button>
+        <button type="button" class="cs-pill tgo-rss-copy" data-feed-url="{{ .Permalink }}">
+          {{ partial "icon.html" (dict "name" "link" "class" "tgo-rss-icon") }}
+          {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+          <span class="tgo-rss-label">Copy link</span>
+        </button>
+        {{ partial "reply-by-email.html" . }}
+      </span>
+    </div>
+    <div class="cs-masto-prompt" id="cs-masto-prompt" hidden>
+      <label for="cs-masto-input">Type your Mastodon instance — it'll be remembered next time:</label>
+      <span class="cs-masto-controls">
+        <input type="text" id="cs-masto-input" placeholder="mastodon.social" autocomplete="off" spellcheck="false">
+        <button type="button" class="cs-pill cs-pill--solid" id="cs-masto-go">Go</button>
+      </span>
+    </div>
   </div>
 
   {{ if and .Permalink .Params.categories (ne .Title "Short Stack") }}
@@ -221,6 +263,65 @@
     </nav>
   {{ end }}
 {{ end }}
+
+<script>
+/* Connect & Share (July 29, 2026): Micro.blog tries the app's URL
+   scheme and falls back to the web composer if nothing takes the
+   page out of view; Mastodon asks for the reader's instance once
+   (localStorage tgo-masto-instance), then goes straight to that
+   server's /share page. Feed + copy-link pills are handled by
+   custom_footer's .tgo-rss-copy clipboard script. */
+(function () {
+  var box = document.getElementById('connect-share');
+  if (!box) return;
+  var url = box.getAttribute('data-url') || location.href;
+  var title = box.getAttribute('data-title') || '';
+  var plainText = title ? title + ' ' + url : url;
+
+  var mb = document.getElementById('cs-microblog');
+  if (mb) mb.addEventListener('click', function () {
+    var text = encodeURIComponent(title ? '[' + title + '](' + url + ')' : url);
+    var timer = setTimeout(function () {
+      window.open('https://micro.blog/post?text=' + text, '_blank', 'noopener');
+    }, 900);
+    var cancel = function () {
+      if (document.hidden) { clearTimeout(timer); document.removeEventListener('visibilitychange', cancel); }
+    };
+    document.addEventListener('visibilitychange', cancel);
+    window.location.href = 'microblog://post?text=' + text;
+  });
+
+  var masto = document.getElementById('cs-mastodon');
+  var prompt = document.getElementById('cs-masto-prompt');
+  var input = document.getElementById('cs-masto-input');
+  var go = document.getElementById('cs-masto-go');
+  var KEY = 'tgo-masto-instance';
+  function cleanInstance(v) {
+    v = (v || '').trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    if (v.indexOf('@') !== -1) v = v.split('@').pop();
+    return v;
+  }
+  function mastoShare(instance) {
+    window.open('https://' + instance + '/share?text=' + encodeURIComponent(plainText), '_blank', 'noopener');
+  }
+  function submitMasto() {
+    var instance = cleanInstance(input.value);
+    if (!instance || instance.indexOf('.') === -1) { input.focus(); return; }
+    try { localStorage.setItem(KEY, instance); } catch (e) {}
+    prompt.hidden = true;
+    mastoShare(instance);
+  }
+  if (masto) masto.addEventListener('click', function () {
+    var saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
+    if (saved) { mastoShare(saved); return; }
+    prompt.hidden = false;
+    input.focus();
+  });
+  if (go) go.addEventListener('click', submitMasto);
+  if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitMasto(); });
+})();
+</script>
 
 {{ if $isLongRead }}
 <script>

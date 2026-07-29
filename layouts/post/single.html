@@ -130,6 +130,19 @@
     </div>
   </div>
 
+
+
+  {{/* Join the conversation (July 29, 2026) — moved up from below
+       the article: replies are about THIS post, so they sit right
+       after Connect & Share, before the More-like-this exit ramp.
+       Micro.blog's script renders nothing when there are no
+       replies, so quiet posts show no gap. */}}
+  {{ if and .Site.Params.include_conversation .Permalink }}
+    <div class="post-conversation">
+      <p class="post-conversation-label">Join the conversation</p>
+      <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
+    </div>
+  {{ end }}
   {{ if and .Permalink .Params.categories (ne .Title "Short Stack") }}
     {{ $currentPermalink := .Permalink }}
 
@@ -226,16 +239,7 @@
   </div>
 </article>
 
-{{ if .Site.Params.include_conversation }}
-  <div style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-xl) var(--space-2xl);">
-    <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-xl); margin-top: var(--space-xl);">
-      <p style="font-family: var(--font-body); font-size: 0.875rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-text-light); margin-bottom: var(--space-md);">Join the conversation</p>
-      {{ if .Permalink }}
-        <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
-      {{ end }}
-    </div>
-  </div>
-{{ end }}
+
 
 {{ if eq .Type "post" }}
   {{ $prev := .PrevInSection }}

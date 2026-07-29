@@ -2130,6 +2130,10 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .microblog_reply_button input[type="submit"]:hover { background-color: var(--color-terra-dark); }
 
+/* Breathing room under the Post button so it doesn't sit on the
+   divider below the conversation (July 29, 2026) */
+.microblog_reply_button { margin-bottom: var(--space-lg); }
+
 /* --- Replies (avatar / name / text / time) --- */
 
 .microblog_post {
@@ -2188,6 +2192,29 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .microblog_time a:hover { text-decoration: underline; }
+
+/* Visible links in the conversation (July 29, 2026, Toby's call):
+   the sign-in line and links inside replies get the same terracotta
+   wavy underline as post-body links, so "Sign in" and mentioned
+   URLs/handles read as clickable instead of plain text. Commenter
+   names stay clean, underlining on hover only. */
+.microblog_reply_signin a,
+.microblog_text a {
+  color: var(--color-terra);
+  text-decoration: underline wavy;
+  text-decoration-color: var(--color-terra);
+  text-underline-offset: 5.5px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+.microblog_reply_signin a:hover,
+.microblog_text a:hover {
+  color: var(--color-terra-dark);
+  text-decoration-color: var(--color-terra-dark);
+}
+
+.microblog_user a { text-decoration: none; }
+.microblog_user a:hover .microblog_fullname { text-decoration: underline; text-underline-offset: 3px; }
 
 
 /* ------------------------------------------------------------
@@ -3658,6 +3685,30 @@ table.link-card a[style*="inline-block"] {
 @media (max-width: 560px) {
   .connect-share-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .connect-share-label { flex: none; }
+}
+
+/* Join the conversation — moved inside the article July 29, 2026,
+   right after the Connect & Share card (was below the article with
+   inline styles). Same width geometry as the card so they align. */
+.post-conversation {
+  max-width: 980px;
+  margin: var(--space-lg) auto var(--space-xl);
+  font-family: var(--font-body);
+}
+.post-conversation-label {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin: 0 0 var(--space-md);
+}
+@media (max-width: 1023px) {
+  .post-conversation {
+    margin-left: var(--space-xl);
+    margin-right: var(--space-xl);
+  }
 }
 
 /* ------------------------------------------------------------

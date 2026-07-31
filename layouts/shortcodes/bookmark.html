@@ -1,0 +1,425 @@
+{{/* ------------------------------------------------------------
+     THE BOOKMARK (July 31, 2026, Toby's design)
+     Shortcode for the /the-bookmark/ page. A reading calendar:
+     a real month grid with book covers sitting on the dates Toby
+     posted about them, plus "The Log", a dated timeline underneath.
+     Tapping a day's covers opens a popup card (bottom sheet on
+     phones) with progress bar + a "Read my post" button — chosen
+     over hover because hover does not exist on touch screens.
+
+     WHAT COUNTS AS AN EVENT — every post in the Currently Reading
+     category (progress updates, parsed the way the home Bookshelf
+     parses them: plainify FIRST, then "Page X of Y" and "NN%"),
+     plus every post in Book Reviews (those count as Finished and
+     carry their star run). No such review post exists yet — the
+     code path is dormant until the first one, same as the home
+     page's Book Reviews tiles.
+
+     WHO DECIDES THE EVENT TYPE — the browser, not Hugo. Hugo only
+     ships facts (date, title, author, cover, page, pct, stars) as
+     JSON; the script groups events per book and labels the
+     EARLIEST post of a book "Started", anything at 100% or from
+     Book Reviews "Finished", the rest "Progress". Done client-side
+     because "earliest per book" needs the whole set in hand, and
+     the calendar grid itself is drawn in JS anyway — Hugo has no
+     sane way to lay out arbitrary month grids.
+
+     EXTRACTION mirrors index.html's Currently Reading block and
+     queue.html's cover rule: title from the card's own <h3>
+     (post title as fallback with the "Currently Reading:" prefix
+     stripped), author from .book-card-byline (dropped if it
+     carries a digit — that slot holding a date is a movie-card
+     disease we do not want to catch), cover from the poster cell
+     first (host-agnostic, Toby's hand-picked covers win) with the
+     known-host sweep as fallback, curl artifact stripped and zoom
+     normalised to 2 (300px) on the way out.
+
+     Do NOT write the escaped form of the shortcode call inside
+     this comment - the escape sequence ends a Hugo comment early
+     and the template fails to parse. Cost one build on the queue.
+     Styles: custom.css section 77.
+     ------------------------------------------------------------ */}}
+
+{{ $events := slice }}
+
+{{ range (where .Site.Pages "Type" "post").ByDate }}
+{{ $cats := .Params.categories }}
+{{ $isCR := false }}{{ $isBR := false }}
+{{ range $cats }}
+  {{ if eq . "Currently Reading" }}{{ $isCR = true }}{{ end }}
+  {{ if eq . "Book Reviews" }}{{ $isBR = true }}{{ end }}
+{{ end }}
+{{ if or $isCR $isBR }}
+
+  {{/* ---- Title: the card's own h3, like the queue. Fallback to the
+       post title minus the "Currently Reading:" prefix. */}}
+  {{ $t := "" }}
+  {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+    {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if not $t }}
+    {{ $t = replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+  {{ end }}
+
+  {{/* ---- Author: the book card's byline. A byline with a digit in
+       it is not an author. */}}
+  {{ $author := "" }}
+  {{ with findRE `(?s)<p[^>]*book-card-byline[^>]*>.*?</p>` .Content 1 }}
+    {{ $author = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if findRE `\d` $author 1 }}{{ $author = "" }}{{ end }}
+
+  {{/* ---- Progress. Plainify FIRST (the home page's hard-won lesson:
+       raw HTML matches width:100% from the card's own styles). */}}
+  {{ $plain := .Content | plainify }}
+  {{ $page := 0 }}{{ $total := 0 }}{{ $pct := -1 }}
+  {{ with findRE `Page \d+ of \d+` $plain 1 }}
+    {{ $bits := findRE `\d+` (index . 0) }}
+    {{ $page = int (index $bits 0) }}
+    {{ $total = int (index $bits 1) }}
+  {{ end }}
+  {{ with findRE `\d{1,3}%` $plain 1 }}
+    {{ $pct = int (replaceRE `%` "" (index . 0)) }}
+  {{ end }}
+  {{ if and (eq $pct -1) (gt $total 0) }}
+    {{ $pct = int (math.Round (mul (div (float $page) (float $total)) 100)) }}
+  {{ end }}
+  {{ if eq $pct -1 }}{{ $pct = 0 }}{{ end }}
+
+  {{/* ---- Cover: poster cell first, known hosts second, curl/zoom
+       fixed on the way out. Verbatim from index.html / queue.html. */}}
+  {{ $cover := "" }}
+  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+  {{ end }}
+  {{ if not $cover }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "books.google.com") (in $u "cdn.micro.blog/books") (in $u "cdn.uploads.micro.blog")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+
+  {{/* ---- Stars, read the proven way: longest run wins is not needed
+       here because tag-stripped plain text collapses the grey span. */}}
+  {{ $stars := "" }}
+  {{ with findRE `[★☆½]{2,}` $plain 1 }}{{ $stars = index . 0 }}{{ end }}
+
+  {{ $events = $events | append (dict
+      "date" (.Date.Format "2006-01-02")
+      "title" $t
+      "author" $author
+      "cover" $cover
+      "page" $page
+      "total" $total
+      "pct" $pct
+      "stars" $stars
+      "review" $isBR
+      "url" .Permalink) }}
+{{ end }}
+{{ end }}
+
+<div class="bookmark">
+
+{{ if $events }}
+
+  <p class="bm-tagline">Where I am in every book, day by day.</p>
+
+  <div class="bm-legend" aria-hidden="true">
+    <span><i class="bm-dot bm-dot--started"></i> Started</span>
+    <span><i class="bm-dot bm-dot--progress"></i> Progress</span>
+    <span><i class="bm-dot bm-dot--finished"></i> Finished</span>
+  </div>
+
+  {{/* One dataset, two views (Toby, July 31: "both basically do the
+       same thing"). A toggle shows one at a time; the default is
+       Calendar on wide screens and The Log on phones, where a
+       7-column grid is cramped. The choice lives in a variable,
+       not localStorage — no storage APIs. */}}
+  <div class="bm-toggle" role="tablist" aria-label="View">
+    <button class="bm-toggle-btn" id="bmViewCal" role="tab">📅 Calendar</button>
+    <button class="bm-toggle-btn" id="bmViewLog" role="tab">📜 The Log</button>
+  </div>
+
+  <section class="bm-cal" id="bmCalSection" aria-label="Reading calendar">
+    <div class="bm-cal-head">
+      <button class="bm-nav" id="bmPrev" aria-label="Previous month">←</button>
+      <h2 class="bm-cal-title" id="bmTitle"></h2>
+      <button class="bm-nav" id="bmNext" aria-label="Next month">→</button>
+    </div>
+    <div class="bm-grid" id="bmGrid"></div>
+  </section>
+
+  <section class="bm-log" id="bmLogSection" aria-label="Reading log timeline">
+    <div class="bm-timeline" id="bmTimeline"></div>
+  </section>
+
+  <div class="bm-backdrop" id="bmBackdrop"></div>
+  <div class="bm-sheet" id="bmSheet" role="dialog" aria-modal="true" aria-labelledby="bmSheetDate">
+    <button class="bm-sheet-close" id="bmSheetClose" aria-label="Close">✕</button>
+    <div class="bm-sheet-date" id="bmSheetDate"></div>
+    <div id="bmSheetBody"></div>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+    var EVENTS = {{ $events | jsonify | safeJS }};
+    var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    var TYPE_LABEL = { started: "Started", progress: "Progress update", finished: "Finished" };
+
+    // ---- label event types: earliest post per book = Started,
+    // 100% or a review = Finished, everything else = Progress.
+    var byBook = {};
+    EVENTS.forEach(function (e) {
+      var k = e.title.toLowerCase();
+      (byBook[k] = byBook[k] || []).push(e);
+    });
+    Object.keys(byBook).forEach(function (k) {
+      var list = byBook[k].sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      list.forEach(function (e, i) {
+        if (e.review || e.pct >= 100) { e.type = "finished"; }
+        else if (i === 0) { e.type = "started"; }
+        else { e.type = "progress"; }
+      });
+    });
+
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function eventsOn(ds) { return EVENTS.filter(function (e) { return e.date === ds; }); }
+    function prettyDate(ds) {
+      var p = ds.split("-");
+      return MONTHS[+p[1] - 1] + " " + (+p[2]) + ", " + p[0];
+    }
+
+    // ---- month range: earliest event month → the later of the
+    // newest event month and the real today.
+    var dates = EVENTS.map(function (e) { return e.date; }).sort();
+    var today = new Date();
+    var todayStr = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
+    var MIN = { y: +dates[0].slice(0, 4), m: +dates[0].slice(5, 7) - 1 };
+    var lastStr = dates[dates.length - 1] > todayStr ? dates[dates.length - 1] : todayStr;
+    var MAX = { y: +lastStr.slice(0, 4), m: +lastStr.slice(5, 7) - 1 };
+    var view = { y: MAX.y, m: MAX.m };
+
+    function renderCal() {
+      var y = view.y, m = view.m;
+      document.getElementById("bmTitle").textContent = MONTHS[m] + " " + y;
+      document.getElementById("bmPrev").disabled = (y === MIN.y && m === MIN.m);
+      document.getElementById("bmNext").disabled = (y === MAX.y && m === MAX.m);
+
+      var grid = document.getElementById("bmGrid");
+      grid.innerHTML = "";
+      DOW.forEach(function (d) {
+        var el = document.createElement("div");
+        el.className = "bm-dow"; el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      var first = new Date(y, m, 1).getDay();
+      var days = new Date(y, m + 1, 0).getDate();
+      var hasAny = false;
+
+      for (var i = 0; i < first; i++) {
+        var e0 = document.createElement("div");
+        e0.className = "bm-cell bm-cell--empty";
+        grid.appendChild(e0);
+      }
+      for (var d = 1; d <= days; d++) {
+        var ds = y + "-" + pad(m + 1) + "-" + pad(d);
+        var cell = document.createElement("div");
+        cell.className = "bm-cell" + (ds === todayStr ? " bm-cell--today" : "");
+        var num = document.createElement("span");
+        num.className = "bm-daynum"; num.textContent = d;
+        cell.appendChild(num);
+
+        var evs = eventsOn(ds);
+        if (evs.length) {
+          hasAny = true;
+          var dots = document.createElement("span");
+          dots.className = "bm-cell-dots";
+          evs.forEach(function (e) {
+            var dot = document.createElement("i");
+            dot.className = "bm-dot bm-dot--" + e.type;
+            dots.appendChild(dot);
+          });
+          cell.appendChild(dots);
+
+          var btn = document.createElement("button");
+          btn.className = "bm-stack";
+          btn.setAttribute("aria-label", evs.length + " reading update" + (evs.length > 1 ? "s" : "") + " on " + MONTHS[m] + " " + d);
+          evs.slice(0, 3).forEach(function (e) {
+            if (e.cover) {
+              var img = document.createElement("img");
+              img.src = e.cover; img.alt = e.title;
+              img.loading = "lazy"; img.decoding = "async";
+              btn.appendChild(img);
+            } else {
+              var ph = document.createElement("span");
+              ph.className = "bm-stack-empty";
+              ph.textContent = e.title.charAt(0);
+              btn.appendChild(ph);
+            }
+          });
+          if (evs.length > 1) {
+            var badge = document.createElement("span");
+            badge.className = "bm-count"; badge.textContent = evs.length;
+            btn.appendChild(badge);
+          }
+          btn.addEventListener("click", openSheet.bind(null, ds));
+          cell.appendChild(btn);
+        }
+        grid.appendChild(cell);
+      }
+      if (!hasAny) {
+        var msg = document.createElement("div");
+        msg.className = "bm-empty-msg";
+        msg.textContent = "No reading logged this month — the books were waiting patiently.";
+        grid.appendChild(msg);
+      }
+    }
+
+    document.getElementById("bmPrev").addEventListener("click", function () {
+      if (view.m === 0) { view.m = 11; view.y--; } else { view.m--; }
+      renderCal();
+    });
+    document.getElementById("bmNext").addEventListener("click", function () {
+      if (view.m === 11) { view.m = 0; view.y++; } else { view.m++; }
+      renderCal();
+    });
+
+    // ---- popup
+    var backdrop = document.getElementById("bmBackdrop");
+    var sheet = document.getElementById("bmSheet");
+
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function openSheet(ds) {
+      document.getElementById("bmSheetDate").textContent = prettyDate(ds);
+      var body = document.getElementById("bmSheetBody");
+      body.innerHTML = "";
+      eventsOn(ds).forEach(function (e) {
+        var row = el("div", "bm-entry");
+        if (e.cover) {
+          var img = document.createElement("img");
+          img.src = e.cover; img.alt = "Cover of " + e.title;
+          row.appendChild(img);
+        } else {
+          row.appendChild(el("span", "bm-entry-empty", e.title.charAt(0)));
+        }
+        var info = el("div");
+        info.appendChild(el("span", "bm-pill bm-pill--" + e.type, TYPE_LABEL[e.type]));
+        info.appendChild(el("h3", null, e.title));
+        if (e.author) info.appendChild(el("div", "bm-author", e.author));
+        if (e.stars) info.appendChild(el("div", "bm-stars", e.stars));
+        var wrap = el("div", "bm-progress-wrap");
+        var track = el("div", "bm-progress-track");
+        var fill = el("div", "bm-progress-fill" + (e.type === "finished" ? " bm-progress-fill--done" : ""));
+        fill.setAttribute("data-pct", e.pct);
+        track.appendChild(fill); wrap.appendChild(track);
+        var label = el("div", "bm-progress-label");
+        label.appendChild(el("span", null, e.total ? "Page " + e.page + " of " + e.total : ""));
+        var strong = el("strong", null, e.pct + "%");
+        label.appendChild(strong);
+        wrap.appendChild(label);
+        info.appendChild(wrap);
+        // Plain permalink, not a button (Toby, July 31): a progress
+        // post has nothing more to read, so a "Read my post" CTA
+        // oversells the click.
+        var a = el("a", "bm-permalink", "Permalink →");
+        a.href = e.url;
+        info.appendChild(a);
+        row.appendChild(info);
+        body.appendChild(row);
+      });
+      backdrop.classList.add("open");
+      sheet.classList.add("open");
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          body.querySelectorAll(".bm-progress-fill").forEach(function (f) {
+            f.style.width = f.getAttribute("data-pct") + "%";
+          });
+        });
+      });
+    }
+    function closeSheet() {
+      backdrop.classList.remove("open");
+      sheet.classList.remove("open");
+    }
+    backdrop.addEventListener("click", closeSheet);
+    document.getElementById("bmSheetClose").addEventListener("click", closeSheet);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+
+    // ---- timeline
+    var tl = document.getElementById("bmTimeline");
+    var byDate = {};
+    EVENTS.forEach(function (e) { (byDate[e.date] = byDate[e.date] || []).push(e); });
+    Object.keys(byDate).sort().reverse().forEach(function (ds) {
+      var day = el("div", "bm-tl-day");
+      day.appendChild(el("div", "bm-tl-date", prettyDate(ds)));
+      {{/* Log cards are plain permalinks (Toby, July 31) — the card
+           already shows everything the popup would, so it links
+           straight to the post. The popup belongs to the calendar,
+           where the covers are too small to carry the info. */}}
+      byDate[ds].forEach(function (e) {
+        var card = el("a", "bm-tl-card");
+        card.href = e.url;
+        if (e.cover) {
+          var img = document.createElement("img");
+          img.src = e.cover; img.alt = "";
+          img.loading = "lazy"; img.decoding = "async";
+          card.appendChild(img);
+        } else {
+          card.appendChild(el("span", "bm-tl-empty", e.title.charAt(0)));
+        }
+        var info = el("div");
+        info.appendChild(el("h3", null, e.title));
+        var meta = TYPE_LABEL[e.type];
+        if (e.total) meta += " · Page " + e.page + " of " + e.total;
+        meta += " · " + e.pct + "%";
+        info.appendChild(el("div", "bm-tl-meta", meta));
+        var track = el("div", "bm-mini-track");
+        var fill = el("div", "bm-mini-fill");
+        fill.style.width = e.pct + "%";
+        track.appendChild(fill);
+        info.appendChild(track);
+        card.appendChild(info);
+        day.appendChild(card);
+      });
+      tl.appendChild(day);
+    });
+
+    // ---- view toggle: calendar by default on wide screens, The Log
+    // on phones. Choice held in a variable only for this visit.
+    var calBtn = document.getElementById("bmViewCal");
+    var logBtn = document.getElementById("bmViewLog");
+    var calSec = document.getElementById("bmCalSection");
+    var logSec = document.getElementById("bmLogSection");
+    function setView(v) {
+      var cal = v === "cal";
+      calSec.style.display = cal ? "" : "none";
+      logSec.style.display = cal ? "none" : "";
+      calBtn.classList.toggle("is-active", cal);
+      logBtn.classList.toggle("is-active", !cal);
+      calBtn.setAttribute("aria-selected", cal ? "true" : "false");
+      logBtn.setAttribute("aria-selected", cal ? "false" : "true");
+    }
+    calBtn.addEventListener("click", function () { setView("cal"); });
+    logBtn.addEventListener("click", function () { setView("log"); });
+    setView(window.matchMedia("(max-width: 600px)").matches ? "log" : "cal");
+
+    renderCal();
+  })();
+  </script>
+
+{{ else }}
+  <p class="bm-empty">Nothing on the bookmark yet — the reading starts soon.</p>
+{{ end }}
+
+</div>

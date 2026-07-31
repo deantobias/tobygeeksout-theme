@@ -126,6 +126,44 @@
 
   <p class="bm-tagline">Where I am in every book, day by day.</p>
 
+  {{/* Goal strip (Toby, July 31): pulls the REAL bookshelf goal.
+       Micro.blog publishes .Site.Data.bookgoals keyed by year with
+       .value (target) and .progress (finished count, tracked by the
+       Finished shelf) — found in the official plugin-bookgoals
+       source. So the target updates when Toby sets a new year's
+       goal in Bookshelves, and the meter fills when he shelves a
+       book as finished, review post or not. Fallbacks, in order:
+       goal="N" param on the shortcode call, then 10; progress
+       falls back to counting Finished events from posts. The
+       books-ON-THE-GO count stays post-driven on purpose (Toby,
+       July 31: shelf says 4, posts say 3 — posts win until he
+       posts the 4th card). No promises, just pages. */}}
+  {{ $goalVal := 0 }}{{ $goalDone := -1 }}{{ $goalBooks := slice }}
+  {{ with .Site.Data.bookgoals }}
+    {{ with index . (string now.Year) }}
+      {{ with .value }}{{ $goalVal = int . }}{{ end }}
+      {{ with .progress }}{{ $goalDone = int . }}{{ end }}
+      {{/* Finished covers ride along free: the goal's own book list
+           carries cover_url + post_url (July 31, Toby: "add a
+           bookcover when it is done"). */}}
+      {{ with .books }}
+        {{ range . }}
+          {{ $goalBooks = $goalBooks | append (dict
+              "title" (index . "title" | default "")
+              "cover" (index . "cover_url" | default "")
+              "url" (index . "post_url" | default "")) }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if eq $goalVal 0 }}{{ with .Get "goal" }}{{ $goalVal = int . }}{{ end }}{{ end }}
+  {{ if eq $goalVal 0 }}{{ $goalVal = 10 }}{{ end }}
+  <div class="bm-goal">
+    <p class="bm-goal-line" id="bmGoalLine"></p>
+    <div class="bm-goal-meter" id="bmGoalMeter"></div>
+    <p class="bm-goal-note" id="bmGoalNote"></p>
+  </div>
+
   <div class="bm-legend" aria-hidden="true">
     <span><i class="bm-dot bm-dot--started"></i> Started</span>
     <span><i class="bm-dot bm-dot--progress"></i> Progress</span>
@@ -166,6 +204,10 @@
   (function () {
     "use strict";
     var EVENTS = {{ $events | jsonify | safeJS }};
+    var GOAL = {{ $goalVal }};
+    var GOAL_DONE = {{ $goalDone }}; // -1 = no bookshelf data, count from posts
+    var GOAL_BOOKS = {{ $goalBooks | jsonify | safeJS }};
+    var CR_URL = {{ "/reading/" | absURL | jsonify | safeJS }}; // -> the shelves page (Toby, July 31)
     var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     var TYPE_LABEL = { started: "Started", progress: "Progress update", finished: "Finished" };
@@ -185,6 +227,66 @@
         else { e.type = "progress"; }
       });
     });
+
+    // ---- goal strip: on-the-go count links to Currently Reading;
+    // meter fills one slot per book finished this calendar year.
+    (function () {
+      var yr = String(new Date().getFullYear());
+      var onTheGo = 0, postFinished = 0;
+      Object.keys(byBook).forEach(function (k) {
+        var list = byBook[k];
+        var last = list[list.length - 1];
+        if (last.type === "finished") {
+          if (last.date.slice(0, 4) === yr) postFinished++;
+        } else {
+          onTheGo++;
+        }
+      });
+      // Bookshelf progress wins when available — it moves the moment
+      // a book is shelved as Finished, review post or not.
+      var finished = GOAL_DONE >= 0 ? GOAL_DONE : postFinished;
+      // Covers for the filled slots: the goal's own book list first;
+      // fallback to covers from Finished post events this year.
+      var covers = GOAL_BOOKS.slice();
+      if (!covers.length) {
+        Object.keys(byBook).forEach(function (k) {
+          var last = byBook[k][byBook[k].length - 1];
+          if (last.type === "finished" && last.date.slice(0, 4) === yr && last.cover) {
+            covers.push({ title: last.title, cover: last.cover, url: last.url });
+          }
+        });
+      }
+      var line = document.getElementById("bmGoalLine");
+      var a = document.createElement("a");
+      a.href = CR_URL;
+      a.textContent = onTheGo + " book" + (onTheGo === 1 ? "" : "s");
+      line.appendChild(a);
+      line.appendChild(document.createTextNode(" on the go right now"));
+      var meter = document.getElementById("bmGoalMeter");
+      meter.setAttribute("aria-label", finished + " of " + GOAL + " books finished in " + yr);
+      var slots = Math.max(GOAL, covers.length);
+      for (var i = 0; i < slots; i++) {
+        var b = covers[i];
+        if (b && b.cover) {
+          var slot = document.createElement("a");
+          slot.className = "bm-goal-book";
+          if (b.url) slot.href = b.url;
+          if (b.title) slot.title = b.title;
+          var img = document.createElement("img");
+          img.src = b.cover; img.alt = b.title || "";
+          img.loading = "lazy"; img.decoding = "async";
+          slot.appendChild(img);
+          meter.appendChild(slot);
+        } else {
+          var seg = document.createElement("i");
+          seg.className = "bm-goal-book bm-goal-book--empty" + (i < finished ? " bm-goal-book--done" : "");
+          meter.appendChild(seg);
+        }
+      }
+      document.getElementById("bmGoalNote").textContent = (finished >= GOAL)
+        ? "Goal met — " + finished + " of " + GOAL + " in " + yr + ". No promises were even needed."
+        : finished + " of " + GOAL + " finished — aiming for " + GOAL + " by the end of " + yr + ". No promises, just pages.";
+    })();
 
     function pad(n) { return (n < 10 ? "0" : "") + n; }
     function eventsOn(ds) { return EVENTS.filter(function (e) { return e.date === ds; }); }

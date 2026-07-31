@@ -6473,6 +6473,72 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-de
   font-size: 1.2rem;
 }
 
+/* ---- goal strip (July 31, Toby): mirrors the bookshelf goal.
+   Count links to Currently Reading; one meter slot per goal book,
+   filled as Finished events land this year. */
+.bm-goal {
+  text-align: center;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  /* full calendar width (Toby, July 31): 10 covers sit in one row on
+     desktop; the row wraps to ~5 per row on phones by itself. */
+  margin: 0 auto var(--space-lg);
+}
+.bm-goal-line {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--color-navy);
+  margin: 0 0 var(--space-sm);
+}
+.bm-goal-line a {
+  color: var(--color-terra-dark);
+  text-decoration: none;
+  border-bottom: 2px solid var(--color-terra-light);
+  transition: border-color 0.15s;
+}
+.bm-goal-line a:hover { border-color: var(--color-terra); }
+.bm-goal-meter {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  /* 10 x 54px + 9 x 6px gap = one full row of 10 on desktop */
+  max-width: 594px;
+  margin: 0 auto var(--space-sm);
+}
+/* Slots are little covers (July 31, Toby: "add a bookcover when it
+   is done... just an empty bookcover, set to 80px"): finished books
+   show their real cover linked to the post; unfilled slots are
+   empty 80px-tall covers waiting on the shelf. */
+.bm-goal-book {
+  width: 54px; height: 80px;
+  display: block;
+  border-radius: 2px 4px 4px 2px;
+}
+.bm-goal-book img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 2px 4px 4px 2px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--color-navy) 20%, transparent);
+  transition: transform 0.15s;
+}
+.bm-goal-book:hover img, .bm-goal-book:focus-visible img { transform: translateY(-3px); }
+.bm-goal-book--empty {
+  background: var(--color-bg-card);
+  border: 1px dashed var(--color-border);
+  border-left: 3px solid var(--color-border);
+}
+.bm-goal-book--done {
+  background: linear-gradient(180deg, var(--color-terra), var(--color-terra-dark));
+  border-color: var(--color-terra-dark);
+}
+.bm-goal-note {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
 .bm-legend {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: var(--space-sm) var(--space-lg);

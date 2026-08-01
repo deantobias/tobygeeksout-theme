@@ -1,0 +1,53 @@
+{{- /* Blaugust badge (August 1, 2026) — auto-injected at the bottom
+       of any post categorized "Blaugust <year>", e.g. "Blaugust 2026".
+       Renders absolutely nothing on every other post.
+
+       Year comes from the post's own date, so this rolls over on its
+       own each August — the only yearly chore is creating the new
+       category. If the category doesn't exist yet or the post isn't
+       in it, the count is omitted rather than printing "Post 0 of 0".
+
+       Lives in the template rather than in post content on purpose:
+       that keeps it out of .Summary, so it can never eat into the
+       300-character timeline excerpt.
+
+       Colors are sky tokens, never hex, so the badge inverts with the
+       page. Fill is --color-bg-card (white by day, #1E2740 navy at
+       night) — NOT terra-light: that flips to #3A2A20 and reads as
+       mud on the night sky. A translucent terracotta wash is no good
+       either, it computes to ~#2C2630 over navy. Any warm fill lands
+       in the same swamp, so the fill stays neutral and the terracotta
+       lives in the left border and the label instead. Toby's call,
+       Aug 1. Both inks clear the contrast guard against the card
+       bg: terra-dark 5.9:1, terra 4.8:1 at night. */ -}}
+{{- $year := .Date.Format "2006" -}}
+{{- $cat := printf "Blaugust %s" $year -}}
+{{- $in := false -}}
+{{- range .Params.categories -}}
+  {{- if eq . $cat -}}{{- $in = true -}}{{- end -}}
+{{- end -}}
+{{- if $in -}}
+{{- /* The denominator is the GOAL (31 days), not the running total —
+       Toby's call Aug 1: "Post 7 of 31" reads as progress, where
+       "Post 7 of 7" just reads odd. Change $goal below if you'd
+       rather show the real finishing total; it updates every post
+       at once. */ -}}
+{{- $goal := 31 -}}
+{{- $me := .RelPermalink -}}
+{{- $sorted := (where site.RegularPages "Params.categories" "intersect" (slice $cat)).ByDate -}}
+{{- $num := 0 -}}
+{{- range $i, $p := $sorted -}}
+  {{- if eq $p.RelPermalink $me -}}{{- $num = add $i 1 -}}{{- end -}}
+{{- end -}}
+{{- if gt $num $goal -}}{{- $goal = $num -}}{{- end -}}
+{{- $label := printf "Blaugust %s" $year -}}
+{{- if gt $num 0 -}}{{- $label = printf "Blaugust %s · Post %d of %d" $year $num $goal -}}{{- end -}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0 0 0;">
+  <tr>
+    <td style="background-color:var(--color-bg-card); border-left:4px solid var(--color-terra); padding:16px 20px;">
+      <p style="margin:0 0 4px 0; font-size:0.875rem; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em;"><a href="/categories/blaugust-{{ $year }}/" style="color:var(--color-terra); text-decoration:none;">{{ $label }}</a></p>
+      <p style="margin:0; color:var(--color-terra-dark);">Part of my Blaugust run this August. No rules, no pressure, just posting for fun.</p>
+    </td>
+  </tr>
+</table>
+{{- end -}}

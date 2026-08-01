@@ -61,6 +61,11 @@
   <div class="{{ if $isLongRead }}post-layout{{ end }}">
     <div class="post-body e-content">
       {{ .Content }}
+      {{/* Blaugust badge (August 1, 2026) — renders only on posts
+           categorized "Blaugust <year>". Inside .post-body so it
+           inherits the 1.2rem type, but outside .Content so it never
+           reaches .Summary and can't eat the 300-char excerpt. */}}
+      {{ partial "blaugust-badge.html" . }}
     </div>
     {{ if $isLongRead }}
       <aside class="toc-sidebar" id="toc-sidebar" aria-label="Table of contents">

@@ -1,0 +1,10 @@
+{{- $year := .Get "year" | default (.Page.Date.Format "2006") -}}
+{{- $text := .Get "text" | default "Part of my Blaugust run this August. No rules, no pressure, just posting for fun." -}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+  <tr>
+    <td style="background-color:var(--color-terra-light); border-left:4px solid var(--color-terra); padding:16px 20px;">
+      <p style="margin:0 0 4px 0; font-size:0.875rem; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em;"><a href="/categories/blaugust-{{ $year }}/" style="color:var(--color-terra); text-decoration:none;">Blaugust {{ $year }}</a></p>
+      <p style="margin:0; color:var(--color-terra-dark);">{{ $text | safeHTML }}</p>
+    </td>
+  </tr>
+</table>

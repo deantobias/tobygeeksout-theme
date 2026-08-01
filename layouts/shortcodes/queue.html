@@ -277,6 +277,17 @@
 
   <p class="queue-count">{{ len $items }} title{{ if ne (len $items) 1 }}s{{ end }} in the queue</p>
 
+  {{/* Date convention, spelled out (Toby, July 31). Confirmed against
+       the source cards: the date on a card is the THEATRICAL release
+       date, and it is the earliest one worldwide, so it can land a day
+       or two ahead of the US date (Moana's card says July 8 while the
+       US date is July 10; Digger says September 30 against a US
+       October 2). Nothing here is a streaming date, which means "Out
+       now" is a go-check-availability flag, not a go-watch-it-tonight
+       one - worth saying on the page rather than letting a card that
+       came out weeks ago read as a bug. */}}
+  <p class="queue-datenote">Dates are theatrical release dates, not streaming. “Out now” means it has hit theaters, so it may not be streaming yet.</p>
+
   {{ range $keys }}
   {{ $group := where $items "groupKey" . }}
   {{/* Out now reads best newest-release-first; everything ahead of

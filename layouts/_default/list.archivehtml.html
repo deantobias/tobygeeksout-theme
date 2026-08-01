@@ -26,10 +26,13 @@
   <div class="archive-wrapper">
     {{ range ($posts.GroupByDate "2006") }}
     <section class="archive-year">
-      <h2 class="archive-year-heading">{{ .Key }}</h2>
+      {{/* Post counts (Aug 1, 2026, Toby): badge after the heading text
+           so a year/month reads at a glance. .sr-only spans keep it
+           sensible for screen readers - "2026, 143 posts". CSS 19. */}}
+      <h2 class="archive-year-heading">{{ .Key }}<span class="archive-count">{{ len .Pages }}<span class="sr-only"> posts</span></span></h2>
       {{ range (.Pages.GroupByDate "January 2006") }}
       <section class="archive-month">
-        <h3 class="archive-month-heading">{{ .Key }}</h3>
+        <h3 class="archive-month-heading">{{ .Key }}<span class="archive-count">{{ len .Pages }}<span class="sr-only"> posts</span></span></h3>
         <ul>
           {{ range .Pages }}
           <li class="archive-item">

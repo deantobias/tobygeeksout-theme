@@ -1723,6 +1723,31 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   margin-bottom: 0.5rem;
 }
 
+/* Post-count badge on archive year/month headings (Aug 1, 2026, Toby).
+   One badge style for both levels - terracotta wash reads as a label,
+   not another heading, and stays legible against the navy year title.
+   The " posts" text inside is .sr-only so the number isn't a bare
+   digit to a screen reader. */
+.archive-count {
+  display: inline-block;
+  vertical-align: 0.15em;
+  margin-left: 0.5rem;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  background: var(--color-terra-light);
+  color: var(--color-terra-dark);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.archive-year-heading .archive-count {
+  font-size: 0.8rem;
+  vertical-align: 0.3em;
+}
+
 .archive-list { list-style: none; padding: 0; margin: 0 0 1rem 0; }
 
 :is(.archive-item, .archive-item time, .archive-item a) { font-family: var(--font-body); font-weight: 400; }
@@ -1751,6 +1776,24 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   max-width: var(--max-width);
   margin: 0 auto 0 auto;
   padding: var(--space-xl) var(--page-pad) 0;
+}
+
+/* Back-to-archive link above the category title (Aug 1, 2026, Toby).
+   Small body-font line in muted text so it reads as navigation, not
+   as a second heading competing with the 2.25rem title. */
+.category-page-back {
+  margin: 0 0 0.35rem 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+
+.category-page-back a {
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.category-page-back a:hover {
+  color: var(--color-terra);
 }
 
 .category-page-title {
@@ -6005,6 +6048,20 @@ main > .page-header,
   color: var(--color-text-light);
   margin: 0 0 var(--space-md);
   letter-spacing: 0.02em;
+}
+
+/* Date convention note on The Queue (Toby, July 31). Caption size
+   per the type rules, with a terracotta rule so it reads as an aside
+   rather than a stray sentence. NOT .queue-note - that class is
+   already taken by the centred italic footnote on /watched/. */
+.queue-datenote {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-light);
+  margin: 0 0 var(--space-lg);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--color-terra-light);
+  max-width: 46ch;
 }
 
 .queue-group {

@@ -1,5 +1,10 @@
 {{ define "main" }}
   <div class="category-page-header">
+    {{/* Back link (Aug 1, 2026, Toby): category pages dead-ended with no
+         way up. The full category list lives inside the archive page's
+         Categories fold, so one link to /archive/ covers both "all
+         categories" and "everything chronological". CSS 20. */}}
+    <p class="category-page-back"><a href="{{ "/archive/" | absURL }}">&larr; Back to Archive</a></p>
     <h1 class="category-page-title">{{ .Title | safeHTML }}</h1>
   </div>
   <div class="feed-wrapper">

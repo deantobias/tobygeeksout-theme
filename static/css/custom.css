@@ -546,7 +546,7 @@ figcaption {
    micros silently lost this styling — they rendered as plain
    body-colored text with no underline (Toby spotted a linkless-
    looking Percy Jackson micro). */
-:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a {
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
   color: var(--color-terra);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -554,7 +554,7 @@ figcaption {
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
-:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:hover {
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link):hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
 }
@@ -584,6 +584,12 @@ figcaption {
   font-weight: 500;
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
+  /* 1px thickness (Aug 1, 2026): at auto thickness this wave gets
+     thick enough that its curves close into little loops - it read as
+     a row of beads rather than a wave, most visibly under "Keep
+     reading" on list pages. Offset stays at the site-wide
+     5.5px (Toby, Aug 1) - only the stroke weight changed. Body-link wavy underlines are unchanged. */
+  text-decoration-thickness: 1px;
   text-underline-offset: 5.5px;
   transition: color 0.15s, text-decoration-color 0.15s;
   font-size: 1rem !important;
@@ -2390,6 +2396,23 @@ body.tgo-search-empty .site-footer {
 .footer-text a { color: var(--color-terra); text-decoration: none; transition: opacity 0.15s; }
 .footer-text a:hover { opacity: 0.8; }
 
+/* Footer wrap fix (Aug 3, 2026): keep each footer chunk unbreakable so
+   the site name never splits mid-word. Full line needs ~657px + rail
+   280px, so it only fits one-line at >=1024px viewport.
+   600-1023px (foldables, narrow windows): two lines - copyright drops.
+   <600px (phones): three stacked lines, no dots. */
+.footer-bit { white-space: nowrap; }
+
+@media (max-width: 1023px) {
+  .footer-text .footer-sep:last-of-type { display: none; }
+  .footer-text .footer-bit:last-of-type { display: block; }
+}
+
+@media (max-width: 599px) {
+  .footer-text .footer-sep { display: none; }
+  .footer-text .footer-bit { display: block; }
+}
+
 
 /* ------------------------------------------------------------
    30. UTILITY CLASSES
@@ -3840,10 +3863,14 @@ body.kb-open .mobile-tab-bar {
    via .excerpt-fade — short posts render in full, no fade.)
    ------------------------------------------------------------ */
 
+/* Ramp cut 4.5em -> 1.65em (Aug 1, 2026): 4.5em was sized for the
+   old 800-char excerpt. List summaries truncate at 300 now, which is
+   only ~3 lines on desktop, so the old ramp ghosted nearly the whole
+   excerpt. 1.65em = exactly one line. .featured-excerpt untouched. */
 .post-card-excerpt.excerpt-fade {
   /* Text melts out over the last few lines instead of a hard cut */
-  mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 4.5em), transparent 100%);
+  mask-image: linear-gradient(to bottom, black calc(100% - 1.65em), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 1.65em), transparent 100%);
 }
 
 /* Spotlight tease fade (July 18, 2026) — same melt as the cards,
@@ -4549,10 +4576,15 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    nearly touch the line (Toby's catch, July 22). 7px restores the
    visual gap 5.5px used to give with Inter. Applies only in reading
    contexts; Inter UI links keep 5.5px. */
-:is(.post-body, .post-card-content, .post-card-excerpt) a,
-.read-more-link {
+:is(.post-body, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
   text-underline-offset: 7px;
 }
+
+/* .read-more-link excluded above (Aug 1, 2026): it lives inside
+   .post-card-content, so the descendant selector was catching it and
+   forcing 7px - but it is an Inter UI link, not Lora reading text, so
+   the descender allowance never applied to it. It keeps the 4px and
+   1px thickness set in its own rule. */
 
 /* Mobile + foldable visibility bump (Toby, July 22): Lora reads fine
    on phones but wanted a touch more presence — a small size nudge plus

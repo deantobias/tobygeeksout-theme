@@ -12,14 +12,17 @@
        300-character timeline excerpt.
 
        Colors are sky tokens, never hex, so the badge inverts with the
-       page. Fill is --color-bg-card (white by day, #1E2740 navy at
-       night) — NOT terra-light: that flips to #3A2A20 and reads as
-       mud on the night sky. A translucent terracotta wash is no good
-       either, it computes to ~#2C2630 over navy. Any warm fill lands
-       in the same swamp, so the fill stays neutral and the terracotta
-       lives in the left border and the label instead. Toby's call,
-       Aug 1. Both inks clear the contrast guard against the card
-       bg: terra-dark 5.9:1, terra 4.8:1 at night. */ -}}
+       page. Fill is --color-bg — flush with the page, so the left
+       border alone marks it out. NOT terra-light: that flips to
+       #3A2A20 and reads as mud on the night sky, and a translucent
+       terracotta wash is no better (~#2C2630 over navy). Any warm
+       fill lands in the same swamp; the terracotta lives in the
+       border and the label instead. Toby tried bg-card (white) first
+       and preferred flush. Aug 1.
+
+       Body font is --font-body (Inter), not the inherited --font-reading
+       (Lora) the post prose uses — the badge is furniture, not prose,
+       and should not read as another paragraph. Toby's call. */ -}}
 {{- $year := .Date.Format "2006" -}}
 {{- $cat := printf "Blaugust %s" $year -}}
 {{- $in := false -}}
@@ -44,9 +47,9 @@
 {{- if gt $num 0 -}}{{- $label = printf "Blaugust %s · Post %d of %d" $year $num $goal -}}{{- end -}}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0 0 0;">
   <tr>
-    <td style="background-color:var(--color-bg-card); border-left:4px solid var(--color-terra); padding:16px 20px;">
-      <p style="margin:0 0 4px 0; font-size:0.875rem; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em;"><a href="/categories/blaugust-{{ $year }}/" style="color:var(--color-terra); text-decoration:none;">{{ $label }}</a></p>
-      <p style="margin:0; color:var(--color-terra-dark);">Part of my Blaugust run this August. No rules, no pressure, just posting for fun.</p>
+    <td style="background-color:var(--color-bg); border-left:4px solid var(--color-terra); padding:16px 20px;">
+      <p style="margin:0 0 4px 0; font-family:var(--font-body); font-size:0.875rem; font-weight:bold; text-transform:uppercase; letter-spacing:0.05em;"><a href="/categories/blaugust-{{ $year }}/" style="color:var(--color-terra); text-decoration:none;">{{ $label }}</a></p>
+      <p style="margin:0; font-family:var(--font-body); color:var(--color-terra-dark);">Part of my Blaugust run this August. No rules, no pressure, just posting for fun.</p>
     </td>
   </tr>
 </table>

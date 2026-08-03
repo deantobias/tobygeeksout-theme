@@ -128,3 +128,40 @@
   {{ end }}
   {{ end }}
 </nav>
+
+{{/* Nav active-state sync (Aug 3, 2026): the Archive page is an
+     alternate OUTPUT FORMAT of the home page (list.archivehtml.html),
+     so on /archive/ Hugo sees .IsHome = true and $.RelPermalink = "/" —
+     Home lights up and Archive never matches. This corrects the
+     highlight client-side for EVERY nav on the page (top nav, rail,
+     tab bar, and the More overflow if present) by matching each link
+     against the real URL. Runs parser-blocking right after the navs
+     exist, so there is no visible flash. If no nav link matches the
+     current page, Hugo's server-rendered state is left untouched. */}}
+<script>
+(function () {
+  var norm = function (p) {
+    p = p.replace(/\.html$/, '').replace(/\/+$/, '');
+    return p === '' ? '/' : p;
+  };
+  var here = norm(window.location.pathname);
+  var links = document.querySelectorAll(
+    '.site-nav a, .site-nav-primary a, .nav-more-dropdown a, .rail-nav a, .mobile-tab-bar a'
+  );
+  var matches = [];
+  Array.prototype.forEach.call(links, function (a) {
+    var href = a.getAttribute('href');
+    if (!href) return;
+    if (norm(new URL(href, window.location.origin).pathname) === here) matches.push(a);
+  });
+  if (!matches.length) return;
+  Array.prototype.forEach.call(links, function (a) {
+    a.classList.remove('active');
+    a.removeAttribute('aria-current');
+  });
+  matches.forEach(function (a) {
+    a.classList.add('active');
+    a.setAttribute('aria-current', 'page');
+  });
+})();
+</script>

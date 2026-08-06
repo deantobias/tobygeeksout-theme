@@ -7030,3 +7030,80 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-de
   font-style: italic;
   font-size: 1.2rem;
 }
+
+/* ------------------------------------------------------------
+   78. BLOG CARD — 3D OFFSET (August 5, 2026)
+   Perch's blog card insert (table.link-card.blog-card): title,
+   byline, summary, Read post button. Structure and email look
+   come from Perch's inline styles; these rules are the blog-side
+   ink. Doubled .link-card.blog-card selector + !important beats
+   section 41's table.link-card rules and the inline styles on
+   published posts. Night: outside ink flips terracotta so the
+   offset shadow survives the dark sky; card body stays white.
+   ------------------------------------------------------------ */
+
+.link-card.blog-card {
+  background: var(--color-bg-card) !important;
+  border-width: 2px !important;
+  border-color: var(--color-navy) !important;
+  box-shadow: 6px 6px 0 var(--color-navy);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.link-card.blog-card:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--color-terra);
+}
+
+/* title */
+.link-card.blog-card td > a.link-title {
+  font-family: var(--font-display);
+  color: var(--color-navy) !important;
+  font-size: 1.3rem !important;
+  transition: color 0.15s ease;
+}
+.link-card.blog-card td > a.link-title:hover,
+.link-card.blog-card td > a.link-title:focus,
+.link-card.blog-card td > a.link-title:active {
+  color: var(--color-terra) !important;
+}
+
+/* byline — first link-desc when two are present */
+.link-card.blog-card .link-desc:not(:last-of-type) {
+  color: var(--color-text-muted) !important;
+  font-weight: 600;
+  font-style: normal !important;
+}
+
+/* summary — always the last link-desc */
+.link-card.blog-card .link-desc:last-of-type {
+  color: var(--color-text) !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  font-style: normal !important;
+}
+
+/* Read post button — no background, the sky shows through */
+.link-card.blog-card .blog-read {
+  color: var(--color-navy) !important;
+  border-color: var(--color-navy) !important;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.link-card.blog-card .blog-read:hover,
+.link-card.blog-card .blog-read:focus,
+.link-card.blog-card .blog-read:active {
+  color: var(--color-terra) !important;
+  border-color: var(--color-terra) !important;
+}
+
+/* night sky — outside ink flips terracotta */
+body.tgo-night .link-card.blog-card {
+  border-color: var(--color-terra) !important;
+  box-shadow: 6px 6px 0 var(--color-terra);
+}
+body.tgo-night .link-card.blog-card:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--color-terra-light);
+}

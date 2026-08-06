@@ -563,8 +563,13 @@ figcaption {
    July 30, 2026): micro text is Lora at 1.05rem with long descenders,
    and the wavy crests eat upward into the gap, so the same 5.5px
    read tighter to Toby's eye. Optical match, not mathematical. */
-.micro-entry-text a {
-  text-underline-offset: 7px;
+/* Aug 6, 2026 — specificity fix: the :is() group above scores (0,2,1)
+   and beat this rule at (0,1,1), so the 7px/9px never applied and 5.5px
+   won on BOTH desktop and mobile (the wave cut through Lora g/p tails).
+   :not(.read-more-link) matches the group, so source order decides now.
+   Also 7px to 8px so the descenders clear fully. */
+.micro-entry-text a:not(.read-more-link) {
+  text-underline-offset: 8px;
   /* Part the wave around descenders (y, p, g) — Chromium honors
      'all'; engines that don't know it fall back to their default
      'auto' skipping, no harm done. July 30, 2026. */
@@ -575,7 +580,7 @@ figcaption {
    only fix for descenders crossing the wave is distance — 9px
    clears Lora's y/p/g entirely at the micro size. July 30, 2026. */
 @media (max-width: 639px) {
-  .micro-entry-text a { text-underline-offset: 9px; }
+  .micro-entry-text a:not(.read-more-link) { text-underline-offset: 9px; }
 }
 
 .read-more-link {

@@ -17,6 +17,7 @@
     <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
   <header class="post-header">
     <div class="post-header-inner">
+       {{ partial "challenge-mark.html" . }}
       <div class="post-header-eyebrow">
         {{ if .Params.categories }}
           {{ range .Params.categories }}

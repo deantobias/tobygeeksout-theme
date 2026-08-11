@@ -7117,3 +7117,151 @@ body.tgo-night .link-card.blog-card:hover {
   transform: translate(3px, 3px);
   box-shadow: 3px 3px 0 var(--color-terra-light);
 }
+
+/* ------------------------------------------------------------
+   79. CHALLENGE MARKS — Blaugust ticket + #100DaysToOffload stamp
+   (August 11, 2026)
+
+   Markup: layouts/partials/challenge-mark.html, called as the FIRST
+   child of .post-header-inner in post/single.html.
+
+   Anchored to .post-header-inner, NOT .post-header. Section 15 makes
+   .post-header full-bleed (width 100%, max-width 100% !important), so
+   right: 0 there would pin the mark to the viewport edge, out past the
+   content column. .post-header-inner is the real 1120px measure the
+   title and meta line up against.
+   ------------------------------------------------------------ */
+
+.tg-mark {
+  /* Ink is for the STAMP only — the ticket's colours are pinned inside
+     the partial so it renders identically on every timed sky. */
+  --mark-ink: var(--color-terra-dark);
+  --mark-ring: 4.2;
+
+  /* Drops the mark to the title's cap line. The offset clears the
+     eyebrow pill row plus the collapsed margin between the eyebrow and
+     the h1 (section 68 gives headings margin-top: 20px, which collapses
+     against .post-header-eyebrow's --space-md bottom margin). In rem so
+     it tracks the 20px → 22px html font-size step at 640px. */
+  --mark-top: 2.3rem;
+
+  position: absolute;
+  top: var(--mark-top);
+  right: var(--page-pad);   /* matches .post-header-inner's own padding */
+
+  line-height: 0;
+  pointer-events: none;
+}
+
+/* .post-header already carries position: relative (section 15); the
+   inner column does not, and it is the one we anchor to.
+   --mark-w lives here, not on .tg-mark, so the title can read it too
+   and reserve exactly the room the mark occupies. */
+.post-header-inner {
+  position: relative;
+  --mark-w: clamp(200px, 20vw, 300px);
+}
+
+/* RESERVE THE COLUMN. .post-header-title is capped at 30ch, which on a
+   wide window is far wider than the "empty" right side I assumed — the
+   title ran straight under the mark. :has() keeps this off every post
+   that has no mark, so nothing else in the theme shifts. */
+.post-header-inner:has(.tg-mark) .post-header-title {
+  padding-right: calc(var(--mark-w) + 1rem);
+}
+
+.tg-mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tg-mark--ticket { width: var(--mark-w); }
+/* The stamp is square, so the same width reads much larger than the
+   ticket — 78% lands them at about the same visual weight. */
+.tg-mark--stamp  { width: calc(var(--mark-w) * 0.78); }
+
+/* Foldables and small laptops (601–1023px). The desktop clamp bottoms
+   out at its 200px minimum through this whole band because 20vw is
+   small here — this gives that range its own, larger size without
+   touching the desktop cap. */
+@media (min-width: 601px) and (max-width: 1023px) {
+  .post-header-inner { --mark-w: clamp(230px, 28vw, 270px); }
+}
+
+/* Dark skies print the stamp white and thicken it slightly — light ink
+   on a dark ground optically thins, so matching the day weight reads
+   lighter. The ticket is deliberately excluded: it is an opaque printed
+   object carrying its own paper, identical on every sky. */
+[data-sky="cross"] .tg-mark--stamp,
+[data-sky="dusk"]  .tg-mark--stamp,
+[data-sky="night"] .tg-mark--stamp {
+  --mark-ink: #FFFFFF;
+  --mark-ring: 4.8;
+}
+
+/* ---- Phones: back into the flow, beside the title ----
+   .post-header-title is capped at 30ch, so on a phone it fills the
+   measure and there is no empty column to park in. Float instead and
+   let the title wrap beside it; flow-root contains the float so the
+   terracotta rule and the body still start below. */
+@media (max-width: 600px) {
+  .post-header-inner { display: flow-root; }
+
+  /* Floated now, so the title wraps around it on its own — the
+     reserved padding would double up and squeeze the headline. */
+  .post-header-inner:has(.tg-mark) .post-header-title { padding-right: 0; }
+
+  .tg-mark {
+    position: static;
+    float: right;
+  }
+  .tg-mark--ticket { width: 172px; margin: 0 0 6px 14px; }
+  .tg-mark--stamp  { width: 142px; margin: 0 0 6px 14px; }
+}
+
+/* Small phones: back off a little so a 152px float doesn't leave the
+   headline in a 200px gutter. */
+@media (max-width: 400px) {
+  .tg-mark--ticket { width: 146px; margin: 0 0 6px 12px; }
+  .tg-mark--stamp  { width: 122px; margin: 0 0 6px 12px; }
+}
+
+/* ---- Folded covers (Galaxy Fold outer screen is ~280px) ----
+   A 90px mark against a 280px column leaves ~160px of title, which
+   breaks a normal headline into five lines. Drop it — the count still
+   reaches screen readers through .tg-mark-sr. */
+@media (max-width: 330px) {
+  .tg-mark { display: none; }
+}
+
+/* Visually hidden count for screen readers; the SVG is aria-hidden.
+   Same pattern as the theme's own .sr-only (section 30). */
+.tg-mark-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ------------------------------------------------------------
+   ONE LINE NEEDED IN custom_footer.html — FOR THE STAMP ONLY
+
+   Where the sky script settles on a palette, alongside the existing
+   :root writes, add:
+
+       document.documentElement.dataset.sky = name;
+
+   name = 'day' | 'golden' | 'sunset' | 'cross' | 'dusk' | 'night'
+
+   Not needed until #100DaysToOffload starts — the ticket never changes.
+   Without it the stamp still lightens at night (the theme turns
+   --color-terra-dark into #E0906B, 5.9:1 instead of white's 14.4:1),
+   and `cross` — card luminance 0.213, just above the script's 0.17
+   flip threshold — never flips at all.
+   ------------------------------------------------------------ */

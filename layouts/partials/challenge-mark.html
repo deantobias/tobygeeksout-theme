@@ -1,0 +1,167 @@
+{{/* ------------------------------------------------------------------
+     layouts/partials/challenge-mark.html
+
+     One partial, two marks. Inline SVG — no image uploads.
+
+       category "Blaugust <year>"   → printed ticket, out of 31
+       category "100DaysToOffload"  → pressed round stamp, out of 100
+
+     Renders nothing at all if the post carries neither, so it is safe
+     to call on every post and safe to install months before the
+     100 Days run starts. The first post you tag 100DaysToOffload
+     becomes day 1 automatically.
+
+     Call from post/single.html as the FIRST child of
+     .post-header-inner, immediately after the opening div:
+
+         <div class="post-header-inner">
+           {{ partial "challenge-mark.html" . }}
+           <div class="post-header-eyebrow">...
+     ------------------------------------------------------------------ */}}
+
+{{/* Find this post's challenge category. Both are matched by PREFIX and
+     carry their year in the name — "Blaugust 2026", "100DaysToOffload
+     2026" — so a new year is a new category: a fresh count starting at
+     1 and the right year on the mark, with no edits in here.
+     A bare "100DaysToOffload" with no year still works; the year then
+     comes from the first post of the run. */}}
+{{- $blaugust := "" -}}
+{{- $hundred := "" -}}
+{{- range .Params.categories -}}
+  {{- if hasPrefix (lower .) "blaugust" -}}{{- $blaugust = . -}}{{- end -}}
+  {{- if hasPrefix (lower .) "100days" -}}{{- $hundred = . -}}{{- end -}}
+{{- end -}}
+
+{{/* Unique suffix for filter/clipPath ids so two marks on one page
+     cannot collide. Built from the post date, NOT .File.UniqueID —
+     .File is nil for any page Hugo builds without a backing file,
+     and that would break the build. */}}
+{{- $uid := printf "%d" .Date.Unix -}}
+
+
+{{/* =================== BLAUGUST TICKET ===================
+     Colours are pinned, not tokenised. The ticket is an opaque
+     printed object: it carries its own paper and ink, so it looks
+     identical on all six skies and never flips. =============== */}}
+{{- with $blaugust -}}
+  {{- $year := index (last 1 (split . " ")) 0 -}}
+  {{- $all := where site.RegularPages "Params.categories" "intersect" (slice .) -}}
+  {{- $day := len (where $all "Date" "le" $.Date) -}}
+
+  <span class="tg-mark tg-mark--ticket" aria-hidden="true">
+    <svg viewBox="0 0 260 160">
+      <defs>
+        <filter id="tk-wob-{{ $uid }}" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="4" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/>
+        </filter>
+        <filter id="tk-ink-{{ $uid }}" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" seed="14" result="n"/>
+          <feColorMatrix in="n" type="matrix"
+            values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.6 0.99" result="m"/>
+          <feComposite in="SourceGraphic" in2="m" operator="in"/>
+        </filter>
+        <filter id="tk-b1-{{ $uid }}" x="-60%" y="-60%" width="220%" height="220%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="7" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="9"/>
+        </filter>
+        <filter id="tk-b2-{{ $uid }}" x="-60%" y="-60%" width="220%" height="220%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="2" seed="19" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+        </filter>
+        <filter id="tk-sh-{{ $uid }}"><feGaussianBlur stdDeviation="3.4"/></filter>
+        <clipPath id="tk-clip-{{ $uid }}"><rect x="20" y="28" width="200" height="96" rx="14"/></clipPath>
+      </defs>
+
+      <g transform="rotate(-4 130 76)">
+        <rect x="18" y="26" width="216" height="112" rx="20"
+              fill="#2B2420" opacity=".13" filter="url(#tk-sh-{{ $uid }})"/>
+        <rect x="12" y="20" width="216" height="112" rx="20" fill="#FFFFFF"/>
+        <rect x="20" y="28" width="200" height="96" rx="14"
+              fill="#FAF8F5" filter="url(#tk-wob-{{ $uid }})"/>
+
+        <g clip-path="url(#tk-clip-{{ $uid }})">
+          <ellipse cx="34"  cy="118" rx="22" ry="14" fill="#8B3E18"  opacity=".16" filter="url(#tk-b1-{{ $uid }})" style="mix-blend-mode:multiply"/>
+          <ellipse cx="205" cy="40"  rx="18" ry="12" fill="#C4622D"       opacity=".14" filter="url(#tk-b2-{{ $uid }})" style="mix-blend-mode:multiply"/>
+          <ellipse cx="150" cy="118" rx="26" ry="10" fill="#F0DDD3" opacity=".50" filter="url(#tk-b1-{{ $uid }})" style="mix-blend-mode:multiply"/>
+          <ellipse cx="26"  cy="40"  rx="14" ry="10" fill="#C4622D"       opacity=".12" filter="url(#tk-b2-{{ $uid }})" style="mix-blend-mode:multiply"/>
+        </g>
+
+        <g filter="url(#tk-ink-{{ $uid }})" opacity=".97">
+          <rect x="20" y="28" width="200" height="96" rx="14" fill="none"
+                stroke="#2B2420" stroke-width="2.4" filter="url(#tk-wob-{{ $uid }})"/>
+          <line x1="172" y1="40" x2="172" y2="112" stroke="#2B2420"
+                stroke-width="1.6" stroke-dasharray="4 5" opacity=".6"/>
+          <text x="36" y="58" font-family="Bricolage Grotesque, Georgia, serif"
+                font-weight="800" font-size="20" fill="#2B2420">BLAUGUST</text>
+          <text x="36" y="76" font-family="Inter, system-ui, sans-serif" font-size="10.5"
+                font-weight="600" letter-spacing="1.5" fill="#1E2D4A">{{ $year }}</text>
+          <text x="36" y="112" font-family="Bricolage Grotesque, Georgia, serif">
+            <tspan font-weight="800" font-size="32" fill="#2B2420">{{ $day }}</tspan>
+            <tspan dx="6" font-weight="600" font-size="14" fill="#1E2D4A">OF 31</tspan>
+          </text>
+        </g>
+
+        <circle cx="172" cy="28"  r="8" fill="#FFFFFF"/>
+        <circle cx="172" cy="124" r="8" fill="#FFFFFF"/>
+      </g>
+    </svg>
+  </span>
+  <span class="tg-mark-sr">Blaugust {{ $year }} — post {{ $day }} of 31</span>
+{{- end -}}
+
+
+{{/* =================== 100 DAYS TO OFFLOAD =================== */}}
+{{- with $hundred -}}
+  {{- $all := where site.RegularPages "Params.categories" "intersect" (slice .) -}}
+  {{- $day := len (where $all "Date" "le" $.Date) -}}
+  {{/* Year from the category name when it carries one ("100DaysToOffload
+       2027"); otherwise from the FIRST post in the run, so a challenge
+       crossing New Year keeps one year on every mark. */}}
+  {{- $year := "" -}}
+  {{- $tail := index (last 1 (split . " ")) 0 -}}
+  {{- if findRE "^[0-9]{4}$" $tail -}}
+    {{- $year = $tail -}}
+  {{- else -}}
+    {{- $year = (index (sort $all "Date" "asc") 0).Date.Format "2006" -}}
+  {{- end -}}
+
+  <span class="tg-mark tg-mark--stamp" aria-hidden="true">
+    <svg viewBox="0 0 240 240">
+      <defs>
+        <filter id="st-wob-{{ $uid }}" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="3" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/>
+        </filter>
+        <filter id="st-ink-{{ $uid }}" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4" seed="5" result="n"/>
+          <feColorMatrix in="n" type="matrix"
+            values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.85 1.0" result="m"/>
+          <feComposite in="SourceGraphic" in2="m" operator="in"/>
+        </filter>
+        <path id="st-top-{{ $uid }}" d="M 59.1,108.2 A 62,62 0 0 1 180.9,108.2"/>
+        <path id="st-yr-{{ $uid }}"  d="M 84.4,170.8 A 62,62 0 0 0 155.6,170.8"/>
+      </defs>
+
+      <g transform="rotate(-8 120 120)" filter="url(#st-ink-{{ $uid }})" opacity=".97">
+        <circle cx="120" cy="120" r="84" fill="none" stroke="var(--mark-ink)"
+                stroke-width="var(--mark-ring, 4.2)" filter="url(#st-wob-{{ $uid }})"/>
+        <circle cx="120" cy="120" r="50" fill="none" stroke="var(--mark-ink)"
+                stroke-width="1.5" opacity=".8" filter="url(#st-wob-{{ $uid }})"/>
+        <text font-family="Bricolage Grotesque, Georgia, serif" font-size="18"
+              font-weight="800" letter-spacing="0.1" fill="var(--mark-ink)">
+          <textPath href="#st-top-{{ $uid }}" startOffset="50%" text-anchor="middle">#100DaysToOffload</textPath>
+        </text>
+        <text font-family="Inter, system-ui, sans-serif" font-size="11"
+              font-weight="700" letter-spacing="2.2" fill="var(--mark-ink)">
+          <textPath href="#st-yr-{{ $uid }}" startOffset="50%" text-anchor="middle">{{ $year }}</textPath>
+        </text>
+        <text x="120" y="134" font-family="Bricolage Grotesque, Georgia, serif"
+              font-weight="800" font-size="46" fill="var(--mark-ink)" text-anchor="middle">{{ $day }}</text>
+        <text x="120" y="152" font-family="Inter, system-ui, sans-serif" font-size="10.5"
+              font-weight="700" letter-spacing="2.2" fill="var(--mark-ink)" text-anchor="middle">OF 100</text>
+      </g>
+    </svg>
+  </span>
+  <span class="tg-mark-sr">#100DaysToOffload — post {{ $day }} of 100</span>
+{{- end -}}

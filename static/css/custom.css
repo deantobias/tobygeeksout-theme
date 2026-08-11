@@ -546,7 +546,12 @@ figcaption {
    micros silently lost this styling — they rendered as plain
    body-colored text with no underline (Toby spotted a linkless-
    looking Percy Jackson micro). */
-:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
+/* Aug 6, 2026 — .btn-subscribe excluded: pill buttons are not body links.
+   Without this the group hover (0,3,1) beat .btn-subscribe:hover (0,2,0)
+   and forced --color-terra-dark text onto the terracotta fill — dark-on-
+   terracotta instead of white (Toby caught it on the Blaugust Discord
+   button). Same specificity trap as the micro underline offset. */
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link, .btn-subscribe) {
   color: var(--color-terra);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -554,7 +559,7 @@ figcaption {
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
-:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link):hover {
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link, .btn-subscribe):hover {
   color: var(--color-terra-dark);
   text-decoration-color: var(--color-terra-dark);
 }

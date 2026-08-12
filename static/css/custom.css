@@ -536,6 +536,24 @@ figcaption {
 /* timeline + single post use the tight 10px block rhythm for lists */
 :is(.post-body, .post-card-excerpt) :is(ul, ol) { margin-bottom: var(--space-sm); }
 
+/* Postlist plugin removes its own bullet — override for page-body use. Aug 2, 2026 */
+.page-body ul.postlist {
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Pages read in Lora; blockquotes too. Postlist titles use the display font to match home-page post titles. Aug 2, 2026 */
+.page-body blockquote p {
+  font-family: var(--font-reading);
+}
+.page-body ul.postlist li a,
+.page-body ul.now-list li a {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
 
 /* ------------------------------------------------------------
    6. LINKS
@@ -595,10 +613,10 @@ figcaption {
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
   /* 1px thickness (Aug 1, 2026): at auto thickness this wave gets
-     thick enough that its curves close into little loops - it read as
+     thick enough that its curves close into little loops — it read as
      a row of beads rather than a wave, most visibly under "Keep
      reading" on list pages. Offset stays at the site-wide
-     5.5px (Toby, Aug 1) - only the stroke weight changed. Body-link wavy underlines are unchanged. */
+     5.5px (Toby, Aug 1) — only the stroke weight changed. Body-link wavy underlines are unchanged. */
   text-decoration-thickness: 1px;
   text-underline-offset: 5.5px;
   transition: color 0.15s, text-decoration-color 0.15s;
@@ -1406,6 +1424,19 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   background-clip: text;
 }
 
+/* A leading emoji in the title is wrapped in .title-emoji by
+   post/single.html (July 29). The gradient above paints via
+   background-clip: text + transparent fill, which turns emoji into
+   solid silhouettes; restoring the fill on the span lets the emoji
+   keep its own colors. */
+.post-header-title .title-emoji {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: initial;
+  color: initial;
+}
+
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .post-header-title { color: transparent; }
 }
@@ -1564,7 +1595,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 @media (min-width: 640px) { .page-title { font-size: clamp(1.875rem, 4vw, 2.5rem); } }
 
 .page-body { padding: var(--space-lg) 0 var(--space-2xl); }
-.page-body p { margin-bottom: var(--space-lg); font-family: var(--font-body); font-weight: 400; }
+.page-body p { margin-bottom: var(--space-lg); font-family: var(--font-reading); font-weight: 400; }
 
 .page-body h2 {
   font-size: 1.25rem;
@@ -1881,6 +1912,23 @@ body:not(.type-post) .site-nav li a .tgo-icon {
      and foldables. */
   padding-top: calc(var(--header-actual-h, var(--header-h)) + 24px);
   background: var(--color-bg);
+}
+
+/* Aug 12, 2026 - clearance under the fixed mobile header. +24px left
+   only 2-3px between the header edge and the rabbit on phones, and it
+   overlapped outright (-10px) between 600 and 767px, so any rounding,
+   font swap or the rabbit's entrance transform pushed "Hi, I'm Toby"
+   under the header. Nothing at 768px and up changes. */
+@media (max-width: 767px) {
+  .about-strip {
+    padding-top: calc(var(--header-actual-h, var(--header-h)) + 48px);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 767px) {
+  .about-strip {
+    padding-top: calc(var(--header-actual-h, var(--header-h)) + 72px);
+  }
 }
 /* Desktop: pull the whole about block up a bit so more of it (ideally
    the subscribe box) clears the fold without scrolling. Mobile spacing
@@ -2422,6 +2470,7 @@ body.tgo-search-empty .site-footer {
   .footer-text .footer-sep { display: none; }
   .footer-text .footer-bit { display: block; }
 }
+
 
 
 /* ------------------------------------------------------------
@@ -3349,7 +3398,7 @@ body.type-newsletter .site-footer {
   .bh-badge.fading   { background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text-light); }
 
   .bh-wrap .bh-name { /* Aug 3, 2026 — .bh-wrap added: out-specifies the Lora :is(.post-body) :is(p) reading rule */
-    font-family: var(--font-display, 'Bricolage Grotesque', Georgia, serif); /* Aug 3, 2026 — BG for blog-name links */
+    font-family: var(--font-display, 'Bricolage Grotesque', Georgia, serif) /* Aug 3, 2026 — BG for blog-name links */;
     font-size: 1.05rem;
     font-weight: 600;
     color: var(--color-navy);
@@ -3652,8 +3701,7 @@ table.link-card a[style*="inline-block"] {
    pills' own script lives in post/single.html. Built entirely
    on the color tokens so all the timed skies work untouched.
    Card text is Inter (font-body); only the pills use the
-   Bricolage display stack. Kept at the END of the file so the
-   pill styles win over earlier button rules.
+   Bricolage display stack.
    ------------------------------------------------------------ */
 
 .connect-share {
@@ -3873,12 +3921,17 @@ body.kb-open .mobile-tab-bar {
    via .excerpt-fade — short posts render in full, no fade.)
    ------------------------------------------------------------ */
 
-/* Ramp cut 4.5em -> 1.65em (Aug 1, 2026): 4.5em was sized for the
-   old 800-char excerpt. List summaries truncate at 300 now, which is
-   only ~3 lines on desktop, so the old ramp ghosted nearly the whole
-   excerpt. 1.65em = exactly one line. .featured-excerpt untouched. */
 .post-card-excerpt.excerpt-fade {
-  /* Text melts out over the last few lines instead of a hard cut */
+  /* Text melts out over the last line instead of a hard cut.
+     1.65em = exactly one line at this card's 1.65 line-height, so
+     only the final line ever fades, however many lines render.
+     Was 4.5em until Aug 1, 2026: that ramp was sized for the old
+     800-char excerpt, but list summaries truncate at 300 now. On a
+     wide screen that is 3 lines / ~99px, and a 4.5em (90px) ramp
+     started fading 9px in — ghosting nearly the whole excerpt and
+     leaving a smear above "Keep reading". Phones never showed it,
+     since 300 chars wraps to many more lines there.
+     .featured-excerpt has its own ramp and is untouched. */
   mask-image: linear-gradient(to bottom, black calc(100% - 1.65em), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 1.65em), transparent 100%);
 }
@@ -4592,7 +4645,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
 
 /* .read-more-link excluded above (Aug 1, 2026): it lives inside
    .post-card-content, so the descendant selector was catching it and
-   forcing 7px - but it is an Inter UI link, not Lora reading text, so
+   forcing 7px — but it is an Inter UI link, not Lora reading text, so
    the descender allowance never applied to it. It keeps the 4px and
    1px thickness set in its own rule. */
 
@@ -4953,7 +5006,7 @@ body.tgo-night .rail-nav a.active {
 
 .journal-title {
   font-family: var(--font-display);
-  font-size: 1.05rem; /* July 22 rev 2 (Toby): matched to the Reel and Remote list at ALL sizes — 1.4rem read oversized. Date block stays full size. */
+  font-size: 1.05rem; /* July 22 (rev 2, Toby): matched to the Reel and Remote list — 1.4rem read oversized next to it */
   font-weight: 700;
   color: var(--color-navy);
   line-height: 1.3;
@@ -5080,9 +5133,8 @@ body.tgo-night .rail-nav a.active {
    entries, nothing squeezed into slivers. */
 @media (max-width: 639px) {
   .reel-tiles { display: block; margin: 0; }
-  /* Toby's call (July 22 rev 2): NO title truncation on phones —
-     the full title wraps freely on its own line(s), and the rating
-     + date drop to a second line underneath. */
+  /* Toby (July 22 rev 2): NO title truncation on phones — full title
+     wraps on its own line(s); rating + date drop to a second line. */
   .reel-tile {
     flex-direction: row;
     flex-wrap: wrap;
@@ -5508,9 +5560,9 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
    between folded (344px) and unfolded (~700px) with no jump.
    Google Books ships covers at 128px with a page-curl artifact;
    index.html asks for the larger clean size instead, landing at
-   300px - right for a 150px cover on a 2x screen. Sizes are
+   300px — right for a 150px cover on a 2x screen. Sizes are
    Toby's call: 80 cap for list rows, 150 for rating tiles.
-   Rows/tiles WITHOUT a cover are untouched - the body span is
+   Rows/tiles WITHOUT a cover are untouched — the body span is
    display:contents until the cover class appears.
    ------------------------------------------------------------ */
 
@@ -5550,7 +5602,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
   gap: 6px;
   flex: 1 1 auto;
   /* min-width:0 or a long unbroken title forces the flex row
-     wider than the screen - shows up only on the folded state. */
+     wider than the screen — shows up only on the folded state. */
   min-width: 0;
 }
 
@@ -5590,7 +5642,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 
 
 /* ------------------------------------------------------------
-   66. CURRENTLY READING - COVER ROWS (July 25, 2026)
+   66. CURRENTLY READING — COVER ROWS (July 25, 2026)
    Toby's call: the per-row "Currently reading" eyebrow repeated
    on every line was noise, so the label moved up to one section
    subhead and the rows became cover + title + progress. Rows
@@ -5646,7 +5698,7 @@ body.tgo-night .catrow-item a:active { color: #E0906B; }
 }
 
 /* Each labelled group inside The Bookshelf is its own list.
-   A group following another gets real air plus a 2px rule -
+   A group following another gets real air plus a 2px rule —
    heavier than the 1px hairlines between rows, so the break
    reads as "new list", not "next row" (Toby's call, July 25). */
 .books-group + .books-group {
@@ -5768,7 +5820,7 @@ h4, h5, h6 {
    .page-wrapper (1120px); the archive body is its own narrower
    720px column (.archive-wrapper and .archive-categories-fold,
    CSS 19). Dropping a bare .page-header into main left the title
-   full-width and ~300px left of the content underneath it - Toby
+   full-width and 300px left of the content underneath it - Toby
    caught it immediately. These values mirror .archive-wrapper
    exactly so the three line up. Vertical padding still comes from
    .page-header; only the horizontal box is overridden here.
@@ -5778,9 +5830,8 @@ h4, h5, h6 {
    sit in article.page-wrapper - 1120px wide with 30px side padding.
    The archive had its own narrower 720px column (CSS 19), so even
    once the heading lined up with the archive body, the whole page
-   still read narrower than the other three - clicking through the
-   nav made one page visibly jump. Rather than restructure the
-   archive template to nest everything in .page-wrapper, this
+   still read narrower than the other three. Rather than restructure
+   the archive template to nest everything in .page-wrapper, this
    re-points the archive's own boxes at page-wrapper's numbers -
    pure CSS, no template rebuild needed. That matters because the
    archive page rebuilds much more slowly than the rest of the site,
@@ -6249,6 +6300,23 @@ main > .page-header,
   white-space: nowrap;
 }
 
+/* Production status pill — shows only on cards without a full release
+   date ("2027 · In Production"): it explains the missing date. Kept
+   quieter than .queue-rel on purpose. */
+.queue-status {
+  align-self: center;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
+
 .queue-added {
   margin-top: auto;
   padding-top: 3px;
@@ -6555,7 +6623,7 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-de
    A reading calendar. One dataset, two views behind a toggle: a real
    month grid with cover stacks on the dates, and "The Log", a dated
    timeline. Tap a day's covers (or a log card) → popup with progress
-   bar + "Read my post" button; the popup is a centered card on desktop
+   bar; the popup is a centered card on desktop
    and a bottom sheet on phones — tap-first because hover doesn't exist
    on touch. Rendering lives in layouts/shortcodes/bookmark.html.
    Shadows ride color-mix on --color-navy so night mode keeps them soft.
@@ -6788,12 +6856,9 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-de
   font-size: 1.2rem;
 }
 
-/* Phones (Toby, July 31: "the dated box look tall... maybe not show
-   bookcovers"): the grid goes COMPACT — no covers, short square-ish
-   cells, the type dots move to center stage (one dot per event, so
-   the dots ARE the count), and the invisible stack button stretches
-   over the whole cell as the tap target. The Log is the default
-   view on phones anyway; this keeps the calendar a quick heat-map. */
+/* Phones: COMPACT grid — no covers, short cells, centered type dots
+   (one per event, the dots ARE the count), invisible full-cell tap
+   target. The Log is the default view on phones anyway. */
 @media (max-width: 600px) {
   .bm-cal { padding: var(--space-sm); }
   .bm-grid { gap: 3px; }
@@ -7041,6 +7106,7 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-de
   font-size: 1.2rem;
 }
 
+
 /* ------------------------------------------------------------
    78. BLOG CARD — 3D OFFSET (August 5, 2026)
    Perch's blog card insert (table.link-card.blog-card): title,
@@ -7117,6 +7183,7 @@ body.tgo-night .link-card.blog-card:hover {
   transform: translate(3px, 3px);
   box-shadow: 3px 3px 0 var(--color-terra-light);
 }
+
 
 /* ------------------------------------------------------------
    79. CHALLENGE MARKS — Blaugust ticket + #100DaysToOffload stamp
@@ -7240,6 +7307,12 @@ body.tgo-night .link-card.blog-card:hover {
    Same pattern as the theme's own .sr-only (section 30). */
 .tg-mark-sr {
   position: absolute;
+  /* Pinned to the left. Without this it takes its static position —
+     which, sitting right after a right-floated mark, lands at the very
+     edge of the column and pokes a pixel past it. One stray pixel is
+     enough to give a phone a horizontal scroll. */
+  left: 0;
+  top: 0;
   width: 1px; height: 1px;
   padding: 0; margin: -1px;
   overflow: hidden;
@@ -7248,6 +7321,13 @@ body.tgo-night .link-card.blog-card:hover {
   border: 0;
 }
 
+/* Kill any horizontal overflow. body already has overflow-x: hidden
+   (section 3) but <html> does not, so anything that pokes past the
+   right edge can still scroll the page on a phone. `clip` rather than
+   `hidden` — hidden would force overflow-y to auto and could break the
+   sticky TOC sidebar; clip leaves the vertical axis alone. */
+html { overflow-x: clip; }
+.post-header-inner { overflow-x: clip; }
 
 /* ------------------------------------------------------------
    ONE LINE NEEDED IN custom_footer.html — FOR THE STAMP ONLY
@@ -7265,3 +7345,25 @@ body.tgo-night .link-card.blog-card:hover {
    and `cross` — card luminance 0.213, just above the script's 0.17
    flip threshold — never flips at all.
    ------------------------------------------------------------ */
+
+/* ------------------------------------------------------------
+   81. LONG LINKS WRAP (August 12, 2026)
+   A bare URL pasted into a post is a single unbreakable word. On a
+   phone it can't wrap, so it pushes the page wider than the viewport
+   and gives the whole post a horizontal scroll. `anywhere` is scoped
+   to links only — prose keeps normal word breaks, and only the URL
+   is allowed to break mid-string.
+   ------------------------------------------------------------ */
+.post-body,
+.page-body,
+.micro-entry-text,
+.post-card-excerpt {
+  overflow-wrap: break-word;
+}
+
+.post-body a,
+.page-body a,
+.micro-entry-text a,
+.post-card-excerpt a {
+  overflow-wrap: anywhere;
+}

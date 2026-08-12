@@ -117,10 +117,42 @@
   var siteHeader = document.querySelector('.site-header');
 
   var apply = function () {
-    var headerH = siteHeader ? Math.round(siteHeader.getBoundingClientRect().height) : 62;
+    var headerH = 62;
 
-    // Subtract 1px so banner overlaps header bottom edge — prevents subpixel gap on mobile
-    document.documentElement.style.setProperty('--header-actual-h', (headerH - 1) + 'px');
+    /* Aug 12, 2026 — measure the header at FULL size, never the
+       scroll-collapsed size. apply() runs on resize, and iOS Safari /
+       Brave on Android fire resize when the URL bar collapses. If that
+       happened while scrolled down, this recorded the shrunken 62px
+       header and locked the page to an 86px offset, so "Hi, I'm Toby"
+       slid under the header as soon as you scrolled back to the top.
+       Forcing --header-shrink to 0 for the measurement only — nothing
+       paints between the set and the restore, so there is no flicker.
+       The old -1px is gone too; header and strip share --color-bg, so
+       there is no seam to hide and it was shorting the offset. */
+    if (siteHeader) {
+      if (getComputedStyle(siteHeader).display === 'none') {
+        headerH = 0;
+      } else {
+        var prevShrink = siteHeader.style.getPropertyValue('--header-shrink');
+        siteHeader.style.setProperty('--header-shrink', '0');
+        headerH = Math.ceil(siteHeader.getBoundingClientRect().height);
+        if (prevShrink !== '') {
+          siteHeader.style.setProperty('--header-shrink', prevShrink);
+        } else {
+          siteHeader.style.removeProperty('--header-shrink');
+        }
+      }
+    }
+
+    /* Aug 12, 2026 (2) - only write when the value actually changes. Setting
+       a custom property on documentElement invalidates style for everything
+       that reads it, and pageshow fires on every bfcache restore - so tapping
+       back to the home page on iOS forced a full restyle right as Safari was
+       re-compositing, which read as the rabbit flickering. */
+    var nextH = headerH + 'px';
+    if (document.documentElement.style.getPropertyValue('--header-actual-h') !== nextH) {
+      document.documentElement.style.setProperty('--header-actual-h', nextH);
+    }
 
     // Post pages: .post-header has its own padding-top — zero out #main-content
     if (document.querySelector('.post-header')) {
@@ -157,7 +189,12 @@
 
   apply();
   var t;
-  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(apply, 150); });
+  var schedule = function () { clearTimeout(t); t = setTimeout(apply, 150); };
+  window.addEventListener('resize', schedule);
+  window.addEventListener('orientationchange', schedule);
+  window.addEventListener('pageshow', schedule);
+  window.addEventListener('load', apply);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(apply); }
 })();
 </script>
 

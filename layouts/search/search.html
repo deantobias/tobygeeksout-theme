@@ -1,0 +1,11 @@
+{{ define "main" }}
+<div class="search-page-wrap">
+  <div class="search-header">
+    <h1 class="search-title">Search</h1>
+    <p class="search-subtitle">Looking for something specific? Dig in.</p>
+  </div>
+  <input id="input_search" class="search-field" type="search" placeholder="Type to search…" autofocus oninput="submitSearch(this.value)" />
+  <div id="list_loading" style="display:none; font-size: 0.875rem; color: var(--color-text-light); padding: 1rem 0;">Loading posts…</div>
+  <div id="list_results" class="search-results"></div>
+</div>
+{{ end }}

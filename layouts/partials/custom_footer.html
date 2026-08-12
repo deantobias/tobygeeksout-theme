@@ -42,11 +42,11 @@
 </script>
 
 <script>
-/* Cycling tagline — home about-strip AND the desktop rail (July 22,
-   2026: the rail carries its own copy, so this drives every element
-   matching #tgo-tagline or .tgo-tagline-cycle in lockstep). Static
+/* Home page about-strip: cycling tagline under "Hi, I'm Toby". Static
    fallback text is already in the HTML so it reads fine with JS off. */
 (function () {
+  /* July 22, 2026: also drives the desktop rail's copy — every element
+     matching #tgo-tagline or .tgo-tagline-cycle cycles in lockstep. */
   var els = document.querySelectorAll('#tgo-tagline, .tgo-tagline-cycle');
   if (!els.length) return;
   var words = [
@@ -75,10 +75,10 @@
 <script>
 /* Subscribe via RSS: copies the feed URL to the clipboard instead of
    navigating to a raw XML page, with a brief "Copied!" confirmation
-   so people aren't left guessing whether the click did anything.
-   July 22, 2026: class-based — covers the home strip button (#) AND
-   the rail's two feed buttons (XML + JSON), each with its own URL. */
+   so people aren't left guessing whether the click did anything. */
 (function () {
+  /* July 22, 2026: class-based — covers the home strip button AND the
+     rail's two feed buttons (XML + JSON), each with its own URL. */
   var btns = document.querySelectorAll('#tgo-rss-copy, .tgo-rss-copy');
   if (!btns.length) return;
   btns.forEach(function (btn) {

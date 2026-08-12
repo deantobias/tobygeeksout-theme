@@ -6488,6 +6488,18 @@ main > .page-header,
 
 .tgo-rabbit.is-in { opacity: 1; }
 
+/* Aug 12, 2026 - keep the rabbit and his bubble on their own compositing
+   layers. Without this, iOS Safari tears the bubble's layer down when it
+   fades back out and re-rasterizes the whole corner next to the fixed
+   header - Toby saw it as a flicker on back navigation. Chromium keeps the
+   layer alive on its own, which is why Android never showed it. */
+.tgo-rabbit,
+.tgo-rabbit-bubble {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: opacity, transform;
+}
+
 /* Banner slot: anchored at the SPOTLIGHT eyebrow height at every
    rail width (Toby, July 30 — same place on desktop and foldable,
    no breakpoint special case). The eyebrow row is short, so the

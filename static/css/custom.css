@@ -4651,8 +4651,20 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    visual gap 5.5px used to give with Inter. Applies only in reading
    contexts; Inter UI links keep 5.5px. */
 :is(.post-body, .page-body, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
-  text-underline-offset: 9px;
+  text-underline-offset: 8px;
   text-decoration-skip-ink: all;
+}
+
+/* Offset follows the SIZE, not an arbitrary phone width (Toby, Aug 13):
+   the reading-size bump below is 1.25rem/25px, and 25px Lora needs the
+   extra pixel while 20px desktop does not - at a flat 9px the desktop
+   wave read as a separate rule floating under the line. Same 1023px
+   breakpoint as the font-size rule, so size and offset flip together
+   instead of disagreeing through the 640-1023 band. */
+@media (max-width: 1023px) {
+  :is(.post-body, .page-body, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
+    text-underline-offset: 9px;
+  }
 }
 
 /* .read-more-link excluded above (Aug 1, 2026): it lives inside

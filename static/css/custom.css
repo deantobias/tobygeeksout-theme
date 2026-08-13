@@ -513,6 +513,17 @@ figcaption {
   font-style: italic;
 }
 
+/* Drop cap — first paragraph accent  */
+.post-body p.drop-cap::first-letter {
+  font-family: var(--font-reading);
+  font-weight: 600;
+  font-size: 5.8em;
+  line-height: 0.8;
+  float: left;
+  margin-right: 10px;
+  margin-top: 6px;
+  color: var(--color-terra);
+}
 
 /* ------------------------------------------------------------
    5. CONTENT LISTS (shared: post, page, micro, timeline)
@@ -4639,8 +4650,9 @@ body.type-newsletter .newsletter-preview-panel .page-body {
    nearly touch the line (Toby's catch, July 22). 7px restores the
    visual gap 5.5px used to give with Inter. Applies only in reading
    contexts; Inter UI links keep 5.5px. */
-:is(.post-body, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
-  text-underline-offset: 7px;
+:is(.post-body, .page-body, .post-card-content, .post-card-excerpt) a:not(.read-more-link) {
+  text-underline-offset: 9px;
+  text-decoration-skip-ink: all;
 }
 
 /* .read-more-link excluded above (Aug 1, 2026): it lives inside
@@ -7378,4 +7390,80 @@ html { overflow-x: clip; }
 .micro-entry-text a,
 .post-card-excerpt a {
   overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------
+   82. MENTIONED ELSEWHERE (manual mention block)
+   Paste .post-mentions markup at the end of a post to use it.
+   Tokens only — follows the timed sky automatically.
+   ------------------------------------------------------------ */
+
+.post-mentions {
+  max-width: 980px;
+  margin: var(--space-2xl) auto var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.post-mentions-label {
+  font-family: var(--font-body);
+  font-size: 1.09375rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-md);
+}
+
+.post-mention {
+  display: block;
+  background-color: var(--color-bg-card);
+  border-left: 3px solid var(--color-terra);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  text-decoration: none;
+  overflow-wrap: break-word;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.post-mention:last-child {
+  margin-bottom: 0;
+}
+
+.post-mention:hover {
+  background-color: var(--color-bg-warm);
+  border-left-color: var(--color-terra-dark);
+}
+
+.post-mention-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-navy);
+  margin: 0 0 var(--space-xs);
+}
+
+.post-mention:hover .post-mention-title {
+  color: var(--color-terra-dark);
+}
+
+.post-mention-source {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.post-mention-quote {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--color-text);
+  margin: var(--space-sm) 0 0;
+}
+
+@media (max-width: 479px) {
+  .post-mention { padding: var(--space-md); }
+  .post-mentions-label { font-size: 1rem; }
 }

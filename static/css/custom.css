@@ -7408,6 +7408,21 @@ html { overflow-x: clip; }
    82. MENTIONED ELSEWHERE (manual mention block)
    Paste .post-mentions markup at the end of a post to use it.
    Tokens only — follows the timed sky automatically.
+   Keep in sync with MENTION_CSS in Perch's src/Composer.jsx —
+   that constant is the preview mirror of this section.
+
+   SPECIFICITY — read before simplifying anything below.
+   The theme's `.post-body p` (0,1,1) sets color, font-family,
+   font-weight, font-size AND margin-bottom. Single-class rules
+   like `.post-mention-title` are (0,1,0) and lose to it, sheet
+   order regardless. Every inner rule here is therefore scoped to
+   `.post-mentions`, making it (0,2,0) — which outranks (0,1,1).
+   Measured live: unscoped, the title rendered 24px Lora 500 in
+   near-black instead of Bricolage 700 navy.
+
+   REM NOTE: root is `html { font-size: 20px !important }`, not
+   16px. 0.875rem = 17.5px, 1.2rem = 24px. Do not convert px
+   values assuming a 16px root.
    ------------------------------------------------------------ */
 
 .post-mentions {
@@ -7417,38 +7432,41 @@ html { overflow-x: clip; }
   border-top: 1px solid var(--color-border);
 }
 
-.post-mentions-label {
+/* 0.875rem to match .post-conversation-label exactly — this block
+   sits directly above it and the two labels must read as siblings */
+.post-mentions .post-mentions-label {
   font-family: var(--font-body);
-  font-size: 1.09375rem;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--color-text-light);
-  margin-bottom: var(--space-md);
+  margin: 0 0 var(--space-md);
 }
 
-.post-mention {
+.post-mentions a.post-mention {
   display: block;
-  background-color: var(--color-bg-card);
+  background-color: var(--color-bg-card, var(--color-bg));
   border-left: 3px solid var(--color-terra);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: var(--space-md) var(--space-lg);
   margin-bottom: var(--space-md);
+  color: inherit;
   text-decoration: none;
   overflow-wrap: break-word;
   transition: background-color 0.15s, border-color 0.15s;
 }
 
-.post-mention:last-child {
+.post-mentions a.post-mention:last-child {
   margin-bottom: 0;
 }
 
-.post-mention:hover {
+.post-mentions a.post-mention:hover {
   background-color: var(--color-bg-warm);
   border-left-color: var(--color-terra-dark);
 }
 
-.post-mention-title {
+.post-mentions .post-mention-title {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
@@ -7457,18 +7475,23 @@ html { overflow-x: clip; }
   margin: 0 0 var(--space-xs);
 }
 
-.post-mention:hover .post-mention-title {
+.post-mentions a.post-mention:hover .post-mention-title {
   color: var(--color-terra-dark);
 }
 
-.post-mention-source {
+.post-mentions .post-mention-source {
+  font-family: var(--font-body);
   font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
   color: var(--color-text-muted);
   margin: 0;
 }
 
-.post-mention-quote {
+.post-mentions .post-mention-quote {
+  font-family: var(--font-display);
   font-size: 1.2rem;
+  font-weight: 400;
   line-height: 1.6;
   font-style: italic;
   color: var(--color-text);
@@ -7476,6 +7499,20 @@ html { overflow-x: clip; }
 }
 
 @media (max-width: 479px) {
-  .post-mention { padding: var(--space-md); }
-  .post-mentions-label { font-size: 1rem; }
+  .post-mentions a.post-mention { padding: var(--space-md); }
+}
+
+/* Cross sky. Inert until custom_footer.html sets
+   document.documentElement.dataset.sky = name.
+   Uses ~= to match the existing .tg-mark--stamp rules.
+   White on the cross card #AC7248 is 3.99:1 — the number the
+   100 Days stamp was accepted at on the same surface. */
+html[data-sky~="cross"] .post-mentions .post-mentions-label,
+html[data-sky~="cross"] .post-mentions .post-mention-title,
+html[data-sky~="cross"] .post-mentions .post-mention-source {
+  color: #FFFFFF;
+}
+
+html[data-sky~="cross"] .post-mentions a.post-mention {
+  border-left-color: #FFFFFF;
 }

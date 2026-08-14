@@ -4770,6 +4770,21 @@ body.tgo-night .featured-excerpt {
     font-family: var(--font-body);
   }
 
+  /* Rail scrollbar: keep the scroll, hide the bar (Aug 14, 2026).
+     The overflow-y:auto above stays as the short-window safety net;
+     this only removes the visible track and thumb, which macOS draws
+     permanently when "Show scroll bars" is set to Always. */
+  .site-rail {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .site-rail::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   /* Content and footer clear the rail; footer stays under the
      content column (Toby reverted the full-width version). */
   body:not(.type-newsletter):not(.type-post) #main-content,

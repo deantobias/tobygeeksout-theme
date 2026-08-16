@@ -4417,6 +4417,14 @@ body.tgo-night .about-text a { color: #E0906B; }
 .define-card .define-note-bar { background-color: var(--color-terra-light); }
 .define-card .define-note     { color: var(--color-navy-mid); }
 
+/* Fonts for the define card, class-based (Aug 16, 2026): Toby is
+   stripping font-family from the card's inline styles via Perch — the
+   theme owns fonts on the blog; the email template's style block owns
+   the inbox. */
+.define-card .define-eyebrow { font-family: var(--font-body); }
+.define-card .define-word    { font-family: var(--font-display); }
+.define-card .define-def     { font-family: var(--font-body); }
+
 /* Night footer override removed July 22, 2026 — the footer no longer
    has its own background (simplified, rides the sky bg directly), so
    the old terracotta-after-dark panel is obsolete. */
@@ -6646,7 +6654,7 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(h1, h2, h3, h4, h5
 }
 
 /* Links: Gmail blue with a plain solid underline.
-   COLOR — two layers, like Gmail: unstyled links go blue; links
+   COLOR — two layers, like Gmail: unstyled links go blue (Gmail default — Toby confirmed blue for ALL email links, Aug 16, 2026; briefly terracotta earlier that day); links
    the template inline-colors keep their inline color. Colorless
    links need !important because the section 53 day-pins
    (!important navy on card title links) would otherwise win —
@@ -6666,6 +6674,69 @@ body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="color"]
 }
 body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-decoration:none"]):not([style*="text-decoration: none"]) {
   text-decoration: underline solid currentColor !important;
+}
+
+/* Bold: Gmail bolds the surrounding email font (Arial), not the
+   site display font — inherit stops the global strong,b Bricolage
+   pin from leaking into the preview. Aug 16, 2026. */
+body.type-newsletter .newsletter-preview-panel .page-body :is(strong, b) {
+  font-family: inherit;
+}
+
+/* Webfonts don't reach the inbox: anything inline-stacked
+   'Bricolage Grotesque', Georgia renders Georgia in Gmail. Pin the
+   preview the same way — no false hope (Toby, Aug 16, 2026).
+   Attribute selector catches older cards with baked inline stacks;
+   the .define-word class covers cards after the inline-font strip. */
+body.type-newsletter .newsletter-preview-panel .page-body [style*="Bricolage"],
+body.type-newsletter .newsletter-preview-panel .page-body .define-word {
+  font-family: Georgia, 'Times New Roman', serif !important;
+}
+
+/* The site's blockquote dress (terracotta bar, italics, section 5)
+   doesn't exist in an inbox — stripped in the preview. Covers plain
+   quotes AND card quotes that declare border:none inline (link-card
+   .card-wrap); quotes with a real inline border keep theirs. */
+/* Plain quotes: Gmail shows its default indent (1em 40px), modest
+   vertical gaps — mirror it exactly (Toby, Aug 16: preview had the
+   theme's big margins + flush left, email did not). */
+body.type-newsletter .newsletter-preview-panel .page-body blockquote:not([style*="border"]) {
+  border-left: 0 !important;
+  margin: 1em 40px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-style: normal !important;
+}
+/* Domain pill: Gmail shows no pill background, so neither does the
+   preview (Toby, Aug 16). Text goes Gmail blue via the colorless-link
+   pin above; out-specifies the section 45 newsletter pill rule. */
+body.type-newsletter .newsletter-preview-panel .page-body .link-card a[style*="inline-block"] {
+  background: transparent !important;
+}
+
+/* Blog card in the preview: the email is flat — no 3D offset shadow,
+   no hover lift (Toby, Aug 16, 2026). */
+body.type-newsletter .newsletter-preview-panel .page-body .link-card.blog-card,
+body.type-newsletter .newsletter-preview-panel .page-body .link-card.blog-card:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+/* Card quotes declaring border:none inline (link-card .card-wrap):
+   flush and undressed, spacing stays theirs. */
+body.type-newsletter .newsletter-preview-panel .page-body blockquote[style*="border:none"],
+body.type-newsletter .newsletter-preview-panel .page-body blockquote[style*="border: none"] {
+  border-left: 0 !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  background: transparent !important;
+  font-style: normal !important;
+}
+body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([style*="border"]), blockquote[style*="border:none"], blockquote[style*="border: none"])::before {
+  content: none !important;
+}
+body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([style*="border"]), blockquote[style*="border:none"], blockquote[style*="border: none"]) p {
+  font-style: normal !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 
@@ -7335,14 +7406,14 @@ body.tgo-night .link-card.blog-card:hover {
     position: static;
     float: right;
   }
-  .tg-mark--ticket { width: 172px; margin: 0 0 6px 14px; }
+  .tg-mark--ticket { width: 200px; margin: 0 0 6px 14px; }
   .tg-mark--stamp  { width: 142px; margin: 0 0 6px 14px; }
 }
 
 /* Small phones: back off a little so a 152px float doesn't leave the
    headline in a 200px gutter. */
 @media (max-width: 400px) {
-  .tg-mark--ticket { width: 146px; margin: 0 0 6px 12px; }
+  .tg-mark--ticket { width: 176px; margin: 0 0 6px 12px; }
   .tg-mark--stamp  { width: 122px; margin: 0 0 6px 12px; }
 }
 
@@ -7370,6 +7441,82 @@ body.tgo-night .link-card.blog-card:hover {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* MILESTONE BADGE — Blaugust milestone posts only (1/5/15/25/31).
+   Toby's own uploaded PNGs, placed as-is: the art already carries its own
+   white ring, so nothing is wrapped around it — only a tilt and a shadow.
+   The partial picks the filename; note 31 is "rainbow", not "diamond".
+
+   Lands on the ticket's top-right corner, over the blank stub past the
+   perforation rather than the type. Same treatment at every width: the
+   badge is always HALF the ticket's width, so the relationship between
+   the two is identical on a 1440 desktop and a 390 phone.
+
+   drop-shadow, not box-shadow — the PNGs are transparent outside the disc
+   and box-shadow would trace the square bounding box instead of the circle.
+   +13deg against the ticket's -8deg so the two disagree and read as
+   separately placed rather than as one stacked unit. */
+.tg-milestone {
+  display: none;          /* each band below opts back in */
+  position: absolute;
+  height: auto;
+  transform: rotate(13deg);
+  filter: drop-shadow(0 4px 7px rgba(43, 36, 32, .26))
+          drop-shadow(0 1px 2px rgba(43, 36, 32, .14));
+  pointer-events: none;
+  z-index: 2;             /* under the fixed site header, which is 1000 */
+}
+
+/* DESKTOP + FOLDABLE. The ticket is absolutely positioned in both bands,
+   so one rule covers them: 150px against a 300px ticket, 135 against 270,
+   115 against 230. Sitting BESIDE the ticket rather than above it, the
+   badge adds no height — the ticket keeps its normal --mark-top and
+   clearance to the first paragraph is untouched.
+
+   right: 18px, not 0 — .post-header-inner is overflow-x: clip and the
+   badge loses its edge otherwise. */
+@media (min-width: 601px) {
+  .tg-milestone {
+    display: block;
+    top: 0;
+    right: 18px;
+    width: calc(var(--mark-w) * 0.5);
+  }
+}
+
+/* PHONE. Here the ticket is a float, flush to the top of the header, so
+   there is no corner to hang over until we make one — hence the 30px of
+   margin above it. :has() keeps that off posts with no milestone.
+
+   right: 10px, not 8 — at 426px wide, 8px put the badge 1px past the clip
+   edge. Same class of stray pixel as the 2026-08-12 horizontal scroll. */
+@media (max-width: 600px) {
+  /* Nudged 18px left of its usual float position so the badge, which is
+     anchored to the right edge and does NOT move with it, clears the tail
+     of BLAUGUST. At phone sizes the badge was sitting on the T.
+     :has() keeps both of these off posts with no milestone. */
+  .post-header-inner:has(.tg-milestone) .tg-mark--ticket {
+    margin-top: 30px;
+    margin-right: 18px;
+  }
+
+  .tg-milestone {
+    display: block;
+    top: 0;
+    right: 10px;
+    width: 110px;         /* half-ish the 200px ticket */
+  }
+}
+
+@media (max-width: 400px) {
+  .tg-milestone { width: 96px; }   /* half-ish the 176px ticket */
+}
+
+/* The .tg-mark hide below is a separate element and does not catch the
+   badge, so it needs saying twice. */
+@media (max-width: 330px) {
+  .tg-milestone { display: none; }
 }
 
 /* Kill any horizontal overflow. body already has overflow-x: hidden

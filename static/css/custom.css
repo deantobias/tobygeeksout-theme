@@ -3584,7 +3584,7 @@ body.type-newsletter .site-footer {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -0.15rem;
+  bottom: 0.1rem;
   width: 1.5rem;
   height: 1.5rem;
   background-color: var(--color-text-muted);
@@ -4449,8 +4449,15 @@ body.tgo-night blockquote::before {
 .page-header { border-bottom: none !important; }
 .page-header::after { content: '' !important; display: block !important; height: 3px !important; background: linear-gradient(to right, var(--color-terra), var(--color-terra-light), transparent) !important; margin-top: 0.75rem !important; }
 .page-body a { text-decoration: none !important; }
-.page-body blockquote { background: transparent !important; border-left: 3px solid var(--color-terra) !important; }
-.page-body blockquote p { color: var(--color-text-muted) !important; font-style: italic !important; }
+.page-body blockquote:not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap) { background: transparent !important; border-left: 3px solid var(--color-terra) !important; }
+.page-body blockquote:not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap) p { color: var(--color-text-muted) !important; font-style: italic !important; }
+/* Newsletter pages mirror the email: echo cards stay flat — no hover lift or shadow (Aug 18, 2026, Toby) */
+.newsletter-body blockquote.reblog-v3,
+.newsletter-body blockquote.reblog-v3:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
 
 .now-updated { font-size: 0.65rem; font-weight: 600; color: var(--color-text-light); background: var(--color-bg-warm); border: 1px solid var(--color-border); padding: 3px 10px; border-radius: 99px; display: inline-block; margin-bottom: 1.5rem; }
 .now-heading { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; margin-top: 2.5rem; }
@@ -7678,3 +7685,4 @@ html[data-sky~="cross"] .post-mentions .post-mention-source {
 html[data-sky~="cross"] .post-mentions a.post-mention {
   border-left-color: #FFFFFF;
 }
+

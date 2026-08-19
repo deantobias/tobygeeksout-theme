@@ -80,10 +80,17 @@
 <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
 <meta property="og:site_name"   content="{{ .Site.Title }}">
 
+{{ $ogImage := "https://tobygeeksout.micro.blog/uploads/2026/tgo-social-card-1.png" }}
+{{ $photos := findRE `https://cdn\.uploads\.micro\.blog/[^"]+?\.(?:jpg|jpeg|png|webp)` .Content 1 }}
+{{ with $photos }}{{ $ogImage = index . 0 }}{{ end }}
+{{ with .Params.og_image }}{{ $ogImage = . }}{{ end }}
+<meta property="og:image"        content="{{ $ogImage }}">
+
 <!-- Twitter card -->
-<meta name="twitter:card"        content="summary">
+<meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="twitter:image"       content="{{ $ogImage }}">
 
 <!-- RSS / JSON Feed -->
 {{ range .AlternativeOutputFormats -}}
@@ -229,6 +236,7 @@
 {{ range $filename := .Site.Params.plugins_html }}
   {{ partial $filename $ }}
 {{ end }}
+
 <!-- Favicon: Toby avatar (added 2026-07-19) -->
 <link rel="icon" href="{{ .Site.Author.avatar }}" />
 <link rel="shortcut icon" href="{{ .Site.Author.avatar }}" />

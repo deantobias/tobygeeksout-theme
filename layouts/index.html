@@ -25,7 +25,15 @@
      tagged Micro would have rendered in both boxes.
      Book writing and book photos should be tagged "Reading", which is
      deliberately NOT excluded and lands them here. */}}
-{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" }}
+{{/* Aug 19, 2026 (Toby). ADDED "Word of the Day": the series posts
+     daily, so it was taking three of the six slots in this feed and
+     printing the same hiraeth artwork three times. It now owns the
+     Word Nerd Alert band directly above, so it is excluded on its own
+     merit like every other section-owning category.
+     NOTE: the CATEGORY is "Word of the Day"; the band is LABELLED
+     "Word Nerd Alert". Do not rename the category - this line, the
+     band, and the /categories/word-of-the-day/ link all depend on it. */}}
+{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
   {{ $skip := false }}
@@ -169,6 +177,70 @@
 </div>
 {{ end }}
 {{ end }}
+{{/* ============================================================
+     WORD NERD ALERT (Aug 19, 2026, Toby)
+     Sits above Recent Geekouts. Renders the newest "Word of the Day"
+     post IN FULL, exactly like Micros does - these are short form, so
+     there is nothing to click through for. The TITLE is deliberately
+     ignored: the card states the word itself, and "Word Nerd Alert:
+     Exigent" above a card reading "exigent" is the same word twice.
+     The only thing removed is the trailing image row - the hiraeth
+     artwork is identical on every post in the series and repeats
+     badly when it is the one thing on screen.
+     ============================================================ */}}
+{{ $wordPool := slice }}
+{{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+  {{ if in .Params.categories "Word of the Day" }}
+    {{ $wordPool = $wordPool | append . }}
+  {{ end }}
+{{ end }}
+
+{{ if $wordPool }}
+  {{ $words := first 7 $wordPool }}
+  {{ $now := index $words 0 }}
+  {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
+
+  <section class="wna" aria-labelledby="wna-heading">
+    <p class="wna-eyebrow">
+      <strong id="wna-heading">Word Nerd Alert</strong>
+      <a class="wna-permalink" href="{{ $now.RelPermalink }}">
+        <time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "2 Jan 2006" }}</time>
+      </a>
+      <button type="button" class="wna-older" hidden>← Back to today</button>
+    </p>
+
+    <div class="wna-body" aria-live="polite">
+      {{ replaceRE $stripImg "" $now.Content | safeHTML }}
+    </div>
+
+    {{ if gt (len $words) 1 }}
+    <div class="wna-prev">
+      <span class="wna-prev-label">Before this</span>
+      {{ range $i, $p := $words }}
+        {{ if gt $i 0 }}
+          {{ $label := replaceRE `^.*?:\s*` "" $p.Title }}
+          {{ with index (findRE `(?s)class="define-word"[^>]*>.*?</p>` $p.Content 1) 0 }}
+            {{ $label = trim (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?>(.*?)</p>$` "$1" .)) " " }}
+          {{ end }}
+          <a class="wna-chip" href="{{ $p.RelPermalink }}" data-i="{{ $i }}">{{ $label }}</a>
+        {{ end }}
+      {{ end }}
+      <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
+    </div>
+    {{ end }}
+
+    {{/* Hidden store: every word's body, so a pill can swap the band
+         in place instead of navigating away. <template> content is
+         parsed but not rendered, so it costs layout nothing. */}}
+    {{ range $i, $p := $words }}
+      <template class="wna-store" data-i="{{ $i }}"
+                data-url="{{ $p.RelPermalink }}"
+                data-date="{{ $p.Date.Format "2 Jan 2006" }}"
+                data-iso="{{ $p.Date.Format "2006-01-02" }}">{{ replaceRE $stripImg "" $p.Content | safeHTML }}</template>
+    {{ end }}
+  </section>
+{{ end }}
+
 <div class="feed-wrapper">
   <p class="feed-label">Recent Geekouts</p>
   {{ range $recent }}
@@ -191,14 +263,22 @@
       {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
       {{ if and (not $thumb) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) }}{{ $thumb = $u }}{{ end }}
     {{ end }}
+    {{/* Aug 19, 2026 (Toby): thumbnail moved BEFORE the title. It used
+         to sit last, and .journal-title filled the leftover row width,
+         so the gap between a title and its picture changed size on
+         every row - a canyon after a short title, nearly closed after a
+         long one, and worse since --max-width went to 1120px. Now date,
+         picture and title sit together and the images form a straight
+         rail. Posts with no photo get .journal-slot so the rail does
+         not break; about four in ten posts have no image. */}}
     <a href="{{ .Permalink }}" class="journal-entry u-url">
       <span class="journal-date" aria-hidden="true">
         <span class="journal-date-day">{{ .Date.Format "2" }}</span>
         <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
         <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
       </span>
+      {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="96" height="64">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
       <span class="journal-title">{{ .Title }}</span>
-      {{ with $thumb }}<img class="journal-thumb" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="96" height="64">{{ end }}
     </a>
   {{ end }}
   {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,

@@ -722,3 +722,57 @@
   }
 })();
 </script>
+
+<!-- Word Nerd Alert - pills swap the band in place (Aug 19, 2026) -->
+<script>
+(function () {
+  var band = document.querySelector(".wna");
+  if (!band) return;
+  var body  = band.querySelector(".wna-body"),
+      link  = band.querySelector(".wna-permalink"),
+      stamp = link && link.querySelector("time"),
+      older = band.querySelector(".wna-older"),
+      chips = band.querySelectorAll(".wna-chip"),
+      store = band.querySelectorAll(".wna-store");
+  if (!body || !store.length) return;
+
+  function find(i) {
+    for (var k = 0; k < store.length; k++) {
+      if (store[k].getAttribute("data-i") === String(i)) return store[k];
+    }
+    return null;
+  }
+
+  function show(i) {
+    var t = find(i);
+    if (!t) return;
+    body.classList.add("is-swapping");
+    window.setTimeout(function () {
+      body.innerHTML = t.innerHTML;
+      if (link)  link.setAttribute("href", t.getAttribute("data-url"));
+      if (stamp) {
+        stamp.textContent = t.getAttribute("data-date");
+        stamp.setAttribute("datetime", t.getAttribute("data-iso"));
+      }
+      if (older) older.hidden = (String(i) === "0");
+      body.classList.remove("is-swapping");
+    }, 160);
+    Array.prototype.forEach.call(chips, function (c) {
+      if (c.getAttribute("data-i") === String(i)) c.setAttribute("aria-current", "true");
+      else c.removeAttribute("aria-current");
+    });
+  }
+
+  Array.prototype.forEach.call(chips, function (c) {
+    c.addEventListener("click", function (e) {
+      e.preventDefault();
+      show(c.getAttribute("data-i"));
+    });
+  });
+
+  /* "Back to today" - only visible once you have wandered off word 0 */
+  if (older) {
+    older.addEventListener("click", function () { show(0); });
+  }
+}());
+</script>

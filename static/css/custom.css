@@ -6097,9 +6097,14 @@ main > .page-header,
      "Havoc" vs "The Burial Hour" left the columns ragged). */
   .books-group--shelf .reel-entry-title,
   .books-group--shelf .book-entry-title {
-    font-size: 0.82rem;
+    /* Aug 19, 2026 (Toby): 0.82rem -> 0.95rem so the shelf covers match
+       the ratings tiles (both narrow grid items). min-height moved with
+       it — it is exactly two lines at this size and keeps the covers
+       bottom-aligned when one title wraps and its neighbour does not.
+       Checked first: all current shelf titles still fit in two lines. */
+    font-size: 0.95rem;
     line-height: 1.25;
-    min-height: 2.05rem;
+    min-height: 2.375rem;
     white-space: normal;
     text-align: center;
     display: -webkit-box;
@@ -7738,4 +7743,218 @@ html[data-sky~="cross"] .post-mentions a.post-mention {
 body.tgo-night {
   --color-terra-btn: var(--color-terra);
   --color-btn-ink:   #171E30;
+}
+
+/* ============================================================
+   86 · WORD NERD ALERT + JOURNAL ROW REBUILD   (Aug 19, 2026)
+   ============================================================ */
+
+/* ---- journal row: date | picture | title ---- */
+.journal-entry{
+  display:grid;
+  grid-template-columns:3.2rem 96px 1fr;
+  align-items:center;
+  gap:1rem;
+}
+
+/* quiet slot where a photo would be. Surface tokens only — a warm fill
+   here goes muddy on dusk and night (Blaugust badge, Aug 1). */
+.journal-slot{
+  width:96px;height:64px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--color-bg-warm) 0%,var(--color-bg-card) 100%);
+  border:1px solid var(--color-border);
+  display:flex;align-items:center;justify-content:center;
+}
+.journal-slot::before{
+  content:"";width:22px;height:2px;background:var(--color-terra);opacity:.75;
+}
+
+@media (max-width:640px){
+  .journal-entry{grid-template-columns:2.6rem 72px 1fr;gap:.7rem;}
+  .journal-thumb,.journal-slot{width:72px;height:52px;}
+}
+
+/* ---- the band ---- */
+.wna{
+  max-width:1120px;
+  margin:0 auto 0;                       /* was var(--space-2xl) = 60px here */
+  padding:2rem 2rem 1rem;  /* 40 top / 20 bottom, same as .featured-banner */             /* was 1.35rem bottom */
+  padding-left:calc(2rem - 4px);
+  background:var(--color-bg-warm);
+  border:1px solid var(--color-border);
+  border-left:4px solid var(--color-terra);
+  border-radius:0 var(--radius-lg) var(--radius-lg) 0;
+}
+.wna-eyebrow{
+  display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;
+  margin:0;
+  font-family:var(--font-body);font-size:.75rem;
+  text-transform:uppercase;letter-spacing:.11em;
+  color:var(--color-text-light);
+}
+.wna-eyebrow strong{
+  font-family:var(--font-body);
+  font-size:.8rem;
+  font-weight:700;
+  letter-spacing:.125em;
+  color:var(--color-terra-text);
+}
+.wna-permalink{color:var(--color-text-light);text-decoration:none;}
+.wna-permalink:hover{color:var(--color-terra-text);text-decoration:underline;text-underline-offset:3px;}
+
+/* The card is an email table: width 600 / max-width 600 / margin 24 auto,
+   set INLINE. An author !important beats a non-important inline style —
+   confirmed live on the reblog-v3 link, Aug 19. This is the one place in
+   this section that needs it; do not add more. */
+.wna-body .define-card{
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+}
+
+/* The card is typeset for email — 54/16 against a 16px baseline. This
+   page runs a 20px root and 1.2rem body, so both sizes land small.
+   Rescaled to the site's own scale; scoped to .wna-body so post pages
+   are untouched. */
+.wna-body .define-word{
+  font-size:clamp(2rem, 3.2vw, 3rem) !important;
+  margin-bottom:.4rem !important;
+}
+.wna-body .define-def{ font-size:1.2rem !important; line-height:1.5 !important; }
+.wna-body .define-example{ font-size:1rem !important; }
+.wna-body .define-eyebrow{ font-size:.75rem !important; }
+
+@media (max-width:640px){
+  .wna{padding:1rem 1rem 1.1rem;}
+  .wna-body .define-word{font-size:2.25rem !important;}
+}
+
+/* ---- previous words ---- */
+.wna-prev{
+  display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;
+  margin-top:1rem;padding-top:.85rem;
+  border-top:1px solid var(--color-border);
+}
+.wna-prev-label{
+  font-family:var(--font-body);font-size:.75rem;
+  text-transform:uppercase;letter-spacing:.09em;
+  color:var(--color-text-light);margin-right:.15rem;
+}
+.wna-chip{
+  font-family:var(--font-display);font-weight:600;font-size:.875rem;
+  color:var(--color-terra-text);text-decoration:none;
+  background:var(--color-bg-card);
+  border:1px solid var(--color-border);
+  border-radius:999px;padding:.22rem .75rem;
+  text-transform:capitalize;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.wna-chip:hover{
+  background:var(--color-terra-btn);
+  border-color:var(--color-terra-btn);
+  color:var(--color-btn-ink);
+}
+.wna-chip:focus-visible{outline:2px solid var(--color-terra);outline-offset:2px;}
+.wna-all{
+  font-family:var(--font-body);font-size:.75rem;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-terra-text);text-decoration:none;
+  margin-left:auto;white-space:nowrap;
+}
+.wna-all:hover{text-decoration:underline;text-underline-offset:3px;}
+
+/* "Back to today" — hidden until a pill takes you off the current word.
+   <button> ignores inherited colour and font, so both must be set
+   explicitly or it renders in the UA's black on every sky. */
+.wna-older{
+  font-family:var(--font-body);
+  font-size:.6875rem;
+  font-weight:500;
+  letter-spacing:.06em;
+  text-transform:none;
+  color:var(--color-terra-text);
+  background:none;
+  border:0;
+  padding:0;
+  margin:0;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.wna-older:hover{color:var(--color-terra);}
+.wna-older:focus-visible{outline:2px solid var(--color-terra);outline-offset:2px;}
+.wna-older[hidden]{display:none;}
+
+/* Lead with the word. Micro.blog puts the reblog card above the
+   define-card in the post, which is right on the post page but wrong
+   here — this section is named for the word, so the word goes first
+   and the quote becomes the "why". Also drops the empty <p> the
+   editor leaves behind. */
+.wna-body{ display:flex; flex-direction:column; }
+.wna-body > .define-card{ order:-1; }
+.wna-body > p:empty{ display:none; }
+
+/* Every section block in .feed-wrapper carries margin-top:var(--space-2xl),
+   which computes to 60px here. Recent Geekouts has no block of its own —
+   it sits on the wrapper's 30px padding — and that tighter spacing is the
+   one we're keeping, so the blocks come down to match it. */
+.feed-wrapper > .micro-section,
+.feed-wrapper > .books-section,
+.feed-wrapper > .reel-section,
+.feed-wrapper > .catrow-section{ margin-top:30px; }
+
+.feed-wrapper > .feed-archive-cta{ margin-top:30px; }
+
+/* Titles were 21px under a 26px section label — the signpost outsizing
+   the content. The longest current title used 468px of an 832px cell,
+   so there was room to spare. */
+/* Desktop titles were 1.05rem while mobile sat at 1.25rem - the same
+   desktop/mobile inversion fixed for reading weight on July 27.
+   Desktop comes UP to match mobile rather than overshooting it.
+   NOT 1.4rem: tried July 22, reverted as oversized (see the comment
+   on the base .journal-title rule). The media query is required -
+   unscoped, this also overrides the max-width:1023px mobile rule. */
+@media (min-width:1024px){
+  .journal-title,
+  .reel-entry-title{ font-size:1.25rem; }
+}
+
+/* Rail had four sizes within 3px — 0.75/0.8/0.85/0.9rem — which reads as
+   drift, not hierarchy. Two tiers: 0.9rem for things you click, 0.8rem
+   for things you read. Scoped to >=1024px so the compact rail (768-1023)
+   keeps its own tuning, including .rail-newsletters at 0.72rem nowrap. */
+@media (min-width:1024px){
+  .rail-tagline{ font-size:0.8rem; }     /* was 0.85 */
+  .rail-sub-text{ font-size:0.8rem; }    /* was 0.75 */
+  .rail-newsletters{ font-size:0.8rem; } /* was 0.75 */
+}
+/* Mobile: put "Before this" on its own line so the pills start a
+   fresh row and wrap onto a second and third as needed. In a
+   flex-wrap row a 100% basis on the label forces the break. */
+@media (max-width:640px){
+  .wna-prev-label{
+    flex:0 0 100%;
+    margin-right:0;
+    margin-bottom:.35rem;
+  }
+}
+
+/* Links inside the band. The site styles links via the :is(.post-body,
+   .micro-entry-text, .post-card-content, ...) a groups in section 6, and
+   .wna-body was never added to any of them - so links in the band
+   rendered as plain body text with no colour and no underline.
+   Matches the site treatment: wavy, 1px thickness, 5.5px offset (Aug 1).
+   Reblog cards are excluded - they carry their own inline colours so the
+   emailed newsletter still looks right. */
+.wna-body a:not([class*="reblog"]){
+  color:var(--color-terra-text);
+  text-decoration:underline wavy;
+  text-decoration-color:var(--color-terra);
+  text-decoration-thickness:1px;
+  text-underline-offset:5.5px;
+}
+.wna-body a:not([class*="reblog"]):hover{
+  color:var(--color-terra);
 }

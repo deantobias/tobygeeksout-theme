@@ -45,7 +45,12 @@
             {{ if .Title }}
               <a href="{{ .Permalink }}" class="archive-item-titled">{{ .Title }}</a>
             {{ else }}
-              <a href="{{ .Permalink }}" class="archive-item-untitled">{{ .Summary | plainify | truncate 80 }}</a>
+              {{/* WCAG 2.4.4 / 4.1.2 (Aug 18, 2026): a handful of untitled posts
+                   (photo-only ones) have an empty Summary, so this link rendered
+                   with NO text — nothing for a screen reader to announce and
+                   nothing to click by voice. Fall back to the date. */}}
+              {{ $blurb := trim (.Summary | plainify | truncate 80) " " }}
+              <a href="{{ .Permalink }}" class="archive-item-untitled">{{ if $blurb }}{{ $blurb }}{{ else }}Untitled post from {{ .Date.Format "January 2, 2006" }}{{ end }}</a>
             {{ end }}
           </li>
           {{ end }}

@@ -36,6 +36,12 @@
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{ $recent := first 6 $recentPool }}
+{{/* WCAG 1.3.1 / 2.4.6 (Aug 18, 2026): the home page had no h1 at all —
+     its heading outline started at the h2 post titles. Post and archive
+     pages already have proper h1s; this gives the home page one without
+     changing the visual design, using the theme's existing .sr-only
+     utility (CSS section 30). */}}
+<h1 class="sr-only">{{ .Site.Title }}</h1>
 <div class="about-strip">
   {{/* Mobile slot for the Spotlight rabbit (July 30, 2026) — on
        phones/tablets the Spotlight sits below the fold, so the

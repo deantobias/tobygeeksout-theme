@@ -437,9 +437,9 @@
     try { locked = localStorage.getItem(KEY) === 'off'; } catch (e) {}
 
     var TOKENS_BG = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
-    var TOKENS_TEXT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light'];
-    var DAY_TEXT   = ['#1A1A18', '#6B645D', '#9C9489', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3'];
-    var NIGHT_TEXT = ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20'];
+    var TOKENS_TEXT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light', '--color-terra-text'];
+    var DAY_TEXT   = ['#1A1A18', '#69635C', '#787169', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3', '#A65326'];
+    var NIGHT_TEXT = ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20', '#D97A45'];
 
     /* FOUR fixed skies (July 12, Toby's call — was six continuously
        blending phases, which read as "6 to 9 different colors" and
@@ -496,12 +496,20 @@
     }
 
     /* Per-token floors, same order as TOKENS_TEXT:
-       text 7 (AAA body), muted 5, light 3, navy 5, navy-mid 5,
-       terra 4.5 (links), terra-dark 4.5, terra-light 0 (it's a
+       text 7 (AAA body), muted 5, navy 5, navy-mid 5,
+       light 4.5 — was 3 until Aug 18, 2026. A 3:1 floor is the LARGE-text
+       allowance, but this token paints dates, captions and meta lines at
+       0.75-0.8rem, so it was shipping small text at 2.8-3.5:1 through the
+       sunset and dusk steps (14 and 6 elements on the home page alone).
+       AA for small text is 4.5, so that is the floor now.
+       terra 4.5 (links), terra-dark 4.5,
+       terra-text 4.5 — small-text terracotta, added Aug 18, 2026 so the
+       guard carries it through the ramps the same way it carries terra.
+       terra-light 0 (it's a
        background/accent tint, not an ink — guarding it would wreck
        the gradients it lives in). Floors deliberately sit ABOVE bare
        AA — Toby's call, low-vision readers first. */
-    var INK_MIN = [7, 5, 3, 5, 5, 4.5, 4.5, 0];
+    var INK_MIN = [7, 5, 4.5, 5, 5, 4.5, 4.5, 0, 4.5];
 
     /* Sun times, reader's clock. NOAA-style approximation. */
     function sunTimes() {
@@ -688,3 +696,29 @@
 
 <script data-goatcounter="https://tobygeeksout.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
+
+<script>
+/* ------------------------------------------------------------
+   WCAG 4.1.2 / 3.3.2 — reply box label  (Aug 18, 2026)
+   ------------------------------------------------------------
+   Micro.blog injects the conversation reply form itself, and the
+   textarea it ships has no label, no placeholder and no aria-label —
+   a screen reader announces it as a bare "edit text" with nothing to
+   say what it is. We can't change the injected markup, so name it
+   after the fact. Runs on load and again on DOM changes, because the
+   form is injected asynchronously and can re-render after a reply.
+   ------------------------------------------------------------ */
+(function () {
+  function nameReplyBox() {
+    document.querySelectorAll('.microblog_reply_form textarea:not([aria-label])')
+      .forEach(function (t) { t.setAttribute('aria-label', 'Write a reply'); });
+    document.querySelectorAll('.microblog_reply_button input[type="submit"]:not([aria-label])')
+      .forEach(function (b) { if (!b.value) b.setAttribute('aria-label', 'Send reply'); });
+  }
+  nameReplyBox();
+  document.addEventListener('DOMContentLoaded', nameReplyBox);
+  if ('MutationObserver' in window) {
+    new MutationObserver(nameReplyBox).observe(document.documentElement, { childList: true, subtree: true });
+  }
+})();
+</script>

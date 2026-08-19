@@ -29,6 +29,14 @@
   --color-terra:        #C4622D;
   --color-terra-light:  #F0DDD3;
   --color-terra-dark:   #8B3E18;
+  /* WCAG AA (Aug 18, 2026): terracotta text tokens. --color-terra stays
+     #C4622D for borders, banners and large display type (3.86 clears the
+     3:1 large-text floor). Small text uses --color-terra-text (5.1 on bg).
+     Buttons carry their own fill + ink so white-on-terracotta clears AA in
+     every sky; the ink flips dark on night skies via body.tgo-night. */
+  --color-terra-text:   #A65326;
+  --color-terra-btn:    #B85C2A;
+  --color-btn-ink:      #FFFFFF;
   --color-navy:         #1E2D4A;
   --color-navy-mid:     #2E4470;
   --color-bg:           #FAF8F5;
@@ -37,8 +45,8 @@
   --color-border:       #E5DDD5;
   --color-border-light: #EDE8E2;
   --color-text:         #1A1A18;
-  --color-text-muted:   #6B645D;
-  --color-text-light:   #9C9489;
+  --color-text-muted:   #69635C;
+  --color-text-light:   #787169;
   --font-display: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --font-reading: 'Lora', Georgia, 'Times New Roman', serif; /* July 22, 2026 — post/reading text */
@@ -454,7 +462,7 @@ blockquote.reblog-v3 a.reblog-v3-name {
   font-style: normal !important;
 }
 blockquote.reblog-v3 a.reblog-v3-go {
-  color: #4a6fa5 !important;
+  color: #446799 !important;
   font-size: 14px !important;
   font-style: normal !important;
 }
@@ -581,7 +589,7 @@ figcaption {
    terracotta instead of white (Toby caught it on the Blaugust Discord
    button). Same specificity trap as the micro underline offset. */
 :is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link, .btn-subscribe) {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
   text-underline-offset: 5.5px;
@@ -619,7 +627,7 @@ figcaption {
 
 .read-more-link {
   display: inline;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   font-weight: 500;
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
@@ -646,7 +654,7 @@ figcaption {
    ------------------------------------------------------------ */
 
 .book-card a {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: underline;
   text-decoration-style: solid;
   text-underline-offset: 5.5px;
@@ -662,7 +670,7 @@ figcaption {
    ------------------------------------------------------------ */
 
 .movie-card a {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: underline;
   text-decoration-style: solid;
   text-underline-offset: 5.5px;
@@ -897,7 +905,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .mobile-tab-bar a .tgo-icon { width: 26px; height: 26px; }
-.mobile-tab-bar a.active { color: var(--color-terra); }
+.mobile-tab-bar a.active { color: var(--color-terra-text); }
 
 @media (min-width: 768px) {
   .mobile-tab-bar { display: none; }
@@ -1064,7 +1072,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   margin-bottom: var(--space-md);
 }
 
-.featured-eyebrow .tgo-icon { width: 14px; height: 14px; color: var(--color-terra); }
+.featured-eyebrow .tgo-icon { width: 14px; height: 14px; color: var(--color-terra-text); }
 
 /* Category pills removed from the marquee July 11, 2026 —
    categories now appear on single posts only. */
@@ -1102,8 +1110,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: var(--color-terra);
-  color: #FFFFFF;
+  background-color: var(--color-terra-btn);
+  color: var(--color-btn-ink);
   border: none;
   font-family: 'Bricolage Grotesque', var(--font-display);
   font-size: 0.9rem;
@@ -1118,7 +1126,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .btn-featured .tgo-icon { width: 14px; height: 14px; }
 
-.btn-featured:hover { background-color: var(--color-terra-dark); color: #FFFFFF; }
+.btn-featured:hover { background-color: var(--color-terra-dark); color: var(--color-btn-ink); }
 
 /* "More long reads" strip — cream shelf under the marquee that keeps
    the two previous Long Reads one tap away (they're hidden from the
@@ -1161,7 +1169,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   color: var(--color-terra-dark);
 }
 
-.featured-more-item:hover .featured-more-title { color: var(--color-terra); }
+.featured-more-item:hover .featured-more-title { color: var(--color-terra-text); }
 
 .featured-more-date {
   font-size: 0.8rem;
@@ -1668,7 +1676,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   font-family: var(--font-display);
 }
 
-.archive_categories a { color: var(--color-terra); text-decoration: none; font-weight: 500; font-family: var(--font-body); }
+.archive_categories a { color: var(--color-terra-text); text-decoration: none; font-weight: 500; font-family: var(--font-body); }
 /* Wavy terracotta hover (July 13, 2026). Originally written to beat
    Bootstrap's blue a:hover; that plug-in is gone as of July 25, 2026,
    but the wavy underline is deliberate styling, so this rule stays. */
@@ -1699,7 +1707,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .archive-categories-fold summary::before {
   content: '\25B8';
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   margin-right: 8px;
   display: inline-block;
   transition: transform 0.15s ease;
@@ -1759,7 +1767,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .archive_posts .h-entry .p-summary { color: var(--color-text); }
-.archive_posts .h-entry .u-url:hover { color: var(--color-terra); }
+.archive_posts .h-entry .u-url:hover { color: var(--color-terra-text); }
 
 .archive-wrapper { max-width: 720px; margin: 0 auto; padding: 0 1rem; }
 
@@ -1822,7 +1830,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .archive-item time { color: var(--color-text-light); font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; }
 .archive-item a { color: var(--color-navy); text-decoration: none; font-size: 0.95rem; line-height: 1.4; }
-.archive-item a:hover { color: var(--color-terra); }
+.archive-item a:hover { color: var(--color-terra-text); }
 .archive-item a strong { font-weight: 700; }
 
 
@@ -1851,7 +1859,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .category-page-back a:hover {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
 }
 
 .category-page-title {
@@ -1977,7 +1985,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   margin: 0 0 14px;
   transition: opacity 0.3s ease;
 }
-.about-text a { color: #c95f2a; text-decoration: none; font-weight: 700; }
+.about-text a { color: var(--color-terra-text); text-decoration: none; font-weight: 700; }
 .about-links {
   display: flex;
   flex-wrap: wrap;
@@ -1986,8 +1994,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   gap: 6px;
   margin-top: 12px;
 }
-.about-links a { color: #c95f2a; text-decoration: none; font-weight: 700; }
-.about-links span { color: #c95f2a; font-size: 1rem; }
+.about-links a { color: var(--color-terra-text); text-decoration: none; font-weight: 700; }
+.about-links span { color: var(--color-terra-text); font-size: 1rem; }
 
 .subscribe-strip {
   display: flex;
@@ -2030,7 +2038,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   border: 1.5px solid var(--color-terra);
   font-family: 'Bricolage Grotesque', var(--font-display);
   font-size: 0.8125rem;
@@ -2045,7 +2053,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .btn-subscribe .tgo-icon { width: 14px; height: 14px; }
 
-.btn-subscribe:hover { background: var(--color-terra); color: #ffffff; }
+.btn-subscribe:hover { background: var(--color-terra-btn); color: var(--color-btn-ink); }
 
 .btn-subscribe-quiet {
   color: var(--color-navy);
@@ -2156,7 +2164,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   color: var(--color-navy);
 }
 
-.related-card:hover .related-card-title { color: var(--color-terra); }
+.related-card:hover .related-card-title { color: var(--color-terra-text); }
 
 .related-card-excerpt {
   font-family: var(--font-body);
@@ -2229,8 +2237,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #c95f2a;
-  border: 2px solid #c95f2a;
+  color: var(--color-terra-text);
+  border: 2px solid var(--color-terra-text);
   padding: 10px 28px;
   border-radius: 4px;
   text-decoration: none;
@@ -2260,8 +2268,8 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 .microblog_reply_button input[type="submit"] {
-  background-color: var(--color-terra);
-  color: #ffffff;
+  background-color: var(--color-terra-btn);
+  color: var(--color-btn-ink);
   border: none;
   padding: 10px 20px;
   border-radius: var(--radius);
@@ -2343,7 +2351,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
    names stay clean, underlining on hover only. */
 .microblog_reply_signin a,
 .microblog_text a {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: underline wavy;
   text-decoration-color: var(--color-terra);
   text-underline-offset: 5.5px;
@@ -2378,12 +2386,19 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   -webkit-appearance: none !important;
 }
 
-.field:focus { border-color: var(--color-terra) !important; outline: none !important; }
+/* WCAG 2.4.7 (Aug 18, 2026): a border-colour change alone is a thin focus
+   cue. Same 3px ring the homepage search already uses, so focus reads the
+   same everywhere. */
+.field:focus {
+  border-color: var(--color-terra) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--color-terra-light) !important;
+}
 
 #list_results p { padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border); font-family: var(--font-body); font-size: 1rem; line-height: 1.5; }
 #list_results a { color: var(--color-text-light); font-weight: 500; text-decoration: none; }
 #list_results b { color: var(--color-navy); font-weight: 700; }
-#list_results a:hover { color: var(--color-terra); }
+#list_results a:hover { color: var(--color-terra-text); }
 
 /* tgo-search-empty: no height/overflow lock here on purpose — an
    earlier version forced height:100vh + overflow:hidden and it clipped
@@ -2424,7 +2439,7 @@ body.tgo-search-empty .site-footer {
   margin-top: var(--space-xl);
 }
 
-.pagination a { color: var(--color-terra); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; white-space: nowrap; }
+.pagination a { color: var(--color-terra-text); font-weight: 700; text-decoration: none; letter-spacing: 0.3px; transition: color 0.15s; white-space: nowrap; }
 .pagination a:hover { color: var(--color-terra-dark); }
 .pagination .arrow { display: inline-block; }
 
@@ -2462,7 +2477,7 @@ body.tgo-search-empty .site-footer {
 
 .footer-tagline { font-family: var(--font-display); font-size: 0.9375rem; color: var(--color-text-muted); margin-bottom: 0; }
 .footer-text { font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: 0; }
-.footer-text a { color: var(--color-terra); text-decoration: none; transition: opacity 0.15s; }
+.footer-text a { color: var(--color-terra-text); text-decoration: none; transition: opacity 0.15s; }
 .footer-text a:hover { opacity: 0.8; }
 
 /* Footer wrap fix (Aug 3, 2026): keep each footer chunk unbreakable so
@@ -2502,7 +2517,7 @@ body.tgo-search-empty .site-footer {
 
 .text-muted  { color: var(--color-text-muted); }
 .text-light  { color: var(--color-text-light); }
-.text-terra  { color: var(--color-terra); }
+.text-terra  { color: var(--color-terra-text); }
 
 .container { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--page-pad); }
 
@@ -2590,7 +2605,7 @@ body.tgo-search-empty .site-footer {
   }
 
   .toc-sidebar ol li a.toc-active {
-    color: var(--color-terra);
+    color: var(--color-terra-text);
     border-left-color: var(--color-terra);
     background: rgba(196,98,45,0.07);
     font-weight: 600;
@@ -2731,8 +2746,8 @@ body.page .post-header {
 
 .homepage-search-inner button {
   padding: 0 1.5rem;
-  background: var(--color-terra);
-  color: #fff !important;
+  background: var(--color-terra-btn);
+  color: var(--color-btn-ink) !important;
   border: none !important;
   font-family: var(--font-body);
   font-size: 0.875rem;
@@ -2794,7 +2809,7 @@ body.page .post-header {
 }
 
 .ig-embed img { width: 100%; border-radius: 8px; display: block; }
-.ig-embed .ig-label { display: block; font-size: 0.85em; margin-top: 0.4rem; color: var(--color-terra); }
+.ig-embed .ig-label { display: block; font-size: 0.85em; margin-top: 0.4rem; color: var(--color-terra-text); }
 
 .ig-thumb-wrap { display: block; max-width: 560px; position: relative; }
 .ig-thumb-wrap img { width: 100%; border-radius: 8px; display: block; }
@@ -2975,7 +2990,7 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   .section.section-newsletters .h-entry a { font-size: 1.75rem; }
 }
 
-.section.section-newsletters .h-entry a:hover { color: var(--color-terra); }
+.section.section-newsletters .h-entry a:hover { color: var(--color-terra-text); }
 
 .section.section-newsletters .dt-published {
   display: block;
@@ -3113,7 +3128,7 @@ body.type-newsletter .site-footer {
   color: var(--color-terra-dark);
   text-decoration: none;
 }
-.newsletter-list-panel-header a:hover { color: var(--color-terra); }
+.newsletter-list-panel-header a:hover { color: var(--color-terra-text); }
 
 .newsletter-list { list-style: none; margin: 0; padding: 0; }
 
@@ -3373,7 +3388,7 @@ body.type-newsletter .site-footer {
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-terra);
+    color: var(--color-terra-text);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -3602,7 +3617,7 @@ body.type-newsletter .site-footer {
 .replying-to a::before { content: "\201C"; }
 .replying-to a::after  { content: "\201D"; }
 
-.replying-to a:hover { color: var(--color-terra); }
+.replying-to a:hover { color: var(--color-terra-text); }
 
 
 /* ------------------------------------------------------------
@@ -3632,7 +3647,7 @@ table.link-card td > a[style*="font-weight"] {
 }
 
 table.link-card td > a[style*="font-weight"]:hover {
-  color: var(--color-terra) !important;
+  color: var(--color-terra-text) !important;
 }
 
 /* Description */
@@ -3831,7 +3846,11 @@ table.link-card a[style*="inline-block"] {
   background: var(--color-bg-card);
   color: var(--color-text);
 }
-.cs-masto-prompt input:focus { outline: none; border-color: var(--color-terra); }
+.cs-masto-prompt input:focus {
+  outline: none;
+  border-color: var(--color-terra);
+  box-shadow: 0 0 0 3px var(--color-terra-light);
+}
 
 /* Under desktop, the centered max-width box would touch the screen
    edges — inset it to match the post body's side padding */
@@ -3883,8 +3902,11 @@ table.link-card a[style*="inline-block"] {
   top: 10px;
   left: 10px;
   z-index: 3000; /* above the fixed header and the tab bar */
-  background: var(--color-terra);
-  color: #ffffff;
+  /* WCAG AA (Aug 18, 2026): was white on --color-terra = 4.09. The skip link
+     is the FIRST thing a keyboard user lands on, so it uses the button
+     tokens like every other filled control. */
+  background: var(--color-terra-btn);
+  color: var(--color-btn-ink);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 700;
@@ -4094,12 +4116,15 @@ body.kb-open .mobile-tab-bar {
 @property --color-border       { syntax: '<color>'; inherits: true; initial-value: #E5DDD5; }
 @property --color-border-light { syntax: '<color>'; inherits: true; initial-value: #EDE8E2; }
 @property --color-text         { syntax: '<color>'; inherits: true; initial-value: #1A1A18; }
-@property --color-text-muted   { syntax: '<color>'; inherits: true; initial-value: #6B645D; }
-@property --color-text-light   { syntax: '<color>'; inherits: true; initial-value: #9C9489; }
+@property --color-text-muted   { syntax: '<color>'; inherits: true; initial-value: #69635C; }
+@property --color-text-light   { syntax: '<color>'; inherits: true; initial-value: #787169; }
 @property --color-navy         { syntax: '<color>'; inherits: true; initial-value: #1E2D4A; }
 @property --color-navy-mid     { syntax: '<color>'; inherits: true; initial-value: #2E4470; }
 @property --color-terra        { syntax: '<color>'; inherits: true; initial-value: #C4622D; }
 @property --color-terra-dark   { syntax: '<color>'; inherits: true; initial-value: #8B3E18; }
+@property --color-terra-text   { syntax: '<color>'; inherits: true; initial-value: #A65326; }
+@property --color-terra-btn    { syntax: '<color>'; inherits: true; initial-value: #B85C2A; }
+@property --color-btn-ink      { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
 @property --color-terra-light  { syntax: '<color>'; inherits: true; initial-value: #F0DDD3; }
 
 /* Easing is gated behind .tgo-anim, which the sky script adds AFTER
@@ -4166,7 +4191,7 @@ html.tgo-anim {
 .tgo-sky-icon {
   width: 16px;
   height: 16px;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   flex-shrink: 0;
   transition: color 0.3s, opacity 0.3s;
 }
@@ -4211,7 +4236,13 @@ html.tgo-anim {
 
 /* Night patches for elements with hardcoded (pre-token) colors —
    scoped to body.tgo-night so daytime is untouched. Found live
-   July 12: about strip uses #444/#1a2540/#c95f2a.
+   July 12: about strip used #444 / #1a2540 / a pre-token orange.
+   Aug 18, 2026: that orange is gone. It measured 3.84 on the day bg
+   and 2.93 on sunset, and because it was a hardcoded hex the sky
+   script's contrast guard never saw it. All five uses (.about-text a,
+   .about-links a, .about-links span, .btn-surprise ×2) now use
+   --color-terra-text, so they ride the guard like everything else.
+   The .about-text a night override below still wins at night.
    Spotlight night patches removed July 22, 2026 — the marquee now
    rides the sky bg with ink tokens, so no overrides needed. */
 body.tgo-night .about-text,
@@ -4301,7 +4332,7 @@ body.tgo-night .about-text a { color: #E0906B; }
 
 .movie-card-scale {
   font-size: 16px;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration-color: var(--color-terra-light);
   vertical-align: middle;
   margin-left: 10px;
@@ -4312,7 +4343,7 @@ body.tgo-night .about-text a { color: #E0906B; }
 
 .movie-card-label {
   font-weight: 700;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   margin: 0 0 4px;
   letter-spacing: 0.06em;
   font-family: var(--font-body);
@@ -4354,7 +4385,7 @@ body.tgo-night .about-text a { color: #E0906B; }
   display: block;
   text-align: center;
   font-size: 13px;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   padding-top: 6px;
   font-family: var(--font-body);
 }
@@ -4386,7 +4417,7 @@ body.tgo-night .about-text a { color: #E0906B; }
 .movie-card [style*="#6B6560"], .movie-card [style*="#5A5048"],
 .book-card  [style*="#888"],    .book-card  [style*="#5A5048"] { color: var(--color-text-muted) !important; }
 .movie-card p[style*="#C4622D"], .movie-card a[style*="#C4622D"], .movie-card span[style*="#C4622D"],
-.book-card  p[style*="#C4622D"], .book-card  a[style*="#C4622D"] { color: var(--color-terra) !important; }
+.book-card  p[style*="#C4622D"], .book-card  a[style*="#C4622D"] { color: var(--color-terra-text) !important; }
 .movie-card td[style*="border-top"], .book-card td[style*="border-top"] { border-top-color: var(--color-border) !important; }
 .movie-card blockquote.card-quote {
   background: var(--color-bg) !important;
@@ -4408,11 +4439,11 @@ body.tgo-night .about-text a { color: #E0906B; }
 }
 
 /* ── Define card — new posts are colorless, no !important needed ── */
-.define-card .define-eyebrow  { color: var(--color-terra); }
+.define-card .define-eyebrow  { color: var(--color-terra-text); }
 .define-card .define-word     { color: var(--color-navy); }
 .define-card .define-rule     { background-color: var(--color-terra); }
 .define-card .define-def      { color: var(--color-navy); }
-.define-card .define-num      { color: var(--color-terra); }
+.define-card .define-num      { color: var(--color-terra-text); }
 .define-card .define-example  { color: var(--color-navy-mid); }
 .define-card .define-note-bar { background-color: var(--color-terra-light); }
 .define-card .define-note     { color: var(--color-navy-mid); }
@@ -4471,18 +4502,18 @@ body.tgo-night blockquote::before {
 .now-list { list-style: none !important; padding: 0 !important; margin: 0 !important; }
 .now-list li { padding: 0.6rem 0 !important; border-bottom: 1px solid var(--color-border) !important; display: flex !important; align-items: baseline !important; gap: 0.6rem !important; }
 .now-list li:last-child { border-bottom: none !important; }
-.now-list li::before { content: '→' !important; color: var(--color-terra) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
+.now-list li::before { content: '→' !important; color: var(--color-terra-text) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
 .now-list a { color: var(--color-text) !important; text-decoration: none !important; }
-.now-list a:hover { color: var(--color-terra) !important; }
+.now-list a:hover { color: var(--color-terra-text) !important; }
 
 .ouldhh-badge { display: inline-flex; align-items: center; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--color-terra-dark); background: var(--color-terra-light); padding: 2px 8px; border-radius: 3px; margin-bottom: 0.75rem; text-decoration: none !important; }
 
 #spotlights ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
 #spotlights ul li { padding: 0.6rem 0 !important; border-bottom: 1px solid var(--color-border) !important; display: flex !important; align-items: baseline !important; gap: 0.6rem !important; }
 #spotlights ul li:last-child { border-bottom: none !important; }
-#spotlights ul li::before { content: '→' !important; color: var(--color-terra) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
+#spotlights ul li::before { content: '→' !important; color: var(--color-terra-text) !important; font-size: 0.85rem !important; flex-shrink: 0 !important; }
 #spotlights ul li a { color: var(--color-text) !important; text-decoration: none !important; }
-#spotlights ul li a:hover { color: var(--color-terra) !important; }
+#spotlights ul li a:hover { color: var(--color-terra-text) !important; }
 #spotlights ul.postlist li:nth-child(-n+3) { display: none !important; }
 
 #now-reading .bookshelf--variant-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important; gap: 0.75rem !important; }
@@ -4495,9 +4526,9 @@ body.tgo-night blockquote::before {
 #now-reading .bookshelf--variant-grid li::before { content: '' !important; position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; height: 3px !important; background: var(--color-terra) !important; z-index: 1 !important; }
 #now-reading .bookshelf a { text-decoration: none !important; }
 
-.now-reading-more { font-size: 0.875rem; color: var(--color-terra); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 0.75rem; }
+.now-reading-more { font-size: 0.875rem; color: var(--color-terra-text); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 0.75rem; }
 .now-inspired { font-size: 0.875rem; color: var(--color-text-light); margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
-.now-inspired a { color: var(--color-terra) !important; }
+.now-inspired a { color: var(--color-terra-text) !important; }
 
 
 /* ------------------------------------------------------------
@@ -4612,7 +4643,7 @@ body.type-newsletter .newsletter-preview-panel .page-body {
   padding-top: 6px;
   font-size: 0.875rem;
   font-family: var(--font-body);
-  color: var(--color-terra) !important;
+  color: var(--color-terra-text) !important;
 }
 
 .social-embed a:hover .social-embed-caption,
@@ -4861,7 +4892,7 @@ body.tgo-night .featured-excerpt {
   font-size: 0.8rem;
   margin-bottom: 14px;
 }
-.rail-about a { color: var(--color-terra); text-decoration: none; font-weight: 600; }
+.rail-about a { color: var(--color-terra-text); text-decoration: none; font-weight: 600; }
 .rail-about a:hover { color: var(--color-terra-dark); }
 .rail-about span { color: var(--color-text-light); padding: 0 4px; }
 
@@ -4887,17 +4918,20 @@ body.tgo-night .featured-excerpt {
 }
 
 .rail-nav a .tgo-icon { width: 16px; height: 16px; flex-shrink: 0; }
-.rail-nav a:hover { color: var(--color-terra); }
+.rail-nav a:hover { color: var(--color-terra-text); }
 
 /* Active pill: terracotta tint on the light skies. After dark that
    10% terra wash mixes into muddy brown on the navy (Toby's catch,
    July 22) — night uses a clean white lift + the light night terra. */
 .rail-nav a.active {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   background: rgba(196, 98, 45, 0.10);
 }
 body.tgo-night .rail-nav a.active {
-  color: #E0906B;
+  /* WCAG AA (Aug 18, 2026): #E0906B measured 3.72 against the dusk active
+     pill (#3C4663 — the sky bg lifted by the 8% white wash). #E6A688 clears
+     4.5 on every dark sky's pill: dusk 4.53, night 7.17. */
+  color: #E6A688;
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -4941,14 +4975,14 @@ body.tgo-night .rail-nav a.active {
 .rail-btn .tgo-icon { width: 14px; height: 14px; }
 
 .rail-btn--primary {
-  background: var(--color-terra);
-  color: #FFFFFF;
+  background: var(--color-terra-btn);
+  color: var(--color-btn-ink);
 }
-.rail-btn--primary:hover { background: var(--color-terra-dark); border-color: var(--color-terra-dark); color: #FFFFFF; }
+.rail-btn--primary:hover { background: var(--color-terra-dark); border-color: var(--color-terra-dark); color: var(--color-btn-ink); }
 
 .rail-btn--quiet {
   background: transparent;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
 }
 .rail-btn--quiet:hover { color: var(--color-terra-dark); border-color: var(--color-terra-dark); }
 
@@ -4963,7 +4997,7 @@ body.tgo-night .rail-nav a.active {
   color: var(--color-text-muted);
   text-decoration: none;
 }
-.rail-newsletters:hover { color: var(--color-terra); }
+.rail-newsletters:hover { color: var(--color-terra-text); }
 
 /* Sky toggle slot — pinned to the rail's bottom. The sky script
    appends a .tgo-sky-btn--rail button here; it stays hidden during
@@ -5070,7 +5104,7 @@ body.tgo-night .rail-nav a.active {
 .journal-entry:hover .journal-title,
 .journal-entry:focus .journal-title,
 .journal-entry:active .journal-title {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
 }
 
 
@@ -5125,11 +5159,11 @@ body.tgo-night .rail-nav a.active {
   overflow: hidden;
   transition: color 0.15s;
 }
-.reel-tile:hover .reel-tile-title { color: var(--color-terra); }
+.reel-tile:hover .reel-tile-title { color: var(--color-terra-text); }
 
 .reel-stars {
   font-size: 0.9rem;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   letter-spacing: 2px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -5162,7 +5196,7 @@ body.tgo-night .rail-nav a.active {
   text-overflow: ellipsis;
   transition: color 0.15s;
 }
-.reel-entry:hover .reel-entry-title { color: var(--color-terra); }
+.reel-entry:hover .reel-entry-title { color: var(--color-terra-text); }
 
 .reel-entry-meta {
   display: flex;
@@ -5176,7 +5210,7 @@ body.tgo-night .rail-nav a.active {
   margin-top: 1.25rem;
 }
 .reel-cta a {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   font-weight: 600;
   text-decoration: none;
   font-size: 0.9rem;
@@ -5266,7 +5300,7 @@ body.tgo-night .rail-nav a.active {
   line-height: 1.3;
   transition: color 0.15s;
 }
-.book-entry:hover .book-entry-title { color: var(--color-terra); }
+.book-entry:hover .book-entry-title { color: var(--color-terra-text); }
 
 .book-progress {
   display: block;
@@ -5362,7 +5396,7 @@ body.tgo-night .rail-nav a.active {
   line-height: 1;
   margin: 0 0 6px;
   font-family: var(--font-body);
-  color: var(--color-terra);
+  color: var(--color-terra-text);
 }
 
 .book-card-title {
@@ -5474,7 +5508,7 @@ body.tgo-night .rail-nav a.active {
 .micro-entry-date:hover,
 .micro-entry-date:focus,
 .micro-entry-date:active {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: none !important;
 }
 
@@ -5550,15 +5584,18 @@ body.tgo-night .micro-entry-text p {
 .catrow-item a:hover,
 .catrow-item a:focus,
 .catrow-item a:active {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   text-decoration: underline;
 }
 
 .catrow-count {
   font-size: 0.75rem;
   font-weight: 500;
-  opacity: 0.55;
-  color: var(--color-text-muted);
+  /* WCAG AA (Aug 18, 2026): opacity 0.55 diluted the ink to ~#ABA7A1 (2.25)
+     and, being an opacity, it slipped past the sky script's contrast guard
+     entirely. Full-strength --color-text-light instead, so the guard covers
+     it on every sky. */
+  color: var(--color-text-light);
 }
 
 /* Night: keep the ink readable over the night sky */
@@ -5925,7 +5962,7 @@ main > .page-header,
   margin: 2px 0 18px;
 }
 .reel-ratings-links a {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   font-weight: 600;
   text-decoration: none;
 }
@@ -6232,7 +6269,7 @@ main > .page-header,
    rest stay quiet. Deliberately the only coloured heading on the
    page; if everything shouts, nothing does. */
 .queue-group--out .queue-heading {
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   border-bottom-color: var(--color-terra-light);
 }
 
@@ -6328,14 +6365,14 @@ main > .page-header,
   overflow: hidden;
   transition: color 0.15s;
 }
-.queue-card:hover .queue-title { color: var(--color-terra); }
+.queue-card:hover .queue-title { color: var(--color-terra-text); }
 
 /* The release date is the whole reason this page exists, so it is the
    one line on the card allowed any weight. */
 .queue-rel {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   white-space: nowrap;
 }
 
@@ -6349,7 +6386,7 @@ main > .page-header,
    the shortcode. Styled now so switching them on needs no CSS. */
 .queue-stars {
   font-size: 0.78rem;
-  color: var(--color-terra);
+  color: var(--color-terra-text);
   letter-spacing: 1px;
   white-space: nowrap;
 }
@@ -7093,7 +7130,7 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([st
   color: var(--color-text-muted);
   margin-top: 2px;
 }
-.bm-stars { color: var(--color-terra); margin-top: 2px; }
+.bm-stars { color: var(--color-terra-text); margin-top: 2px; }
 .bm-pill {
   display: inline-block;
   font-size: 0.625rem; font-weight: 700;
@@ -7269,7 +7306,7 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([st
 .link-card.blog-card td > a.link-title:hover,
 .link-card.blog-card td > a.link-title:focus,
 .link-card.blog-card td > a.link-title:active {
-  color: var(--color-terra) !important;
+  color: var(--color-terra-text) !important;
 }
 
 /* byline — first link-desc when two are present */
@@ -7299,7 +7336,7 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([st
 .link-card.blog-card .blog-read:hover,
 .link-card.blog-card .blog-read:focus,
 .link-card.blog-card .blog-read:active {
-  color: var(--color-terra) !important;
+  color: var(--color-terra-text) !important;
   border-color: var(--color-terra) !important;
 }
 
@@ -7686,3 +7723,19 @@ html[data-sky~="cross"] .post-mentions a.post-mention {
   border-left-color: #FFFFFF;
 }
 
+/* ------------------------------------------------------------
+   85. WCAG AA — BUTTON INK ACROSS THE SKIES  (Aug 18, 2026)
+   ------------------------------------------------------------
+   White-on-terracotta was the one thing that failed in EVERY sky and
+   got worse as the sky darkened: 4.09 day, 3.07 night, 2.30 through the
+   dusk step. The fill is light enough at night that no white ink can
+   clear AA on it, so the button ink flips dark exactly when the rest of
+   the ink set does — body.tgo-night is already toggled by the sky
+   script at the 0.17 luminance threshold, so this rides that same flip.
+   Measured: #171E30 on the night fill #D97A45 = 5.39; on the guarded
+   dusk fill ~#E29A72 = 7.4; on the night hover fill #E0906B = 6.6.
+   ------------------------------------------------------------ */
+body.tgo-night {
+  --color-terra-btn: var(--color-terra);
+  --color-btn-ink:   #171E30;
+}

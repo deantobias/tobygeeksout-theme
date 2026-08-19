@@ -7958,3 +7958,681 @@ body.tgo-night {
 .wna-body a:not([class*="reblog"]):hover{
   color:var(--color-terra);
 }
+
+
+/* ==========================================================================
+   87 · PRINT STYLESHEET + PRINT BUTTON   (Aug 19, 2026)
+
+   Why this exists: people save Deep End posts to PDF. Before this, that
+   PDF carried the header, the rail, the TOC sidebar, Connect & Share,
+   More like this, the post nav and the footer, and every link printed as
+   underlined text with no indication of where it pointed. The button is
+   just the doorbell — this @media print block is the actual feature, so
+   the two ship together and neither is much use alone.
+
+   Kept inside custom.css rather than a separate print.css on purpose:
+   head.html cache-busts exactly one stylesheet with ?theme_seconds, and a
+   second file would need its own stamp and its own repo/live sync. A
+   @media print block costs nothing on screen — the rules parse and then
+   never match.
+
+   Two theme-specific traps this has to work around:
+   1. html font-size is set with !important (20px, 22px >=640, 16px on
+      iOS Safari via @supports). Print sizing therefore also needs
+      !important or it loses to those.
+   2. .post-header-title is painted with a gradient via background-clip
+      and { color: transparent }. Browsers drop backgrounds when printing
+      unless the reader ticks "Background graphics", so without the reset
+      below the post title prints as a blank space.
+   ========================================================================== */
+
+/* --- The button (screen) ------------------------------------------------
+   Sits inside .post-header-meta as a third flex item after the date and
+   the read-time pill, and deliberately borrows .read-time-pill's type
+   scale (0.6875rem / 700 / uppercase / 0.5px) so it reads as part of that
+   meta row instead of announcing itself next to the title. */
+.post-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+
+.post-print .tgo-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.post-print:hover {
+  color: var(--color-terra-text);
+  border-color: var(--color-terra);
+  background: var(--color-terra-light);
+}
+
+.post-print:focus-visible {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 2px;
+}
+
+/* Phones: the meta row is already carrying a date and a read-time pill,
+   so drop the word and keep the icon. Safe for screen readers because
+   the button carries aria-label="Print this post", which wins over inner
+   text for the accessible name. */
+@media (max-width: 480px) {
+  .post-print { padding: 4px 8px; }
+  .post-print .post-print-label { display: none; }
+}
+
+
+/* --- The print output --------------------------------------------------- */
+@media print {
+
+  @page { margin: 18mm 16mm; }
+
+  /* 1. Everything that is site, not post. */
+  .skip-link,
+  #scroll-progress,
+  #scroll-bar,
+  .site-header,
+  .site-rail,
+  .mobile-tab-bar,
+  .back-pill,
+  .site-footer,
+  .toc-sidebar,
+  .connect-share,
+  .cs-masto-prompt,
+  .post-conversation,
+  .related-posts,
+  .surprise-wrap,
+  .post-nav,
+  .tg-mark,
+  .tgo-rabbit,
+  .tgo-rabbit-bubble,
+  .tgo-sky-track,
+  .tgo-sky-btn,
+  .bm-sheet,
+  .bm-backdrop,
+  .movie-card-trailer,
+  .post-print {
+    display: none !important;
+  }
+
+  /* 2. Page + ink. The !important on font-size is required — see trap 1
+        in the section header. 12pt is the print equivalent of the 1.2rem
+        reading size, not a shrink. */
+  html {
+    font-size: 12pt !important;
+    scroll-behavior: auto;
+  }
+
+  body {
+    font-size: 12pt !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  main#main-content { padding-top: 0 !important; }
+
+  /* Nothing should be mid-animation when the snapshot is taken. */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
+
+  /* 3. Unwind the reading layout. .post-layout is the Long Read grid that
+        pairs the body with the TOC sidebar; with the sidebar gone the
+        grid would otherwise still reserve its column. */
+  .post-layout { display: block !important; }
+
+  .post-header,
+  .post-header-inner,
+  .post-body {
+    max-width: none !important;
+    width: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .post-header { padding-top: 0 !important; }
+
+  /* 4. Title. Trap 2: without this the gradient title prints blank. */
+  .post-header-title {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: #000000 !important;
+    font-size: 20pt !important;
+    line-height: 1.2 !important;
+    max-width: none !important;
+    padding-right: 0 !important;
+  }
+
+  /* 5. Meta row. The permalink is printed after the date so a printed
+        page can be traced back to the post it came from. */
+  .post-header-meta,
+  .post-header-eyebrow,
+  .post-category {
+    color: #333333 !important;
+    font-size: 9pt !important;
+  }
+
+  .post-header-meta a.u-url { color: #333333 !important; }
+
+  .post-header-meta a.u-url::after {
+    content: " · " attr(href);
+    color: #444444;
+    font-weight: 400;
+    word-break: break-all;
+  }
+
+  /* 6. Body type. */
+  .post-body,
+  .post-body p,
+  .post-body li {
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+    color: #000000 !important;
+  }
+
+  .post-body h2 { font-size: 15pt !important; }
+  .post-body h3 { font-size: 13pt !important; }
+  .post-body h2,
+  .post-body h3 { color: #000000 !important; }
+
+  /* 7. Links. On paper an href is invisible, so it gets spelled out.
+        Only absolute links — in-page anchors would print as noise, and
+        the theme's wavy terracotta underline becomes a plain solid. */
+  .post-body a {
+    color: #000000 !important;
+    text-decoration: underline !important;
+    text-decoration-style: solid !important;
+    text-decoration-color: #000000 !important;
+    text-decoration-thickness: 1px !important;
+    text-underline-offset: 2px !important;
+  }
+
+  .post-body a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #444444;
+    word-break: break-all;
+  }
+
+  .post-body a[href^="#"]::after,
+  .post-body a[href^="mailto:"]::after {
+    content: "";
+  }
+
+  /* 8. Images. 4in leaves room for a caption and a few lines of text
+        under a full-width photo instead of giving it a page to itself. */
+  .post-body img {
+    max-width: 100% !important;
+    max-height: 4in !important;
+    height: auto !important;
+  }
+
+  figcaption,
+  .social-embed-caption,
+  .movie-card-trailer-caption {
+    font-size: 9pt !important;
+    color: #444444 !important;
+  }
+
+  /* 9. Page breaks. Headings stay with the text they introduce; cards,
+        quotes and figures are single objects and shouldn't be sliced. */
+  .post-body h2,
+  .post-body h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .post-body blockquote,
+  .post-body figure,
+  .post-body pre,
+  .post-body table,
+  .movie-card,
+  .book-card,
+  .define-card,
+  .link-card,
+  .queue-card,
+  .micro-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .post-body p,
+  .post-body li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* 10. Perch cards and quotes carry theme fills that either vanish or
+         print muddy. Give them a hairline instead. */
+  .movie-card,
+  .book-card,
+  .define-card,
+  .link-card,
+  .queue-card {
+    background: none !important;
+    border: 1px solid #999999 !important;
+    color: #000000 !important;
+  }
+
+  .post-body blockquote {
+    background: none !important;
+    color: #000000 !important;
+    border-left: 3pt solid #000000 !important;
+  }
+
+  /* The Blaugust badge is an inline-styled presentation table with no
+     class of its own, so it's neutralised rather than targeted. */
+  .post-body table[role="presentation"] td {
+    background: none !important;
+    border-left-color: #000000 !important;
+  }
+
+  /* ------------------------------------------------------------------
+     11. Fixes from the first live print preview (Aug 19, 2026).
+     ------------------------------------------------------------------ */
+
+  /* The trailing blank page. body carries a min-height for the sticky
+     footer; in print that reserves a whole extra sheet at the end. */
+  body { min-height: 0 !important; }
+
+  /* The gap under the title was ~110px of stacked spacing: .post-header
+     padding-bottom 40, .post-body padding-top 40, plus the 64x3px
+     terracotta divider on .post-header-inner::after carrying its own
+     30px margin-top. The divider is decorative and goes; the padding
+     comes down to a single readable step. */
+  .post-header { padding-bottom: 12pt !important; }
+  .post-body {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .post-header-inner::after { display: none !important; }
+
+  /* Perch cards print the way they look on the blog — navy hairline and
+     rounded corners, not the generic grey box rule 10 gave them. The
+     6px offset shadow is deliberately NOT restored: browsers drop
+     shadows along with backgrounds, and a half-present shadow reads as
+     a printing fault rather than a design. */
+  table.link-card,
+  .link-card,
+  .blog-card,
+  .movie-card,
+  .book-card,
+  .define-card,
+  .queue-card {
+    border: 1.5pt solid #1E2D4A !important;
+    border-radius: 10px !important;
+    background: none !important;
+  }
+
+  /* The black rule running down the inside of the link cards was rule
+     10's blockquote border: these cards wrap their description in a
+     <blockquote>. Only a quote standing on its own in the post should
+     get the bar. */
+  .link-card blockquote,
+  .blog-card blockquote,
+  .movie-card blockquote,
+  .book-card blockquote,
+  .define-card blockquote,
+  .queue-card blockquote {
+    border-left: 0 !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    background: none !important;
+  }
+
+  /* A link-preview card already names its source in the title, so the
+     rule 7 URL expansion printed the same address twice inside one box.
+     Card titles and their Read-post button keep the theme navy. */
+  .link-card a::after,
+  .blog-card a::after { content: "" !important; }
+
+  .link-card a,
+  .blog-card a {
+    color: #1E2D4A !important;
+    text-decoration: none !important;
+  }
+
+  /* ------------------------------------------------------------------
+     12. Reblog v3 cards + card colour fidelity (Aug 19, 2026).
+     ------------------------------------------------------------------ */
+
+  /* .reblog-v3 is a <blockquote>, so rule 10 was stripping its fill and
+     handing it the standalone-quote black bar. That is why it printed as
+     plain indented text instead of the card it is on the blog. */
+  .post-body blockquote.reblog-v3 {
+    background: #DDE5EF !important;
+    border: 1px solid #B9C6D6 !important;
+    border-radius: 12px !important;
+    color: #1A2D42 !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* Cards are the one place fidelity beats saving ink: force their fills
+     and borders to print even when the reader leaves "Background
+     graphics" unticked, so a printed card matches the blog. Body text is
+     untouched and still prints black on white. */
+  .post-body blockquote.reblog-v3,
+  table.link-card,
+  .link-card,
+  .blog-card {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* The blog card's 6px navy offset, restored now that colour printing is
+     forced on these — rule 2 kills box-shadow everywhere else. */
+  table.link-card,
+  .blog-card {
+    box-shadow: 6px 6px 0 0 #1E2D4A !important;
+  }
+
+  /* Inside a reblog card the source is already named and linked, so the
+     rule 7 URL expansion only repeats it. Theme link colours kept. */
+  .reblog-v3 a::after { content: "" !important; }
+  .reblog-v3 p { color: #1A2D42 !important; }
+  .reblog-v3-name { color: #1A2D42 !important; }
+  .reblog-v3-go { color: #446799 !important; }
+
+  /* ------------------------------------------------------------------
+     13. Card measure (Aug 19, 2026). Toby's call: cards sit on a 600px
+     measure, centred — not edge to edge. The link card already does this
+     on the blog (560px, margin auto); the reblog card does not, it runs
+     the full body column. This matches them up FOR PRINT ONLY, so the
+     live blog layout is unchanged.
+     ------------------------------------------------------------------ */
+  .post-body blockquote.reblog-v3 {
+    max-width: 600px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* ------------------------------------------------------------------
+     14. Blog fidelity pass (Aug 19, 2026). Toby's call: the printed page
+     should read like the post, not like a plain-text dump of it. Every
+     value below was measured off the live page rather than invented.
+     ------------------------------------------------------------------ */
+
+  /* Measure. The blog centres .post-body on a 980px column; print was
+     running edge to edge, which at 12pt is a punishing line length. */
+  .post-body,
+  .post-header-inner {
+    max-width: 6.5in !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Line height back toward the blog's 34/20. Slightly tighter than
+     screen, which is normal for print. */
+  .post-body,
+  .post-body p,
+  .post-body li {
+    line-height: 1.6 !important;
+    color: #1A1A18 !important;
+  }
+
+  /* Title in the theme navy at the blog's proportions. Font stack is left
+     alone on purpose so it keeps Bricolage Grotesque and falls back to
+     Georgia exactly as the theme intends. */
+  .post-header-title {
+    color: #1E2D4A !important;
+    -webkit-text-fill-color: #1E2D4A !important;
+    font-size: 26pt !important;
+  }
+
+  /* Category pills keep their real colours (measured: #8B3E18 on #F0DDD3). */
+  .post-category {
+    color: #8B3E18 !important;
+    background: #F0DDD3 !important;
+    border-radius: 3px !important;
+    padding: 2px 7px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* The 64x3px terracotta divider is part of the post's identity, so it
+     comes back — rule 11 had hidden it while closing the title gap. The
+     gap stays closed; only the mark returns. */
+  .post-header-inner::after {
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Links in the blog's terracotta. The wavy underline is deliberately
+     NOT carried over — at print resolution it turns to mush, so it prints
+     as a clean solid rule in the same colour. */
+  .post-body a {
+    color: #A65326 !important;
+    text-decoration-color: #C4622D !important;
+    text-decoration-style: solid !important;
+  }
+
+  /* The spelled-out URL stays, but quiet enough to read as an annotation
+     rather than as part of the sentence. */
+  .post-body a[href^="http"]::after {
+    color: #69635C !important;
+    font-size: 8.5pt !important;
+  }
+
+  /* ------------------------------------------------------------------
+     15. Blaugust badge (Aug 19, 2026). It is an inline-styled
+     presentation table with no class of its own, so rule 10 could only
+     recolour it — and it was recolouring the 4px terracotta left border
+     to black and dropping the warm fill. Same treatment as the cards:
+     real colours, forced to print. Measured live: #C4622D on #FAF8F5.
+     ------------------------------------------------------------------ */
+  .post-body table[role="presentation"] td {
+    background: #FAF8F5 !important;
+    border-left-color: #C4622D !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ------------------------------------------------------------------
+     16. Card image height (Aug 19, 2026). Toby: a 1-minute post should
+     not spill its Blaugust badge onto a second sheet.
+
+     Measured on /2026/08/19/keep-on-blogging.html: the article came to
+     967px against 920px of usable height on Letter (11in less two 18mm
+     margins) — over by 47px, which is exactly what pushed the badge to
+     page 2. The reblog card's image was 297px of that.
+
+     Capping card images at 2.2in is the right rule on its own merits,
+     not just to win this page: an image inside a link or reblog card is
+     an illustration OF the link, not the post's own photography, so it
+     does not need the 4in that rule 8 gives a real body image. Body
+     photos are untouched.
+     ------------------------------------------------------------------ */
+  .reblog-v3 img:not(.reblog-avatar),
+  .link-card img,
+  .blog-card img {
+    max-height: 2.2in !important;
+    width: auto !important;
+    object-fit: contain !important;
+  }
+
+  /* And once it fits, keep the badge whole rather than letting it split
+     across a break if a longer post does push it over. */
+  .post-body table[role="presentation"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ------------------------------------------------------------------
+     17. Trailing blank page, belt and braces (Aug 19, 2026).
+
+     Rule 11 already zeroed body's min-height. This closes the remaining
+     ways a page can be reserved after the last line: html's own height,
+     the render-blocking #page-end anchor baseof.html drops at the end of
+     <body>, and any bottom padding left on <main> or the article. Each is
+     only a few pixels, but a few pixels past the page box is all it takes
+     to spend a whole extra sheet.
+     ------------------------------------------------------------------ */
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  main#main-content {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  article.h-entry {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #page-end,
+  #microblog_lightbox { display: none !important; }
+
+  /* ------------------------------------------------------------------
+     18. Image height vs page holes (Aug 19, 2026).
+
+     Toby: "Why I built Perch" had big blank stretches mid-document.
+
+     Cause, and it is worth stating plainly because it cannot be fully
+     designed away: an image is an ATOMIC block. If it does not fit in
+     the space left on the current page it moves whole to the next one,
+     and the leftover space stays blank. So the worst possible hole in a
+     document is roughly the height of its tallest image. You cannot
+     eliminate these in CSS paged media — you can only BOUND them, and
+     the only lever is image height.
+
+     Measured on /2026/06/01/why-i-built-perch.html, simulating
+     pagination over a 920px page (Letter less two 18mm margins):
+
+       max-height   pages   holes   worst hole
+       4in (was)      12      6       314px  (3.3in)
+       3.2in          10      3       236px
+       3in            10      3       274px
+       2.75in          9      2       213px
+       2.5in           9      1       154px  (1.6in)
+
+     2.75in is the chosen balance: it halves the holes and saves three
+     sheets on that post while still giving a photo a real presence on
+     the page. Drop to 2.5in if Toby would rather have the tighter
+     document; the numbers above are the trade.
+     ------------------------------------------------------------------ */
+  .post-body img { max-height: 2.75in !important; }
+
+  /* ------------------------------------------------------------------
+     19. Tall cards must be allowed to break (Aug 19, 2026).
+
+     The worst holes in the whole site audit were 740-809px — nearly a
+     full sheet of white — and every one of them was a Watchlist or
+     "Want to Watch" post. Measured cause on
+     /2026/05/26/want-to-watch-kraken-pl.html: the .movie-card is
+     **1006px tall, taller than the 920px page itself.**
+
+     Rule 9 had given it break-inside: avoid. A browser handles that by
+     first pushing the element to a fresh page, and only then breaking it
+     because it still does not fit — so the avoid bought nothing and cost
+     a near-empty page. Poster-bearing cards are perfectly readable split
+     across a break: the poster stays with the title, the thoughts run on.
+
+     Short cards (link, define, reblog) keep break-inside: avoid — they
+     fit on a page, so the rule actually helps them.
+     ------------------------------------------------------------------ */
+  .movie-card,
+  .queue-card,
+  .book-card {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* ------------------------------------------------------------------
+     20. Video embeds do not print (Aug 19, 2026).
+
+     Toby: the Want to Watch cards were spreading over two pages with
+     empty space, and "most of them should be one page most of the time".
+
+     Root cause, measured on /2026/06/11/want-to-watch-the-death.html:
+     the .movie-card was 838px, and **358px of that was the YouTube
+     trailer embed** — a .yt-embed aspect-ratio box reserving 306px of
+     padding for an iframe. On paper that is a black rectangle or a blank
+     one. It was never going to be worth a third of a card.
+
+     Rule 1 hides .movie-card-trailer, but this markup uses .yt-embed
+     inside a plain wrapper div, so it slipped through.
+
+     The :has() rules also take out the wrapper and the orphan "Trailer"
+     label that would otherwise sit alone above nothing. :has() is
+     supported in every browser anyone prints from in 2026.
+
+     Result on that post: card 838px -> 450px, whole article 1415px ->
+     1027px. Movie cards are now roughly half a page, so a Want to Watch
+     post with a single card fits on one sheet with room to spare.
+     ------------------------------------------------------------------ */
+  .yt-embed,
+  .movie-card div:has(> .yt-embed),
+  .movie-card p:has(+ div > .yt-embed),
+  iframe[src*="youtube"],
+  iframe[src*="vimeo"] {
+    display: none !important;
+  }
+
+  /* ------------------------------------------------------------------
+     21. Card images: one measure, centred (Aug 19, 2026).
+
+     Two things here.
+
+     (a) Rule 16 capped reblog/link/blog card images at 2.2in but missed
+     .movie-card img entirely, so movie posters were still riding the
+     2.75in body-image cap. Folding movie cards into the same rule and
+     taking the shared cap to 1.9in is what finally lands a Want to Watch
+     post on ONE sheet. Measured on want-to-watch-the-death, which
+     carries both a movie card and a link card:
+
+       card image cap   article height   pages
+       2.2in                  936px        2
+       1.9in                  879px        1
+       1.6in                  821px        1
+       1.4in                  783px        1
+
+     1.9in is the loosest value that fits, so it is the one to take —
+     no reason to shrink a poster further than the page requires.
+
+     (b) Card images print centred rather than flush left. Toby's call.
+     Inside a card the image is the subject, not a float, so it should
+     sit on the card's axis.
+     ------------------------------------------------------------------ */
+  .movie-card img,
+  .queue-card img,
+  .book-card img,
+  .link-card img,
+  .blog-card img,
+  .define-card img,
+  .reblog-v3 img:not(.reblog-avatar) {
+    max-height: 1.9in !important;
+    width: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}

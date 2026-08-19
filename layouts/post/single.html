@@ -57,6 +57,19 @@
         {{ if .ReadingTime }}
           <span class="read-time-pill">{{ .ReadingTime }} min read</span>
         {{ end }}
+        {{/* Print button (Aug 19, 2026) — pairs with the @media print
+             block in custom.css section 87, which is what actually makes
+             the printed page readable; this is only the shortcut to it.
+             Lives inside .post-header-meta rather than on its own row so
+             it reads as part of the date/read-time line. aria-label names
+             the button, so the visible word can be dropped on phones.
+             Deliberately not rendered on the Long Read layout's own
+             terms — .post-header sits above .post-layout, so the TOC
+             sidebar showing or hiding never moves this. */}}
+        <button type="button" class="post-print" onclick="window.print()" aria-label="Print this post">
+          {{ partial "icon.html" (dict "name" "printer") }}
+          <span class="post-print-label">Print</span>
+        </button>
       </div>
     </div>
   </header>

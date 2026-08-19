@@ -136,7 +136,7 @@
   body.page.section-post #main-content { padding-top: 0 !important; }
   /* Posts' Section is the year (e.g. section-2026), not "post" —
      match on the type- class instead */
-  body.type-post #main-content { padding-top: 0 !important; }
+  body.type-post:not(.type-page) #main-content { padding-top: 0 !important; }
   /* Newsletter list banner sits flush against header */
   body.section.section-newsletters #main-content { padding-top: 0 !important; }
   /* Newsletter single (the email-client reader) owns its own spacing —

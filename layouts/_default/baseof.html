@@ -3,7 +3,24 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}">
+{{/* Standalone pages (Kind AND Type both "page" — About, Now, Contact,
+     project pages) carry type-post so they get the compact top header
+     instead of the desktop rail, exactly like single posts. Section 52
+     rule: the rail is for the home page and list pages only. /ouldhh/ is
+     excluded — it runs bare and supplies its own header. Aug 19, 2026. */}}
+<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}{{ if and (eq .Kind "page") (eq .Type "page") (ne .RelPermalink "/ouldhh/") }} type-post{{ end }}">
+  {{/* Archive top-nav sync (Aug 19, 2026): /archive/ is an alternate OUTPUT
+       FORMAT of the home page, so Hugo sees .IsHome = true and .RelPermalink
+       = "/" — the body class above cannot tell it apart from Home. Same wall
+       the nav active-state sync at the end of header.html hit, same fix: set
+       the class client-side, parser-blocking, BEFORE header.html renders, so
+       the header measurement script below reads a VISIBLE header and the
+       first paint (held by rel=expect) is already final. No flash. */}}
+  <script>
+    if (/^\/archive/.test(window.location.pathname)) {
+      document.body.classList.add("type-post");
+    }
+  </script>
   {{/* Keyboard users' first tab stop: jump straight to the content
        instead of tabbing through the whole nav on every page.
        Invisible until focused — see .skip-link in custom.css. */}}

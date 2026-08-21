@@ -46,7 +46,7 @@
   --color-border-light: #EDE8E2;
   --color-text:         #1A1A18;
   --color-text-muted:   #69635C;
-  --color-text-light:   #787169;
+  --color-text-light:   #6F6961;
   --font-display: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --font-reading: 'Lora', Georgia, 'Times New Roman', serif; /* July 22, 2026 — post/reading text */
@@ -4148,7 +4148,7 @@ body.kb-open .mobile-tab-bar {
 @property --color-border-light { syntax: '<color>'; inherits: true; initial-value: #EDE8E2; }
 @property --color-text         { syntax: '<color>'; inherits: true; initial-value: #1A1A18; }
 @property --color-text-muted   { syntax: '<color>'; inherits: true; initial-value: #69635C; }
-@property --color-text-light   { syntax: '<color>'; inherits: true; initial-value: #787169; }
+@property --color-text-light   { syntax: '<color>'; inherits: true; initial-value: #6F6961; }
 @property --color-navy         { syntax: '<color>'; inherits: true; initial-value: #1E2D4A; }
 @property --color-navy-mid     { syntax: '<color>'; inherits: true; initial-value: #2E4470; }
 @property --color-terra        { syntax: '<color>'; inherits: true; initial-value: #C4622D; }

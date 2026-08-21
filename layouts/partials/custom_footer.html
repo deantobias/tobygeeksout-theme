@@ -438,7 +438,7 @@
 
     var TOKENS_BG = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
     var TOKENS_TEXT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light', '--color-terra-text'];
-    var DAY_TEXT   = ['#1A1A18', '#69635C', '#787169', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3', '#A65326'];
+    var DAY_TEXT   = ['#1A1A18', '#69635C', '#6F6961', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3', '#A65326'];
     var NIGHT_TEXT = ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20', '#D97A45'];
 
     /* FOUR fixed skies (July 12, Toby's call — was six continuously
@@ -714,6 +714,18 @@
       .forEach(function (t) { t.setAttribute('aria-label', 'Write a reply'); });
     document.querySelectorAll('.microblog_reply_button input[type="submit"]:not([aria-label])')
       .forEach(function (b) { if (!b.value) b.setAttribute('aria-label', 'Send reply'); });
+
+    /* WCAG 1.1.1 (Aug 19, 2026) — the Micro.blog bookshelf plugin injects
+       its cover thumbnail as <img class="microblog_book"> with NO alt
+       attribute at all, so a screen reader reads out the file name. The
+       plugin gives us nothing to build a real name from (the src is
+       always .../cover.jpg, there is no title attribute and the image is
+       not inside a link), and the post's own words carry the meaning, so
+       the honest fix is to mark it explicitly decorative. If a cover ever
+       IS the only thing identifying a book, write a real alt into that
+       post's markup — an author-supplied alt is left alone here. */
+    document.querySelectorAll('img.microblog_book:not([alt])')
+      .forEach(function (i) { i.setAttribute('alt', ''); i.setAttribute('role', 'presentation'); });
   }
   nameReplyBox();
   document.addEventListener('DOMContentLoaded', nameReplyBox);

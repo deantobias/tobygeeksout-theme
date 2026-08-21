@@ -1,0 +1,70 @@
+{{- /*
+  feedcards — OULDHH Wix RSS → horizontal cards (image left, text right).
+  Rebuilt 2026-08-21 after the GitHub re-sync wiped the live-only original.
+  Params:
+    feed    — RSS URL (default: OULDHH blog-feed.xml)
+    cat     — one or more categories, comma-separated ("Announcements,Events")
+    author  — only items whose dc:creator contains this text
+    limit   — max cards (default 3)
+    excerpt — max excerpt characters (default 160)
+  Output: <div class="cards"> … <article class="card"> … </div>
+  NOTE: no .Err on GetRemote — this Hugo removed it. Plain `with` only.
+*/ -}}
+{{- $feed := .Get "feed" | default "https://www.ouldhh.org/blog-feed.xml" -}}
+{{- $cats := slice -}}
+{{- with .Get "cat" }}{{ range split . "," }}{{ $cats = $cats | append (trim . " ") }}{{ end }}{{ end -}}
+{{- $author := .Get "author" | default "" -}}
+{{- $limit := int (.Get "limit" | default 3) -}}
+{{- $excerpt := int (.Get "excerpt" | default 160) -}}
+<div class="cards">
+{{- with resources.GetRemote $feed -}}
+  {{- $data := . | transform.Unmarshal -}}
+  {{- $items := $data.channel.item -}}
+  {{- if reflect.IsMap $items }}{{ $items = slice $items }}{{ end -}}
+  {{- $n := 0 -}}
+  {{- range $items -}}
+    {{- if lt $n $limit -}}
+      {{- $creator := printf "%v" (index . "creator" | default "") -}}
+      {{- $itemCats := index . "category" | default slice -}}
+      {{- if not (reflect.IsSlice $itemCats) }}{{ $itemCats = slice $itemCats }}{{ end -}}
+      {{- $catList := slice -}}
+      {{- range $itemCats }}{{ $catList = $catList | append (trim (printf "%v" .) " ") }}{{ end -}}
+      {{- $catOK := true -}}
+      {{- if gt (len $cats) 0 -}}
+        {{- $catOK = false -}}
+        {{- range $cats }}{{ if in $catList . }}{{ $catOK = true }}{{ end }}{{ end -}}
+      {{- end -}}
+      {{- $authorOK := or (eq $author "") (in $creator $author) -}}
+      {{- if and $catOK $authorOK -}}
+        {{- $n = add $n 1 -}}
+        {{- $title := trim (printf "%v" .title) " " -}}
+        {{- $link := trim (printf "%v" .link) " " -}}
+        {{- $desc := trim (printf "%v" (index . "description" | default "")) " " | plainify -}}
+        {{- if gt (len $desc) $excerpt }}{{ $desc = printf "%s…" (trim (substr $desc 0 $excerpt) " ") }}{{ end -}}
+        {{- $img := "" -}}
+        {{- with index . "enclosure" }}{{ $img = index . "-url" | default (index . "url") | default "" }}{{ end -}}
+        {{- $date := "" -}}
+        {{- with index . "pubDate" }}{{ with time (printf "%v" .) }}{{ $date = .Format "Jan 2, 2006" }}{{ end }}{{ end -}}
+        {{- $primary := "" -}}
+        {{- if gt (len $cats) 0 -}}
+          {{- range $cats }}{{ if and (eq $primary "") (in $catList .) }}{{ $primary = . }}{{ end }}{{ end -}}
+        {{- else }}{{ with index $catList 0 }}{{ $primary = . }}{{ end }}{{ end -}}
+        <article class="card">
+          {{ if $img }}<a class="card-img" href="{{ $link }}" rel="noopener noreferrer" style="background-image:url('{{ $img }}')" target="_blank">
+            <span class="sr-only">{{ $title }}</span>
+          </a>{{ end }}
+          <div class="card-body">
+            <div class="meta">
+              {{ with $creator }}<span class="by">{{ . }}</span>{{ end }}
+              {{ with $date }}<span>{{ . }}</span>{{ end }}
+            </div>
+            {{ with $primary }}<span class="cat {{ . | urlize }}">{{ . }}</span>{{ end }}
+            <h3><a href="{{ $link }}" rel="noopener noreferrer" target="_blank">{{ $title }}</a></h3>
+            {{ with $desc }}<p>{{ . }}</p>{{ end }}
+          </div>
+        </article>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+</div>

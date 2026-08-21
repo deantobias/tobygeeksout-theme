@@ -1,0 +1,850 @@
+/* ============================================================
+   OULDHH STYLESHEET  (static/css/oul.css)
+   Standalone — NOT part of the Toby Geeks Out theme styles.
+   Linked from the /ouldhh page body so everything OUL owns
+   travels as one file if OULDHH moves to its own blog.
+   Fonts: Roboto / Roboto Medium ONLY (Toby, Aug 6 2026).
+   Load order in the page:
+     1. Google Fonts Roboto link
+     2. this file
+   ============================================================ */
+
+/* The OULDHH page supplies its own header and hero. baseof.html puts
+   .is-oul on <body> for this page only. Kill the theme's page title AND
+   every wrapper margin/padding so the page runs edge to edge — all
+   spacing lives INSIDE .oul, nothing outside it. */
+body.is-oul {
+  overflow-x: clip; /* no horizontal drift from edge-to-edge pieces */
+  margin: 0;
+  padding: 0 !important; /* theme's body padding made a gap above the bar */
+  background: #FAFAFA !important; /* page bg per Toby */
+}
+body.is-oul::before { content: none !important; display: none !important; }
+body.is-oul main,
+body.is-oul #main-content,
+html body.is-oul main#main-content {  /* out-specifies the theme's !important main padding (the 74px top gap) */
+  padding: 0 !important; margin: 0 !important; max-width: none !important;
+}
+body.is-oul .site-footer { display: none; }  /* OUL page carries its own footer */
+body.is-oul .page-title  { display: none; }
+/* no theme flow-spacing or stray empty paragraphs between our sections */
+body.is-oul .page-body > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+.oul p:empty { display: none !important; margin: 0 !important; padding: 0 !important; }
+body.is-oul .page-header { display: none; }
+body.is-oul .page-wrapper,
+body.is-oul .page-body {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.oul {
+  /* ---- OULDHH brand ---- */
+  --oul-green:  #64C21E;
+  --oul-red:    #E95A6C;
+  --oul-blue:   #5E6FB8;
+  --oul-yellow: #F6D343;  /* fills only — never heading/pill/accent on white */
+  --oul-gold:   #c9a300;  /* headings, pills, accents on white */
+
+  /* ---- derived ---- */
+  --oul-navy:      #3b4577;
+  --oul-navy-deep: #2b3462;
+  --oul-soft:      #eef0f8;
+  --oul-line:      #dfe3ec;
+  --oul-ink:       #3d4354;  /* 9.9:1 on white — AAA */
+  --oul-warm:      #fbfaf7;
+
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  font-size: 0;        /* collapses whitespace-only text nodes between sections */
+  line-height: 0;
+  color: #1f2430;
+}
+.oul > * { font-size: 1.2rem; line-height: 1.6; } /* real content gets its size back */
+/* The theme sets Lora directly on page-body text, which beats inheritance —
+   force Roboto on every text element inside the OUL scope. */
+.oul p, .oul li, .oul a, .oul span, .oul b, .oul strong, .oul em,
+.oul ul, .oul ol, .oul blockquote, .oul figcaption, .oul button {
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif !important;
+}
+.oul h1, .oul h2, .oul h3 {
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif !important; /* theme heading font was overriding */
+  font-weight: 500 !important; /* Roboto Medium */
+  line-height: 1.2;
+  border: 0 !important;        /* theme h2 underline was bleeding in */
+  background: none;            /* was !important — it was killing the section ribbons */
+}
+.oul b, .oul strong { font-weight: 500; }
+
+/* Break out of the theme's content column for full-bleed bands */
+.oul-bleed {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  width: 100vw;
+}
+.oul-inner { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ---- OULDHH header (site header is suppressed on this page) ---- */
+.oul-header { background: #fff; border-bottom: 1px solid var(--oul-line); }
+.oul-header .oul-inner { max-width: none; padding-left: 0.5rem; }
+.oul-headrow {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 0.75rem; padding-top: 0.75rem; padding-bottom: 1rem;
+}
+.oul-brand { align-self: flex-start; }
+.oul-brand { display: flex; align-items: center; gap: 0.875rem; text-decoration: none; }
+.oul-brand img.oul-logo {
+  height: 84px; width: auto; display: block; flex: none;
+}
+.oul-brandtext b {
+  display: block; font-size: 1.2rem; font-weight: 500;
+  color: var(--oul-navy); line-height: 1.15;
+}
+.oul-brandtext span {
+  display: block; font-size: 0.875rem; color: var(--oul-ink);
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.oul-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: stretch; }
+/* links and dropdown buttons: identical box metrics so the row is perfectly even */
+.oul-nav a, .oul-subbtn {
+  display: inline-flex; align-items: center;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+.oul-navitem { display: inline-flex; }
+.oul-nav a {
+  font-size: 1.2rem; font-weight: 500; text-decoration: none;
+  color: var(--oul-navy-deep) !important; /* 8.1:1 on yellow — theme link color was overriding */
+  background: var(--oul-yellow);
+  border: 1px solid var(--oul-gold); padding: 0.95rem 1.6rem; border-radius: 10px;
+}
+.oul-nav a:hover, .oul-nav a:focus {
+  background: var(--oul-gold);      /* deeper gold = clearly hover, not "active" */
+  border-color: var(--oul-gold);
+  color: #000 !important;           /* 8.7:1 on gold — AAA */
+}
+.oul-nav a.on {
+  background: linear-gradient(180deg, #4E8FD0 0%, #7DB2E8 100%); /* Wix active blue */
+  border-color: #4E8FD0;
+  color: #000 !important; /* black on this blue: 6-8:1 — AAA for the nav's large bold text */
+}
+/* ---- nav sub-menus (click-to-open) ---- */
+.oul-navitem { position: relative; display: inline-block; }
+.oul-subbtn {
+  font-family: 'Roboto', system-ui, sans-serif !important;
+  font-size: 1.2rem; font-weight: 500; cursor: pointer;
+  color: var(--oul-navy-deep) !important;
+  background: var(--oul-yellow);
+  border: 1px solid var(--oul-gold);
+  padding: 0.95rem 1.6rem; border-radius: 10px;
+}
+.oul-subbtn:hover, .oul-subbtn:focus,
+.oul-subbtn[aria-expanded="true"] { background: var(--oul-gold); color: #000 !important; }
+.oul-submenu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 80;
+  min-width: 240px; background: #fff;
+  border: 1px solid var(--oul-line); border-radius: 10px;
+  box-shadow: 0 8px 26px rgba(0,0,0,.16);
+  padding: 0.4rem;
+  text-align: left;
+}
+.oul-submenu a {
+  display: block; padding: 0.55rem 0.9rem; border-radius: 6px;
+  font-size: 18px; text-decoration: none;
+  color: var(--oul-navy) !important;
+}
+.oul-submenu a:hover, .oul-submenu a:focus { background: var(--oul-soft); }
+
+@media (max-width: 1000px) {
+  .oul-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  .oul-nav a, .oul-subbtn { font-size: 0.85rem; padding: 0.5rem 0.25rem; justify-content: center; width: 100%; }
+  .oul-navitem { display: block; }
+  /* row 1: Home About Resources Charities — row 2: Articles CCCBlog Subscribe */
+  .oul-nav > :nth-child(4) { order: 4; }
+  .oul-nav > :nth-child(6) { order: 5; }
+  .oul-nav > :nth-child(5) { order: 6; }
+  .oul-nav > :nth-child(7) { order: 7; }
+  /* edge-aware panels: rightmost row-1 item right-aligns, row-2 leader left-aligns */
+  .oul-nav > :nth-child(4) .oul-submenu { left: auto; right: 0; transform: none; }
+  .oul-nav > :nth-child(6) .oul-submenu { left: 0; right: auto; transform: none; }
+  .oul-submenu {
+    left: 50%; transform: translateX(-50%);
+    min-width: 0; width: max-content; max-width: calc(100vw - 1.5rem);
+  }
+}
+
+/* ---- disclaimer bar (sticky) ---- */
+.oul-bar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--oul-navy-deep);
+  color: #dce4f4;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0.6rem 1.5rem;
+}
+.oul-bar strong { color: var(--oul-yellow); }
+.oul-bar a {
+  color: var(--oul-yellow) !important; /* 8.1:1 on the navy bar — theme link color was 3.3:1 */
+  text-decoration: underline;
+}
+
+/* ---- hero ---- */
+.oul-hero { background: var(--oul-blue); color: #fff; text-align: center; }
+.oul-hero-img {
+  height: 480px;
+  background: url('https://tobygeeksout.micro.blog/uploads/2026/a907b3a0c1.jpg') center/cover no-repeat;
+}
+.oul-hero-body { padding: 1.5rem 1.5rem 2.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.oul-hero-body h2 {
+  font-size: 2.6rem;
+  margin: 0 0 0.5rem;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+.oul-hero-body p {
+  font-size: 1.2rem;
+  font-style: italic;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+  opacity: .95;
+}
+
+/* ---- buttons ---- */
+.oul-btn {
+  display: inline-block;
+  background: var(--oul-yellow);
+  border: 1px solid var(--oul-gold);
+  color: var(--oul-navy-deep) !important;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.8rem 1.9rem;
+  border-radius: 8px;
+}
+.oul-btn:hover { background: #fff; }
+.oul-btn.pill { border-radius: 999px; padding: 0.9rem 2.4rem; }
+/* hero "What is OUL?" button: red pill with yellow border */
+.oul-hero-body .oul-btn {
+  background: var(--oul-red) !important;
+  border: 3px solid var(--oul-yellow) !important;
+  color: #fff !important;
+  border-radius: 999px;
+  padding: 0.9rem 2.4rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+.oul-hero-body .oul-btn:hover { filter: brightness(1.1); background: var(--oul-red) !important; }
+
+/* ---- section headings: ribbon label from the left screen edge ---- */
+.oul-sec {
+  display: block;
+  position: relative;
+  margin: 0 0 1.1rem;
+}
+.oul-sec h3 {
+  display: block;
+  box-sizing: border-box;  /* padding inside the 100vw — no sideways scroll */
+  width: 100vw;                 /* full band, edge to edge like ouldhh.org */
+  margin: 0 0 0 calc(50% - 50vw);
+  padding: 0.6rem 2rem 0.6rem 1.25rem !important; /* text hugs the left edge */
+  text-shadow: 0 1px 3px rgba(0,0,0,.45);         /* legibility helper on the bright bands */
+  font-size: 40px;
+  color: #fff !important;
+  background: var(--oul-navy-deep) !important; /* fallback; sections carry a colour class */
+}
+/* TRUE brand colours, WHITE text per Toby (matches ouldhh.org; below AAA on red/green — his call) */
+.oul-sec.c-red h3   { background: var(--oul-red) !important;    color: #fff !important; }
+.oul-sec.c-green h3 { background: var(--oul-green) !important;  color: #fff !important; }
+.oul-sec.c-blue h3  { background: var(--oul-blue) !important;   color: #fff !important; }
+.oul-sec.c-gold h3  { background: var(--oul-yellow) !important; color: #000 !important; }
+/* the "See all" link sits on the band */
+.oul-sec a { color: var(--oul-gold-ink) !important; text-decoration: underline; text-shadow: none; }
+/* end-of-section "see all" pill, centered, both desktop and mobile */
+.oul-morelink { text-align: center; margin: 1.75rem 0 0; }
+.oul-morelink a {
+  display: inline-block;
+  background: var(--oul-yellow);
+  border: 1px solid var(--oul-gold);
+  color: var(--oul-navy-deep) !important;  /* 8.1:1 — AAA */
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.6rem 1.6rem;
+  border-radius: 999px;
+}
+.oul-morelink a:hover { background: var(--oul-gold); color: #000 !important; }
+.oul-sec a {
+  position: static;
+  display: inline-block;
+  margin: 0.5rem 0 0 1.25rem;
+}
+.oul-sec a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--oul-gold-ink) !important;
+  text-decoration: none;
+}
+.oul-sec a:hover { text-decoration: underline; }
+.oul-sec a.external-link { padding: 0 !important; background: none !important; }
+.oul a.external-link::after, .oul a.external-link::before { content: none !important; display: none !important; }
+.oul a.card-img.external-link { padding: 0 !important; } /* keeps its background-image */
+.oul-band { padding: 0 0 1.5rem; }
+/* close the phantom seam between the showcase and the first band */
+.oul > div:has(.oul-slider[data-per="1"]) + .oul-band { margin-top: -30px !important; position: relative; z-index: 5; }
+/* plain bands (no .oul-inner wrapper) get their own centered column + side breathing room */
+.oul-band:not(.oul-bleed) {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+.oul-band.alt { background: transparent; border: 0; }
+.oul-note { font-size: 1.2rem; color: var(--oul-ink); margin: -0.75rem 0 1.5rem; }
+
+/* ============ SHOWCASE SLIDER (full-bleed) ============ */
+.oul-banner {
+  position: relative;
+  height: 520px;   /* every slide identical, a bit taller */
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  overflow: hidden;
+}
+.oul-banner .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.oul-banner .bg::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,.20) 0%, rgba(0,0,0,.06) 60%, transparent 100%);
+}
+/* placeholders — replace each with the real slide photo */
+.oul-banner .b1 { background-image: url('https://tobygeeksout.micro.blog/uploads/2026/3665e26026.jpg'); } /* Gallaudet */
+.oul-banner .b2 { background-image: url('https://tobygeeksout.micro.blog/uploads/2026/9811c8b819.jpg'); background-position: center top; } /* Learning Disabilities — top edge stays visible */
+.oul-banner .b3 { background-image: url('https://tobygeeksout.micro.blog/uploads/2026/5394fe7a34.jpg'); } /* Dedicated */
+.oul-banner .b4 { background-image: url('https://tobygeeksout.micro.blog/uploads/2026/b38be0fcb5.jpg'); } /* Profiles */
+
+.oul-banner .copy {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 760px; margin: 0;
+  padding: 2.5rem 2rem 2.5rem 5rem;  /* same left margin on every slide, clear of the arrow */
+}
+.oul-banner.mid .copy {
+  text-align: center;
+  max-width: none;
+  padding: 2.5rem 2rem;   /* centered slide: symmetric padding */
+}
+.oul-banner.mid .l1 { font-size: clamp(2.8rem, 6.5vw, 5.2rem); }
+.oul-banner.mid .l2 { font-size: clamp(2.2rem, 5vw, 4rem); }
+.oul-banner .copy {
+  transform: translateX(56px); opacity: 0;
+  transition: transform .6s ease, opacity .6s ease;
+}
+.oul-banner.in-view .copy { transform: none; opacity: 1; }
+.oul-banner .l1, .oul-banner .l2 { text-shadow: none !important; }
+/* Cristina slide: composed room — framed portrait now; couch/plant/clock when PNGs arrive */
+.oul-banner .room { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.oul-banner .room img { min-width: 0; max-width: none; }
+.oul-banner .r-portrait {
+  position: absolute; left: 51%; top: 7%;
+  width: 160px; height: auto;
+  border: 8px solid #141414;
+  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+  background: #fff;
+  z-index: 3;
+}
+.oul-banner .r-couch {
+  position: absolute; left: 53%; bottom: -62px; /* couch.png has 24% empty space under the legs */
+  width: 600px; height: auto;
+  transform: translateX(-40%);
+  z-index: 2;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,.25));
+}
+.oul-banner .r-plant {
+  position: absolute; right: 11%; bottom: -18px; /* 9% empty space under the pot */
+  width: 200px; height: auto;
+  z-index: 3;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.22));
+}
+.oul-banner .r-clock {
+  position: absolute; right: 15%; top: 9%;
+  width: 125px; height: auto;
+  z-index: 2;
+  filter: drop-shadow(0 5px 8px rgba(0,0,0,.25));
+}
+@media (max-width: 1200px) {
+  .oul-banner .r-couch { width: 480px; bottom: -50px; }
+  .oul-banner .r-plant { width: 160px; right: 8%; bottom: -14px; }
+  .oul-banner .r-clock { width: 100px; right: 11%; }
+  .oul-banner .r-portrait { width: 135px; }
+}
+@media (max-width: 620px) {
+  .oul-banner .room { position: static; display: flex; justify-content: center; margin-top: 0.5rem; }
+  .oul-banner .r-portrait { position: static; width: 190px; }
+  .oul-banner .r-couch, .oul-banner .r-plant, .oul-banner .r-clock { display: none; } /* mobile shows the portrait only */
+}
+
+/* Gallaudet slide: two magazine pages floating right, like ouldhh.org */
+.oul-banner .mags {
+  position: absolute; top: 50%;
+  left: calc((760px + 100%) / 2 - 40px);
+  transform: translate(-50%, -50%);
+  width: 560px; height: 440px; z-index: 1;
+}
+.oul-banner .mags img {
+  position: absolute; width: 290px; height: auto; min-width: 0; max-width: none;
+  box-shadow: 0 12px 30px rgba(0,0,0,.32);
+  background: #fff;
+}
+.oul-banner .mags .m1 { left: 0; top: 0; z-index: 2; }
+.oul-banner .mags .m2 { right: 0; top: 56px; z-index: 1; }
+@media (max-width: 1100px) { .oul-banner .mags { width: 440px; } .oul-banner .mags img { width: 230px; } }
+@media (max-width: 620px) {
+  .oul-banner .mags {
+    position: static; transform: none; left: auto; width: auto; height: auto;
+    display: flex; justify-content: center; align-items: flex-start; gap: 0.75rem;
+    margin: 0.5rem auto 0;
+  }
+  .oul-banner .mags img { position: static; width: 150px; }
+  .oul-banner .mags .m2 { margin-top: 18px; }
+}
+
+/* Profiles slide: 2x2 circle headshots on the right */
+.oul-banner .faces {
+  position: absolute; top: 50%;
+  left: calc((760px + 100%) / 2 - 60px); /* midpoint between copy and right edge, nudged left */
+  transform: translate(-50%, -50%);
+  display: grid; grid-template-columns: repeat(2, auto);
+  gap: 0.6rem 2.5rem; z-index: 1;
+}
+.oul-banner .face { display: flex; flex-direction: column; align-items: center; gap: 0.45rem; }
+.oul-banner .face img {
+  width: 200px; height: 200px;
+  min-width: 200px; max-width: none;   /* theme img{max-width:100%} was squeezing these into ovals */
+  aspect-ratio: 1 / 1;
+  border-radius: 50%; object-fit: cover;
+  border: 5px solid #fff; box-shadow: 0 5px 18px rgba(0,0,0,.28);
+}
+.oul-banner .face b {
+  font-size: 0.95rem; font-weight: 500; color: #1f2430; white-space: nowrap;
+  background: rgba(255,255,255,.9); padding: 0.15rem 0.7rem; border-radius: 999px;
+}
+@media (max-width: 1100px) { .oul-banner .face img { width: 120px; height: 120px; min-width: 120px; } }
+@media (max-width: 980px)  { .oul-banner .face img { width: 100px; height: 100px; min-width: 100px; } .oul-banner .faces { gap: 0.75rem 1.5rem; } .oul-banner .face b { font-size: 0.8rem; } }
+@media (max-width: 620px) {
+  .oul-sec h3 { font-size: 32px; }
+  .oul-sec a { font-size: 0.9rem; }
+  .oul-banner { flex-direction: column; justify-content: center; height: auto; min-height: 680px; padding: 1.25rem 0 1.25rem; }
+  .oul-banner .copy, .oul-banner.mid .copy { text-align: center; max-width: none; padding: 0.75rem 1.25rem; }
+  .oul-banner .faces {
+    position: static; transform: none; left: auto;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.75rem 1.75rem;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .oul-banner .face img { width: 96px; height: 96px; min-width: 96px; border-width: 3px; }
+  .oul-banner .face b { font-size: 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .oul-banner .copy { transform: none; opacity: 1; transition: none; }
+}
+.oul-banner .l1 {
+  display: block;
+  font-family: 'Poppins', 'Roboto', system-ui, sans-serif !important; /* rounded thick display face */
+  font-size: clamp(2.2rem, 5vw, 3.9rem);
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.025em;
+  color: var(--c1);
+}
+.oul-banner .l2 {
+  display: block;
+  font-family: 'Playfair Display', Georgia, serif !important;
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(1.8rem, 4vw, 3.1rem);
+  line-height: 1.05;
+  color: var(--c2);
+  margin: 0.1rem 0 1.5rem;
+}
+.oul-banner .cta {
+  display: inline-block;
+  background: var(--btn);
+  color: var(--btnc, #fff) !important;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.55rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.22);
+}
+.oul-banner:hover .cta { filter: brightness(1.08); }
+
+/* ============ SLIDERS ============ */
+.oul-slider { position: relative; }
+.oul-track {
+  display: flex;
+  gap: 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.125rem 0.875rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.oul-track::-webkit-scrollbar { display: none; }
+.oul .oul-track > li { list-style: none !important; }
+.oul .oul-track > li::marker { content: none !important; }
+.oul .oul-track > li::before { content: none !important; display: none !important; }
+.oul-track > li { flex: 0 0 calc((100% - 3.75rem) / 4); scroll-snap-align: start; }
+.oul-slider[data-per="5"] .oul-track > li { flex: 0 0 calc((100% - 5rem) / 5); }
+.oul-slider[data-per="1"] .oul-track { gap: 0; padding: 0; }
+.oul-slider[data-per="1"] .oul-track > li { flex: 0 0 100%; }
+
+.oul-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--oul-navy); color: #fff; font-size: 1.2rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,.22); z-index: 2;
+}
+.oul-arrow:hover { background: var(--oul-gold); color: var(--oul-navy-deep); }
+.oul-arrow.prev { left: -0.9rem; }
+.oul-arrow.next { right: -0.9rem; }
+.oul-slider[data-per="1"] .oul-arrow {
+  background: none; box-shadow: none; width: 3.5rem; height: 4.4rem;
+  font-size: 2.6rem; font-weight: 300; color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.5);
+}
+.oul-slider[data-per="1"] .oul-arrow:hover { background: none; color: var(--oul-yellow); }
+.oul-slider[data-per="1"] .oul-arrow.prev { left: 0.4rem; }
+.oul-slider[data-per="1"] .oul-arrow.next { right: 0.4rem; }
+
+/* ---- slider item types ---- */
+.oul-book { display: block; text-decoration: none; text-align: center; }
+.oul-book .ph {
+  display: block;
+  aspect-ratio: 2 / 3;        /* real book proportions — covers never squash */
+  height: auto;
+  border-radius: 8px;
+  background-color: var(--oul-soft);
+  border: 1px solid var(--oul-line);
+  box-shadow: 0 4px 12px rgba(0,0,0,.14);
+  margin-bottom: 0.6rem;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+.oul-book span { font-size: 1rem; font-weight: 500; color: var(--oul-navy); display: block; }
+.oul-book .auth {
+  display: block;
+  font-style: normal;
+  font-size: 0.85rem;
+  color: var(--oul-ink);
+  margin-top: 0.15rem;
+}
+/* books shelf: full-bleed edge to edge, arrows in their own gutters outside the covers */
+.oul-slider.books {
+  margin-left: calc(50% - 50vw);
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 0 3.75rem;
+}
+/* six per row across the full width — covers stay the size Toby liked */
+.oul-slider.books .oul-track > li { flex: 0 0 calc((100% - 6.25rem) / 6); }
+/* centers the row when it isn't full, stays scrollable when it is */
+.oul-slider.books .oul-track > li:first-child { margin-left: auto; }
+.oul-slider.books .oul-track > li:last-child { margin-right: auto; }
+.oul-slider.books .oul-arrow.prev { left: 0.5rem; }
+.oul-slider.books .oul-arrow.next { right: 0.5rem; }
+/* books slider: 4-up desktop, 3-up tablets, 2-up phones (never a giant single cover) */
+@media (max-width: 1100px) { .oul-slider.books .oul-track > li { flex: 0 0 calc((100% - 3.75rem) / 4) !important; } }
+@media (max-width: 560px) { .oul-slider.books .oul-track > li { flex: 0 0 calc((100% - 2.5rem) / 3); } }
+
+.oul-vid { display: block; text-decoration: none; }
+.oul-vid .ph {
+  position: relative; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; background: var(--oul-navy);
+  margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: center;
+  background-size: cover; background-position: center;
+}
+.oul-vid .ph::after {
+  content: "\25B6"; color: #fff; font-size: 1.4rem;
+  width: 2.8rem; height: 2.8rem; border-radius: 50%; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; padding-left: 3px;
+}
+.oul-vid .dur {
+  position: absolute; right: 0.4rem; bottom: 0.4rem;
+  background: rgba(0,0,0,.75); color: #fff;
+  font-size: 0.875rem; padding: 0.1rem 0.4rem; border-radius: 4px;
+}
+.oul-vid .chan {
+  display: block; font-size: 0.875rem; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--oul-gold-ink); font-weight: 500;
+}
+.oul-vid b { display: block; font-size: 1rem; font-weight: 500; color: var(--oul-navy); line-height: 1.3; }
+
+.oul-face { display: block; text-decoration: none; text-align: center; }
+.oul-face .ph {
+  height: 120px; border-radius: 8px; background: var(--oul-soft);
+  border: 1px solid var(--oul-line); margin-bottom: 0.4rem;
+  background-size: cover; background-position: center;
+}
+.oul-face span { font-size: 1.2rem; font-weight: 500; color: var(--oul-navy); }
+
+/* ============ POST CARDS — image LEFT, text RIGHT ============ */
+.oul .cards { display: flex; flex-direction: column; gap: 1.25rem; }
+.oul .card {
+  background: #fff;
+  border: 1px solid var(--oul-line);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+.oul-band.alt .card { background: #fff; }
+.oul .card-img {
+  display: block;
+  flex: 0 0 44%;
+  aspect-ratio: 4 / 3;        /* big panel; cover crops only a little, like ouldhh.org */
+  background-color: #fff;      /* no gray letterbox */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.oul .card-body {
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+/* meta sits at the TOP, like ouldhh.org */
+.oul .meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--oul-ink);
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.oul .meta .by { font-weight: 500; color: var(--oul-navy); }
+.oul .oul-orig { color: var(--oul-gold-ink) !important; text-decoration: none; font-weight: 500; }
+.oul .oul-orig:hover { text-decoration: underline; }
+
+.oul .card .cat { display: none !important; }
+.oul .cat {
+  align-self: flex-start;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: var(--oul-soft);
+  color: var(--oul-navy);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+.oul .cat.events  { background: #eef8e5; color: #24490b; }  /* 9.4:1 */
+.oul .cat.general { background: #fdeef0; color: #7c1f30; }  /* 8.9:1 */
+.oul .cat.ouldhh  { background: #fdf8e3; color: #5c4d00; }  /* 7.4:1 */
+
+.oul .card h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;          /* clamp to two lines with an ellipsis, like ouldhh.org */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.oul .card h3 a { color: #1f2430 !important; text-decoration: none; }
+.oul .card h3 a:hover { text-decoration: underline; }
+.oul .card p { font-size: 1.2rem; line-height: 1.5; color: var(--oul-ink); margin: 0; }
+.oul .card p:empty { display: none; }
+
+/* video shelf: full-bleed like books, 16:9 thumbnails, titles match book text size */
+.oul-slider.vids {
+  margin-left: calc(50% - 50vw);
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 0 3.75rem;
+}
+.oul-slider.vids .oul-arrow.prev { left: 0.5rem; }
+.oul-slider.vids .oul-arrow.next { right: 0.5rem; }
+.oul-slider.vids .oul-track > li { flex: 0 0 calc((100% - 5rem) / 5); }
+.oul-slider.vids .oul-track > li:first-child { margin-left: auto; }
+.oul-slider.vids .oul-track > li:last-child { margin-right: auto; }
+@media (max-width: 1100px) { .oul-slider.vids .oul-track > li { flex: 0 0 calc((100% - 2.5rem) / 3) !important; } }
+@media (max-width: 700px)  { .oul-slider.vids .oul-track > li { flex: 0 0 calc((100% - 1.25rem) / 2) !important; } }
+
+/* Successful People: hidden for now per Toby (section stays in the page for later) */
+.oul-band:has([aria-label="Successful people with learning disabilities"]) { display: none !important; }
+
+/* ---- vision / mission: red panel left, photo right (like ouldhh.org) ---- */
+.oul-vmwrap { display: grid; grid-template-columns: 1fr 1fr; }
+.oul-vm-panel {
+  background: #E95A6C; /* EXACT brand red (Notion / OUL Desk log) */
+  color: #fff;
+  display: flex; align-items: center;
+  padding: 2.25rem 3rem;
+}
+.oul-vm-panel h3 { color: #fff !important; font-size: 40px; margin: 0 0 0.5rem; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.oul-vm-panel p {
+  color: #fff;
+  font-size: 22px;     /* per Toby */
+  line-height: 1.45;
+  margin: 0 0 1.5rem;
+}
+.oul-vm-panel p:last-child { margin-bottom: 0; }
+.oul-vm-photo {
+  background: url('https://tobygeeksout.micro.blog/uploads/2026/cb15753f2b.jpg') center/cover no-repeat;
+  min-height: 420px;
+}
+@media (max-width: 1000px) {
+  .oul-vmwrap { grid-template-columns: 1fr; }
+  .oul-vm-panel { padding: 2.25rem 1.75rem; }
+  .oul-vm-photo { min-height: 0; aspect-ratio: 16 / 10; } /* keeps the photo in proportion at any width */
+}
+
+/* ---- closing "not official" notice ---- */
+.oul-notice {
+  border: 2px solid var(--oul-gold);
+  border-radius: 12px;
+  background: #fdf8e3;
+  padding: 2rem;
+  text-align: center;
+}
+.oul-notice h3 { font-size: 1.5rem; color: var(--oul-navy); margin: 0 0 0.6rem; }
+.oul-notice p {
+  font-size: 1.2rem;
+  color: var(--oul-ink);
+  max-width: 620px;
+  margin: 0 auto 1.5rem;
+}
+
+/* ---- subscribe ---- */
+.oul-sub { background: var(--oul-navy); color: #fff; text-align: center; padding: 3rem 1.5rem; }
+.oul-sub h3 { font-size: 1.8rem; margin: 0 0 0.5rem; color: #fff; }
+.oul-sub p { max-width: 520px; margin: 0 auto 1.25rem; opacity: .85; }
+
+/* ---- OUL footer (matches ouldhh.org) ---- */
+.oul-footer {
+  background: #f0efec;
+  border-top: 4px solid var(--oul-yellow);
+  padding: 1.25rem 2rem 1.5rem;
+  color: #1f2430;
+}
+.oul-foot-grid {
+  max-width: 1080px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto; gap: 2rem;
+}
+.oul-foot-copy { margin: 0 0 0.6rem; font-size: 0.9rem; }
+.oul-foot-h { font-size: 1.15rem; margin: 0 0 0.4rem; color: #1f2430; }
+.oul-foot-links { margin: 0; padding-left: 1.4rem; }
+.oul-foot-links li { margin-bottom: 0.15rem; font-size: 0.95rem; }
+.oul-foot-links a { color: #1f2430 !important; text-decoration: underline; }
+.oul-foot-right { text-align: right; }
+.oul-foot-social { margin: 0.3rem 0 0.8rem; display: flex; gap: 0.6rem; justify-content: flex-end; }
+.oul-foot-top { margin: 0; }
+.oul-foot-top a { color: #1f2430 !important; text-decoration: underline; }
+@media (max-width: 700px) {
+  .oul-foot-grid { grid-template-columns: 1fr; }
+  .oul-foot-right { text-align: left; }
+  .oul-foot-social { justify-content: flex-start; }
+}
+
+/* ---- screen-reader-only ---- */
+.oul .sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 900px) {
+  .oul-banner .copy { padding: 2rem 1.5rem 2rem 3.5rem; }
+  .oul-banner.mid .copy { padding: 2rem 1.5rem; }
+  .oul-track > li,
+  .oul-slider[data-per="5"] .oul-track > li { flex: 0 0 calc((100% - 1.25rem) / 2); }
+  .oul-vm { grid-template-columns: 1fr; gap: 1.5rem; }
+  .oul-banner .copy { padding: 2.5rem 3.5rem; }
+  .oul-hero-body h2 { font-size: 1.9rem; }
+}
+@media (max-width: 560px) {
+  .oul-track > li,
+  .oul-slider[data-per="5"] .oul-track > li { flex: 0 0 100%; }
+  .oul .card { flex-direction: column; }
+  .oul .card-img { flex: none; width: 100%; height: 240px; min-height: 0; }
+}
+
+
+/* ~~~~~~~~~~~~ MOBILE POLISH: books + videos shelves (phones + foldable) ~~~~~~~~~~~~ */
+/* flex items must never stretch to fit their longest word — that is what made
+   covers render at different sizes on phones. min-width:0 restores exact sizing. */
+.oul-slider .oul-track > li { min-width: 0 !important; }
+
+/* below desktop: clamp titles to two tidy lines with an ellipsis */
+@media (max-width: 1100px) {
+  .oul-book span:not(.ph):not(.auth) {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .oul-book .auth { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 1100px) {
+  .oul-vid b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .oul-vid .chan { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* foldable / landscape phones: three covers per view */
+@media (max-width: 700px) {
+  .oul-slider.books .oul-track > li { flex: 0 0 calc((100% - 2.5rem) / 3) !important; }
+}
+
+/* phones: two big consistent covers, one big video with a peek of the next,
+   smaller text, slimmer arrows so the shelves keep more room */
+@media (max-width: 560px) {
+  .oul-slider.books, .oul-slider.vids { padding: 0 2.75rem; }
+  .oul-slider.books .oul-track > li { flex: 0 0 calc((100% - 1.25rem) / 2) !important; }
+  .oul-slider.vids .oul-track > li { flex: 0 0 78% !important; }
+  .oul-book span { font-size: 0.9rem; }
+  .oul-book .auth { font-size: 0.8rem; }
+  .oul-vid .chan { font-size: 0.75rem; }
+  .oul-vid b { font-size: 0.875rem; }
+  .oul-vid .dur { font-size: 0.75rem; }
+  .oul-slider.books .oul-arrow, .oul-slider.vids .oul-arrow {
+    width: 2.2rem; height: 2.2rem; font-size: 1rem;
+  }
+  .oul-slider.books .oul-arrow.prev, .oul-slider.vids .oul-arrow.prev { left: 0.35rem; }
+  .oul-slider.books .oul-arrow.next, .oul-slider.vids .oul-arrow.next { right: 0.35rem; }
+}
+
+/* dropdown panels: long labels (Deafness and Learning Disabilities) wrap to two lines
+   so every panel keeps a tidy, consistent width */
+@media (max-width: 1000px) {
+  .oul-submenu { max-width: 280px; }
+  .oul-submenu a { line-height: 1.35; }
+}
+
+
+/* ~~~~~~~~~~~~ FOLDABLE + SMALL TABLETS (621-1000px): desktop slide layout, fitted ~~~~~~~~~~~~ */
+@media (min-width: 621px) and (max-width: 1000px) {
+  .oul-banner .copy { max-width: 54%; padding: 2rem 1rem 2rem 3.25rem; }
+  .oul-banner.mid .copy { max-width: none; padding: 2rem 2rem; }
+  /* Profiles faces: right half, smaller circles */
+  .oul-banner .faces { left: auto; right: 3.5rem; transform: translateY(-50%); gap: 0.6rem 1.25rem; }
+  .oul-banner .face img { width: 108px; height: 108px; min-width: 108px; border-width: 4px; }
+  .oul-banner .face b { font-size: 0.75rem; }
+  /* Gallaudet magazines */
+  .oul-banner .mags { left: auto; right: 2.5rem; transform: translateY(-50%); width: 330px; height: 340px; }
+  .oul-banner .mags img { width: 168px; }
+  /* Cristina room: smaller furniture, stays clear of the text */
+  .oul-banner .r-portrait { width: 118px; left: 56%; border-width: 6px; }
+  .oul-banner .r-couch { width: 380px; bottom: -40px; left: 58%; }
+  .oul-banner .r-plant { width: 120px; right: 4%; bottom: -11px; }
+  .oul-banner .r-clock { width: 84px; right: 7%; }
+}

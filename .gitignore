@@ -9,3 +9,6 @@ banner-preview-email.html
 # Session scratch — safe to delete
 _git_stale_locks/
 _to_delete/
+
+# local scratch, never ship to the theme
+recovery/

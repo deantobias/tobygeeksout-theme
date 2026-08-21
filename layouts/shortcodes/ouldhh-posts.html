@@ -1,0 +1,25 @@
+{{- /*
+  ouldhh-posts — Toby's own OULDHH articles from the Wix RSS, as a plain list.
+  Used on /now. Rebuilt 2026-08-21 after the GitHub re-sync wiped the original.
+  Params: author (default "Toby Overstreet"), limit (default 6)
+  NOTE: no .Err on GetRemote — this Hugo removed it. Plain `with` only.
+*/ -}}
+{{- $author := .Get "author" | default "Toby Overstreet" -}}
+{{- $limit := int (.Get "limit" | default 6) -}}
+{{- with resources.GetRemote "https://www.ouldhh.org/blog-feed.xml" -}}
+  {{- $data := . | transform.Unmarshal -}}
+  {{- $items := $data.channel.item -}}
+  {{- if reflect.IsMap $items }}{{ $items = slice $items }}{{ end -}}
+  {{- $n := 0 -}}
+<ul class="now-list">
+  {{- range $items -}}
+    {{- if lt $n $limit -}}
+      {{- $creator := printf "%v" (index . "creator" | default "") -}}
+      {{- if in $creator $author -}}
+        {{- $n = add $n 1 }}
+  <li><a href="{{ trim (printf "%v" .link) " " }}" target="_blank" rel="noopener noreferrer">{{ trim (printf "%v" .title) " " }}</a></li>
+      {{- end -}}
+    {{- end -}}
+  {{- end }}
+</ul>
+{{- end -}}

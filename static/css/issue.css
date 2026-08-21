@@ -1,0 +1,1585 @@
+/* ============================================
+   The 2026 Issue — magazine stylesheet
+   Scoped under .issue — never touches theme CSS.
+   ============================================ */
+
+.issue {
+  --iss-terracotta: #C4622D;          /* display only — 3.86:1, large text */
+  --iss-ink-terra: #964B23;           /* small text on cream/tint — 5.95:1 / 4.63:1 */
+  --iss-light-terra: #D67E4E;         /* small text on navy — 4.55:1 */
+  --iss-tint: #EADACD;
+  --iss-navy: #1E2D4A;
+  --iss-soft: #5C6B85;
+  --iss-cream: #FAF8F5;
+  --iss-rule: rgba(30, 45, 74, 0.18);
+  --iss-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --iss-body: 'Inter', system-ui, sans-serif;
+  --iss-serif: 'Lora', Georgia, 'Times New Roman', serif;
+
+  /* set to your theme header height once you see it live */
+  --iss-chrome: 0px;
+
+  color: var(--iss-navy);
+  font-family: var(--iss-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.issue, .issue * { color-scheme: light; box-sizing: border-box; }
+
+/* accessibility baseline */
+.issue :focus-visible {
+  outline: 3px solid var(--iss-ink-terra);
+  outline-offset: 3px;
+}
+.issue .body,
+.issue .body p { color: var(--iss-navy); }        /* 12.95:1 */
+.issue .rail { color: #4A5772; }                  /* 6.2:1 on cream */
+
+/* ============ page shell ============ */
+
+.issue .pg {
+  position: relative;
+  min-height: calc(100vh - var(--iss-chrome));
+  min-height: calc(100dvh - var(--iss-chrome));
+  background: var(--iss-cream);
+  padding: 3.2rem 2.4rem 3.6rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.issue .runhead {
+  position: absolute;
+  top: 1.5rem; left: 2.4rem; right: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--iss-soft);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--iss-rule);
+}
+.issue .runhead .fleuron { color: var(--iss-ink-terra); letter-spacing: 0; }
+
+.issue .folio {
+  position: absolute;
+  bottom: 1.5rem; right: 2.4rem;
+  font-family: var(--iss-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--iss-ink-terra);         /* 5.95:1 on cream */
+}
+.issue .pg--verso .folio { right: auto; left: 2.4rem; }
+
+/* ============ chapter opener ============ */
+
+.issue .pg--chapter {
+  justify-content: flex-end;
+  overflow: hidden;
+  background: var(--iss-navy);
+  color: var(--iss-cream);
+}
+.issue .pg--chapter .runhead {
+  color: rgba(250,248,245,0.7);        /* 7.14:1 */
+  border-bottom-color: rgba(250,248,245,0.32);
+}
+.issue .pg--chapter .ghost {
+  position: absolute;
+  top: 42%; right: -0.08em;
+  transform: translateY(-50%);
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(11rem, 40vw, 26rem);
+  line-height: 0.8;
+  color: rgba(196, 98, 45, 0.42);      /* decorative only — aria-hidden in markup */
+  z-index: 0;
+  user-select: none;
+  pointer-events: none;
+}
+.issue .pg--chapter .inner { position: relative; z-index: 1; max-width: 34ch; }
+.issue .pg--chapter .eyebrow {
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--iss-light-terra);       /* 4.55:1 on navy */
+  margin-bottom: 0.9rem;
+}
+.issue .pg--chapter h2,
+.issue .pg--chapter h2 a {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.2rem;
+  color: var(--iss-cream);             /* 12.95:1 — beats theme h2 rule */
+  /* theme adds a border under h2 — that was the second rule showing */
+  border: none;
+  padding-bottom: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
+}
+.issue .pg--chapter .standfirst {
+  font-family: var(--iss-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: rgba(250,248,245,0.88);       /* 10.3:1 */
+  margin: 0;
+  padding-top: 1.2rem;
+  border-top: 2px solid var(--iss-terracotta);
+  max-width: 36ch;
+}
+.issue .pg--chapter .folio { color: rgba(250,248,245,0.7); }
+
+/* ============ feature opener ============ */
+
+.issue .pg--opener { padding: 0; justify-content: flex-end; overflow: hidden; }
+.issue .pg--opener img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+.issue .pg--opener .veil {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to top,
+    rgba(20, 32, 55, 0.94) 0%,
+    rgba(20, 32, 55, 0.55) 38%,
+    rgba(20, 32, 55, 0.05) 72%);
+}
+.issue .pg--opener .masthead {
+  position: relative; z-index: 2;
+  padding: 0 2.4rem 3.4rem;
+  color: var(--iss-cream);
+  display: grid;
+  gap: 1.1rem;
+}
+.issue .pg--opener .tag {
+  display: inline-block; width: fit-content;
+  background: var(--iss-terracotta);
+  color: var(--iss-cream);
+  font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+}
+.issue .pg--opener h3 {
+  color: var(--iss-cream);
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 7.5vw, 4.2rem);
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  margin: 0;
+  max-width: 16ch;
+}
+.issue .pg--opener .deck {
+  font-family: var(--iss-display);
+  font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: rgba(250,248,245,0.92);       /* 11.3:1 */
+  margin: 0;
+  max-width: 46ch;
+  padding-left: 1rem;
+  border-left: 2px solid var(--iss-terracotta);
+}
+.issue .pg--opener .byline {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(250,248,245,0.78);       /* 8.47:1 */
+}
+.issue .pg--opener .folio { color: rgba(250,248,245,0.85); z-index: 2; }
+.issue .pg--opener .runhead {
+  color: rgba(250,248,245,0.78);       /* 8.47:1 */
+  border-bottom-color: rgba(250,248,245,0.35);
+  z-index: 2;
+}
+
+/* ============ the grid ============ */
+
+.issue .pg--text { justify-content: center; padding-top: 4.4rem; }
+
+.issue .well {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  /* Explicit named areas — the body ALWAYS gets the wide column and the
+     rail ALWAYS gets the narrow one, no matter what order they appear
+     in the HTML. Relying on source order here caused the article to be
+     squeezed into the 1fr cell. */
+  .issue .well {
+    grid-template-columns: 3fr 1fr;
+    grid-template-areas: "body rail";
+    gap: 2.8rem;
+  }
+  .issue .well > .body { grid-area: body; }
+  .issue .well > .rail { grid-area: rail; }
+
+  .issue .well--rail-left {
+    grid-template-columns: 1fr 3fr;
+    grid-template-areas: "rail body";
+  }
+
+  /* No rail worth filling? Let the text take the full measure. */
+  /* No rail: the text well widens, but the BODY stays in two columns.
+     A single column at this width would run 100+ characters a line;
+     readable measure is 45-75, which is why magazines use columns
+     at all. */
+  .issue .well--full {
+    grid-template-columns: 1fr;
+    grid-template-areas: "body";
+    max-width: 940px;
+  }
+}
+
+/* Rail content sits at the top, never stretched to fill dead space */
+.issue .rail > *:last-child { margin-bottom: 0; }
+
+/* Column guide — a quiet cue for where column two begins */
+.issue .body::after {
+  content: "";
+  display: block;
+}
+
+.issue .body {
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  /* column-width acts as a floor: if 2 columns would each be under
+     ~15rem, the browser gives us 1 instead of unreadable slivers */
+  columns: 15rem 2;
+  column-gap: 2.2rem;
+  column-rule: 1px solid var(--iss-rule);
+  /* NEVER set max-height here — multicol responds by spawning extra
+     columns sideways instead of clipping. Column height is controlled
+     by how much content sits on each page, not by CSS. */
+  column-fill: balance;
+  font-size: 0.95rem;
+  line-height: 1.68;
+  text-align: left;
+  hyphens: none;
+}
+.issue .body p,
+.issue .body h4,
+.issue .body .part { text-align: left; }
+.issue .body--single { columns: 1; column-rule: none; }
+.issue .body p { margin: 0 0 0.9rem; }
+.issue .body p + p { text-indent: 0; }
+
+.issue .body .drop::first-letter {
+  font-family: var(--iss-serif);
+  font-weight: 600;
+  /* 6.3 x 0.8 = 5.04em = exactly three lines of body text (3 x 1.68) */
+  font-size: 6.3em;
+  line-height: 0.8;
+  float: left;
+  padding: 0.02em 0.07em 0 0;
+  margin-top: 0.04em;
+  color: var(--iss-ink-terra);
+  -webkit-font-smoothing: antialiased;
+}
+.issue .body .drop { text-indent: 0; }
+
+.issue .body h4 {
+  font-family: var(--iss-display);
+  font-weight: 700;
+  font-size: 1.55rem;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  /* sentence case, not caps — caps in a narrow column produce
+     ugly gaps on short lines and read as shouting */
+  text-transform: none;
+  text-align: left;
+  text-wrap: balance;
+  hyphens: none;
+  margin: 1.8rem 0 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 2px solid var(--iss-terracotta);
+  color: var(--iss-navy);
+  break-after: avoid;
+}
+.issue .body h4:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* dateline sits directly under the headline, where a reader looks for it */
+.issue .body .dateline {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: #4A5772;
+  margin: -0.4rem 0 1.1rem;
+  text-indent: 0;
+}
+.issue .body .dateline .d {
+  color: var(--iss-ink-terra);
+  font-weight: 600;
+}
+.issue .body .dateline .src {
+  color: var(--iss-ink-terra);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.issue .body .dateline .src:hover { text-decoration-thickness: 2px; }
+
+/* permalink back to the original post — the issue is edited, the blog is complete */
+.issue .permalink {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  text-decoration: none;
+  border-bottom: 1px solid var(--iss-ink-terra);
+  padding-bottom: 0.15rem;
+  margin-top: 1.4rem;
+  text-indent: 0;
+}
+.issue .permalink:hover { border-bottom-width: 2px; }
+.issue .pg--opener .permalink,
+.issue .pg--photo .permalink {
+  color: var(--iss-tint);
+  border-bottom-color: var(--iss-tint);
+}
+
+/* ============ margin rail ============ */
+
+.issue .rail {
+  min-width: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--iss-soft);
+}
+.issue .stat {
+  position: relative;
+  border-top: 2px solid var(--iss-terracotta);
+  padding-top: 0.7rem;
+  margin-bottom: 1.8rem;
+  background: var(--iss-cream);
+}
+.issue .stat .fig {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--iss-navy);
+  display: block;
+  letter-spacing: -0.02em;
+}
+.issue .stat .lbl { display: block; margin-top: 0.4rem; }
+
+.issue .sidebar {
+  background: var(--iss-tint);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1.6rem;
+}
+.issue .sidebar h5 {
+  font-family: var(--iss-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);         /* 4.63:1 on tint */
+  margin: 0 0 0.6rem;
+}
+.issue .sidebar p { margin: 0; color: var(--iss-navy); font-size: 0.85rem; line-height: 1.55; }
+
+.issue .pull {
+  /* Was column-span: all — that forced the text to stop, clear the quote,
+     and restart at the left. Keeping it inside a column lets the left
+     column run the full page height before the eye moves right. */
+  column-span: none;
+  break-inside: avoid;
+  margin: 1.6rem 0;
+  padding: 1.1rem 0;
+  border-top: 2px solid var(--iss-terracotta);
+  border-bottom: 2px solid var(--iss-terracotta);
+  font-family: var(--iss-display);
+  font-weight: 500;
+  font-size: 1.32rem;
+  line-height: 1.3;
+  text-align: left;
+  text-indent: 0;
+  color: var(--iss-navy);
+  hyphens: none;
+}
+
+/* Alternative placement: put a pull quote in the rail instead and the
+   body columns stay completely uninterrupted. Add class="pull pull--rail"
+   inside <aside class="rail"> rather than inside .body. */
+.issue .rail .pull {
+  margin: 0 0 1.6rem;
+  font-size: 1.15rem;
+  line-height: 1.34;
+}
+
+.issue .jump {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  text-align: right;
+  padding-top: 1rem;
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--iss-rule);
+  text-indent: 0;
+}
+
+/* Section number — tells you where you are in a multi-page feature */
+.issue .part {
+  font-family: var(--iss-body);
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin: 0 0 0.5rem;
+}
+/* a part marker directly above a heading owns the rule instead */
+.issue .part + h4 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.issue .part {
+  padding-top: 0.85rem;
+  border-top: 2px solid var(--iss-terracotta);
+}
+.issue .body > .part:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+/* ============ full-bleed photo ============ */
+
+.issue .pg--photo { padding: 0; justify-content: flex-end; overflow: hidden; }
+.issue .pg--photo img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+.issue .pg--photo .cap {
+  position: relative; z-index: 2;
+  margin: 0 2.4rem 3.2rem;
+  background: var(--iss-cream);
+  padding: 1.1rem 1.3rem;
+  max-width: 34ch;
+  border-left: 3px solid var(--iss-terracotta);
+}
+.issue .pg--photo .cap .kicker-cap {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin: 0 0 0.4rem;
+}
+.issue .pg--photo .cap h6 {
+  font-family: var(--iss-display);
+  font-weight: 700; font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+}
+.issue .pg--photo .cap p { margin: 0; font-size: 0.84rem; line-height: 1.5; color: var(--iss-soft); }
+.issue .pg--photo .cap .credit { font-size: 0.68rem; margin-top: 0.5rem; opacity: 0.85; }
+.issue .pg--photo .cap .credit a {
+  color: var(--iss-ink-terra);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.issue .pg--photo .runhead { z-index: 2; color: rgba(250,248,245,0.7); border-bottom-color: rgba(250,248,245,0.25); }
+.issue .pg--photo .folio { color: var(--iss-cream); z-index: 2; }
+
+/* ============ responsive ============ */
+
+@media (max-width: 700px) {
+  .issue .pg { padding: 3rem 1.3rem 3.4rem; }
+  .issue .runhead { left: 1.3rem; right: 1.3rem; }
+  .issue .folio { right: 1.3rem; }
+  .issue .pg--verso .folio { left: 1.3rem; }
+  .issue .body { columns: 1; column-rule: none; text-align: left; }
+  .issue .body .drop::first-letter { font-size: 5.6em; line-height: 0.8; }
+  .issue .pg--opener .masthead { padding-left: 1.3rem; padding-right: 1.3rem; }
+  .issue .pg--photo .cap { margin: 0 1.3rem 2.6rem; }
+}
+
+/* ============ print / PDF ============ */
+
+@media print {
+  @page { margin: 1.8cm; }
+  .issue .pg {
+    min-height: auto;
+    padding: 0;
+    display: block;
+    page-break-after: always;
+    break-after: page;
+  }
+  .issue .pg:last-child { page-break-after: auto; break-after: auto; }
+  .issue .pg--opener, .issue .pg--photo { min-height: 90vh; }
+  .issue .body { columns: 2; }
+  .issue .pull, .issue .sidebar, .issue .stat { break-inside: avoid; }
+  .issue .body h4 { break-after: avoid; }
+  .issue .jump { display: none; }
+}
+
+
+/* ============ department pages ============
+   Small recurring items — Currently Reading, reviews, notes.
+   Deliberately quieter than a feature: no drop cap, no columns. */
+
+.issue .pg--dept { justify-content: center; }
+
+.issue .dept {
+  max-width: 620px;
+  margin: 0 auto;
+  width: 100%;
+  border-top: 3px solid var(--iss-terracotta);
+  padding-top: 1.6rem;
+}
+.issue .dept .label {
+  font-family: var(--iss-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin-bottom: 0.9rem;
+}
+.issue .dept .work {
+  font-family: var(--iss-serif);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 4vw, 2.9rem);
+  line-height: 1.12;
+  margin: 0 0 0.5rem;
+  color: var(--iss-navy);
+  text-wrap: balance;
+}
+.issue .dept .creator {
+  font-family: var(--iss-display);
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--iss-navy);
+  margin: 0 0 1.4rem;
+}
+.issue .dept .creator .sep { color: var(--iss-ink-terra); padding: 0 0.4rem; }
+.issue .dept .note {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--iss-navy);
+  margin: 0 0 1.2rem;
+  max-width: 52ch;
+}
+.issue .dept .stamp {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  border: 1px solid var(--iss-ink-terra);
+  padding: 0.35rem 0.75rem;
+}
+
+/* Feature with an image sitting inside the text, not full page */
+.issue .figure {
+  margin: 0 0 1.4rem;
+  break-inside: avoid;
+}
+.issue .figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.issue .figure figcaption {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #4A5772;
+  margin-top: 0.5rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--iss-terracotta);
+}
+
+
+/* ============ micro page ============
+   One short post, one full page. Set larger than body copy —
+   a micro earns a page by having room around it, not by filling it. */
+
+.issue .pg--micro { justify-content: center; }
+
+.issue .micro {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+.issue .micro .label {
+  font-family: var(--iss-display);
+  font-weight: 700;
+  /* Tier 3 of four: below a feature opener (~4.2rem), above a
+     feature's section heading (1.55rem). A micro owns its page,
+     so its title reads as a title — just not as a cover line. */
+  font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  color: var(--iss-navy);
+  text-wrap: balance;
+  padding-top: 0.9rem;
+  border-top: 3px solid var(--iss-terracotta);
+  border-bottom: none;
+  margin-bottom: 1.3rem;
+}
+.issue .micro p {
+  font-family: var(--iss-serif);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.55;
+  color: var(--iss-navy);
+  margin: 0 0 1.1rem;
+  max-width: 44ch;
+}
+.issue .micro .haul {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+}
+.issue .micro .haul li { width: 108px; }
+.issue .micro .haul li { margin: 0; }
+.issue .micro .haul a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.issue .micro .haul .jacket {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  background: var(--iss-tint);
+  box-shadow: 0 1px 4px rgba(30,45,74,0.2);
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+.issue .micro .haul .jacket img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* spine highlight — a jacket reads as a physical object, not a thumbnail */
+.issue .micro .haul .jacket::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(to right,
+    rgba(0,0,0,0.22), rgba(0,0,0,0.04) 60%, transparent);
+  pointer-events: none;
+}
+.issue .micro .haul .t {
+  display: block;
+  font-family: var(--iss-display);
+  font-weight: 600;
+  font-size: 0.76rem;
+  line-height: 1.22;
+  color: var(--iss-navy);
+}
+.issue .micro .haul .who {
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: #4A5772;
+  margin-top: 0.12rem;
+}
+.issue .micro .haul .price {
+  display: block;
+  font-family: var(--iss-display);
+  font-weight: 700;
+  font-size: 0.68rem;
+  color: var(--iss-ink-terra);
+  margin-top: 0.18rem;
+}
+.issue .micro .haul a:hover .t { color: var(--iss-ink-terra); }
+
+@media (max-width: 700px) {
+  .issue .micro .haul { gap: 1rem; }
+  .issue .micro .haul li { width: 88px; }
+}
+.issue .micro .stamp {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin-top: 0.6rem;
+}
+
+/* photo grid for micros carrying several images */
+.issue .grid-photos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  margin: 1.8rem 0 0;
+}
+.issue .grid-photos img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+}
+.issue .grid-photos .grid-caption a {
+  color: var(--iss-ink-terra);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.issue .grid-photos .grid-caption a:hover { text-decoration-thickness: 2px; }
+.issue .grid-photos .grid-caption {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #4A5772;
+  margin: 0.4rem 0 0;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--iss-terracotta);
+  font-family: var(--iss-body);
+  max-width: none;
+}
+
+@media (min-width: 900px) {
+  .issue .micro--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.8rem;
+    align-items: start;
+  }
+  .issue .micro--split .grid-photos { margin-top: 0; }
+  /* jackets span the whole width beneath a split micro */
+  .issue .micro--split > .full { grid-column: 1 / -1; }
+}
+
+@media print {
+  .issue .grid-photos { break-inside: avoid; }
+}
+
+
+/* ============ editor's letter ============ */
+
+.issue .pg--letter { justify-content: center; }
+
+.issue .letter {
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+}
+.issue .letter .label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin-bottom: 0.8rem;
+}
+.issue .letter h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none;
+  padding: 0;
+  margin: 0 0 1.6rem;
+  text-wrap: balance;
+}
+.issue .letter p {
+  font-family: var(--iss-serif);
+  font-size: 1.05rem;
+  line-height: 1.72;
+  color: var(--iss-navy);
+  margin: 0 0 1.1rem;
+}
+.issue .letter .placeholder {
+  color: #4A5772;
+  font-style: italic;
+  border-left: 3px solid var(--iss-tint);
+  padding-left: 1rem;
+}
+.issue .letter .sign {
+  font-family: var(--iss-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--iss-navy);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--iss-terracotta);
+}
+.issue .letter .sign .sep { color: var(--iss-ink-terra); padding: 0 0.4rem; }
+
+
+/* ============ contents ============ */
+
+.issue .pg--toc { justify-content: flex-start; padding-top: 4.4rem; }
+
+.issue .toc { width: 100%; max-width: 1040px; margin: 0 auto; }
+
+.issue .toc .masthead-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--iss-terracotta);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.8rem;
+}
+.issue .toc h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none; padding: 0; margin: 0;
+}
+.issue .toc .issue-no {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+}
+
+.issue .toc .cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.4rem;
+}
+@media (min-width: 900px) {
+  .issue .toc .cols { grid-template-columns: 1.15fr 1fr; gap: 3.2rem; }
+}
+
+.issue .toc .sect { margin-bottom: 1.8rem; break-inside: avoid; }
+.issue .toc .sect > h3 {
+  font-family: var(--iss-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin: 0 0 0.7rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--iss-rule);
+}
+.issue .toc ol, .issue .toc ul { list-style: none; margin: 0; padding: 0; }
+.issue .toc li { margin-bottom: 0.85rem; }
+
+/* dot leaders — the classic contents-page device */
+.issue .toc .entry,
+.issue .ctoc .entry {
+  color: var(--iss-navy);
+  /* the leader is a 100vw rule; without this it bleeds across the page */
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+.issue .toc .entry .t,
+.issue .ctoc .entry .t {
+  font-family: var(--iss-display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  color: var(--iss-navy);
+  position: relative;
+}
+.issue .toc .entry .t::after,
+.issue .ctoc .entry .t::after {
+  content: "";
+  position: absolute;
+  bottom: 0.24em;
+  left: 100%;
+  width: 100vw;
+  border-bottom: 1px dotted var(--iss-rule);
+  margin-left: 0.4rem;
+}
+.issue .toc .entry .pgno,
+.issue .ctoc .entry .pgno {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--iss-ink-terra);
+  background: var(--iss-cream);
+  padding-left: 0.5rem;
+  position: relative;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.issue .toc .entry .t .sub,
+.issue .ctoc .entry .t .sub {
+  display: block;
+  font-family: var(--iss-body);
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #4A5772;
+  margin-top: 0.2rem;
+}
+.issue .toc li.pending .t,
+.issue .toc li.pending .pgno { color: #8A93A6; }
+.issue .toc li.pending .t .sub { color: #9AA2B2; }
+
+.issue .toc .entry .dek,
+.issue .ctoc .entry .dek {
+  grid-column: 1 / -1;
+  font-family: var(--iss-body);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #4A5772;
+  margin-top: 0.18rem;
+  max-width: 46ch;
+}
+.issue .toc .entry:hover .t,
+.issue .ctoc .entry:hover .t { color: var(--iss-ink-terra); }
+.issue .toc .entry:focus-visible,
+.issue .ctoc .entry:focus-visible { outline: 3px solid var(--iss-ink-terra); outline-offset: 3px; }
+
+/* chapter index down the side */
+.issue .toc .chapters { border-top: 1px solid var(--iss-rule); padding-top: 1rem; }
+.issue .toc .chapters li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+}
+.issue .toc .chapters .n {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: 0.72rem;
+  color: var(--iss-ink-terra);
+  min-width: 1.5rem;
+}
+.issue .toc .chapters a { color: var(--iss-navy); text-decoration: none; font-weight: 500; }
+.issue .toc .chapters a:hover { color: var(--iss-ink-terra); }
+.issue .toc .chapters .soon { color: #8A93A6; }
+
+.issue .toc .cover-shot { margin-bottom: 1.4rem; }
+.issue .toc .cover-shot img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+}
+.issue .toc .cover-shot figcaption {
+  font-size: 0.74rem;
+  color: #4A5772;
+  margin-top: 0.45rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--iss-terracotta);
+}
+
+/* anchored sections shouldn't hide under the site header when jumped to */
+.issue .pg { scroll-margin-top: var(--iss-chrome); }
+
+/* ============ editor's letter ============ */
+
+.issue .pg--letter { justify-content: center; }
+
+.issue .letter {
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+}
+.issue .letter .label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin-bottom: 0.8rem;
+}
+.issue .letter h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none;
+  padding: 0;
+  margin: 0 0 1.6rem;
+  text-wrap: balance;
+}
+.issue .letter p {
+  font-family: var(--iss-serif);
+  font-size: 1.05rem;
+  line-height: 1.72;
+  color: var(--iss-navy);
+  margin: 0 0 1.1rem;
+}
+.issue .letter .placeholder {
+  color: #4A5772;
+  font-style: italic;
+  border-left: 3px solid var(--iss-tint);
+  padding-left: 1rem;
+}
+.issue .letter .sign {
+  font-family: var(--iss-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--iss-navy);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--iss-terracotta);
+}
+.issue .letter .sign .sep { color: var(--iss-ink-terra); padding: 0 0.4rem; }
+
+
+/* ============ contents ============ */
+
+.issue .pg--toc { justify-content: center; }
+
+.issue .toc {
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+.issue .toc .label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin-bottom: 0.7rem;
+}
+/* anchored sections shouldn't hide under the site header when jumped to */
+.issue .pg { scroll-margin-top: var(--iss-chrome); }
+
+
+/* ============ floated figure ============
+   For short pieces: single-column body with a large image the text
+   wraps around. A float inside a 2-column body is trapped in its
+   own column, so these pages use .body--single. */
+
+.issue .body--single:has(.figure--float) { max-width: none; }
+.issue .figure--float {
+  float: right;
+  width: 46%;
+  margin: 0.3rem 0 1.2rem 1.8rem;
+  shape-margin: 1rem;
+}
+.issue .figure--float img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.issue .figure--float figcaption {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #4A5772;
+  margin-top: 0.5rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--iss-terracotta);
+}
+
+/* single-column bodies want a slightly longer measure */
+.issue .body--single {
+  columns: 1;
+  column-rule: none;
+  font-size: 1rem;
+  line-height: 1.72;
+  /* a single column is a NARROW column with air around it,
+     never text run edge to edge */
+  max-width: 64ch;
+}
+.issue .body--single::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+@media (max-width: 700px) {
+  .issue .figure--float {
+    float: none;
+    width: 100%;
+    margin: 0 0 1.4rem;
+  }
+}
+
+@media print {
+  .issue .figure--float { width: 40%; break-inside: avoid; }
+}
+
+
+/* ============ category nav ============
+   Mirrors the tag row above the title on single post pages. */
+
+.issue .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+.issue .tags li { margin: 0; }
+.issue .tags a,
+.issue .tags span {
+  display: inline-block;
+  font-family: var(--iss-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  border: 1px solid var(--iss-tint);
+  background: var(--iss-tint);
+  padding: 0.3rem 0.6rem;
+  text-decoration: none;
+}
+.issue .tags a:hover {
+  background: var(--iss-ink-terra);
+  border-color: var(--iss-ink-terra);
+  color: var(--iss-cream);
+}
+.issue .tags a:focus-visible { outline: 3px solid var(--iss-ink-terra); outline-offset: 2px; }
+
+/* on dark opener pages */
+.issue .pg--opener .tags a,
+.issue .pg--opener .tags span {
+  background: transparent;
+  border-color: rgba(250,248,245,0.45);
+  color: var(--iss-tint);
+}
+.issue .pg--opener .tags a:hover {
+  background: var(--iss-tint);
+  color: var(--iss-navy);
+}
+
+
+/* ============ chapter contents ============
+   Per-month listing that follows each chapter opener.
+   Front contents stays a short twelve-line index; this is where
+   the article-level detail lives. */
+
+.issue .pg--chapter-toc { justify-content: center; }
+
+.issue .ctoc { width: 100%; max-width: 820px; margin: 0 auto; }
+
+.issue .ctoc .head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 3px solid var(--iss-terracotta);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.6rem;
+}
+.issue .ctoc .head h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none; padding: 0; margin: 0;
+}
+.issue .ctoc .head .count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  white-space: nowrap;
+}
+
+.issue .ctoc .sect { margin-bottom: 1.5rem; break-inside: avoid; }
+.issue .ctoc .sect > h3 {
+  font-family: var(--iss-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--iss-rule);
+}
+.issue .ctoc ol { list-style: none; margin: 0; padding: 0; }
+.issue .ctoc li { margin-bottom: 0.75rem; }
+
+@media (min-width: 860px) {
+  .issue .ctoc .sect ol { columns: 2; column-gap: 2.4rem; }
+  .issue .ctoc .sect--wide ol { columns: 1; }
+}
+
+
+/* ============ in-piece contents ============
+   A feature with named sections lists them on its opener,
+   the way the original post carries a table of contents. */
+
+.issue .in-piece {
+  list-style: none;
+  counter-reset: sect;
+  margin: 1.6rem 0 0;
+  padding: 0;
+}
+.issue .in-piece li {
+  counter-increment: sect;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.55rem;
+  font-family: var(--iss-body);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: rgba(250,248,245,0.9);
+}
+.issue .in-piece li::before {
+  content: counter(sect, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: var(--iss-light-terra);
+}
+
+
+/* ============ lead sentence ============
+   Toby opens each section with a bolded sentence that runs into
+   the paragraph. Not a heading — part of the prose. */
+
+.issue .body .lead {
+  font-weight: 600;
+  color: var(--iss-navy);
+}
+
+
+/* ============ THE SHELF ============
+   Standing back-of-chapter department: what was read and watched
+   that month. Built to scale — January carries one book, later
+   months will carry a dozen entries and a rating column. */
+
+.issue .pg--shelf { justify-content: flex-start; padding-top: 4.4rem; }
+
+.issue .shelf { width: 100%; max-width: 900px; margin: 0 auto; }
+
+.issue .shelf .head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 3px solid var(--iss-terracotta);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.6rem;
+}
+.issue .shelf .head h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none; padding: 0; margin: 0;
+}
+.issue .shelf .head .when {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  white-space: nowrap;
+}
+
+.issue .shelf .group { margin-bottom: 1.8rem; }
+.issue .shelf .group > h3 {
+  font-family: var(--iss-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--iss-ink-terra);
+  margin: 0 0 0.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--iss-rule);
+}
+
+/* reading — cover, title, progress */
+.issue .shelf .reads {
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.8rem;
+}
+.issue .shelf .reads li { display: grid; grid-template-columns: 120px 1fr; gap: 1.1rem; }
+.issue .shelf .cover {
+  aspect-ratio: 2 / 3;
+  background: var(--iss-tint);
+  box-shadow: 0 3px 10px rgba(30,45,74,0.28);
+  overflow: hidden;
+  position: relative;
+}
+.issue .shelf .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.issue .shelf .cover::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 5px;
+  background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+}
+.issue .shelf .t {
+  font-family: var(--iss-display);
+  font-weight: 600; font-size: 1.1rem; line-height: 1.18;
+  color: var(--iss-navy); display: block;
+}
+.issue .shelf .by { font-size: 0.85rem; color: #4A5772; display: block; margin-top: 0.25rem; }
+
+/* progress bar */
+.issue .shelf .prog {
+  margin-top: 0.8rem;
+  height: 6px;
+  background: var(--iss-tint);
+  position: relative;
+}
+.issue .shelf .prog span {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--iss-terracotta);
+}
+.issue .shelf .pct {
+  font-family: var(--iss-display);
+  font-weight: 700; font-size: 0.8rem;
+  color: var(--iss-ink-terra);
+  margin-top: 0.25rem; display: block;
+}
+
+/* watching — title, rating, note */
+.issue .shelf .watched { list-style: none; margin: 0; padding: 0; }
+.issue .shelf .watched li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dotted var(--iss-rule);
+}
+.issue .shelf .watched .name {
+  font-family: var(--iss-display);
+  font-weight: 600; font-size: 0.95rem; color: var(--iss-navy);
+}
+.issue .shelf .watched .name .yr { font-weight: 400; color: #4A5772; }
+.issue .shelf .stars {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--iss-ink-terra);
+  white-space: nowrap;
+}
+.issue .shelf .watched .note {
+  grid-column: 1 / -1;
+  font-size: 0.8rem; line-height: 1.45; color: #4A5772;
+  margin-top: 0.15rem;
+}
+
+.issue .shelf .empty {
+  font-family: var(--iss-serif);
+  font-size: 0.95rem;
+  color: #4A5772;
+  font-style: italic;
+  margin: 0;
+}
+
+@media (min-width: 860px) {
+  .issue .shelf .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2.6rem; align-items: start; }
+}
+
+
+/* ============ shelf + article split ============
+   When a month's shelf is thin, it shares a page with a related
+   short piece. As the shelf grows, drop the article and let the
+   shelf take the full page (.pg--shelf on its own).            */
+
+.issue .shelf-split { width: 100%; max-width: 1000px; margin: 0 auto; }
+
+@media (min-width: 900px) {
+  .issue .shelf-split {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 2.8rem;
+    align-items: start;
+  }
+  .issue .shelf-split > .side {
+    border-left: 1px solid var(--iss-rule);
+    padding-left: 2.8rem;
+  }
+}
+
+/* compact shelf for the split layout */
+.issue .shelf--compact .head h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); }
+.issue .shelf--compact .head { margin-bottom: 1.1rem; padding-bottom: 0.5rem; }
+.issue .shelf--compact .cols2 { display: block; }
+.issue .shelf--compact .group { margin-bottom: 1.3rem; }
+.issue .shelf--compact .reads { grid-template-columns: 1fr; }
+.issue .shelf--compact .reads li { grid-template-columns: 88px 1fr; }
+
+/* the article half */
+.issue .shelf-split .lead-piece .label {
+  font-family: var(--iss-serif);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.4vw, 2.2rem);
+  line-height: 1.12;
+  color: var(--iss-navy);
+  border-top: 3px solid var(--iss-terracotta);
+  padding-top: 1.1rem;
+  margin-bottom: 0.9rem;
+}
+.issue .shelf-split .lead-piece p {
+  font-family: var(--iss-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--iss-navy);
+  margin: 0 0 0.9rem;
+  max-width: 44ch;
+}
+.issue .shelf-split .grid-photos { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1.2rem; }
+.issue .shelf-split .grid-photos img { aspect-ratio: 2 / 3; }
+
+
+/* featured watch — one title gets image + note, the rest list beneath */
+.issue .shelf .feature-watch { margin-bottom: 1.2rem; }
+.issue .shelf .feature-watch img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 0.7rem;
+}
+.issue .shelf .feature-watch .name {
+  font-family: var(--iss-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--iss-navy);
+  display: block;
+}
+.issue .shelf .feature-watch .ep {
+  font-size: 0.78rem;
+  color: var(--iss-ink-terra);
+  font-weight: 600;
+  display: block;
+  margin-top: 0.15rem;
+}
+.issue .shelf .feature-watch .ep a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.issue .shelf .feature-watch p {
+  font-family: var(--iss-serif);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--iss-navy);
+  margin: 0.6rem 0 0;
+}
+
+
+/* ============ REEL & REMOTE ============
+   Back-of-chapter criticism: what was finished, with verdicts.
+   The Shelf (front) is what's in progress; this is what's done. */
+
+.issue .pg--reel { justify-content: flex-start; padding-top: 4.4rem; }
+.issue .reel { width: 100%; max-width: 940px; margin: 0 auto; }
+
+.issue .reel .head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 3px solid var(--iss-terracotta);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.6rem;
+}
+.issue .reel .head h2 {
+  font-family: var(--iss-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--iss-navy);
+  border: none; padding: 0; margin: 0;
+}
+.issue .reel .head .when {
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--iss-ink-terra); white-space: nowrap;
+}
+
+/* the lead review — image, verdict, a paragraph */
+.issue .reel .lead-review { margin-bottom: 1.8rem; }
+@media (min-width: 860px) {
+  .issue .reel .lead-review { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+}
+.issue .reel .lead-review img {
+  width: 100%; aspect-ratio: 16 / 10;
+  object-fit: cover; display: block;
+}
+.issue .reel .lead-review .title {
+  font-family: var(--iss-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  line-height: 1.1;
+  color: var(--iss-navy);
+  margin: 0 0 0.3rem;
+}
+.issue .reel .lead-review .sub {
+  font-size: 0.8rem; color: var(--iss-ink-terra);
+  font-weight: 600; margin: 0 0 0.7rem;
+}
+.issue .reel .lead-review .sub a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.issue .reel .lead-review p {
+  font-family: var(--iss-serif);
+  font-size: 0.95rem; line-height: 1.62;
+  color: var(--iss-navy); margin: 0 0 0.8rem;
+}
+
+/* the verdict list */
+.issue .reel .verdicts { list-style: none; margin: 0; padding: 0; }
+.issue .reel .verdicts li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline; gap: 0.9rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px dotted var(--iss-rule);
+}
+.issue .reel .verdicts .name {
+  font-family: var(--iss-display);
+  font-weight: 600; font-size: 0.98rem; color: var(--iss-navy);
+}
+.issue .reel .verdicts .name .yr { font-weight: 400; color: #4A5772; }
+.issue .reel .verdicts .stars {
+  font-size: 0.9rem; letter-spacing: 0.1em;
+  color: var(--iss-ink-terra); white-space: nowrap;
+}
+.issue .reel .verdicts .note {
+  grid-column: 1 / -1;
+  font-size: 0.82rem; line-height: 1.5; color: #4A5772; margin-top: 0.2rem;
+}
+@media (min-width: 860px) {
+  .issue .reel .verdicts { columns: 2; column-gap: 2.6rem; }
+  .issue .reel .verdicts li { break-inside: avoid; }
+}
+
+.issue .shelf .shelf-note {
+  font-family: var(--iss-serif);
+  font-size: 0.92rem;
+  line-height: 1.62;
+  color: var(--iss-navy);
+  margin: 1rem 0 0;
+  max-width: 46ch;
+}
+.issue .shelf .t a { color: inherit; text-decoration: none; }
+.issue .shelf .t a:hover { color: var(--iss-ink-terra); }

@@ -669,11 +669,42 @@ figcaption {
    8. MOVIE CARD LINKS
    ------------------------------------------------------------ */
 
-.movie-card a {
+/* Aug 21, 2026 - specificity fix, fourth instance of the Section 6
+   trap. The rules here scored (0,1,1) against the LINKS group's
+   (0,2,1), so `text-decoration-style: solid` never applied and every
+   movie card title carried the body-link wavy underline instead. On a
+   title that wraps to two lines the wave runs under both lines and
+   swallows the descenders - Toby caught it on the Death of Robin Hood
+   watchlist card, where an inline text-decoration:none was the stopgap.
+   Mirroring the group's :is() prefix plus :not(.read-more-link) scores
+   (0,3,1) at rest and (0,4,1) on hover, so these win outright instead
+   of depending on source order. Cards are UI, not prose: no underline
+   at rest, solid terracotta on hover so the affordance survives.
+   The print rules in Section 87 carry !important and are unaffected. */
+
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt)
+  .movie-card a:not(.read-more-link) {
   color: var(--color-terra-text);
+  text-decoration: none;
+  background-image: none;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt)
+  .movie-card a:not(.read-more-link):hover {
+  color: var(--color-terra-dark);
   text-decoration: underline;
   text-decoration-style: solid;
-  text-underline-offset: 5.5px;
+  text-decoration-color: var(--color-terra);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Cards rendered outside a post body (feed cards, standalone previews)
+   are never reached by the Section 6 group, so they only need the base. */
+.movie-card a {
+  color: var(--color-terra-text);
+  text-decoration: none;
   transition: color 0.15s;
 }
 
@@ -4294,10 +4325,12 @@ body.tgo-night .about-text a { color: #E0906B; }
   font-family: var(--font-display);
 }
 
+/* Decoration for card links is owned by Section 8 (which carries the
+   specificity to beat the Section 6 LINKS group). The underline that
+   used to be declared here scored (0,1,1) and never applied - left as
+   colour-only so it stops reading like a live rule. Aug 21, 2026. */
 .movie-card-title a {
   color: var(--color-navy);
-  text-decoration: underline;
-  text-decoration-color: var(--color-terra);
 }
 
 .movie-card-byline {

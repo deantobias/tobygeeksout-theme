@@ -8669,3 +8669,21 @@ body.tgo-night {
     margin-right: auto !important;
   }
 }
+
+/* -----------------------------------------
+   88. OPTICAL UNDERLINE OFFSET — SNUG LINKS  (Aug 21, 2026)
+   Toby's catch on "Pandemic" vs "Cold Plague": Section 56's 8px/9px
+   offset exists to clear Lora's descenders, but a link with NO
+   descenders pays the same tax and its wave floats with daylight
+   under it. The footer script (custom_footer.html, last block) tags
+   descender-free prose links with .tgo-snug; this rule pulls them
+   back to the site-wide 5.5px baseline. Descender links are
+   untouched, and with JS off nothing changes — the fallback is the
+   safe big offset, never a clipped one.
+   Specificity: (0,3,1) — deliberately OVER Section 56's (0,2,1) and
+   the micro rules, so this wins everywhere regardless of position
+   and no future append can silently flip it (see
+   project_links_is_group_specificity: four bites and counting). */
+:is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a.tgo-snug:not(.read-more-link, .btn-subscribe) {
+  text-underline-offset: 5.5px;
+}

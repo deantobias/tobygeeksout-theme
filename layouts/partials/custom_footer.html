@@ -776,3 +776,31 @@
   }
 }());
 </script>
+
+<script>
+/* Optical underline offset (Aug 21, 2026): prose links whose text
+   has no descenders get .tgo-snug — custom.css Section 88 pulls
+   their wavy underline back to the site-wide 5.5px instead of the
+   Lora descender-clearance 8/9px. Toby's catch: "Pandemic" floated
+   while "Cold Plague" sat right. The test is a whitelist, not a
+   descender blacklist — commas, parens, slashes, accents, Q/J tails
+   and anything unrecognized all FAIL SAFE and keep the big offset.
+   Digits allowed because Lora defaults to lining figures; if a
+   numeral ever dips, remove 0-9 from SAFE. */
+(function () {
+  var links = document.querySelectorAll(
+    ':is(.post-body, .page-body, .micro-body, .micro-entry-text, .post-card-content, .post-card-excerpt) a:not(.read-more-link):not(.btn-subscribe)'
+  );
+  if (!links.length) return;
+  /* Caps minus J/Q (their tails cross the baseline in Lora),
+     lowercase minus g j p q y, digits, space, flat punctuation. */
+  var SAFE = /^[A-IK-PR-Za-fh-ik-or-xz0-9\s.\u2018\u2019\u201C\u201D'"!?:&\u2013\u2014\u2026-]+$/;
+  links.forEach(function (a) {
+    var t = a.textContent.trim();
+    if (!t || !SAFE.test(t)) return;
+    /* Italic Lora's f descends; roman f does not. */
+    if (t.indexOf('f') !== -1 && getComputedStyle(a).fontStyle !== 'normal') return;
+    a.classList.add('tgo-snug');
+  });
+}());
+</script>

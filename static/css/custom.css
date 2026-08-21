@@ -5063,8 +5063,14 @@ body.tgo-night .rail-nav a.active {
    width, smaller logo, tighter blocks. Everything else inherits the
    desktop rail rules above. */
 @media (min-width: 768px) and (max-width: 1023px) {
-  :root { --rail-w: 220px; }
-  body:not(.type-newsletter):not(.type-post) .site-rail { padding: 16px 14px 12px; }
+  /* Aug 21, 2026 (Toby): the rail sat too close to the left edge of
+     the window — 14px of side padding read as flush. Bumped to the
+     same 20px the desktop rail uses and widened the rail by the
+     matching 12px, so the usable inner width stays exactly 192px and
+     nothing inside the rail reflows; the content column gives up
+     12px, which it can afford. */
+  :root { --rail-w: 232px; }
+  body:not(.type-newsletter):not(.type-post) .site-rail { padding: 16px 20px 12px; }
   .rail-logo { width: 130px; }
   .rail-avatar { width: 42px; height: 42px; }
   .rail-sub-text { display: none; }

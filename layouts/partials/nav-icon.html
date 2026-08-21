@@ -1,0 +1,36 @@
+{{/*
+  Nav icon lookup (Aug 21, 2026) — single source of truth for which
+  icon each main-menu entry gets. header.html has THREE navs (top nav,
+  desktop rail, mobile tab bar) that each used to carry their own copy
+  of this if/else chain, so adding a menu item meant editing it three
+  times. Blaugust and Contact were both falling through to the "search"
+  fallback because of exactly that drift.
+
+  Matches on name first, URL second, so a renamed menu label still
+  lands on the right icon.
+
+  Usage: {{ $iconName := partial "nav-icon.html" . }}   (. = menu entry)
+*/}}
+{{- $name := lower .Name -}}
+{{- $url := lower .URL -}}
+{{- $icon := "link" -}}
+{{- if or (eq $name "home") (eq $url "/") -}}
+  {{- $icon = "home" -}}
+{{- else if or (eq $name "now") (in $url "/now") -}}
+  {{- $icon = "clock" -}}
+{{- else if or (eq $name "archive") (in $url "/archive") -}}
+  {{- $icon = "archive" -}}
+{{- else if or (eq $name "about") (in $url "/about") -}}
+  {{- $icon = "user" -}}
+{{- else if or (eq $name "search") (in $url "/search") -}}
+  {{- $icon = "search" -}}
+{{- else if or (eq $name "contact") (in $url "/contact") -}}
+  {{- $icon = "mail" -}}
+{{- else if or (eq $name "blaugust") (in $url "/blaugust") -}}
+  {{- $icon = "star" -}}
+{{- else if or (eq $name "newsletter") (in $url "/newsletter") -}}
+  {{- $icon = "mail" -}}
+{{- else if in $url "/surprise" -}}
+  {{- $icon = "star" -}}
+{{- end -}}
+{{- $icon -}}

@@ -22,12 +22,7 @@
 
       {{ range .Site.Menus.main }}
       {{ if not (in .URL "/stats/") }}
-      {{ $iconName := "search" }}
-      {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
-      {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
-      {{ else if eq .Name "About" }}{{ $iconName = "user" }}
-      {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
-      {{ end }}
+      {{ $iconName := partial "nav-icon.html" . }}
       <li>
         <a href="{{ .URL }}"
           {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }}>
@@ -70,12 +65,7 @@
     </a>
     {{ range .Site.Menus.main }}
     {{ if not (in .URL "/stats/") }}
-    {{ $iconName := "search" }}
-    {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
-    {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
-    {{ else if eq .Name "About" }}{{ $iconName = "user" }}
-    {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
-    {{ end }}
+    {{ $iconName := partial "nav-icon.html" . }}
     <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }}>
       {{ partial "icon.html" (dict "name" $iconName) }}
       <span>{{ .Name }}</span>
@@ -116,12 +106,7 @@
   </a>
   {{ range .Site.Menus.main }}
   {{ if not (in .URL "/stats/") }}
-  {{ $iconName := "search" }}
-  {{ if eq .Name "Now" }}{{ $iconName = "clock" }}
-  {{ else if eq .Name "Archive" }}{{ $iconName = "archive" }}
-  {{ else if eq .Name "About" }}{{ $iconName = "user" }}
-  {{ else if eq .Name "Search" }}{{ $iconName = "search" }}
-  {{ end }}
+  {{ $iconName := partial "nav-icon.html" . }}
   <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }} aria-label="{{ .Name }}">
     {{ partial "icon.html" (dict "name" $iconName) }}
   </a>

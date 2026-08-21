@@ -8,7 +8,11 @@
      instead of the desktop rail, exactly like single posts. Section 52
      rule: the rail is for the home page and list pages only. /ouldhh/ is
      excluded — it runs bare and supplies its own header. Aug 19, 2026. */}}
-<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}{{ if and (eq .Kind "page") (eq .Type "page") (ne .RelPermalink "/ouldhh/") }} type-post{{ end }}">
+{{/* OULDHH (Aug 6, 2026; restored Aug 21 after the theme re-sync): /ouldhh/
+     runs BARE — no theme header, no rail — and carries is-oul on <body> so
+     oul.css can hide the page title and theme chrome. */}}
+{{- $bare := eq .RelPermalink "/ouldhh/" -}}
+<body class="{{ .Kind }}{{ if .Section }} section-{{ .Section }}{{ end }}{{ if .Type }} type-{{ .Type }}{{ end }}{{ if and (eq .Kind "page") (eq .Type "page") (not $bare) }} type-post{{ end }}{{ if $bare }} is-oul{{ end }}">
   {{/* Archive top-nav sync (Aug 19, 2026): /archive/ is an alternate OUTPUT
        FORMAT of the home page, so Hugo sees .IsHome = true and .RelPermalink
        = "/" — the body class above cannot tell it apart from Home. Same wall
@@ -26,7 +30,7 @@
        Invisible until focused — see .skip-link in custom.css. */}}
   <a class="skip-link" href="#main-content">Skip to content</a>
   <div id="scroll-progress" aria-hidden="true"></div>
-  {{ partial "header.html" . }}
+  {{ if not $bare }}{{ partial "header.html" . }}{{ end }}
   {{/* Measure the header the instant it exists, before <main> is even
        parsed — so --header-actual-h is correct on the very first layout
        pass instead of jumping a beat later. This is what was causing the
@@ -47,7 +51,7 @@
        that view transitions freeze on screen. */}}
   {{/* Newsletter LIST (Kind "section") keeps the generic padding — only
        individual newsletter issues (Kind "page") own their spacing. */}}
-  <main id="main-content"{{ if not (or (eq .Kind "home") (eq .Type "post") (and (eq .Type "newsletter") (eq .Kind "page"))) }} style="padding-top: calc(var(--header-h, 132px) + 12px)"{{ end }}>
+  <main id="main-content"{{ if not (or $bare (eq .Kind "home") (eq .Type "post") (and (eq .Type "newsletter") (eq .Kind "page"))) }} style="padding-top: calc(var(--header-h, 132px) + 12px)"{{ end }}>
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}

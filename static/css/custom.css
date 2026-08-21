@@ -7818,6 +7818,20 @@ body.tgo-night {
   border-left:4px solid var(--color-terra);
   border-radius:0 var(--radius-lg) var(--radius-lg) 0;
 }
+
+/* Gutter match (Aug 21, 2026 - Toby, foldable). This band is a SIBLING of
+   .featured-banner and .feed-wrapper, and it was the only one of the three
+   carrying no side gutter: those two inset their contents by 2rem, .wna sat
+   flush to the column edges and jutted out 2rem on each side. It hides
+   itself above ~1184px of column width, where all three hit the 1120px cap
+   and align exactly - which is why it only showed in the middle band. The
+   768-1023 compact rail (220px) is the worst of it. Below 640 the banner
+   drops its own horizontal padding, so the band stays edge-to-edge there
+   on purpose and this must not reach it. */
+@media (min-width:640px){
+  .wna{ width:calc(100% - 4rem); }
+}
+
 .wna-eyebrow{
   display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;
   margin:0;

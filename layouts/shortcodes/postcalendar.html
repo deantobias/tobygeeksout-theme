@@ -9,7 +9,8 @@
       {{ $t = replaceRE `\s+` " " .Plain | truncate 60 "…" }}
     {{ end }}
     {{ if not $t }}{{ $t = "Untitled post" }}{{ end }}
-    {{ $items = $items | append (slice $t .RelPermalink) }}
+        {{ $items = $items | append (printf "%v" $t) }}
+    {{ $items = $items | append .RelPermalink }}
   {{ end }}
   {{ $days = $days | append (dict "d" .Key "p" $items) }}
 {{ end }}

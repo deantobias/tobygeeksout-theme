@@ -1864,6 +1864,11 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .archive-item a:hover { color: var(--color-terra-text); }
 .archive-item a strong { font-weight: 700; }
 
+.archive-calendar-link {
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem;
+}
+
 
 /* ------------------------------------------------------------
    20. CATEGORY PAGE

@@ -15,6 +15,7 @@
   {{ end }}
   {{ $days = $days | append (dict "d" .Key "p" $items) }}
 {{ end }}
+<p style="font-size:14px">DEBUG: {{ range first 3 (where $posts "Params.categories" "!=" nil) }}{{ .Title }} = {{ printf "%#v" .Params.categories }} | {{ end }}</p>
 <div class="tgo-cal" id="tgo-cal">
 <p class="tgo-cal-status">Loading calendar… (Hugo found {{ len $days }} days with posts)</p>
 <div class="tgo-cal-years" role="group" aria-label="Choose a year"></div>

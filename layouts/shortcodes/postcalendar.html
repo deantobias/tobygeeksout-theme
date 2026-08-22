@@ -1,5 +1,5 @@
 {{/* POST CALENDAR v3 - year view, 12 months. */}}
-{{ $posts := where .Site.RegularPages "Type" "post" }}
+{{ $posts := where .Site.Pages "Type" "post" }}
 {{ $days := slice }}
 {{ range $posts.GroupByDate "2006-01-02" }}
   {{ $items := slice }}

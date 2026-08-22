@@ -11,11 +11,10 @@
     {{ if not $t }}{{ $t = "Untitled post" }}{{ end }}
     {{ $items = $items | append (printf "%v" $t) }}
     {{ $items = $items | append .RelPermalink }}
-    {{ $items = $items | append (cond (in .Params.categories "Blaugust 2026") "b" "-") }}
+    {{ $items = $items | append (cond (strings.Contains (printf "%v" .Params.categories) "Blaugust") "b" "-") }}
   {{ end }}
   {{ $days = $days | append (dict "d" .Key "p" $items) }}
 {{ end }}
-<p style="font-size:14px">DEBUG: {{ range first 3 (where $posts "Params.categories" "!=" nil) }}{{ .Title }} = {{ printf "%#v" .Params.categories }} | {{ end }}</p>
 <div class="tgo-cal" id="tgo-cal">
 <p class="tgo-cal-status">Loading calendar… (Hugo found {{ len $days }} days with posts)</p>
 <div class="tgo-cal-years" role="group" aria-label="Choose a year"></div>

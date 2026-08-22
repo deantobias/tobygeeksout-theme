@@ -8961,3 +8961,18 @@ body.tgo-night {
   .tgo-cal-cell.is-one:focus-visible,
   .tgo-cal-cell.is-many:focus-visible { transform: none; }
 }
+
+.tgo-cal-pill {
+  display: inline-block;
+  margin-left: 0.5em;
+  padding: 0.1em 0.5em;
+  border-radius: 3px;
+  background: var(--color-terra-btn);
+  color: var(--color-btn-ink);
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+  white-space: nowrap;
+}

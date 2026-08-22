@@ -1867,8 +1867,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .archive-calendar-link {
   font-size: 0.95rem;
   margin: 0 0 1.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 2rem;
 }
 
 

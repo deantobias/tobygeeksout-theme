@@ -1866,7 +1866,11 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .archive-calendar-link {
   font-size: 0.95rem;
-  margin: 0 0 1.5rem;
+  margin: 2rem 0 0.5rem;
+}
+
+.archive-calendar-link + .archive-wrapper .archive-year:first-child .archive-year-heading {
+  margin-top: 0.5rem;
 }
 
 /* ------------------------------------------------------------

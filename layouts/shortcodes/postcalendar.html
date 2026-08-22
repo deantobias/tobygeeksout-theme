@@ -1,2 +1,157 @@
-{{/* POST CALENDAR v2 - year view, 12 months. */}} {{ $posts := where .Site.RegularPages "Type" "post" }} {{ $days := slice }} {{ range $posts.GroupByDate "2006-01-02" }} {{ $items := slice }} {{ range .Pages }} {{ $t := .Title }} {{ if not $t }} {{ $t = replaceRE `\s+` " " .Plain | truncate 60 "…" }} {{ end }} {{ if not $t }}{{ $t = "Untitled post" }}{{ end }} {{ $items = $items | append (slice $t .RelPermalink) }} {{ end }} {{ $days = $days | append (dict "d" .Key "p" $items) }} {{ end }}
-Calendar problem: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+{{/* POST CALENDAR v2 - year view, 12 months. */}}
+{{ $posts := where .Site.RegularPages "Type" "post" }}
+{{ $days := slice }}
+{{ range $posts.GroupByDate "2006-01-02" }}
+  {{ $items := slice }}
+  {{ range .Pages }}
+    {{ $t := .Title }}
+    {{ if not $t }}
+      {{ $t = replaceRE `\s+` " " .Plain | truncate 60 "…" }}
+    {{ end }}
+    {{ if not $t }}{{ $t = "Untitled post" }}{{ end }}
+    {{ $items = $items | append (slice $t .RelPermalink) }}
+  {{ end }}
+  {{ $days = $days | append (dict "d" .Key "p" $items) }}
+{{ end }}
+<div class="tgo-cal" id="tgo-cal">
+<p class="tgo-cal-status">Loading calendar… (Hugo found {{ len $days }} days with posts)</p>
+<div class="tgo-cal-years" role="group" aria-label="Choose a year"></div>
+<div class="tgo-cal-grid"></div>
+<p class="tgo-cal-legend" hidden>
+<span class="tgo-cal-key tgo-cal-key--none" aria-hidden="true"></span> nothing posted
+<span class="tgo-cal-key tgo-cal-key--one" aria-hidden="true"></span> one post
+<span class="tgo-cal-key tgo-cal-key--many" aria-hidden="true"></span> two or more
+</p>
+<div class="tgo-cal-panel" hidden></div>
+<script type="application/json" class="tgo-cal-data">{{ $days | jsonify | safeJS }}</script>
+</div>
+<script>
+(function () {
+  function boot() {
+    var root = document.getElementById('tgo-cal');
+    if (!root) { return; }
+    var status = root.querySelector('.tgo-cal-status');
+    function fail(msg) { if (status) { status.textContent = 'Calendar problem: ' + msg; } }
+    try {
+      var node = root.querySelector('.tgo-cal-data');
+      if (!node) { return fail('data block missing'); }
+      var data = JSON.parse(node.textContent.trim());
+      if (!data.length) { return fail('Hugo returned 0 posts. The Type filter needs changing.'); }
+      var yearsBox = root.querySelector('.tgo-cal-years');
+      var grid = root.querySelector('.tgo-cal-grid');
+      var panel = root.querySelector('.tgo-cal-panel');
+      var legend = root.querySelector('.tgo-cal-legend');
+      var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      var DOW = ['S','M','T','W','T','F','S'];
+      var DOW_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      var byDay = {}, years = {};
+      data.forEach(function (row) {
+        var pairs = [];
+        for (var i = 0; i < row.p.length; i += 2) { pairs.push([row.p[i], row.p[i + 1]]); }
+        byDay[row.d] = pairs;
+        years[row.d.slice(0, 4)] = true;
+      });
+      var yearList = Object.keys(years).sort().reverse();
+      var now = new Date();
+      var todayKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function drawYears(active) {
+        yearsBox.innerHTML = '';
+        yearList.forEach(function (y) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tgo-cal-year' + (y === active ? ' is-active' : '');
+          b.textContent = y;
+          if (y === active) { b.setAttribute('aria-current', 'true'); }
+          b.addEventListener('click', function () { draw(y); });
+          yearsBox.appendChild(b);
+        });
+      }
+      function showDay(key, posts) {
+        var d = new Date(key + 'T12:00:00');
+        var h3 = document.createElement('h3');
+        h3.className = 'tgo-cal-panel-date';
+        h3.textContent = DOW_FULL[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        var ul = document.createElement('ul');
+        ul.className = 'tgo-cal-panel-list';
+        posts.forEach(function (p) {
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = p[1];
+          a.textContent = p[0];
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+        panel.innerHTML = '';
+        panel.appendChild(h3);
+        panel.appendChild(ul);
+        panel.hidden = false;
+      }
+      function draw(year) {
+        drawYears(year);
+        panel.hidden = true;
+        grid.innerHTML = '';
+        var total = 0;
+        for (var m = 0; m < 12; m++) {
+          var block = document.createElement('section');
+          block.className = 'tgo-cal-month';
+          var h = document.createElement('h3');
+          h.className = 'tgo-cal-month-name';
+          h.textContent = MONTHS[m];
+          block.appendChild(h);
+          var days = document.createElement('div');
+          days.className = 'tgo-cal-days';
+          DOW.forEach(function (label, i) {
+            var el = document.createElement('span');
+            el.className = 'tgo-cal-dow';
+            el.textContent = label;
+            el.setAttribute('aria-label', DOW_FULL[i]);
+            days.appendChild(el);
+          });
+          var first = new Date(+year, m, 1);
+          var count = new Date(+year, m + 1, 0).getDate();
+          for (var b = 0; b < first.getDay(); b++) {
+            var blank = document.createElement('span');
+            blank.className = 'tgo-cal-cell is-blank';
+            days.appendChild(blank);
+          }
+          for (var day = 1; day <= count; day++) {
+            var key = year + '-' + pad(m + 1) + '-' + pad(day);
+            var posts = byDay[key];
+            var n = posts ? posts.length : 0;
+            total += n;
+            var cell = document.createElement(n ? 'button' : 'span');
+            cell.className = 'tgo-cal-cell ' + (n === 0 ? 'is-none' : n === 1 ? 'is-one' : 'is-many');
+            if (key === todayKey) { cell.className += ' is-today'; }
+            cell.textContent = day;
+            if (n) {
+              cell.type = 'button';
+              cell.setAttribute('aria-label', MONTHS[m] + ' ' + day + ', ' + n + (n === 1 ? ' post' : ' posts'));
+              (function (k, p) { cell.addEventListener('click', function () { showDay(k, p); }); })(key, posts);
+            } else {
+              cell.setAttribute('aria-hidden', 'true');
+            }
+            days.appendChild(cell);
+          }
+          block.appendChild(days);
+          grid.appendChild(block);
+        }
+        var tally = document.createElement('p');
+        tally.className = 'tgo-cal-total';
+        tally.textContent = total + (total === 1 ? ' post in ' : ' posts in ') + year;
+        grid.appendChild(tally);
+      }
+      draw(yearList[0]);
+      if (legend) { legend.hidden = false; }
+      if (status) { status.remove(); }
+    } catch (e) {
+      fail(String(e && e.message ? e.message : e));
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>

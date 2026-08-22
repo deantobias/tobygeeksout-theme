@@ -97,17 +97,24 @@
           var li = document.createElement('li');
           var a = document.createElement('a');
           a.href = p[1];
-          a.textContent = p[0];
+          a.textContent = decode(p[0]);
           li.appendChild(a);
           ul.appendChild(li);
         });
         panel.innerHTML = '';
         panel.appendChild(head);
         panel.appendChild(ul);
-        panel.hidden = false;
+        panel.hidden = true;
         if (blockEl && blockEl.parentNode) {
-          blockEl.parentNode.insertBefore(panel, blockEl.nextSibling);
+          var months = Array.prototype.slice.call(grid.querySelectorAll('.tgo-cal-month'));
+          var top = blockEl.offsetTop;
+          var anchor = blockEl;
+          months.forEach(function (m) {
+            if (Math.abs(m.offsetTop - top) < 4) { anchor = m; }
+          });
+          anchor.parentNode.insertBefore(panel, anchor.nextSibling);
         }
+        panel.hidden = false;
         panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
       function draw(year) {

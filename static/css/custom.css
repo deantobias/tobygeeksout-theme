@@ -1867,9 +1867,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 .archive-calendar-link {
   font-size: 0.95rem;
   margin: 0 0 1.5rem;
-  padding-left: 2rem;
 }
-
 
 /* ------------------------------------------------------------
    20. CATEGORY PAGE
@@ -5978,6 +5976,7 @@ h4, h5, h6 {
    so they are not direct children of main. */
 main > .page-header,
 .archive-page-header,
+.archive-calendar-link,
 .archive-categories-fold,
 .archive-wrapper {
   max-width: 1120px;

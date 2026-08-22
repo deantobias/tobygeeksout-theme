@@ -7,6 +7,9 @@
   <header class="page-header archive-page-header">
     <h1 class="page-title">Archive</h1>
   </header>
+  <p class="archive-calendar-link">
+  <a href="/calendar/">See it as a calendar →</a>
+</p>
   <div>
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
   {{ if gt (len $list) 0 }}

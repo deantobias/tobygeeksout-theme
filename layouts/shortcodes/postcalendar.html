@@ -11,7 +11,7 @@
     {{ if not $t }}{{ $t = "Untitled post" }}{{ end }}
     {{ $items = $items | append (printf "%v" $t) }}
     {{ $items = $items | append .RelPermalink }}
-    {{ $items = $items | append (cond (in .Params.categories "Blaugust") "b" "-") }}
+    {{ $items = $items | append (cond (in .Params.categories "Blaugust 2026") "b" "-") }}
   {{ end }}
   {{ $days = $days | append (dict "d" .Key "p" $items) }}
 {{ end }}

@@ -48,7 +48,7 @@
       data.forEach(function (row) {
         var pairs = [];
         for (var i = 0; i < row.p.length; i += 2) { pairs.push([row.p[i], row.p[i + 1]]); }
-        byDay[row.d] = pairs;
+        byDay[row.d] = (byDay[row.d] || []).concat(pairs);
         years[row.d.slice(0, 4)] = true;
       });
       var yearList = Object.keys(years).sort().reverse();

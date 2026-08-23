@@ -152,16 +152,14 @@
           <span class="fact-note">photo post{{ if ne $cmeCount 1 }}s{{ end }}</span>
         </span>
       </div>
-      <div class="fact a-rhythm">
-        <span class="fact-label">Rhythm</span>
-        <span class="rhythm-row">
-          <span class="rhythm-n">{{ $perDay }}</span>
-          <span class="rhythm-l">posts a day</span>
-        </span>
-        <span class="rhythm-row">
-          <span class="rhythm-n">{{ $maxGap }}</span>
-          <span class="rhythm-l">days, longest gap</span>
-        </span>
+      <div class="fact a-gap">
+        <span class="fact-label">Longest gap</span>
+        <span class="fact-value">{{ $maxGap }}</span>
+        <span class="fact-note">days between posts</span>
+      </div>
+      <div class="fact a-perday">
+        <span class="fact-label">Per day</span>
+        <span class="fact-value">{{ $perDay }}</span>
       </div>
       <div class="fact a-long">
         <span class="fact-label">Longest post</span>

@@ -9043,12 +9043,12 @@ body.tgo-night {
 .factgrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:repeat(4,96px);
+  grid-template-rows:repeat(4,104px);
   grid-template-areas:
     "words words first  first"
     "words words recent recent"
-    "busy   avg    photo gap"
-    "long   long   photo perday";
+    "busy   avg    photo rhythm"
+    "long   long   photo rhythm";
   gap:10px;
 }
 .fact{
@@ -9063,15 +9063,18 @@ body.tgo-night {
   overflow:hidden;
   min-width:0;
 }
+/* Tiles are fixed-height column flex containers. Without this, a two-line
+   title is treated as shrinkable and collapses to a few pixels while the
+   text is still technically present. Do not remove. */
+.fact > *{flex-shrink:0}
 .a-words{grid-area:words}
 .a-first{grid-area:first}
 .a-busy{grid-area:busy}
 .a-avg{grid-area:avg}
 .a-recent{grid-area:recent}
 .a-photo{grid-area:photo}
-.a-gap{grid-area:gap}
+.a-rhythm{grid-area:rhythm}
 .a-long{grid-area:long}
-.a-perday{grid-area:perday}
 
 .fact-label{
   font-family:var(--font-body);
@@ -9093,19 +9096,18 @@ body.tgo-night {
 .a-words .fact-value{font-size:3rem}
 .a-first .fact-value,.a-recent .fact-value,.a-long .fact-value{font-size:1.9rem}
 .a-busy .fact-value,.a-avg .fact-value{font-size:1.5rem}
-.a-gap .fact-value{font-size:1.5rem}
 
 .fact .fact-value--title,
 .a-first .fact-value--title,
 .a-recent .fact-value--title,
 .a-long .fact-value--title{
-  font-family:var(--font-reading);
-  font-weight:600;
-  font-size:1.05rem;
-  line-height:1.3;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.15rem;
+  line-height:1.25;
+  letter-spacing:-0.01em;
+  display:block;
+  max-height:2.5em;
   overflow:hidden;
 }
 .fact span.fact-value a{color:var(--color-navy);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
@@ -9123,6 +9125,26 @@ body.tgo-night {
 .fact span.fact-value a.fact-ast:hover{color:var(--color-text)}
 #pulse-words-note:target{background:var(--color-terra-light);border-radius:4px}
 .fact-note{font-family:var(--font-body);font-size:0.8rem;color:var(--color-text-muted);line-height:1.35}
+
+/* rhythm tile: two stats stacked in one tall tile */
+.a-rhythm{justify-content:center;gap:0.9rem}
+.rhythm-row{display:block}
+.rhythm-n{
+  display:block;
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:2.4rem;
+  line-height:1;
+  letter-spacing:-0.02em;
+  color:var(--color-navy);
+}
+.rhythm-l{
+  display:block;
+  font-family:var(--font-body);
+  font-size:0.78rem;
+  color:var(--color-text-muted);
+  margin-top:0.15rem;
+}
 
 /* photo tile: dark scrim keeps text legible on any photo, in any sky */
 .fact--photo{position:relative;padding:0;justify-content:flex-end}
@@ -9323,13 +9345,13 @@ body.tgo-night .longview a.longview-link{color:var(--color-terra-text)}
 body.tgo-night .longview a.longview-link:hover{color:var(--color-text)}
 body.tgo-night .pulse-h1,
 body.tgo-night .pulse-head h2,
-body.tgo-night .fact-value{color:var(--color-text)}
+body.tgo-night .fact-value,
+body.tgo-night .rhythm-n{color:var(--color-text)}
 
 /* --- mobile: explicit layout, three tiles dropped --- */
 @media (max-width:640px){
   .factgrid{
     grid-template-columns:repeat(2,1fr);
-    grid-template-rows:repeat(6,84px);
     grid-template-areas:
       "words words"
       "words words"
@@ -9337,14 +9359,15 @@ body.tgo-night .fact-value{color:var(--color-text)}
       "recent recent"
       "photo  busy"
       "photo  avg";
+    grid-template-rows:repeat(6,92px);
     gap:8px;
   }
-  .a-gap,.a-perday,.a-long{display:none}
+  .a-rhythm,.a-long{display:none}
   .a-words .fact-value{font-size:2.1rem}
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
   .fact .fact-value--title,
   .a-first .fact-value--title,
-  .a-recent .fact-value--title{font-size:0.95rem}
+  .a-recent .fact-value--title{font-size:1rem}
   .fact{padding:0.75rem 0.9rem}
   .fact-value{font-size:1.15rem}
   .fact-label{font-size:0.62rem;letter-spacing:0.08em}

@@ -127,12 +127,12 @@
       </div>
       <div class="fact a-first">
         <span class="fact-label">First post of {{ $year }}</span>
-        <span class="fact-value fact-value--title"><a href="{{ $firstPost.RelPermalink }}">{{ with $firstPost.Title }}{{ . }}{{ else }}Untitled post{{ end }}</a></span>
+        <span class="fact-value fact-value--title"><a href="{{ $firstPost.RelPermalink }}">{{ with $firstPost.Title }}{{ . }}{{ else }}{{ $firstPost.Summary | htmlUnescape | plainify | truncate 55 }}{{ end }}</a></span>
         <span class="fact-note">{{ $firstPost.Date.Format "January 2" }}</span>
       </div>
       <div class="fact a-recent">
         <span class="fact-label">Most recent</span>
-        <span class="fact-value fact-value--title"><a href="{{ $lastPost.RelPermalink }}">{{ with $lastPost.Title }}{{ . }}{{ else }}Untitled post{{ end }}</a></span>
+        <span class="fact-value fact-value--title"><a href="{{ $lastPost.RelPermalink }}">{{ with $lastPost.Title }}{{ . }}{{ else }}{{ $lastPost.Summary | htmlUnescape | plainify | truncate 55 }}{{ end }}</a></span>
         <span class="fact-note">{{ $lastPost.Date.Format "January 2" }}</span>
       </div>
       <div class="fact a-busy">
@@ -152,14 +152,16 @@
           <span class="fact-note">photo post{{ if ne $cmeCount 1 }}s{{ end }}</span>
         </span>
       </div>
-      <div class="fact a-gap">
-        <span class="fact-label">Longest gap</span>
-        <span class="fact-value">{{ $maxGap }}</span>
-        <span class="fact-note">days between posts</span>
-      </div>
-      <div class="fact a-perday">
-        <span class="fact-label">Per day</span>
-        <span class="fact-value">{{ $perDay }}</span>
+      <div class="fact a-rhythm">
+        <span class="fact-label">Rhythm</span>
+        <span class="rhythm-row">
+          <span class="rhythm-n">{{ $perDay }}</span>
+          <span class="rhythm-l">posts a day</span>
+        </span>
+        <span class="rhythm-row">
+          <span class="rhythm-n">{{ $maxGap }}</span>
+          <span class="rhythm-l">days, longest gap</span>
+        </span>
       </div>
       <div class="fact a-long">
         <span class="fact-label">Longest post</span>

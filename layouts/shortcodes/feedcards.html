@@ -39,7 +39,7 @@
         {{- $n = add $n 1 -}}
         {{- $title := trim (printf "%v" .title) " " -}}
         {{- $link := trim (printf "%v" .link) " " -}}
-        {{- $desc := trim (printf "%v" (index . "description" | default "")) " " | plainify -}}
+        {{- $desc := trim (printf "%v" (index . "description" | default "")) " " | htmlUnescape | plainify -}}
         {{- if gt (len $desc) $excerpt }}{{ $desc = printf "%s…" (trim (substr $desc 0 $excerpt) " ") }}{{ end -}}
         {{- $img := "" -}}
         {{- with index . "enclosure" }}{{ $img = index . "-url" | default (index . "url") | default "" }}{{ end -}}

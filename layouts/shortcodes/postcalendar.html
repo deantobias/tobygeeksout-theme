@@ -6,7 +6,7 @@
   {{ range .Pages }}
     {{ $t := .Title }}
     {{ if not $t }}
-      {{ $t = replaceRE `\s+` " " (.Plain | plainify) | truncate 60 "…" }}
+      {{ $t = replaceRE `\s+` " " (.Plain | htmlUnescape | plainify) | truncate 60 "…" }}
     {{ end }}
     {{ if not $t }}{{ $t = "Untitled post" }}{{ end }}
     {{ $items = $items | append (printf "%v" $t) }}

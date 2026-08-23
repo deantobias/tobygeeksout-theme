@@ -49,7 +49,12 @@
                    (photo-only ones) have an empty Summary, so this link rendered
                    with NO text — nothing for a screen reader to announce and
                    nothing to click by voice. Fall back to the date. */}}
-              {{ $blurb := trim (.Summary | plainify | truncate 80) " " }}
+              {{/* Entity decode (Aug 23, 2026, Toby): Micro.blog stores curly quotes,
+                   dashes and ellipses as HTML entities, so plainify alone left literal
+                   "&rsquo;" text in the blurbs. htmlUnescape FIRST, same order the
+                   rest of the theme uses. Trim newlines/tabs too — some summaries
+                   start with a stray line break or zero-width space. */}}
+              {{ $blurb := trim (.Summary | htmlUnescape | plainify | truncate 80) " \n\t\u200b" }}
               <a href="{{ .Permalink }}" class="archive-item-untitled">{{ if $blurb }}{{ $blurb }}{{ else }}Untitled post from {{ .Date.Format "January 2, 2006" }}{{ end }}</a>
             {{ end }}
           </li>

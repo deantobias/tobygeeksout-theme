@@ -113,8 +113,7 @@
 
   <header class="pulse-hero">
     <p class="pulse-eyebrow">{{ $year }} so far &middot; through {{ now.Format "January 2" }}</p>
-    <h1 class="pulse-h1">{{ $totalPosts }} posts, mostly about
-      {{ range $i, $c := first 3 $top }}{{ if eq $i 2 }}and {{ end }}<em>{{ $c.name }}</em>{{ if lt $i 2 }}, {{ end }}{{ end }}.</h1>
+    <h1 class="pulse-h1">{{ $totalPosts }} posts this year. <em>All over the place,</em> like usual.</h1>
     <p class="pulse-sub">This is what the blog looks like from the inside. Not traffic, not readers, just what I made and what I kept coming back to.</p>
   </header>
 
@@ -123,7 +122,7 @@
     <div class="factgrid">
       <div class="fact a-words">
         <span class="fact-label">Words this year</span>
-        <span class="fact-value">{{ lang.FormatNumberCustom 0 $words }}</span>
+        <span class="fact-value">{{ lang.FormatNumberCustom 0 $words }}<a class="fact-ast" href="#pulse-words-note" aria-label="How words are counted">*</a></span>
         <span class="fact-note">Across {{ $counted }} posts</span>
       </div>
       <div class="fact a-first">
@@ -232,7 +231,7 @@
 
   <div class="pulse-notes">
     <p><strong>The bars are compressed.</strong> Drawn to scale, the smaller categories would be slivers you can't compare. Read the ranking off the bars and the size off the number.</p>
-    <p><strong>Word counts are an estimate.</strong> Movie synopses, book blurbs, dictionary definitions and quoted link text are subtracted, since I didn't write them. Roundup posts are left out too, because those words already counted once as micros.</p>
+    <p id="pulse-words-note"><strong>Word counts are an estimate.</strong> Movie synopses, book blurbs, dictionary definitions and quoted link text are subtracted, since I didn't write them. Roundup posts are left out too, because those words already counted once as micros.</p>
     <p>Categories add up to more than the post count on purpose &mdash; a post can carry both a topic and a placement.</p>
   </div>
 

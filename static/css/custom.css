@@ -9036,8 +9036,8 @@ body.tgo-night {
   color:var(--color-navy);
 }
 .pulse-note{font-size:0.875rem;color:var(--color-text-light);margin:0}
-.pulse-link{color:var(--color-terra-text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
-.pulse-link:hover{color:var(--color-text)}
+.pulse-head a.pulse-link{color:var(--color-terra-text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.pulse-head a.pulse-link:hover{color:var(--color-text)}
 
 /* --- mosaic --- */
 .factgrid{
@@ -9108,8 +9108,20 @@ body.tgo-night {
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
-.fact-value a{color:inherit;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
-.fact-value a:hover{color:var(--color-terra-text)}
+.fact span.fact-value a{color:var(--color-navy);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.fact span.fact-value a:hover{color:var(--color-terra-text)}
+.fact--photo span.fact-value a{color:#FFFFFF}
+.fact span.fact-value a.fact-ast{
+  font-family:var(--font-body);
+  font-size:0.9rem;
+  font-weight:600;
+  color:var(--color-terra-text);
+  text-decoration:none;
+  vertical-align:super;
+  margin-left:0.15rem;
+}
+.fact span.fact-value a.fact-ast:hover{color:var(--color-text)}
+#pulse-words-note:target{background:var(--color-terra-light);border-radius:4px}
 .fact-note{font-family:var(--font-body);font-size:0.8rem;color:var(--color-text-muted);line-height:1.35}
 
 /* photo tile: dark scrim keeps text legible on any photo, in any sky */
@@ -9187,6 +9199,8 @@ body.tgo-night {
 
 /* --- category map --- */
 .catmap{display:grid;gap:0.22rem}
+.catmap a.cat{color:var(--color-text);text-decoration:none}
+.catmap a.cat:hover{text-decoration:none}
 .cat{
   display:grid;
   grid-template-columns:minmax(120px,180px) 1fr auto;
@@ -9224,6 +9238,7 @@ body.tgo-night {
   flex-wrap:wrap;
   gap:0.5rem;
 }
+.catmore a.chip{text-decoration:none}
 .chip{
   font-family:var(--font-body);
   font-size:0.82rem;
@@ -9263,15 +9278,16 @@ body.tgo-night {
 }
 .longview p:last-child{margin-bottom:0}
 .longview strong{color:var(--color-terra-light);font-weight:600}
-.longview-link{
+.longview a.longview-link{
   font-family:var(--font-body);
   font-size:0.95rem;
   font-weight:600;
-  color:var(--color-terra-light);
+  color:#FFFFFF;
   text-decoration:underline;
   text-underline-offset:4px;
+  text-decoration-thickness:1px;
 }
-.longview-link:hover{color:#FFFFFF}
+.longview a.longview-link:hover{color:var(--color-terra-light)}
 
 /* --- footnotes --- */
 .pulse-notes{
@@ -9288,6 +9304,11 @@ body.tgo-night {
   max-width:70ch;
 }
 
+/* --- link specificity ---
+   This page renders inside .page-body, so the section 6 LINKS :is() group
+   scores (0,2,1) against every anchor here. Selectors below are element+class
+   pairs so they tie and win on source order. Do not simplify to bare classes. */
+
 /* --- night sky: tokens that don't flip on :root need explicit handling --- */
 body.tgo-night .split-b{background:var(--color-bg-card);border:1px solid var(--color-terra)}
 body.tgo-night .split-b span{color:var(--color-text)}
@@ -9297,9 +9318,9 @@ body.tgo-night .mo.now .mo-l{color:var(--color-terra-text)}
 body.tgo-night .longview{background:var(--color-bg-card);border:1px solid var(--color-terra)}
 body.tgo-night .longview h2{color:var(--color-text)}
 body.tgo-night .longview p{color:var(--color-text-muted)}
-body.tgo-night .longview strong,
-body.tgo-night .longview-link{color:var(--color-terra-text)}
-body.tgo-night .longview-link:hover{color:var(--color-text)}
+body.tgo-night .longview strong{color:var(--color-terra-text)}
+body.tgo-night .longview a.longview-link{color:var(--color-terra-text)}
+body.tgo-night .longview a.longview-link:hover{color:var(--color-text)}
 body.tgo-night .pulse-h1,
 body.tgo-night .pulse-head h2,
 body.tgo-night .fact-value{color:var(--color-text)}

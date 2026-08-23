@@ -5981,6 +5981,8 @@ h4, h5, h6 {
 main > .page-header,
 .archive-page-header,
 .archive-calendar-link,
+.archive-utility-links,
+.tgo-cal-links,
 .archive-categories-fold,
 .archive-wrapper {
   max-width: 1120px;
@@ -9143,8 +9145,11 @@ body.tgo-night {
   margin-left:0.15rem;
 }
 .pulse-head a.fact-ast:hover{color:var(--color-text)}
-.tgo-cal-links{margin:1.25rem 0 0;font-size:0.95rem}
+.archive-utility-links,
+.tgo-cal-links{display:flex;flex-wrap:wrap;align-items:center;font-size:0.95rem}
+.archive-utility-links a,
 .tgo-cal-links a{color:var(--color-terra-text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.archive-utility-links a:hover,
 .tgo-cal-links a:hover{color:var(--color-text)}
 .archive-link-sep{color:var(--color-terra);margin:0 0.65rem}
 .pulse-mark{

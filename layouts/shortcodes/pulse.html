@@ -1,0 +1,239 @@
+{{/* THE PULSE - stats page shortcode. Pairs with custom.css section 89. */}}
+
+{{ $year := 2026 }}
+{{ $excluded := slice "Bookshelf" "Book Reviews" "Currently Reading" "Movie Reviews" "TV Reviews" "Reel and Remote" "Short Stack" }}
+
+{{ $posts := where (where .Site.RegularPages "Type" "post") "Date.Year" $year }}
+{{ if eq (len $posts) 0 }}{{ $posts = where .Site.RegularPages "Date.Year" $year }}{{ end }}
+
+{{ $totalPosts := len $posts }}
+{{ $safeTotal := cond (gt $totalPosts 0) $totalPosts 1 }}
+{{ $titled := 0 }}
+{{ $micro := 0 }}
+{{ $words := 0 }}
+{{ $counted := 0 }}
+{{ $longestWords := 0 }}
+{{ $longestTitle := "" }}
+{{ $longestURL := "" }}
+{{ $longestDate := "" }}
+{{ $mc := dict }}
+{{ $cats := dict }}
+{{ $days := slice }}
+
+{{ range $posts }}
+  {{ if .Title }}{{ $titled = add $titled 1 }}{{ else }}{{ $micro = add $micro 1 }}{{ end }}
+
+  {{ $mk := .Date.Format "1" }}
+  {{ $mc = merge $mc (dict $mk (add (int (index $mc $mk | default 0)) 1)) }}
+
+  {{ $days = $days | append (.Date.Format "2006-01-02") }}
+
+  {{ range .Params.categories }}
+    {{ $k := printf "%v" . }}
+    {{ $cats = merge $cats (dict $k (add (int (index $cats $k | default 0)) 1)) }}
+  {{ end }}
+
+  {{ $catStr := printf "%v" .Params.categories }}
+  {{ $skip := false }}
+  {{ range $excluded }}
+    {{ if strings.Contains $catStr . }}{{ $skip = true }}{{ end }}
+  {{ end }}
+
+  {{ if not $skip }}
+    {{ $c := .Content }}
+    {{ $c = replaceRE `(?s)<blockquote[^>]*class="[^"]*card-quote[^"]*"[^>]*>.*?</blockquote>` "" $c }}
+    {{ $c = replaceRE `(?s)<p[^>]*class="[^"]*link-desc[^"]*"[^>]*>.*?</p>` "" $c }}
+    {{ $c = replaceRE `(?s)<table[^>]*class="[^"]*(movie-card|book-card|link-card)[^"]*"[^>]*>.*?</table>` "" $c }}
+    {{ $plain := $c | htmlUnescape | plainify }}
+    {{ $w := len (split (trim $plain " \n\t") " ") }}
+    {{ if gt (len (trim $plain " \n\t")) 0 }}
+      {{ $words = add $words $w }}
+      {{ $counted = add $counted 1 }}
+      {{ if and .Title (gt $w $longestWords) }}
+        {{ $longestWords = $w }}
+        {{ $longestTitle = .Title }}
+        {{ $longestURL = .RelPermalink }}
+        {{ $longestDate = .Date.Format "January 2" }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ $avg := 0 }}
+{{ if gt $counted 0 }}{{ $avg = div $words $counted }}{{ end }}
+
+{{ $sorted := sort $posts "Date" "asc" }}
+{{ $firstPost := index $sorted 0 }}
+{{ $lastPost := index (sort $posts "Date" "desc") 0 }}
+
+{{ $uniqDays := uniq (sort $days) }}
+{{ $maxGap := 0 }}
+{{ $prev := "" }}
+{{ range $uniqDays }}
+  {{ if $prev }}
+    {{ $d1 := time.AsTime $prev }}
+    {{ $d2 := time.AsTime . }}
+    {{ $g := int (div (sub $d2.Unix $d1.Unix) 86400) }}
+    {{ if gt $g $maxGap }}{{ $maxGap = $g }}{{ end }}
+  {{ end }}
+  {{ $prev = . }}
+{{ end }}
+
+{{ $perDay := "" }}
+{{ $elapsed := int (div (sub now.Unix (time.AsTime (printf "%d-01-01" $year)).Unix) 86400) }}
+{{ if gt $elapsed 0 }}{{ $perDay = printf "%.1f" (div (float $totalPosts) (float $elapsed)) }}{{ end }}
+
+{{ $cmeName := "Caught My Eyes" }}
+{{ $cme := where $posts "Params.categories" "intersect" (slice $cmeName) }}
+{{ $cmeCount := len $cme }}
+{{ $cmePhoto := "" }}
+{{ with $cme }}
+  {{ $latest := index (sort . "Date" "desc") 0 }}
+  {{ $imgs := findRE `https://cdn\.uploads\.micro\.blog/[^"]+?\.(?:jpg|jpeg|png|webp)` $latest.Content 1 }}
+  {{ with $imgs }}{{ $cmePhoto = index . 0 }}{{ end }}
+{{ end }}
+
+{{ $catCount := len $cats }}
+{{ $top := slice }}
+{{ range $k, $v := $cats }}{{ $top = $top | append (dict "name" $k "count" $v) }}{{ end }}
+{{ $top = sort $top "count" "desc" }}
+{{ $maxCat := 1 }}
+{{ with $top }}{{ $maxCat = (index . 0).count }}{{ end }}
+
+{{ $months := slice }}
+{{ range seq 12 }}{{ $months = $months | append (int (index $mc (printf "%d" .) | default 0)) }}{{ end }}
+{{ $maxMonth := 1 }}
+{{ range $months }}{{ if gt . $maxMonth }}{{ $maxMonth = . }}{{ end }}{{ end }}
+{{ $monthNames := slice "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec" }}
+{{ $busiest := "" }}
+{{ range $i, $m := $months }}{{ if eq $m $maxMonth }}{{ $busiest = index $monthNames $i }}{{ end }}{{ end }}
+{{ $nowMonth := int (sub (int (now.Format "1")) 1) }}
+
+<div class="pulse">
+
+  <header class="pulse-hero">
+    <p class="pulse-eyebrow">{{ $year }} so far &middot; through {{ now.Format "January 2" }}</p>
+    <h1 class="pulse-h1">{{ $totalPosts }} posts, mostly about
+      {{ range $i, $c := first 3 $top }}{{ if eq $i 2 }}and {{ end }}<em>{{ $c.name }}</em>{{ if lt $i 2 }}, {{ end }}{{ end }}.</h1>
+    <p class="pulse-sub">This is what the blog looks like from the inside. Not traffic, not readers, just what I made and what I kept coming back to.</p>
+  </header>
+
+  <section class="pulse-sec">
+    <div class="pulse-head"><h2>Odds and ends</h2></div>
+    <div class="factgrid">
+      <div class="fact a-words">
+        <span class="fact-label">Words this year</span>
+        <span class="fact-value">{{ lang.FormatNumberCustom 0 $words }}</span>
+        <span class="fact-note">Across {{ $counted }} posts</span>
+      </div>
+      <div class="fact a-first">
+        <span class="fact-label">First post of {{ $year }}</span>
+        <span class="fact-value fact-value--title"><a href="{{ $firstPost.RelPermalink }}">{{ with $firstPost.Title }}{{ . }}{{ else }}Untitled post{{ end }}</a></span>
+        <span class="fact-note">{{ $firstPost.Date.Format "January 2" }}</span>
+      </div>
+      <div class="fact a-recent">
+        <span class="fact-label">Most recent</span>
+        <span class="fact-value fact-value--title"><a href="{{ $lastPost.RelPermalink }}">{{ with $lastPost.Title }}{{ . }}{{ else }}Untitled post{{ end }}</a></span>
+        <span class="fact-note">{{ $lastPost.Date.Format "January 2" }}</span>
+      </div>
+      <div class="fact a-busy">
+        <span class="fact-label">Busiest</span>
+        <span class="fact-value">{{ $busiest }}</span>
+      </div>
+      <div class="fact a-avg">
+        <span class="fact-label">Average</span>
+        <span class="fact-value">{{ $avg }}</span>
+        <span class="fact-note">words</span>
+      </div>
+      <div class="fact a-photo fact--photo">
+        {{ with $cmePhoto }}<span class="fact-photo-img" style="background-image:url({{ . }})"></span>{{ end }}
+        <span class="fact-photo-scrim">
+          <span class="fact-label">Caught My Eyes</span>
+          <span class="fact-value">{{ $cmeCount }}</span>
+          <span class="fact-note">photo post{{ if ne $cmeCount 1 }}s{{ end }}</span>
+        </span>
+      </div>
+      <div class="fact a-gap">
+        <span class="fact-label">Longest gap</span>
+        <span class="fact-value">{{ $maxGap }}</span>
+        <span class="fact-note">days between posts</span>
+      </div>
+      <div class="fact a-perday">
+        <span class="fact-label">Per day</span>
+        <span class="fact-value">{{ $perDay }}</span>
+      </div>
+      <div class="fact a-long">
+        <span class="fact-label">Longest post</span>
+        <span class="fact-value fact-value--title"><a href="{{ $longestURL }}">{{ $longestTitle }}</a></span>
+        <span class="fact-note">{{ lang.FormatNumberCustom 0 $longestWords }} words &middot; {{ $longestDate }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="pulse-sec">
+    <div class="pulse-head">
+      <h2>The year by month</h2>
+      <p class="pulse-note">{{ index $monthNames $nowMonth }} is still running &middot; <a class="pulse-link" href="/calendar/">See the calendar &rarr;</a></p>
+    </div>
+    <div class="months">
+      {{ range $i, $m := $months }}
+        <div class="mo{{ if gt $i $nowMonth }} future{{ else if eq $i $nowMonth }} now{{ end }}">
+          <div class="mo-n">{{ if gt $i $nowMonth }}&mdash;{{ else }}{{ $m }}{{ end }}</div>
+          <div class="mo-bar" style="height:{{ if gt $i $nowMonth }}2{{ else }}{{ math.Round (mul (div (float $m) (float $maxMonth)) 92) }}{{ end }}%"></div>
+          <div class="mo-l">{{ index $monthNames $i }}</div>
+        </div>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="pulse-sec">
+    <div class="pulse-head">
+      <h2>Long and short</h2>
+      <p class="pulse-note">Titled posts vs. micros</p>
+    </div>
+    <div class="split">
+      <div class="split-a" style="width:{{ math.Round (mul (div (float $titled) (float $safeTotal)) 100) }}%"><span>{{ $titled }}</span></div>
+      <div class="split-b"><span>{{ $micro }}</span></div>
+    </div>
+    <div class="split-key">
+      <span><i class="dot dot-a"></i><b>{{ $titled }} titled posts</b> &mdash; the ones with a headline</span>
+      <span><i class="dot dot-b"></i><b>{{ $micro }} micros</b> &mdash; a thought, a photo, a link</span>
+    </div>
+  </section>
+
+  <section class="pulse-sec">
+    <div class="pulse-head">
+      <h2>What I actually write about</h2>
+      <p class="pulse-note">Top 20 of {{ $catCount }} categories</p>
+    </div>
+    <div class="catmap">
+      {{ range first 20 $top }}
+        <a class="cat" href="/categories/{{ .name | urlize }}/">
+          <span class="cat-name">{{ .name }}</span>
+          <span class="cat-track"><span class="cat-fill" style="width:{{ math.Round (mul (math.Pow (div (float .count) (float $maxCat)) 0.7) 100) }}%"></span></span>
+          <span class="cat-n">{{ .count }}</span>
+        </a>
+      {{ end }}
+    </div>
+    <div class="catmore">
+      {{ range after 20 (first 40 $top) }}
+        <a class="chip" href="/categories/{{ .name | urlize }}/">{{ .name }} <b>{{ .count }}</b></a>
+      {{ end }}
+      <a class="chip chip--all" href="/archive/">See all {{ $catCount }} categories &rarr;</a>
+    </div>
+  </section>
+
+  <div class="longview">
+    <h2>The longer view</h2>
+    <p>These numbers start in December 2022, because that's when I landed on Micro.blog. They aren't where the blog starts.</p>
+    <p>I've been at this since <strong>2004</strong>. Twenty-two years, eight platforms, and a lot of writing that lives in exports and old databases rather than here. This page counts platform number eight.</p>
+    <p><a class="longview-link" href="/the-long-road-here/">The long road here &rarr;</a></p>
+  </div>
+
+  <div class="pulse-notes">
+    <p><strong>The bars are compressed.</strong> Drawn to scale, the smaller categories would be slivers you can't compare. Read the ranking off the bars and the size off the number.</p>
+    <p><strong>Word counts are an estimate.</strong> Movie synopses, book blurbs, dictionary definitions and quoted link text are subtracted, since I didn't write them. Roundup posts are left out too, because those words already counted once as micros.</p>
+    <p>Categories add up to more than the post count on purpose &mdash; a post can carry both a topic and a placement.</p>
+  </div>
+
+</div>

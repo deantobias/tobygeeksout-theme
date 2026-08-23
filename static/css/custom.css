@@ -9131,7 +9131,24 @@ body.tgo-night {
   margin-left:0.15rem;
 }
 .fact span.fact-value a.fact-ast:hover{color:var(--color-text)}
-#pulse-words-note:target{background:var(--color-terra-light);border-radius:4px}
+#pulse-words-note:target,
+#pulse-bars-note:target{background:var(--color-terra-light);border-radius:4px}
+.pulse-head a.fact-ast{
+  font-family:var(--font-body);
+  font-size:0.78rem;
+  font-weight:700;
+  color:var(--color-terra-text);
+  text-decoration:none;
+  vertical-align:super;
+  margin-left:0.15rem;
+}
+.pulse-head a.fact-ast:hover{color:var(--color-text)}
+.pulse-mark{
+  font-family:var(--font-body);
+  font-weight:700;
+  color:var(--color-terra-text);
+  margin-right:0.1rem;
+}
 .fact-note{font-family:var(--font-body);font-size:0.8rem;color:var(--color-text-muted);line-height:1.35}
 
 

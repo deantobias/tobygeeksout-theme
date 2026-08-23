@@ -203,7 +203,7 @@
   <section class="pulse-sec">
     <div class="pulse-head">
       <h2>What I actually write about</h2>
-      <p class="pulse-note">Top 20 of {{ $catCount }} categories</p>
+      <p class="pulse-note">Top 20 of {{ $catCount }} categories<a class="fact-ast" href="#pulse-bars-note" aria-label="How the bars are scaled">**</a></p>
     </div>
     <div class="catmap">
       {{ range first 20 $top }}
@@ -230,8 +230,8 @@
   </div>
 
   <div class="pulse-notes">
-    <p><strong>The bars are compressed.</strong> Drawn to scale, the smaller categories would be slivers you can't compare. Read the ranking off the bars and the size off the number.</p>
-    <p id="pulse-words-note"><strong>Word counts are an estimate.</strong> Movie synopses, book blurbs, dictionary definitions and quoted link text are subtracted, since I didn't write them. Roundup posts are left out too, because those words already counted once as micros.</p>
+    <p id="pulse-words-note"><span class="pulse-mark">*</span> <strong>Word counts are an estimate.</strong> Movie synopses, book blurbs, dictionary definitions and quoted link text are subtracted, since I didn't write them. Roundup posts are left out too, because those words already counted once as micros.</p>
+    <p id="pulse-bars-note"><span class="pulse-mark">**</span> <strong>The bars are compressed.</strong> Drawn to scale, the smaller categories would be slivers you can't compare. Read the ranking off the bars and the size off the number.</p>
     <p>Categories add up to more than the post count on purpose &mdash; a post can carry both a topic and a placement.</p>
   </div>
 

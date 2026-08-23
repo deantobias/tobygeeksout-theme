@@ -25,6 +25,14 @@
 <span class="tgo-cal-key tgo-cal-key--many" aria-hidden="true"></span> two or more
 </p>
 <div class="tgo-cal-panel" hidden></div>
+{{/* Links (Aug 23, 2026): deliberately OUTSIDE .tgo-cal-grid — draw()
+     clears that container's innerHTML on every year switch, so anything
+     placed inside it disappears on the first click. */}}
+<p class="tgo-cal-links">
+<a href="/the-pulse/">The Pulse &rarr;</a>
+<span class="archive-link-sep">&bull;</span>
+<a href="/archive/">Archive &rarr;</a>
+</p>
 <script type="application/json" class="tgo-cal-data">{{ $days | jsonify | safeJS }}</script>
 </div>
 <script>

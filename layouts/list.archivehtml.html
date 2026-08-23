@@ -22,8 +22,9 @@
       </div>
     </details>
   {{ end }}
-  <p class="archive-calendar-link">
-    <a href="/calendar/">See it as a calendar →</a>
+<a class="archive-calendar-link" href="/calendar/">Calendar &rarr;</a>
+<span class="archive-link-sep">&bull;</span>
+<a class="archive-calendar-link" href="/the-pulse/">The Pulse &rarr;</a>
   </p>
   {{ $posts := where .Site.Pages "Type" "post" }}
   <div class="archive-wrapper">

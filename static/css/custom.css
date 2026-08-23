@@ -9143,6 +9143,10 @@ body.tgo-night {
   margin-left:0.15rem;
 }
 .pulse-head a.fact-ast:hover{color:var(--color-text)}
+.tgo-cal-links{margin:1.25rem 0 0;font-size:0.95rem}
+.tgo-cal-links a{color:var(--color-terra-text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.tgo-cal-links a:hover{color:var(--color-text)}
+.archive-link-sep{color:var(--color-terra);margin:0 0.65rem}
 .pulse-mark{
   font-family:var(--font-body);
   font-weight:700;

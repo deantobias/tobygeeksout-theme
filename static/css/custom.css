@@ -8988,11 +8988,11 @@ body.tgo-night {
 .pulse-hero{padding:2.5rem 0 1.5rem}
 .pulse-eyebrow{
   font-family:var(--font-body);
-  font-size:0.75rem;
-  font-weight:600;
+  font-size:0.82rem;
+  font-weight:700;
   letter-spacing:0.14em;
   text-transform:uppercase;
-  color:var(--color-terra-text);
+  color:var(--color-text);
   margin:0 0 1.25rem;
 }
 .pulse-h1{
@@ -9043,7 +9043,7 @@ body.tgo-night {
 .factgrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:repeat(4,104px);
+  grid-template-rows:repeat(4,118px);
   grid-template-areas:
     "words words first  first"
     "words words recent recent"
@@ -9055,11 +9055,11 @@ body.tgo-night {
   background:var(--color-bg-card);
   border:1px solid var(--color-terra-light);
   border-radius:8px;
-  padding:1rem 1.2rem;
+  padding:1.15rem 1.3rem;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:0.15rem;
+  gap:0.2rem;
   overflow:hidden;
   min-width:0;
 }
@@ -9105,12 +9105,13 @@ body.tgo-night {
 .a-long .fact-value--title{
   font-family:var(--font-display);
   font-weight:700;
-  font-size:1.15rem;
-  line-height:1.25;
+  font-size:1.02rem;
+  line-height:1.32;
   letter-spacing:-0.01em;
   display:block;
-  max-height:2.5em;
+  max-height:2.64em;
   overflow:hidden;
+  margin:0.15rem 0 0.1rem;
 }
 .fact span.fact-value a{color:var(--color-navy);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
 .fact span.fact-value a:hover{color:var(--color-terra-text)}
@@ -9341,7 +9342,7 @@ body.tgo-night .fact-value{color:var(--color-text)}
       "recent recent"
       "photo  busy"
       "photo  avg";
-    grid-template-rows:repeat(6,92px);
+    grid-template-rows:repeat(6,102px);
     gap:8px;
   }
   .a-gap,.a-perday,.a-long{display:none}
@@ -9350,7 +9351,7 @@ body.tgo-night .fact-value{color:var(--color-text)}
   .fact .fact-value--title,
   .a-first .fact-value--title,
   .a-recent .fact-value--title{font-size:1rem}
-  .fact{padding:0.75rem 0.9rem}
+  .fact{padding:0.9rem 1rem}
   .fact-value{font-size:1.15rem}
   .fact-label{font-size:0.62rem;letter-spacing:0.08em}
   .fact-note{font-size:0.72rem}

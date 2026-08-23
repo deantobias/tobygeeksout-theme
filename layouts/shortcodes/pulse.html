@@ -127,12 +127,12 @@
       </div>
       <div class="fact a-first">
         <span class="fact-label">First post of {{ $year }}</span>
-        <span class="fact-value fact-value--title"><a href="{{ $firstPost.RelPermalink }}">{{ with $firstPost.Title }}{{ . }}{{ else }}{{ $firstPost.Summary | htmlUnescape | plainify | truncate 55 }}{{ end }}</a></span>
+        <span class="fact-value fact-value--title"><a href="{{ $firstPost.RelPermalink }}">{{ with $firstPost.Title }}{{ . }}{{ else }}{{ $firstPost.Summary | htmlUnescape | plainify | truncate 42 }}{{ end }}</a></span>
         <span class="fact-note">{{ $firstPost.Date.Format "January 2" }}</span>
       </div>
       <div class="fact a-recent">
         <span class="fact-label">Most recent</span>
-        <span class="fact-value fact-value--title"><a href="{{ $lastPost.RelPermalink }}">{{ with $lastPost.Title }}{{ . }}{{ else }}{{ $lastPost.Summary | htmlUnescape | plainify | truncate 55 }}{{ end }}</a></span>
+        <span class="fact-value fact-value--title"><a href="{{ $lastPost.RelPermalink }}">{{ with $lastPost.Title }}{{ . }}{{ else }}{{ $lastPost.Summary | htmlUnescape | plainify | truncate 42 }}{{ end }}</a></span>
         <span class="fact-note">{{ $lastPost.Date.Format "January 2" }}</span>
       </div>
       <div class="fact a-busy">

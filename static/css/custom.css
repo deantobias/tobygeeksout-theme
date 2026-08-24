@@ -9381,6 +9381,7 @@ body.tgo-night .fact-value{color:var(--color-text)}
   }
   .a-words .fact-value{font-size:2.1rem}
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
+  .a-gap .fact-value,.a-perday .fact-value{font-size:1.15rem}
   .fact .fact-value--title,
   .a-first .fact-value--title,
   .a-recent .fact-value--title{font-size:1rem}

@@ -9049,7 +9049,7 @@ body.tgo-night {
 .factgrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:repeat(4,118px);
+  grid-template-rows:repeat(4,128px);
   grid-template-areas:
     "words words first  first"
     "words words recent recent"
@@ -9369,13 +9369,12 @@ body.tgo-night .fact-value{color:var(--color-text)}
   .factgrid{
     grid-template-columns:repeat(2,1fr);
     grid-template-areas:
-      "words words"
-      "words words"
+      "words busy"
+      "words avg"
       "first first"
       "recent recent"
-      "photo  busy"
-      "photo  avg";
-    grid-template-rows:repeat(6,102px);
+      "photo photo";
+    grid-template-rows:96px 96px 108px 108px 168px;
     gap:8px;
   }
   .a-gap,.a-perday,.a-long{display:none}

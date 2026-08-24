@@ -9373,11 +9373,12 @@ body.tgo-night .fact-value{color:var(--color-text)}
       "words avg"
       "first first"
       "recent recent"
-      "photo photo";
-    grid-template-rows:96px 96px 108px 108px 168px;
+      "photo gap"
+      "photo perday"
+      "long long";
+    grid-template-rows:96px 96px 108px 108px 96px 96px 108px;
     gap:8px;
   }
-  .a-gap,.a-perday,.a-long{display:none}
   .a-words .fact-value{font-size:2.1rem}
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
   .fact .fact-value--title,

@@ -1,6 +1,10 @@
 {{/* THE PULSE - stats page shortcode. Pairs with custom.css section 89. */}}
 
-{{ $year := 2026 }}
+{{/* Year comes from the shortcode param, defaulting to the current year.
+     /the-pulse/ uses {{< pulse >}} and rolls over on January 1.
+     Archived years use {{< pulse year="2026" >}} against this same file. */}}
+{{ $year := int (.Get "year" | default (now.Format "2006")) }}
+{{ $isCurrent := eq $year (int (now.Format "2006")) }}
 {{ $excluded := slice "Bookshelf" "Book Reviews" "Currently Reading" "Movie Reviews" "TV Reviews" "Reel and Remote" "Short Stack" }}
 
 {{ $posts := where (where .Site.RegularPages "Type" "post") "Date.Year" $year }}
@@ -80,7 +84,8 @@
 {{ end }}
 
 {{ $perDay := "" }}
-{{ $elapsed := int (div (sub now.Unix (time.AsTime (printf "%d-01-01" $year)).Unix) 86400) }}
+{{ $elapsed := 365 }}
+{{ if $isCurrent }}{{ $elapsed = int (div (sub now.Unix (time.AsTime (printf "%d-01-01" $year)).Unix) 86400) }}{{ end }}
 {{ if gt $elapsed 0 }}{{ $perDay = printf "%.1f" (div (float $totalPosts) (float $elapsed)) }}{{ end }}
 
 {{ $cmeName := "Caught My Eyes" }}
@@ -107,13 +112,14 @@
 {{ $monthNames := slice "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec" }}
 {{ $busiest := "" }}
 {{ range $i, $m := $months }}{{ if eq $m $maxMonth }}{{ $busiest = index $monthNames $i }}{{ end }}{{ end }}
-{{ $nowMonth := int (sub (int (now.Format "1")) 1) }}
+{{ $nowMonth := 11 }}
+{{ if $isCurrent }}{{ $nowMonth = int (sub (int (now.Format "1")) 1) }}{{ end }}
 
 <div class="pulse">
 
   <header class="pulse-hero">
-    <p class="pulse-eyebrow">{{ $year }} so far &middot; through {{ now.Format "January 2" }}</p>
-    <h1 class="pulse-h1">{{ $totalPosts }} posts this year. <em>All over the place,</em> like usual.</h1>
+    <p class="pulse-eyebrow">{{ if $isCurrent }}{{ $year }} so far &middot; through {{ now.Format "January 2" }}{{ else }}{{ $year }} &middot; the full year{{ end }}</p>
+    <h1 class="pulse-h1">{{ $totalPosts }} posts {{ if $isCurrent }}this year{{ else }}in {{ $year }}{{ end }}. <em>All over the place,</em> like usual.</h1>
     <p class="pulse-sub">This is what the blog looks like from the inside. Not traffic, not readers, just what I made and what I kept coming back to.</p>
   </header>
 
@@ -172,7 +178,7 @@
   <section class="pulse-sec">
     <div class="pulse-head">
       <h2>The year by month</h2>
-      <p class="pulse-note">{{ index $monthNames $nowMonth }} is still running &middot; <a class="pulse-link" href="/calendar/">See the calendar &rarr;</a></p>
+      <p class="pulse-note">{{ if $isCurrent }}{{ index $monthNames $nowMonth }} is still running &middot; {{ end }}<a class="pulse-link" href="/calendar/">See the calendar &rarr;</a></p>
     </div>
     <div class="months">
       {{ range $i, $m := $months }}

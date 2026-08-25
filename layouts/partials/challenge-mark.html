@@ -108,6 +108,25 @@
     </svg>
   </span>
   <span class="tg-mark-sr">Blaugust {{ $year }} — post {{ $day }} of 31</span>
+
+  {{/* MILESTONE BADGE — Toby's homemade PNGs (see project_blaugust_badges),
+       pinned to the ticket's top-right corner by custom.css section 79
+       (.tg-milestone). Only the five milestone posts get one; every
+       other day renders nothing extra. Filenames follow
+       uploads/2026/toby-blaugust-badge-<tier>.png — note 31 is
+       "rainbow", not "diamond". Restored Aug 25, 2026: the original
+       lived only in the Micro.blog editor and was wiped by a theme
+       resync, which is why posts 1/5/15/25 all lost their badge. */}}
+  {{- $tier := "" -}}
+  {{- if eq $day 1 -}}{{- $tier = "blauginner" -}}
+  {{- else if eq $day 5 -}}{{- $tier = "bronze" -}}
+  {{- else if eq $day 15 -}}{{- $tier = "silver" -}}
+  {{- else if eq $day 25 -}}{{- $tier = "gold" -}}
+  {{- else if eq $day 31 -}}{{- $tier = "rainbow" -}}
+  {{- end -}}
+  {{- with $tier -}}
+  <img class="tg-milestone" src="/uploads/{{ $year }}/toby-blaugust-badge-{{ . }}.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+  {{- end -}}
 {{- end -}}
 
 

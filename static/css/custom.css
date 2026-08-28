@@ -9522,13 +9522,40 @@ body.post-title-in-nav .hdr-post-meta {
   body.type-post .hdr-post-meta  { flex: 1 1 0; justify-content: flex-end; }
 }
 
-/* Foldables / portrait tablets (768–1023px): six nav items with labels
+/* Desktop (1024+): TRUE centering. Equal flex shares only centered the
+   nav in the space left after the identity, so it sat right of the
+   page's middle (Toby noticed). Take the nav out of the flow and pin
+   it to the bar's exact center; the title lives in the gap between the
+   identity and the nav and is capped so it can never run under it.
+   1024–1399 uses the icon-only nav (block below) so the gap is wide
+   enough; 1400+ has the full labels. */
+@media (min-width: 1024px) {
+  body.type-post .site-header .site-nav-row {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    order: 0;
+    flex: none;
+    width: max-content;
+    max-width: none;
+  }
+  body.type-post .site-nav { flex-wrap: nowrap; }
+  body.type-post .site-nav li a { white-space: nowrap; }
+  body.type-post .hdr-post-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(34ch, calc(50vw - 560px));
+  }
+  body.type-post .hdr-post-meta { flex: 0 0 auto; margin-left: auto; }
+}
+/* Foldables, portrait tablets and small laptops (768–1399px): six nav items with labels
    at 1rem plus the title and meta overflow an ~840px bar (the nav
    wrapped to two lines and the title shrank to nothing). Here the nav
    goes icon-only — same icons the phone tab bar uses, labels stay in
    aria via the link text for screen readers — so the title and the
-   reading time keep their room. Desktop (1024+) keeps the labels. */
-@media (min-width: 768px) and (max-width: 1023px) {
+   reading time keep their room. Desktop (1400+) keeps the labels. */
+@media (min-width: 768px) and (max-width: 1399px) {
   body.type-post .site-header { gap: 16px; }
   body.type-post .site-nav { gap: 0.9rem; flex-wrap: nowrap; }
   body.type-post .site-nav li a { gap: 0; padding: 6px; }
@@ -9537,6 +9564,13 @@ body.post-title-in-nav .hdr-post-meta {
   body.type-post .site-header .site-nav-row { flex: 0 0 auto; }
   body.type-post .hdr-post-title { flex: 1 1 0; min-width: 140px; max-width: 26ch; font-size: 0.875rem; }
   body.type-post .hdr-post-meta { flex: 0 0 auto; }
+}
+
+/* 1024–1399 with the centered icon-only nav: cap the title to the gap
+   between the identity and the nav (must come AFTER the icon-only
+   block above so this max-width wins). */
+@media (min-width: 1024px) and (max-width: 1399px) {
+  body.type-post .hdr-post-title { flex: 0 1 auto; min-width: 0; max-width: min(34ch, calc(50vw - 360px)); }
 }
 
 /* Phones: the post header is identity-only (nav lives in the tab bar).

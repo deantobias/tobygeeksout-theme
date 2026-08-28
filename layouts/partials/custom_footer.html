@@ -708,9 +708,9 @@
       var skySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon tgo-sky-icon--sky" aria-hidden="true"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9V2M4.2 10.2l1.4 1.4M2 18h2M20 18h2M18.4 11.6l1.4-1.4M22 22H2"/></svg>';
       function wordFor(m)  { return m === 'day' ? 'Day' : (m === 'night' ? 'Night' : 'Sky'); }
       function labelFor(m) {
-        return m === 'sky'   ? 'Following the sky — tap for day' :
-               m === 'day'   ? 'Day colors pinned — tap for night' :
-                               'Night sky pinned — tap to follow the sky';
+        return m === 'sky'   ? 'Sky: colors follow the time of day — tap for Night' :
+               m === 'night' ? 'Night: dark colors all day — tap for Day' :
+                               'Day: light colors all day — tap for Sky';
       }
       var moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon tgo-sky-icon--moon" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
       var trackHTML = '<span class="tgo-sky-track" aria-hidden="true"><span class="tgo-sky-knob"></span></span>';
@@ -721,7 +721,7 @@
         b.className = 'tgo-sky-hidden tgo-sky-btn ' + extraClass + ' is-' + mode;
         b.setAttribute('aria-label', labelFor(mode));
         b.setAttribute('title', labelFor(mode));
-        b.innerHTML = skySVG + sunSVG + moonSVG + trackHTML + '<span class="tgo-sky-word" aria-hidden="true">' + wordFor(mode) + '</span>';
+        b.innerHTML = skySVG + sunSVG + moonSVG + '<span class="tgo-sky-word" aria-hidden="true">' + wordFor(mode) + '</span>';
         return b;
       }
 
@@ -756,7 +756,8 @@
 
       buttons.forEach(function(b) {
         b.addEventListener('click', function() {
-          mode = mode === 'sky' ? 'day' : (mode === 'day' ? 'night' : 'sky');
+          /* order per Toby: sky → night → day → sky */
+          mode = mode === 'sky' ? 'night' : (mode === 'night' ? 'day' : 'sky');
           locked = mode !== 'sky';
           try { localStorage.setItem(KEY, mode); } catch (e) {}
           updateBtns();

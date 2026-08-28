@@ -4191,17 +4191,27 @@ html.tgo-anim {
    --header: absolute-pinned to top-row right edge, mobile only.
    --nav: inline flex child at the end of the nav row, desktop only. */
 .tgo-sky-btn {
+  /* Aug 28, 2026: the toggle IS a pill now — icon + word, no track.
+     Tap cycles Sky → Night → Day. */
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  padding: 4px 2px;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px 4px 8px;
+  min-height: 28px;
   cursor: pointer;
   flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.5s;
+  transition: opacity 0.5s, border-color 0.2s, background-color 0.2s;
 }
+.tgo-sky-btn:hover { border-color: var(--color-terra); }
+.tgo-sky-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.tgo-sky-btn.is-night { border-color: var(--color-navy); }
+.tgo-sky-track { display: none !important; }
 .tgo-sky-btn.tgo-sky-hidden { opacity: 0; pointer-events: none; }
 .tgo-sky-btn--header {
   display: none;
@@ -4212,15 +4222,16 @@ html.tgo-anim {
 }
 .tgo-sky-btn--nav {
   display: none;
-  margin-left: 0.75rem;
-  width: 53px;
-  justify-content: center;
+  margin-left: 1.1rem;
+  width: 84px;               /* icon + word ("Night") inside the pill */
+  justify-content: flex-start;
 }
 
 /* Reserve the toggle's slot at first paint so the nav never shifts when JS injects the button.
-   The placeholder disappears as soon as the real button exists. */
+   The placeholder disappears as soon as the real button exists. (96px since the
+   Aug 28 three-way toggle carries its word.) */
 @media (min-width: 768px) {
-  .site-nav-row::after { content: ''; width: 53px; margin-left: 0.75rem; flex-shrink: 0; }
+  .site-nav-row::after { content: ''; width: 84px; margin-left: 1.1rem; flex-shrink: 0; }
   .site-nav-row:has(.tgo-sky-btn--nav)::after { content: none; }
 }
 @media (max-width: 767px) { .tgo-sky-btn--header { display: inline-flex; } }
@@ -4238,16 +4249,25 @@ html.tgo-anim {
    cycling on one button. Sunrise icon for sky, sun for day, moon for
    night; the track colour follows: terra / cream / navy. The knob sits
    right in every state — the sky is always "on", the icon says which.
-   The word ("Sky/Day/Night") shows only in the desktop rail, where
-   there is room; header and nav copies are icon-only with a tooltip. */
+   The word ("Sky/Day/Night") shows next to the switch everywhere
+   (Toby: that's what explains the three states); on phones it hides
+   once the post title is in the header, where room is short. */
 .tgo-sky-icon--sun,
 .tgo-sky-icon--moon { display: none; }
 .tgo-sky-btn.is-day   .tgo-sky-icon--sky,
 .tgo-sky-btn.is-night .tgo-sky-icon--sky { display: none; }
 .tgo-sky-btn.is-day   .tgo-sky-icon--sun  { display: inline-block; }
 .tgo-sky-btn.is-night .tgo-sky-icon--moon { display: inline-block; }
-.tgo-sky-word { display: none; font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); margin-left: 4px; }
-.tgo-sky-btn--rail .tgo-sky-word { display: inline; }
+.tgo-sky-word {
+  display: inline;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: inherit;
+  min-width: 2.6em;           /* "Night" is the widest — keeps the nav from shifting between states */
+  text-align: left;
+  white-space: nowrap;
+}
 
 /* Toggle track */
 .tgo-sky-track {
@@ -9615,6 +9635,7 @@ body.tgo-night .post-header .post-category:hover {
   }
   body.type-post .hdr-post-meta { margin-left: auto; }
   body.type-post.post-title-in-nav .tgo-sky-btn--header { margin-left: 0; }
+  body.type-post.post-title-in-nav .tgo-sky-btn--header .tgo-sky-word { display: none; }
   /* faded wordmark's slot collapses on phones too, so the title gets it */
   body.type-post .site-logo-wordmark { max-width: 200px; transition: opacity 0.15s, max-width 300ms cubic-bezier(0.2, 0, 0, 1); }
   body.type-post.post-title-in-nav .site-logo-wordmark { max-width: 0; }

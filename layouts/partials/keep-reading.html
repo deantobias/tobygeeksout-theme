@@ -1,0 +1,133 @@
+{{- /* ------------------------------------------------------------------
+     layouts/partials/keep-reading.html  (Aug 28, 2026)
+
+     "Keep reading" — the bottom of every TITLED post. Replaces the old
+     "More like this" grid and the plain previous/next buttons.
+     Untitled micros keep the old blocks (post/single.html branches).
+
+     One row per category the post belongs to, in the order
+     cat-priority.html returns:
+       • first row  → big card: category, stats line (posts · since ·
+                      latest), previous/next tiles
+       • rows 2–4   → "Also in <category>" with previous / next
+       • rows 5+    → folded into one "Also filed under" line
+       • last row   → "All posts": plain previous / next by date,
+                      site-wide (what the old post-nav did)
+     A category row is skipped when the post has neither a previous
+     nor a next in that category (a one-post category shows nothing).
+
+     Previous = older, Next = newer — same as the old post-nav.
+     Neighbours are found by walking the category's date-sorted list,
+     not with Pages.Next/Prev, so direction never depends on Hugo's
+     default sort.
+
+     Styled in custom.css section 90. Print stylesheet hides it.
+     ------------------------------------------------------------------ */ -}}
+{{- $me := .RelPermalink -}}
+{{- $ordered := partial "cat-priority.html" . -}}
+{{- $rows := slice -}}
+{{- $extra := slice -}}
+
+{{- range $ordered -}}
+  {{- $cat := . -}}
+  {{- $sorted := (where site.RegularPages "Params.categories" "intersect" (slice $cat)).ByDate -}}
+  {{- $idx := -1 -}}
+  {{- range $i, $p := $sorted -}}
+    {{- if eq $p.RelPermalink $me }}{{ $idx = $i }}{{ end -}}
+  {{- end -}}
+  {{- $prev := false -}}
+  {{- $next := false -}}
+  {{- if ge $idx 0 -}}
+    {{- if gt $idx 0 }}{{ $prev = index $sorted (sub $idx 1) }}{{ end -}}
+    {{- if lt (add $idx 1) (len $sorted) }}{{ $next = index $sorted (add $idx 1) }}{{ end -}}
+  {{- end -}}
+  {{- if or $prev $next -}}
+    {{- if lt (len $rows) 4 -}}
+      {{- $rows = $rows | append (dict
+            "cat" $cat
+            "prev" $prev
+            "next" $next
+            "count" (len $sorted)
+            "since" (index $sorted 0).Date
+            "latest" (index (last 1 $sorted) 0).Date) -}}
+    {{- else -}}
+      {{- $extra = $extra | append $cat -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $allPrev := .PrevInSection -}}
+{{- $allNext := .NextInSection -}}
+
+{{- if or $rows $allPrev $allNext }}
+<section class="keep-reading" aria-label="Keep reading">
+  <p class="keep-reading-label">Keep reading</p>
+
+  {{- range $i, $r := $rows }}
+    {{- $catURL := printf "%s%s/" ("/categories/" | absURL) ($r.cat | urlize) }}
+    {{- if eq $i 0 }}
+  <div class="kr-card">
+    <div class="kr-card-top">
+      <a class="kr-card-cat" href="{{ $catURL }}">{{ $r.cat }}</a>
+      <span class="kr-card-stats">{{ $r.count }} {{ if eq $r.count 1 }}post{{ else }}posts{{ end }} · since {{ $r.since.Format "2006" }} · latest {{ $r.latest.Format "Jan 2, 2006" }}</span>
+    </div>
+    <div class="kr-tiles">
+      {{- with $r.prev }}
+      <a class="kr-tile kr-tile--prev" href="{{ .Permalink }}">
+        <span class="kr-tile-k">← Previous in {{ $r.cat }}</span>
+        <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
+        <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </a>
+      {{- else }}
+      <span class="kr-tile kr-tile--empty" aria-hidden="true"><span class="kr-tile-k">First in {{ $r.cat }}</span></span>
+      {{- end }}
+      {{- with $r.next }}
+      <a class="kr-tile kr-tile--next" href="{{ .Permalink }}">
+        <span class="kr-tile-k">Next in {{ $r.cat }} →</span>
+        <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
+        <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
+      </a>
+      {{- else }}
+      <span class="kr-tile kr-tile--empty kr-tile--next" aria-hidden="true"><span class="kr-tile-k">Latest in {{ $r.cat }}</span></span>
+      {{- end }}
+    </div>
+  </div>
+    {{- else }}
+  <div class="kr-row">
+    <span class="kr-row-cat">Also in <a href="{{ $catURL }}">{{ $r.cat }}</a></span>
+    {{- with $r.prev }}
+    <a class="kr-row-prev" href="{{ .Permalink }}">← {{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
+    {{- else }}
+    <span class="kr-row-none">First one</span>
+    {{- end }}
+    {{- with $r.next }}
+    <a class="kr-row-next" href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }} →</a>
+    {{- else }}
+    <span class="kr-row-none kr-row-none--right">Latest one</span>
+    {{- end }}
+  </div>
+    {{- end }}
+  {{- end }}
+
+  {{- if $extra }}
+  <p class="kr-more">Also filed under
+    {{- range $i, $c := $extra }}{{ if $i }},{{ end }} <a href="{{ "/categories/" | absURL }}{{ $c | urlize }}/">{{ $c }}</a>{{ end }}</p>
+  {{- end }}
+
+  {{- if or $allPrev $allNext }}
+  <div class="kr-row kr-row--all">
+    <span class="kr-row-cat"><a href="{{ "/archive/" | absURL }}">All posts</a></span>
+    {{- with $allPrev }}
+    <a class="kr-row-prev" href="{{ .Permalink }}">← {{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
+    {{- else }}
+    <span class="kr-row-none">First post</span>
+    {{- end }}
+    {{- with $allNext }}
+    <a class="kr-row-next" href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }} →</a>
+    {{- else }}
+    <span class="kr-row-none kr-row-none--right">Latest post</span>
+    {{- end }}
+  </div>
+  {{- end }}
+</section>
+{{- end }}

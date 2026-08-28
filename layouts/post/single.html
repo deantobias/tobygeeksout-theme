@@ -19,7 +19,19 @@
     <div class="post-header-inner">
        {{ partial "challenge-mark.html" . }}
       <div class="post-header-eyebrow">
-        {{ if .Params.categories }}
+        {{/* Aug 28, 2026 — titled posts show ONE category pill: the
+             top entry from cat-priority.html (card formats, then series,
+             then hand-ranked topics, then by post count). The rest of
+             the post's categories appear at the bottom in "Keep
+             reading", each as a previous/next row. Untitled micros keep
+             the full pill row exactly as before. */}}
+        {{ if .Title }}
+          {{ $ordered := partial "cat-priority.html" . }}
+          {{ if gt (len $ordered) 0 }}
+            {{ $top := index $ordered 0 }}
+            <a href="{{ "/categories/" | absURL }}{{ $top | urlize }}" class="post-category">{{ $top }}</a>
+          {{ end }}
+        {{ else if .Params.categories }}
           {{ range .Params.categories }}
             <a href="{{ "/categories/" | absURL }}{{ . | urlize }}" class="post-category">{{ . }}</a>
           {{ end }}
@@ -57,6 +69,12 @@
         {{ if .ReadingTime }}
           <span class="read-time-pill">{{ .ReadingTime }} min read</span>
         {{ end }}
+        {{/* Challenge count (Aug 28, 2026): "Blaugust 2026, day 21 of 31"
+             or "#100DaysToOffload, post 7 of 100" — the quiet twin of the
+             sticker on the title. Renders nothing on other posts. The old
+             Blaugust box after the body is gone for titled posts; this
+             line and the Keep-reading row carry it now. */}}
+        {{ if .Title }}{{ partial "challenge-count.html" . }}{{ end }}
         {{/* Print button (Aug 19, 2026) — pairs with the @media print
              block in custom.css section 87, which is what actually makes
              the printed page readable; this is only the shortcut to it.
@@ -86,7 +104,10 @@
            categorized "Blaugust <year>". Inside .post-body so it
            inherits the 1.2rem type, but outside .Content so it never
            reaches .Summary and can't eat the 300-char excerpt. */}}
-      {{ partial "blaugust-badge.html" . }}
+      {{/* Aug 28, 2026: titled posts carry the count in the meta line
+           (challenge-count.html) instead — the box only remains for
+           untitled posts, which keep their old layout untouched. */}}
+      {{ if not .Title }}{{ partial "blaugust-badge.html" . }}{{ end }}
     </div>
     {{ if $isLongRead }}
       <aside class="toc-sidebar" id="toc-sidebar" aria-label="Table of contents">
@@ -169,7 +190,14 @@
       <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
     </div>
   {{ end }}
-  {{ if and .Permalink .Params.categories (ne .Title "Short Stack") }}
+  {{/* Keep reading (Aug 28, 2026) — titled posts get the category
+       pager (keep-reading.html): one previous/next row per category in
+       priority order, plus an All-posts row. It replaces BOTH the
+       "More like this" grid and the post-nav buttons for those posts.
+       Untitled micros fall through to the old blocks below, unchanged. */}}
+  {{ if .Title }}
+    {{ partial "keep-reading.html" . }}
+  {{ else if and .Permalink .Params.categories }}
     {{ $currentPermalink := .Permalink }}
 
     {{/* Real topic categories of the current post (meta categories excluded) */}}
@@ -267,7 +295,9 @@
 
 
 
-{{ if eq .Type "post" }}
+{{/* Old previous/next buttons — untitled posts only since Aug 28, 2026;
+     titled posts have the All-posts row inside Keep reading. */}}
+{{ if and (eq .Type "post") (not .Title) }}
   {{ $prev := .PrevInSection }}
   {{ $next := .NextInSection }}
   {{ if or $prev $next }}

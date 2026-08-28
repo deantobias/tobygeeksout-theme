@@ -1,0 +1,38 @@
+{{- /* ------------------------------------------------------------------
+     layouts/partials/challenge-count.html  (Aug 28, 2026)
+
+     The quiet challenge count in the meta line under a post title:
+
+         Blaugust 2026, day 21 of 31
+         #100DaysToOffload, post 7 of 100
+
+     Category name is the link. Renders nothing on posts in neither
+     challenge, so it is safe to call on every titled post.
+
+     Same counting as challenge-mark.html (the sticker): position =
+     how many posts in that category are dated on or before this one.
+     Goal is the challenge's target, not the running total; if a run
+     ever passes its goal the denominator follows the real count.
+
+     Wording per Toby: Blaugust is "day" (it is daily), 100 Days is
+     "post" (100 posts within a year, not 100 consecutive days).
+
+     Adding a future challenge = one more branch below.
+     ------------------------------------------------------------------ */ -}}
+{{- range .Params.categories -}}
+  {{- $lc := lower . -}}
+  {{- $goal := 0 -}}
+  {{- $word := "" -}}
+  {{- $label := . -}}
+  {{- if hasPrefix $lc "blaugust" -}}
+    {{- $goal = 31 -}}{{- $word = "day" -}}
+  {{- else if hasPrefix $lc "100days" -}}
+    {{- $goal = 100 -}}{{- $word = "post" -}}{{- $label = "#100DaysToOffload" -}}
+  {{- end -}}
+  {{- if gt $goal 0 -}}
+    {{- $all := where site.RegularPages "Params.categories" "intersect" (slice .) -}}
+    {{- $n := len (where $all "Date" "le" $.Date) -}}
+    {{- if gt $n $goal }}{{ $goal = $n }}{{ end -}}
+    <span class="post-challenge-count"><a href="{{ "/categories/" | absURL }}{{ . | urlize }}/">{{ $label }}</a>, {{ $word }} {{ $n }} of {{ $goal }}</span>
+  {{- end -}}
+{{- end -}}

@@ -1,0 +1,96 @@
+{{- /* ------------------------------------------------------------------
+     layouts/partials/cat-priority.html  (Aug 28, 2026)
+
+     Returns this post's categories as a slice, ordered by PRIORITY.
+     Used by post/single.html (the one pill above the title = first
+     entry) and by keep-reading.html (row order at the bottom of the
+     post). One list drives both, so the label at the top always
+     matches the big card at the bottom.
+
+     Order (Toby's call, Aug 28):
+       1. Card-format categories first — a define card or a rating
+          card should look like one even when it is also Spotlight.
+       2. Features and series.
+       3. Topics Toby hand-ranked.
+       4. Everything else by post count, highest first — ranks itself,
+          nothing to maintain. A category that grows (Deep Dive) rises
+          on its own.
+
+     "Blaugust" and "100DaysToOffload" match by PREFIX so the yearly
+     categories ("Blaugust 2026") roll over with no edit here.
+     Micro and Bookshelf never count: Micro is a placement category,
+     Bookshelf is retired (see project_category_model).
+
+     Matching is case-insensitive. "Applachian Life" is the site's
+     current spelling; both spellings are listed so a rename later
+     keeps working.
+
+     Call:  {{ $ordered := partial "cat-priority.html" . }}
+     ------------------------------------------------------------------ */ -}}
+{{- $priority := slice
+      "Word of the Day"
+      "Movie Reviews"
+      "TV Reviews"
+      "Book Reviews"
+      "Reel and Remote"
+      "Spotlight"
+      "Long Read"
+      "Blaugust"
+      "Caught My Eyes"
+      "From the Vault"
+      "Diatribe Chronicles"
+      "Worth Keeping"
+      "Blogging"
+      "Technology"
+      "100DaysToOffload"
+      "AI"
+      "Deaf Community"
+      "Neurodivergence"
+      "Tiny House Life"
+      "Appalachian Life"
+      "Applachian Life"
+      "Personal" -}}
+{{- $prefixes := slice "blaugust" "100daystooffload" -}}
+{{- $skip := slice "micro" "bookshelf" -}}
+
+{{- $cats := slice -}}
+{{- with .Params.categories }}{{ $cats = . }}{{ end -}}
+
+{{- $out := slice -}}
+{{- $used := slice -}}
+
+{{- /* 1–3: walk the hand-ordered list, pull matches in that order */ -}}
+{{- range $priority -}}
+  {{- $p := lower . -}}
+  {{- $isPrefix := in $prefixes $p -}}
+  {{- range $cats -}}
+    {{- $c := . -}}
+    {{- $lc := lower $c -}}
+    {{- $hit := false -}}
+    {{- if $isPrefix -}}
+      {{- if hasPrefix $lc $p }}{{ $hit = true }}{{ end -}}
+    {{- else -}}
+      {{- if eq $lc $p }}{{ $hit = true }}{{ end -}}
+    {{- end -}}
+    {{- if and $hit (not (in $used $lc)) -}}
+      {{- $out = $out | append $c -}}
+      {{- $used = $used | append $lc -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* 4: whatever is left, by how many posts the category holds */ -}}
+{{- $rest := slice -}}
+{{- range $cats -}}
+  {{- $lc := lower . -}}
+  {{- if and (not (in $used $lc)) (not (in $skip $lc)) -}}
+    {{- $n := 0 -}}
+    {{- with index site.Taxonomies.categories (urlize .) }}{{ $n = len . }}{{ end -}}
+    {{- $rest = $rest | append (dict "name" . "n" $n) -}}
+  {{- end -}}
+{{- end -}}
+{{- range sort $rest "n" "desc" -}}
+  {{- $out = $out | append .name -}}
+{{- end -}}
+
+{{- return $out -}}

@@ -42,6 +42,46 @@
 </script>
 
 <script>
+/* Post title into the header (Aug 28, 2026) — titled single posts only.
+   header.html renders .hdr-post-title / .hdr-post-meta on those pages;
+   nothing else has them, so this exits at once everywhere else.
+   Once the big .post-header-title has scrolled up under the fixed
+   header, body.post-title-in-nav is set and CSS (section 90) fades the
+   small title + meta in. The % is the same page-scroll figure the top
+   progress bar paints, so the two never disagree. Tapping the title
+   scrolls to the top (instant when reduced motion is on). */
+(function () {
+  var small = document.querySelector('.hdr-post-title');
+  if (!small) return;
+  var big = document.querySelector('.post-header-title');
+  var header = document.querySelector('.site-header');
+  var pct = document.querySelector('.hdr-post-pct');
+  if (!big || !header) return;
+  var ticking = false;
+  function update() {
+    var hh = header.getBoundingClientRect().height;
+    var on = big.getBoundingClientRect().bottom < hh;
+    document.body.classList.toggle('post-title-in-nav', on);
+    if (pct) {
+      var dh = document.documentElement.scrollHeight - window.innerHeight;
+      var p = dh > 0 ? Math.round((window.scrollY / dh) * 100) : 0;
+      pct.textContent = Math.min(100, Math.max(0, p)) + '%';
+    }
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+  small.addEventListener('click', function () {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+  update();
+})();
+</script>
+
+<script>
 /* Home page about-strip: cycling tagline under "Hi, I'm Toby". Static
    fallback text is already in the HTML so it reads fine with JS off. */
 (function () {

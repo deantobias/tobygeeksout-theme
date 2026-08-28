@@ -9400,3 +9400,333 @@ body.tgo-night .fact-value{color:var(--color-text)}
   .pulse-hero{padding:0.25rem 0 0.75rem}
   .split span{font-size:1.5rem;padding:0.45rem 0.9rem}
 }
+
+
+/* ------------------------------------------------------------
+   90 · SINGLE POST REDESIGN — title into the header, challenge count,
+        Keep reading pager, nav size   (Aug 28, 2026)
+   Titled posts only; untitled micros keep their old layout (the
+   template branches on .Title). Four parts:
+     A. Nav text on post pages up from 0.75rem to 1rem (Toby: bigger).
+     B. Post title rides into the fixed header on scroll, solid color,
+        two-line clamp, with reading time + progress % at the far
+        right. Logo and wordmark untouched (the wordmark keeps its
+        existing fade). Nav never moves.
+     C. Challenge count in the meta line under the title.
+     D. Keep reading — the category pager that replaces "More like
+        this" and the post-nav buttons.
+   Everything rides the sky tokens so dusk/night flip on their own;
+   inks use the AA-safe --color-terra-text / --color-text-light.
+   ------------------------------------------------------------ */
+
+/* --- A. Nav on post pages: readable size ----------------------- */
+@media (min-width: 768px) {
+  body.type-post .site-nav { gap: 1.1rem; }
+  body.type-post .site-nav li a {
+    font-size: 1rem;
+    gap: 6px;
+  }
+  body.type-post .site-nav li a .tgo-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* --- B. Title into the header ---------------------------------- */
+/* Row order on desktop: identity · title · nav · meta. Title takes
+   the slack and clamps to two lines so a long Deep End title never
+   wraps the header into a paragraph. Both pieces sit invisible
+   (and out of the tab order — visibility:hidden) until
+   body.post-title-in-nav arrives from the scroll script. */
+.hdr-post-title,
+.hdr-post-meta {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 300ms cubic-bezier(0.2, 0, 0, 1),
+              transform 300ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s linear 300ms;
+}
+body.post-title-in-nav .hdr-post-title,
+body.post-title-in-nav .hdr-post-meta {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hdr-post-title,
+  .hdr-post-meta { transition: none; transform: none; }
+}
+
+.hdr-post-title {
+  /* a <button> so it can scroll to top — strip the button chrome */
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);              /* solid, never faded at rest */
+  max-width: 34ch;
+  min-width: 0;
+  flex: 1 1 0;
+  order: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+.hdr-post-title:hover { color: var(--color-terra-text); }
+.hdr-post-title:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text);
+  border-radius: 4px;
+}
+
+.hdr-post-meta {
+  order: 4;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+.hdr-post-pct {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-terra-text);
+  min-width: 3ch;
+  text-align: right;
+}
+
+/* Desktop / foldable: identity left (order 1), title, nav (order 2 in
+   section 10 — bumped to 3 here), meta right. Breathing room between
+   the zones comes from the header's gap. */
+@media (min-width: 768px) {
+  body.type-post .site-header { gap: 24px; }
+  body.type-post .site-header .site-nav-row { order: 3; flex: 0 0 auto; }
+}
+
+/* Phones: the post header is identity-only (nav lives in the tab bar).
+   Lay the row out so the title sits beside the identity and the meta
+   hugs the right edge; the wordmark fades on scroll as it already did,
+   so the title lands in the space it frees. Smaller type, one line
+   shorter clamp is unnecessary — two lines still fit a 60px bar. */
+@media (max-width: 767px) {
+  body.type-post .site-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  body.type-post .header-top-row { width: auto; flex: 0 0 auto; }
+  .hdr-post-title { font-size: 0.875rem; max-width: none; }
+  .hdr-post-meta { font-size: 0.6875rem; gap: 8px; }
+  .hdr-post-read { display: none; }   /* just the % on a phone */
+}
+
+/* --- C. Challenge count in the meta line ----------------------- */
+.post-challenge-count {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+}
+.post-challenge-count a {
+  color: var(--color-terra-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.post-challenge-count a:hover { text-decoration: underline; }
+
+/* --- D. Keep reading ------------------------------------------- */
+.keep-reading {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-xl) var(--space-2xl);
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-body);
+}
+
+.keep-reading-label {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin: 0 0 var(--space-md);
+}
+
+/* The big card: first priority category */
+.kr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 6px;
+}
+.kr-card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.kr-card-cat {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  text-decoration: none;
+}
+.kr-card-cat:hover { color: var(--color-terra-text); }
+.kr-card-stats {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+}
+
+.kr-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.kr-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  border: 1px solid transparent;
+  text-decoration: none;
+  min-height: 44px;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.kr-tile--next { text-align: right; }
+a.kr-tile:hover,
+a.kr-tile:active {
+  border-color: var(--color-terra);
+  background: var(--color-terra-light);
+}
+a.kr-tile:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text);
+}
+.kr-tile--empty { opacity: 0.6; }
+.kr-tile-k {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+.kr-tile-v {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+.kr-tile-d {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+/* "Also in" rows and the All-posts row */
+.kr-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.9375rem;
+  border-radius: var(--radius);
+  transition: background-color 0.15s;
+}
+.kr-row:hover { background: color-mix(in srgb, var(--color-navy) 6%, transparent); }
+.kr-row-cat {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+.kr-row-cat a {
+  color: var(--color-navy);
+  font-weight: 600;
+  text-decoration: none;
+}
+.kr-row-cat a:hover { color: var(--color-terra-text); }
+.kr-row-prev,
+.kr-row-next {
+  color: var(--color-terra-text);
+  font-weight: 600;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 24px;
+}
+.kr-row-next { text-align: right; }
+.kr-row-prev:hover,
+.kr-row-next:hover { text-decoration: underline; }
+.kr-row-prev:focus-visible,
+.kr-row-next:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text);
+  border-radius: 3px;
+}
+.kr-row-none {
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+.kr-row-none--right { text-align: right; }
+.kr-row--all .kr-row-cat a { color: var(--color-text-muted); }
+
+.kr-more {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+  margin: 10px 6px 0;
+}
+.kr-more a {
+  color: var(--color-terra-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+.kr-more a:hover { text-decoration: underline; }
+
+/* Phones: tiles stack, rows go to two lines */
+@media (max-width: 599px) {
+  .kr-tiles { grid-template-columns: 1fr; }
+  .kr-tile--next { text-align: left; }
+  .kr-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px 4px;
+  }
+  .kr-row-next,
+  .kr-row-none--right { text-align: left; }
+  .kr-row-prev,
+  .kr-row-next { white-space: normal; }
+}
+
+/* Night skies: the card sits on bg-card, which the sky script
+   already flips; nothing hardcoded here. The hover wash uses navy
+   at 6%, which reads as a faint lift on both light and dark bgs. */
+
+/* Print: none of this is the post */
+@media print {
+  .keep-reading,
+  .hdr-post-title,
+  .hdr-post-meta { display: none !important; }
+}

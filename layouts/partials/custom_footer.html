@@ -73,7 +73,8 @@
     if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
   }, { passive: true });
   window.addEventListener('resize', update);
-  small.addEventListener('click', function () {
+  small.addEventListener('click', function (e) {
+    e.preventDefault();
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });

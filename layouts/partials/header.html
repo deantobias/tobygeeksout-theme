@@ -37,14 +37,17 @@
   </nav>
 
   {{/* Post title in the header (Aug 28, 2026) — titled posts only.
-       Hidden until the big title scrolls out of view; then the script
+       An <a>, not a <button>: Chrome refused to lay out a button with
+       display:-webkit-box (the line clamp) inside this header — it
+       computed to display:none on desktop. The clamp now sits on the
+       inner span. Hidden until the big title scrolls out of view; then the script
        in custom_footer.html adds body.post-title-in-nav and this fades
        in beside the identity, with reading time + progress % on the
        far right. Nav never moves. Tapping the title scrolls back to
        the top. Logo and wordmark are untouched (the wordmark keeps its
        existing scroll fade). Styled in custom.css section 90. */}}
   {{ if and (eq .Type "post") .Title }}
-  <button type="button" class="hdr-post-title" aria-label="Back to top">{{ .Title }}</button>
+  <a href="#top" class="hdr-post-title" aria-label="Back to top: {{ .Title }}"><span class="hdr-post-title-text">{{ .Title }}</span></a>
   <div class="hdr-post-meta" aria-hidden="true">
     {{ if .ReadingTime }}<span class="hdr-post-read">{{ .ReadingTime }} min read</span>{{ end }}
     <span class="hdr-post-pct">0%</span>

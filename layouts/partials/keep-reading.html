@@ -78,8 +78,6 @@
         <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
         <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
       </a>
-      {{- else }}
-      <span class="kr-tile kr-tile--empty" aria-hidden="true"><span class="kr-tile-k">First in {{ $r.cat }}</span></span>
       {{- end }}
       {{- with $r.next }}
       <a class="kr-tile kr-tile--next" href="{{ .Permalink }}">
@@ -87,8 +85,6 @@
         <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
         <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
       </a>
-      {{- else }}
-      <span class="kr-tile kr-tile--empty kr-tile--next" aria-hidden="true"><span class="kr-tile-k">Latest in {{ $r.cat }}</span></span>
       {{- end }}
     </div>
   </div>
@@ -96,14 +92,12 @@
   <div class="kr-row">
     <span class="kr-row-cat">Also in <a href="{{ $catURL }}">{{ $r.cat }}</a></span>
     {{- with $r.prev }}
-    <a class="kr-row-prev" href="{{ .Permalink }}">← {{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
+    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Previous</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- else }}
-    <span class="kr-row-none">First one</span>
+    <span class="kr-row-gap" aria-hidden="true"></span>
     {{- end }}
     {{- with $r.next }}
-    <a class="kr-row-next" href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }} →</a>
-    {{- else }}
-    <span class="kr-row-none kr-row-none--right">Latest one</span>
+    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Next →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- end }}
   </div>
     {{- end }}
@@ -118,14 +112,12 @@
   <div class="kr-row kr-row--all">
     <span class="kr-row-cat"><a href="{{ "/archive/" | absURL }}">All posts</a></span>
     {{- with $allPrev }}
-    <a class="kr-row-prev" href="{{ .Permalink }}">← {{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
+    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Previous</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- else }}
-    <span class="kr-row-none">First post</span>
+    <span class="kr-row-gap" aria-hidden="true"></span>
     {{- end }}
     {{- with $allNext }}
-    <a class="kr-row-next" href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }} →</a>
-    {{- else }}
-    <span class="kr-row-none kr-row-none--right">Latest post</span>
+    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Next →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- end }}
   </div>
   {{- end }}

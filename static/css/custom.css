@@ -9460,13 +9460,10 @@ body.post-title-in-nav .hdr-post-meta {
 }
 
 .hdr-post-title {
-  /* a <button> so it can scroll to top — strip the button chrome */
-  appearance: none;
-  -webkit-appearance: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
+  /* an <a>, so the row can scroll to top; the two-line clamp lives on
+     the inner span (Chrome would not lay out -webkit-box on a button) */
+  display: block;
+  text-decoration: none !important;
   cursor: pointer;
   text-align: left;
   font-family: var(--font-display);
@@ -9478,6 +9475,8 @@ body.post-title-in-nav .hdr-post-meta {
   min-width: 0;
   flex: 1 1 0;
   order: 2;
+}
+.hdr-post-title-text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -9516,6 +9515,28 @@ body.post-title-in-nav .hdr-post-meta {
 @media (min-width: 768px) {
   body.type-post .site-header { gap: 24px; }
   body.type-post .site-header .site-nav-row { order: 3; flex: 0 0 auto; }
+  /* Title (left of nav) and meta (right of nav) take EQUAL shares of
+     the spare room, so the nav sits centered in the bar instead of
+     drifting right when the title is short. */
+  body.type-post .hdr-post-title { flex: 1 1 0; }
+  body.type-post .hdr-post-meta  { flex: 1 1 0; justify-content: flex-end; }
+}
+
+/* Foldables / portrait tablets (768–1023px): six nav items with labels
+   at 1rem plus the title and meta overflow an ~840px bar (the nav
+   wrapped to two lines and the title shrank to nothing). Here the nav
+   goes icon-only — same icons the phone tab bar uses, labels stay in
+   aria via the link text for screen readers — so the title and the
+   reading time keep their room. Desktop (1024+) keeps the labels. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body.type-post .site-header { gap: 16px; }
+  body.type-post .site-nav { gap: 0.9rem; flex-wrap: nowrap; }
+  body.type-post .site-nav li a { gap: 0; padding: 6px; }
+  body.type-post .site-nav li a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  body.type-post .site-nav li a .tgo-icon { width: 22px; height: 22px; }
+  body.type-post .site-header .site-nav-row { flex: 0 0 auto; }
+  body.type-post .hdr-post-title { flex: 1 1 0; min-width: 140px; max-width: 26ch; font-size: 0.875rem; }
+  body.type-post .hdr-post-meta { flex: 0 0 auto; }
 }
 
 /* Phones: the post header is identity-only (nav lives in the tab bar).
@@ -9599,7 +9620,7 @@ body.post-title-in-nav .hdr-post-meta {
 
 .kr-tiles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
 .kr-tile {
@@ -9624,7 +9645,6 @@ a.kr-tile:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text);
 }
-.kr-tile--empty { opacity: 0.6; }
 .kr-tile-k {
   font-size: 0.6875rem;
   font-weight: 700;
@@ -9677,7 +9697,7 @@ a.kr-tile:focus-visible {
   white-space: nowrap;
   min-height: 24px;
 }
-.kr-row-next { text-align: right; }
+.kr-row-next { text-align: right; align-items: flex-end; }
 .kr-row-prev:hover,
 .kr-row-next:hover { text-decoration: underline; }
 .kr-row-prev:focus-visible,
@@ -9686,11 +9706,26 @@ a.kr-tile:focus-visible {
   box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text);
   border-radius: 3px;
 }
-.kr-row-none {
-  color: var(--color-text-light);
-  font-weight: 500;
+.kr-row-prev,
+.kr-row-next {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: normal;
 }
-.kr-row-none--right { text-align: right; }
+.kr-row-k {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+.kr-row-v {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kr-row-gap { min-height: 1px; }
 .kr-row--all .kr-row-cat a { color: var(--color-text-muted); }
 
 .kr-more {
@@ -9714,10 +9749,22 @@ a.kr-tile:focus-visible {
     gap: 6px;
     padding: 12px 4px;
   }
-  .kr-row-next,
-  .kr-row-none--right { text-align: left; }
-  .kr-row-prev,
-  .kr-row-next { white-space: normal; }
+  .kr-row-next { text-align: left; align-items: flex-start; }
+  .kr-row-v { white-space: normal; }
+  .kr-row-gap { display: none; }
+}
+
+/* Night skies: posts written as inline-styled HTML (the email-safe
+   cards and callouts) carry color:#A65326 / #C4622D on their links,
+   which sinks into the navy. Re-ink them with the sky's terra-text
+   token, which the footer script already lifts for dark skies. */
+body.tgo-night .post-body a[style*="A65326"],
+body.tgo-night .post-body a[style*="a65326"],
+body.tgo-night .post-body a[style*="C4622D"],
+body.tgo-night .post-body a[style*="c4622d"],
+body.tgo-night .post-body a[style*="B85C2A"],
+body.tgo-night .post-body a[style*="8B3E18"] {
+  color: var(--color-terra-text) !important;
 }
 
 /* Night skies: the card sits on bg-card, which the sky script

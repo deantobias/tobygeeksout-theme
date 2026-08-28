@@ -9736,9 +9736,7 @@ a.kr-tile:focus-visible {
   color: var(--color-terra-text);
   font-weight: 600;
   text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
   min-height: 24px;
 }
 .kr-row-next { text-align: right; align-items: flex-end; }
@@ -9765,9 +9763,11 @@ a.kr-tile:focus-visible {
   color: var(--color-text-light);
 }
 .kr-row-v {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* wrap, never clip — a right-aligned title was losing its first
+     letters when it outgrew its column (Toby, Aug 28) */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 .kr-row-gap { min-height: 1px; }
 .kr-row--all .kr-row-cat a { color: var(--color-text-muted); }

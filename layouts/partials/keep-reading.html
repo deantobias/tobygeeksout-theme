@@ -16,7 +16,8 @@
      A category row is skipped when the post has neither a previous
      nor a next in that category (a one-post category shows nothing).
 
-     Previous = older, Next = newer — same as the old post-nav.
+     Labels are Older / Newer (Toby, Aug 28) — "Previous/Next" reads
+     both ways on a blog, Older/Newer does not.
      Neighbours are found by walking the category's date-sorted list,
      not with Pages.Next/Prev, so direction never depends on Hugo's
      default sort.
@@ -74,14 +75,14 @@
     <div class="kr-tiles">
       {{- with $r.prev }}
       <a class="kr-tile kr-tile--prev" href="{{ .Permalink }}">
-        <span class="kr-tile-k">← Previous in {{ $r.cat }}</span>
+        <span class="kr-tile-k">← Older in {{ $r.cat }}</span>
         <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
         <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
       </a>
       {{- end }}
       {{- with $r.next }}
       <a class="kr-tile kr-tile--next" href="{{ .Permalink }}">
-        <span class="kr-tile-k">Next in {{ $r.cat }} →</span>
+        <span class="kr-tile-k">Newer in {{ $r.cat }} →</span>
         <span class="kr-tile-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span>
         <span class="kr-tile-d">{{ .Date.Format "Jan 2, 2006" }}</span>
       </a>
@@ -92,12 +93,12 @@
   <div class="kr-row">
     <span class="kr-row-cat">Also in <a href="{{ $catURL }}">{{ $r.cat }}</a></span>
     {{- with $r.prev }}
-    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Previous</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
+    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Older</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- else }}
     <span class="kr-row-gap" aria-hidden="true"></span>
     {{- end }}
     {{- with $r.next }}
-    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Next →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
+    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Newer →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- end }}
   </div>
     {{- end }}
@@ -112,12 +113,12 @@
   <div class="kr-row kr-row--all">
     <span class="kr-row-cat"><a href="{{ "/archive/" | absURL }}">All posts</a></span>
     {{- with $allPrev }}
-    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Previous</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
+    <a class="kr-row-prev" href="{{ .Permalink }}"><span class="kr-row-k">← Older</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- else }}
     <span class="kr-row-gap" aria-hidden="true"></span>
     {{- end }}
     {{- with $allNext }}
-    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Next →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
+    <a class="kr-row-next" href="{{ .Permalink }}"><span class="kr-row-k">Newer →</span><span class="kr-row-v">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</span></a>
     {{- end }}
   </div>
   {{- end }}

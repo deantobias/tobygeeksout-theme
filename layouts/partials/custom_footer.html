@@ -649,10 +649,13 @@
       var mins = forced ? (+forced[1]) * 60 + (+forced[2]) : d.getHours() * 60 + d.getMinutes();
       var sun = sunTimes();
       var isPureDay = mins >= sun.r + 100 && mins <= sun.s - 90;
-      /* Show toggle only when sky is active — hide during pure daytime
-         so readers don't click a button that appears to do nothing. */
+      /* Toggle is ALWAYS shown (Toby, Aug 28, 2026). It used to hide
+         during pure daytime, but with the post-page nav now sitting at
+         the right edge its reserved slot read as a gap by day, and a
+         reader who wants fixed colors should be able to set that at
+         any hour — the choice carries into the evening. */
       document.querySelectorAll('.tgo-sky-btn').forEach(function(b) {
-        b.classList.toggle('tgo-sky-hidden', isPureDay);
+        b.classList.remove('tgo-sky-hidden');
       });
       if (locked) { clearSky(); return; }
       /* Pure day: remove every override so midday is EXACTLY stock. */

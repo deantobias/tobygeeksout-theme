@@ -486,8 +486,19 @@
     if (window.matchMedia && matchMedia('(prefers-contrast: more)').matches) return;
 
     var KEY = 'tgo-sky';
-    var locked = false;
-    try { locked = localStorage.getItem(KEY) === 'off'; } catch (e) {}
+    /* Aug 28, 2026 (Toby): three-way toggle on one button, cycling
+       sky → day → night → sky. 'sky' follows the clock (default), 'day'
+       pins the stock light look, 'night' pins the night palette. Stored
+       under KEY as 'sky' | 'day' | 'night'. The old 'off' value (the
+       freeze-to-day lock) maps to 'day'; anything else is 'sky'.
+       `locked` is kept as the name for "pinned to something". */
+    var mode = 'sky';
+    try {
+      var savedMode = localStorage.getItem(KEY);
+      if (savedMode === 'day' || savedMode === 'night') mode = savedMode;
+      else if (savedMode === 'off') mode = 'day';
+    } catch (e) {}
+    var locked = mode !== 'sky';
 
     var TOKENS_BG = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
     var TOKENS_TEXT = ['--color-text', '--color-text-muted', '--color-text-light', '--color-navy', '--color-navy-mid', '--color-terra', '--color-terra-dark', '--color-terra-light', '--color-terra-text'];
@@ -657,7 +668,9 @@
       document.querySelectorAll('.tgo-sky-btn').forEach(function(b) {
         b.classList.remove('tgo-sky-hidden');
       });
-      if (locked) { clearSky(); return; }
+      /* Pinned day = stock colors; pinned night = render midnight. */
+      if (mode === 'day') { clearSky(); return; }
+      if (mode === 'night') { mins = 0; isPureDay = false; }
       /* Pure day: remove every override so midday is EXACTLY stock. */
       if (isPureDay) { clearSky(); return; }
       var bg = bgAt(mins, sun.r, sun.s);
@@ -690,22 +703,37 @@
 
     /* Footer control: lets a reader freeze the sky to the stock look. */
     function addToggle() {
-      var sunSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+      var sunSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon tgo-sky-icon--sun" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+      /* Sunrise-on-a-horizon = following the sky */
+      var skySVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon tgo-sky-icon--sky" aria-hidden="true"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9V2M4.2 10.2l1.4 1.4M2 18h2M20 18h2M18.4 11.6l1.4-1.4M22 22H2"/></svg>';
+      function wordFor(m)  { return m === 'day' ? 'Day' : (m === 'night' ? 'Night' : 'Sky'); }
+      function labelFor(m) {
+        return m === 'sky'   ? 'Following the sky — tap for day' :
+               m === 'day'   ? 'Day colors pinned — tap for night' :
+                               'Night sky pinned — tap to follow the sky';
+      }
+      var moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tgo-sky-icon tgo-sky-icon--moon" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
       var trackHTML = '<span class="tgo-sky-track" aria-hidden="true"><span class="tgo-sky-knob"></span></span>';
 
       function makeBtn(extraClass) {
         var b = document.createElement('button');
         b.type = 'button';
-        b.className = 'tgo-sky-hidden tgo-sky-btn ' + extraClass + (locked ? ' is-locked' : '');
-        var lbl = locked ? 'Sky off — tap to follow the sun' : 'Sky on — tap to use fixed colors';
-        b.setAttribute('aria-label', lbl);
-        b.setAttribute('title', lbl);
-        b.innerHTML = sunSVG + trackHTML;
+        b.className = 'tgo-sky-hidden tgo-sky-btn ' + extraClass + ' is-' + mode;
+        b.setAttribute('aria-label', labelFor(mode));
+        b.setAttribute('title', labelFor(mode));
+        b.innerHTML = skySVG + sunSVG + moonSVG + trackHTML + '<span class="tgo-sky-word" aria-hidden="true">' + wordFor(mode) + '</span>';
         return b;
       }
 
       var buttons = [];
-      var headerRow = document.querySelector('.header-top-row');
+      /* Aug 28, 2026: on single posts the phone header is a flex ROW
+         (identity · title · % · toggle) and the identity block shrinks
+         to its content, so a toggle pinned inside it landed on the
+         wordmark. Append it to .site-header itself there; section 90
+         orders it last. Home/list pages keep the old placement. */
+      var headerRow = document.body.classList.contains('type-post')
+        ? document.querySelector('.site-header')
+        : document.querySelector('.header-top-row');
       var navRow    = document.querySelector('.site-nav-row');
       var railSlot  = document.querySelector('.rail-sky-slot');
 
@@ -716,18 +744,21 @@
       if (railSlot)  { var rb = makeBtn('tgo-sky-btn--rail');   railSlot.appendChild(rb);  buttons.push(rb); }
 
       function updateBtns() {
-        var lbl = locked ? 'Sky off — tap to follow the sun' : 'Sky on — tap to use fixed colors';
         buttons.forEach(function(b) {
-          if (locked) b.classList.add('is-locked'); else b.classList.remove('is-locked');
-          b.setAttribute('aria-label', lbl);
-          b.setAttribute('title', lbl);
+          b.classList.remove('is-sky', 'is-day', 'is-night');
+          b.classList.add('is-' + mode);
+          b.setAttribute('aria-label', labelFor(mode));
+          b.setAttribute('title', labelFor(mode));
+          var w = b.querySelector('.tgo-sky-word');
+          if (w) w.textContent = wordFor(mode);
         });
       }
 
       buttons.forEach(function(b) {
         b.addEventListener('click', function() {
-          locked = !locked;
-          try { localStorage.setItem(KEY, locked ? 'off' : 'auto'); } catch (e) {}
+          mode = mode === 'sky' ? 'day' : (mode === 'day' ? 'night' : 'sky');
+          locked = mode !== 'sky';
+          try { localStorage.setItem(KEY, mode); } catch (e) {}
           updateBtns();
           tick();
         });

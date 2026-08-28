@@ -4234,10 +4234,20 @@ html.tgo-anim {
   flex-shrink: 0;
   transition: color 0.3s, opacity 0.3s;
 }
-.tgo-sky-btn.is-locked .tgo-sky-icon {
-  color: var(--color-text-light);
-  opacity: 0.55;
-}
+/* Aug 28, 2026: three-way toggle — sky (follow the clock) → day → night,
+   cycling on one button. Sunrise icon for sky, sun for day, moon for
+   night; the track colour follows: terra / cream / navy. The knob sits
+   right in every state — the sky is always "on", the icon says which.
+   The word ("Sky/Day/Night") shows only in the desktop rail, where
+   there is room; header and nav copies are icon-only with a tooltip. */
+.tgo-sky-icon--sun,
+.tgo-sky-icon--moon { display: none; }
+.tgo-sky-btn.is-day   .tgo-sky-icon--sky,
+.tgo-sky-btn.is-night .tgo-sky-icon--sky { display: none; }
+.tgo-sky-btn.is-day   .tgo-sky-icon--sun  { display: inline-block; }
+.tgo-sky-btn.is-night .tgo-sky-icon--moon { display: inline-block; }
+.tgo-sky-word { display: none; font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); margin-left: 4px; }
+.tgo-sky-btn--rail .tgo-sky-word { display: inline; }
 
 /* Toggle track */
 .tgo-sky-track {
@@ -4251,9 +4261,8 @@ html.tgo-anim {
   flex-shrink: 0;
   transition: background 0.3s;
 }
-.tgo-sky-btn.is-locked .tgo-sky-track {
-  background: var(--color-border);
-}
+.tgo-sky-btn.is-day   .tgo-sky-track { background: var(--color-border); }
+.tgo-sky-btn.is-night .tgo-sky-track { background: var(--color-navy); }
 
 /* Toggle knob */
 .tgo-sky-knob {
@@ -4265,9 +4274,7 @@ html.tgo-anim {
   transition: transform 0.25s ease;
   transform: translateX(12px); /* ON: knob right */
 }
-.tgo-sky-btn.is-locked .tgo-sky-knob {
-  transform: translateX(0);   /* OFF: knob left */
-}
+.tgo-sky-btn.is-day .tgo-sky-knob { box-shadow: 0 1px 2px rgba(0,0,0,0.28); } /* knob stays right in every state */
 
 @media (prefers-reduced-motion: reduce) {
   .tgo-sky-btn, .tgo-sky-icon, .tgo-sky-track, .tgo-sky-knob { transition: none; }
@@ -9594,7 +9601,24 @@ body.tgo-night .post-header .post-category:hover {
     align-items: center;
     gap: 10px;
   }
-  body.type-post .header-top-row { width: auto; flex: 0 0 auto; }
+  body.type-post .header-top-row { width: auto; flex: 0 0 auto; position: static; }
+  /* The sky toggle is absolute-pinned to .header-top-row's right edge on
+     phones; with that row shrunk to its content on posts, the toggle
+     landed on the wordmark. On posts it becomes the last flex item of
+     the header instead, hugging the right edge after the %. */
+  body.type-post .tgo-sky-btn--header {
+    position: static;
+    transform: none;
+    order: 5;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+  body.type-post .hdr-post-meta { margin-left: auto; }
+  body.type-post.post-title-in-nav .tgo-sky-btn--header { margin-left: 0; }
+  /* faded wordmark's slot collapses on phones too, so the title gets it */
+  body.type-post .site-logo-wordmark { max-width: 200px; transition: opacity 0.15s, max-width 300ms cubic-bezier(0.2, 0, 0, 1); }
+  body.type-post.post-title-in-nav .site-logo-wordmark { max-width: 0; }
+  body.type-post.post-title-in-nav .site-identity { gap: 0; }
   .hdr-post-title { font-size: 0.875rem; max-width: none; }
   .hdr-post-meta { font-size: 0.6875rem; gap: 8px; }
   .hdr-post-read { display: none; }   /* just the % on a phone */

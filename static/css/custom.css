@@ -9509,68 +9509,78 @@ body.post-title-in-nav .hdr-post-meta {
   text-align: right;
 }
 
-/* Desktop / foldable: identity left (order 1), title, nav (order 2 in
-   section 10 — bumped to 3 here), meta right. Breathing room between
-   the zones comes from the header's gap. */
+/* Layout from 768px up (Toby's call, end of Aug 28): identity LEFT,
+   then the title with the reading time + % right after it, and the
+   nav parked at the RIGHT end — the same left/right split the post
+   header had before today. The title gets the whole middle of the
+   bar, so two lines hold even the long ones. No absolute centering. */
 @media (min-width: 768px) {
-  body.type-post .site-header { gap: 24px; }
-  body.type-post .site-header .site-nav-row { order: 3; flex: 0 0 auto; }
-  /* Title (left of nav) and meta (right of nav) take EQUAL shares of
-     the spare room, so the nav sits centered in the bar instead of
-     drifting right when the title is short. */
-  body.type-post .hdr-post-title { flex: 1 1 0; }
-  body.type-post .hdr-post-meta  { flex: 1 1 0; justify-content: flex-end; }
-}
-
-/* Desktop (1024+): TRUE centering. Equal flex shares only centered the
-   nav in the space left after the identity, so it sat right of the
-   page's middle (Toby noticed). Take the nav out of the flow and pin
-   it to the bar's exact center; the title lives in the gap between the
-   identity and the nav and is capped so it can never run under it.
-   1024–1399 uses the icon-only nav (block below) so the gap is wide
-   enough; 1400+ has the full labels. */
-@media (min-width: 1024px) {
-  body.type-post .site-header .site-nav-row {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    order: 0;
-    flex: none;
-    width: max-content;
-    max-width: none;
-  }
+  body.type-post .site-header { gap: 20px; }
+  body.type-post .site-header .header-top-row { order: 1; flex: 0 0 auto; }
+  body.type-post .hdr-post-title { order: 2; flex: 0 1 auto; min-width: 0; max-width: 52ch; }
+  body.type-post .hdr-post-meta  { order: 3; flex: 0 0 auto; }
+  body.type-post .site-header .site-nav-row { order: 4; flex: 0 0 auto; margin-left: auto; }
   body.type-post .site-nav { flex-wrap: nowrap; }
   body.type-post .site-nav li a { white-space: nowrap; }
-  body.type-post .hdr-post-title {
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: min(34ch, calc(50vw - 560px));
+
+  /* Once the title is in, the faded wordmark's slot is dead air between
+     the avatar and the title — collapse it so the title starts right
+     after the avatar. Reverses on scroll-up. */
+  body.type-post .site-logo-wordmark {
+    max-width: 200px;
+    transition: opacity 0.15s, max-width 300ms cubic-bezier(0.2, 0, 0, 1);
   }
-  body.type-post .hdr-post-meta { flex: 0 0 auto; margin-left: auto; }
+  body.type-post.post-title-in-nav .site-logo-wordmark { max-width: 0; }
+  body.type-post.post-title-in-nav .site-identity { gap: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    body.type-post .site-logo-wordmark { transition: none; }
+  }
+
+  /* Long-title fallback (set by the scroll script when the two-line
+     clamp still cuts the text): smaller type, reading-time text hidden. */
+  body.post-title-long .hdr-post-title { font-size: 0.8125rem; line-height: 1.2; }
+  body.post-title-long .hdr-post-read { display: none; }
 }
-/* Foldables, portrait tablets and small laptops (768–1399px): six nav items with labels
-   at 1rem plus the title and meta overflow an ~840px bar (the nav
-   wrapped to two lines and the title shrank to nothing). Here the nav
-   goes icon-only — same icons the phone tab bar uses, labels stay in
-   aria via the link text for screen readers — so the title and the
-   reading time keep their room. Desktop (1400+) keeps the labels. */
-@media (min-width: 768px) and (max-width: 1399px) {
-  body.type-post .site-header { gap: 16px; }
-  body.type-post .site-nav { gap: 0.9rem; flex-wrap: nowrap; }
+
+/* Foldables and small laptops (768–1199px): the labelled nav (~750px
+   with the sky toggle) plus a title do not share the bar, so the nav
+   goes icon-only there (labels stay for screen readers). 1200+ keeps
+   the labels at 1rem. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  body.type-post .site-header { gap: 14px; }
+  body.type-post .site-nav { gap: 0.9rem; }
   body.type-post .site-nav li a { gap: 0; padding: 6px; }
   body.type-post .site-nav li a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   body.type-post .site-nav li a .tgo-icon { width: 22px; height: 22px; }
-  body.type-post .site-header .site-nav-row { flex: 0 0 auto; }
-  body.type-post .hdr-post-title { flex: 1 1 0; min-width: 140px; max-width: 26ch; font-size: 0.875rem; }
-  body.type-post .hdr-post-meta { flex: 0 0 auto; }
+  body.type-post .hdr-post-title { max-width: 30ch; }
 }
 
-/* 1024–1399 with the centered icon-only nav: cap the title to the gap
-   between the identity and the nav (must come AFTER the icon-only
-   block above so this max-width wins). */
-@media (min-width: 1024px) and (max-width: 1399px) {
-  body.type-post .hdr-post-title { flex: 0 1 auto; min-width: 0; max-width: min(34ch, calc(50vw - 360px)); }
+/* Solid post title (Toby, Aug 28): the July 18 gradient (navy → rust by
+   day, near-white → peach at night) reads as the title fading out,
+   worst on the night sky. Paint it solid in the sky's navy ink on every
+   sky. Overrides the gradient + the @supports transparent fill in
+   section 15; the emoji span rule there is unaffected. */
+body.type-post .post-header-title,
+.post-header .post-header-title {
+  background-image: none !important;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: var(--color-navy);
+  color: var(--color-navy) !important;
+}
+
+/* Night sky: the category pill above the title is terra-light on
+   terra-dark, which is the same mud as the inline cards (Toby). On
+   dark skies it becomes an outlined pill: no fill, terracotta edge,
+   AA terra-text ink. Day is unchanged. */
+body.tgo-night .post-header .post-category {
+  background: transparent;
+  border-color: var(--color-terra);
+  color: var(--color-terra-text);
+}
+body.tgo-night .post-header .post-category:hover {
+  background: var(--color-terra);
+  color: var(--color-bg);
 }
 
 /* Phones: the post header is identity-only (nav lives in the tab bar).
@@ -9799,6 +9809,17 @@ body.tgo-night .post-body a[style*="c4622d"],
 body.tgo-night .post-body a[style*="B85C2A"],
 body.tgo-night .post-body a[style*="8B3E18"] {
   color: var(--color-terra-text) !important;
+}
+/* Same family of problem, for FILLS: inline cards that paint
+   background:var(--color-terra-light) (the define card and friends)
+   turn to mud on the night sky (#3A2A20 — the blaugust-badge partial
+   documents the same trap). On dark skies swap that fill for the
+   sky's card surface, which reads as a navy card instead. The
+   terracotta border stays, so the card keeps its identity. */
+body.tgo-night .post-body [style*="--color-terra-light"],
+body.tgo-night .post-body [style*="F0DDD3"],
+body.tgo-night .post-body [style*="f0ddd3"] {
+  background: var(--color-bg-card) !important;
 }
 
 /* Night skies: the card sits on bg-card, which the sky script

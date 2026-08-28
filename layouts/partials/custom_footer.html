@@ -56,12 +56,24 @@
   var big = document.querySelector('.post-header-title');
   var header = document.querySelector('.site-header');
   var pct = document.querySelector('.hdr-post-pct');
+  var text = small.querySelector('.hdr-post-title-text');
   if (!big || !header) return;
   var ticking = false;
   function update() {
     var hh = header.getBoundingClientRect().height;
     var on = big.getBoundingClientRect().bottom < hh;
     document.body.classList.toggle('post-title-in-nav', on);
+    /* Long-title fallback: if the two-line clamp still cuts the text,
+       body.post-title-long shrinks the type a notch and hides the
+       "N min read" text so the title gets the room (CSS section 90).
+       Measured with the class off so it can also come back off when
+       the window grows. */
+    if (on && text) {
+      document.body.classList.remove('post-title-long');
+      if (text.scrollHeight > text.clientHeight + 2) {
+        document.body.classList.add('post-title-long');
+      }
+    }
     if (pct) {
       var dh = document.documentElement.scrollHeight - window.innerHeight;
       var p = dh > 0 ? Math.round((window.scrollY / dh) * 100) : 0;

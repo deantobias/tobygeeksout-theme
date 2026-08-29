@@ -9966,8 +9966,8 @@ body.tgo-night .post-body [style*="f0ddd3"] {
 }
 
 .cat-feature-title {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-weight: 400;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: clamp(1.9rem, 4vw, 2.6rem);
   line-height: 1.15;
   margin: 0 0 0.9rem;
@@ -10060,12 +10060,16 @@ body.tgo-night .post-body [style*="f0ddd3"] {
   align-items: baseline;
   gap: 0.6rem;
   min-width: 0;
-  font-family: Georgia, 'Times New Roman', serif;
+  /* Bricolage bold, same as .archive-item-titled (Toby, Aug 29):
+     titled posts read the same on the archive and on a category */
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 1.2rem;
   line-height: 1.3;
 }
 .cat-row-text { flex: 0 1 auto; }
-.cat-row--untitled .cat-row-text { font-style: italic; }
+/* untitled posts: body font, italic, regular weight — a snippet, not a headline */
+.cat-row--untitled .cat-row-text { font-family: var(--font-body); font-weight: 400; font-style: italic; }
 
 .cat-leader {
   flex: 1 1 auto;

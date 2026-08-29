@@ -5119,14 +5119,20 @@ body.tgo-night .rail-nav a.active {
   /* Aug 29, 2026 (Toby, foldable): the sky toggle was missing from the
      rail. Cause: the slot is pinned to the rail's bottom with
      margin-top:auto, and at a foldable's height (~700px) the rail's
-     content runs ~20px taller than the rail, so the toggle - being
-     last - is the part that gets clipped; the rail scrolls, but
-     nothing shows that it does. Here the slot moves up between the
-     nav and the subscribe block via flex order, so it is always on
-     screen; if anything overflows now it is the bottom of the
-     subscribe block. Desktop keeps the bottom-pinned slot. */
-  .rail-sky-slot { order: 0; margin-top: 0; margin-bottom: 10px; padding-top: 0; }
-  .rail-subscribe { order: 1; }
+     content ran ~23px taller than the rail, so the toggle - being
+     last - was the part that got clipped; the rail scrolls, but
+     nothing shows that it does. First fix moved the toggle up under
+     the nav via flex order; Toby wants it at the BOTTOM like desktop,
+     so instead the compact rail is trimmed ~35px (nav link padding,
+     button height, block margins, rail padding) and now fits a 694px
+     viewport with ~30px to spare. Measured live in a 894x694 frame. */
+  body:not(.type-newsletter):not(.type-post) .site-rail { padding: 12px 20px 8px; }
+  .rail-nav a { padding: 4px 12px; }
+  .rail-btn { min-height: 28px; padding: 5px 10px; }
+  .rail-about { margin-bottom: 8px; }
+  .rail-nav { margin-bottom: 8px; }
+  .rail-greeting, .rail-tagline { margin-bottom: 4px; }
+  .rail-sky-slot { padding-top: 4px; }
 }
 
 

@@ -6014,8 +6014,11 @@ main > .page-header,
   max-width: 1120px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 30px;
-  padding-right: 30px;
+  /* Aug 29, 2026: 30px -> var(--page-pad) so the archive lines up with
+     .page-wrapper (About/Now/Search) and the category pages when you
+     jump between them. */
+  padding-left: var(--page-pad);
+  padding-right: var(--page-pad);
 }
 
 
@@ -9897,7 +9900,9 @@ body.tgo-night .post-body [style*="f0ddd3"] {
 .cat-mast {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-xl) var(--page-pad) 0;
+  /* 8px top = .page-header's top padding, so the title sits at the
+     same height as About/Now/Search/Archive (Aug 29, 2026) */
+  padding: 8px var(--page-pad) 0;
   border-bottom: 3px solid var(--color-navy);
 }
 
@@ -10106,12 +10111,10 @@ body.tgo-night .post-body [style*="f0ddd3"] {
 
 /* ---- archive masthead (Aug 29, 2026) ----
    /archive/ shares .cat-mast/.cat-title/.cat-dateline so it matches
-   the category pages. Side padding re-pointed at the archive's own
-   30px boxes (see the main > .page-header block near section 62),
-   and some room before the Categories fold. */
+   the category pages. Same --page-pad as everything else now (the
+   archive boxes were moved off 30px the same day); this just adds
+   room before the Categories fold. */
 .cat-mast.archive-mast {
-  padding-left: 30px;
-  padding-right: 30px;
   margin-bottom: var(--space-lg);
 }
 

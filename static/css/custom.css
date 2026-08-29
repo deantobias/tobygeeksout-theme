@@ -10378,5 +10378,7 @@ h2.feed-label {
 .featured-eyebrow,
 .wna-eyebrow strong{
   font-family:var(--font-display);
-  font-weight:800;
+  font-weight:700;          /* 800 reads chunky at 0.8rem uppercase */
+  letter-spacing:0.1em;     /* BG is wider than Inter; 2px / .125em was airy */
+  font-size:0.85rem;        /* a hair up so the lighter weight still leads the row */
 }

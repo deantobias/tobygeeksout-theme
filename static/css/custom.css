@@ -10353,18 +10353,41 @@ h2.feed-label {
   color: var(--color-text-muted);
 }
 
-/* ---- phones and foldables ---- */
-@media (max-width: 760px) {
+/* ---- phones AND foldables (Aug 29, Toby: "foldable should do the
+   same as mobile"). 1023 is the theme's own line: the compact rail
+   runs 768-1023 and leaves ~600px of column, too tight for three
+   columns with a 168px photo. ---- */
+@media (max-width: 1023px) {
   .journal-feature.has-photo { grid-template-columns: 1fr; gap: 1.25rem; }
   .journal-feature-img { order: -1; aspect-ratio: 16 / 10; }
-  .journal-list .journal-entry { grid-template-columns: 3.2rem 96px 1fr; gap: 1rem; padding: 1.15rem 0; }
+  /* Aug 29 (Toby): on phones the photo moves ABOVE the title, full
+     width of the text column, instead of a 96px stamp squeezed
+     beside it. Two columns: date | (photo, title, summary). The
+     grey slot is hidden here - a full-width placeholder over every
+     no-photo row is too much nothing on a small screen; revisit
+     when the rabbit art lands. */
+  .journal-list .journal-entry {
+    grid-template-columns: 3.2rem 1fr;
+    grid-template-areas: "date photo" "date text";
+    gap: 0.75rem 1rem;
+    padding: 1.15rem 0;
+    align-items: start;
+  }
+  .journal-list .journal-date { grid-area: date; }
+  .journal-list .journal-thumb { grid-area: photo; width: 100%; aspect-ratio: 16 / 10; }
+  .journal-list .journal-slot { display: none; }
+  .journal-text { grid-area: text; }
   .journal-list .journal-date-day,
   .micro-section .journal-date-day { font-size: 1.9rem; }
-  .journal-list .journal-thumb,
-  .journal-list .journal-slot { width: 96px; }
   .journal-list .journal-title { font-size: 1.2rem; }
   .journal-sum { font-size: 0.95rem; }
   .micro-section .micro-entry { grid-template-columns: 3.2rem 1fr; gap: 1rem; }
+}
+/* Narrow phones: the "more" link drops under the title instead of
+   forcing "Recent Geekouts" onto two lines. */
+@media (max-width: 480px) {
+  .feed-head { flex-wrap: wrap; row-gap: 0.4rem; }
+  .feed-more { flex-basis: 100%; }
 }
 
 /* ---- Spotlight + Word Nerd Alert labels (Aug 29, 2026, Toby) ----

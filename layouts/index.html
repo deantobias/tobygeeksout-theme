@@ -242,8 +242,16 @@
 {{ end }}
 
 <div class="feed-wrapper">
-  <p class="feed-label">Recent Geekouts</p>
-  {{ range $recent }}
+  {{/* Aug 29, 2026 (Toby): "the ledger". Every feed section now opens
+       with .feed-head - big navy title, 3px navy rule, optional
+       "more" link on the right - matching the category mastheads
+       shipped earlier today. Styles: custom.css section 92. */}}
+  <div class="feed-head">
+    <h2 class="feed-label">Recent Geekouts</h2>
+    <a class="feed-more" href="{{ "/archive/" | absURL }}">Everything, by year →</a>
+  </div>
+  <div class="journal-list">
+  {{ range $i, $p := $recent }}
     {{/* Journal entry — the whole row is the permalink. Date block
          keeps the exact same day/month/year setup the cards had. */}}
     {{/* Thumbnail (July 25, 2026, Toby): ONLY images Toby uploaded
@@ -271,16 +279,40 @@
          picture and title sit together and the images form a straight
          rail. Posts with no photo get .journal-slot so the rail does
          not break; about four in ten posts have no image. */}}
+    {{/* Aug 29, 2026 (Toby): the newest post is a FEATURE - big Georgia
+         title, clean-summary blurb, date + read time, and its photo
+         beside it ONLY when it has one (same $thumb rule; no
+         placeholder). The other five are rows: date | photo or slot |
+         title + one-line summary + read time. The .journal-slot stays
+         exactly as it was - Toby is reworking it (rabbit art) in a
+         separate pass, so its markup and class must not change. */}}
+    {{ if eq $i 0 }}
+    <a href="{{ .Permalink }}" class="journal-feature u-url{{ if $thumb }} has-photo{{ end }}">
+      <span class="journal-feature-text">
+        <span class="journal-kicker">Latest</span>
+        <span class="journal-feature-title p-name">{{ .Title }}</span>
+        <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
+        <span class="journal-meta"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ if .ReadingTime }}<span class="journal-meta-dot" aria-hidden="true"></span><span>{{ .ReadingTime }} min read</span>{{ end }}</span>
+      </span>
+      {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
+    </a>
+    {{ else }}
     <a href="{{ .Permalink }}" class="journal-entry u-url">
       <span class="journal-date" aria-hidden="true">
         <span class="journal-date-day">{{ .Date.Format "2" }}</span>
         <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
         <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
       </span>
-      {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="96" height="64">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
-      <span class="journal-title">{{ .Title }}</span>
+      {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="168" height="112">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
+      <span class="journal-text">
+        <span class="journal-title">{{ .Title }}</span>
+        <span class="journal-sum">{{ partial "clean-summary.html" . }}</span>
+        {{ if .ReadingTime }}<span class="journal-meta">{{ .ReadingTime }} min read</span>{{ end }}
+      </span>
     </a>
+    {{ end }}
   {{ end }}
+  </div>
   {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,
        300 chars or less, category "Micro". FULL content shown (they're
        short by definition), Lora reading text, date links to the post.
@@ -294,14 +326,28 @@
     {{ end }}
     {{ if $isMicro }}{{ $microPool = $microPool | append . }}{{ end }}
   {{ end }}
-  {{ $micros := first 3 $microPool }}
+  {{/* Aug 29, 2026 (Toby): ONE micro, not three. Three full-width
+       Lora paragraphs were eating a lot of page for 300-character
+       statuses. The newest shows in full with the ledger's day
+       numeral beside it; "More micros" carries the rest. */}}
+  {{ $micros := first 1 $microPool }}
   {{ if $micros }}
   <div class="micro-section">
-    <p class="feed-label">💬 Micros</p>
+    <div class="feed-head">
+      <h2 class="feed-label">💬 Micros</h2>
+      <a class="feed-more" href="{{ "/categories/micro/" | absURL }}">More micros →</a>
+    </div>
     {{ range $micros }}
     <div class="micro-entry h-entry">
-      <div class="micro-entry-text e-content">{{ .Content }}</div>
-      <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "Jan 2, 2006" }} ∞</a>
+      <span class="journal-date" aria-hidden="true">
+        <span class="journal-date-day">{{ .Date.Format "2" }}</span>
+        <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
+        <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
+      </span>
+      <div class="micro-entry-main">
+        <div class="micro-entry-text e-content">{{ .Content }}</div>
+        <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "January 2, 2006" }} ∞</a>
+      </div>
     </div>
     {{ end }}
   </div>
@@ -343,7 +389,10 @@
        July 27 Theme Work Logs entry and drops straight back in. */}}
   {{ if or $cr $br }}
   <div class="books-section">
-    <p class="feed-label">📚 The Bookshelf</p>
+    <div class="feed-head">
+      <h2 class="feed-label">📚 The Bookshelf</h2>
+      <a class="feed-more" href="{{ "/reading/" | absURL }}">The whole shelf →</a>
+    </div>
     {{/* Dedupe by book title (Toby has 4 books going + will post
          progress updates per book over time — each book shows ONCE,
          always its newest post). Cap 4 active books. */}}
@@ -508,7 +557,10 @@
   {{ end }}
   {{ if or $tiles $rows }}
   <div class="reel-section">
-    <p class="feed-label">🎬 Reel and Remote</p>
+    <div class="feed-head">
+      <h2 class="feed-label">🎬 Reel and Remote</h2>
+      <a class="feed-more" href="{{ "/watched/" | absURL }}">Everything watched →</a>
+    </div>
     {{ if $tiles }}
     <div class="reel-tiles">
       {{ range $tiles }}

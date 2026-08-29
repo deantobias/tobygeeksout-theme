@@ -8820,6 +8820,15 @@ body.tgo-night {
   gap: 1.75em 1.5em;
 }
 
+/* Fixed 3 x 4 from the rail breakpoint up — each row is a real quarter
+   (Jan-Mar / Apr-Jun / Jul-Sep / Oct-Dec) and day cells get bigger click
+   targets. Below 768px the auto-fill above keeps months readable on
+   phones. */
+@media (min-width: 768px) {
+  .tgo-cal { font-size: 18px; } /* wider months earn bigger type */
+  .tgo-cal-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 .tgo-cal-month-name {
   font-family: var(--font-display);
   font-size: 0.8em;

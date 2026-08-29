@@ -26,6 +26,7 @@
 </p>
 <p class="tgo-cal-status" data-days="{{ len $days }}"></p>
 <div class="tgo-cal-years" role="group" aria-label="Choose a year"></div>
+<p class="tgo-cal-total" aria-live="polite"></p>
 <div class="tgo-cal-grid"></div>
 <p class="tgo-cal-legend" hidden>
 <span class="tgo-cal-key tgo-cal-key--none" aria-hidden="true"></span> nothing posted
@@ -49,6 +50,7 @@
       var data = JSON.parse(node.textContent.trim());
       if (!data.length) { return fail('Hugo returned 0 posts. The Type filter needs changing.'); }
       var yearsBox = root.querySelector('.tgo-cal-years');
+      var tally = root.querySelector('.tgo-cal-total');
       var grid = root.querySelector('.tgo-cal-grid');
       var panel = root.querySelector('.tgo-cal-panel');
       var legend = root.querySelector('.tgo-cal-legend');
@@ -147,6 +149,7 @@
         grid.innerHTML = '';
         grid.appendChild(panel);
         var total = 0;
+        var activeDays = 0;
         for (var m = 0; m < 12; m++) {
           var block = document.createElement('section');
           block.className = 'tgo-cal-month';
@@ -175,6 +178,7 @@
             var posts = byDay[key];
             var n = posts ? posts.length : 0;
             total += n;
+            if (n) { activeDays += 1; }
             var cell = document.createElement(n ? 'button' : 'span');
             cell.className = 'tgo-cal-cell ' + (n === 0 ? 'is-none' : n === 1 ? 'is-one' : 'is-many');
             if (key === todayKey) { cell.className += ' is-today'; }
@@ -193,10 +197,10 @@
           block.appendChild(days);
           grid.appendChild(block);
         }
-        var tally = document.createElement('p');
-        tally.className = 'tgo-cal-total';
-        tally.textContent = total + (total === 1 ? ' post in ' : ' posts in ') + year;
-        grid.appendChild(tally);
+        if (tally) {
+          tally.textContent = total + (total === 1 ? ' post in ' : ' posts in ') +
+            activeDays + (activeDays === 1 ? ' day' : ' days') + ' · ' + year;
+        }
       }
       draw(yearList[0]);
       if (legend) { legend.hidden = false; }

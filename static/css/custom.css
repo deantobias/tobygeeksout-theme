@@ -8783,7 +8783,7 @@ body.tgo-night {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
-  margin-bottom: 1.5em;
+  margin-bottom: 0.75em;
 }
 
 .tgo-cal-year {
@@ -8987,11 +8987,10 @@ body.tgo-night {
 .tgo-cal-key--many { margin-left: 0.75em; }
 
 .tgo-cal-total {
-  grid-column: 1 / -1;
   font-family: var(--font-display);
   font-size: 0.9em;
   color: var(--color-text-light);
-  margin: 0.5em 0 0;
+  margin: 0 0 1.75em;
 }
 
 /* --- phones ------------------------------------------------------------- */

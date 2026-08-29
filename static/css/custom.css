@@ -9877,3 +9877,229 @@ body.tgo-night .post-body [style*="f0ddd3"] {
   .hdr-post-title,
   .hdr-post-meta { display: none !important; }
 }
+
+
+/* ============================================================
+   91 · CATEGORY PAGE — MAGAZINE CONTENTS   (Aug 29, 2026)
+   ------------------------------------------------------------
+   layouts/categories/list.html. Masthead + stats dateline, the
+   newest post as a feature (photo beside it only when the post
+   has one), then every other post as a contents row: title,
+   dotted leader, date, and a one-line summary in Lora italic.
+   A faded year numeral heads each year group, only when a category
+   spans more than one year. All colors are tokens, so the sky script
+   retints it at night with nothing extra here.
+   Section 20 (.category-page-*) is now unused by this template
+   but left in place for _default/list.html.
+   ============================================================ */
+
+/* ---- masthead ---- */
+.cat-mast {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--page-pad) 0;
+  border-bottom: 3px solid var(--color-navy);
+}
+
+.cat-back {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cat-back a { color: var(--color-terra-text); text-decoration: none; }
+.cat-back a::before { content: "\2190\00a0"; }
+.cat-back a:hover { color: var(--color-terra-dark); }
+
+.cat-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+  margin: 0.75rem 0 0.75rem;
+  border: 0;
+  padding: 0;
+}
+
+.cat-dateline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin: 0 0 1.1rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.cat-dateline strong { color: var(--color-text); font-weight: 600; }
+
+/* ---- feature (newest post) ---- */
+.cat-feature {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--page-pad) var(--space-xl);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+.cat-feature--photo { grid-template-columns: 1.2fr 1fr; }
+
+.cat-kicker {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+
+.cat-feature-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  margin: 0 0 0.9rem;
+  color: var(--color-navy);
+}
+.cat-feature-title a { color: inherit; text-decoration: none; }
+.cat-feature-title a:hover { color: var(--color-terra-text); }
+
+.cat-feature-summary {
+  font-family: var(--font-reading);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0 0 1rem;
+}
+
+.cat-feature-meta {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+.cat-feature-meta a { color: var(--color-terra-text); font-weight: 600; text-decoration: none; }
+
+.cat-feature-photo {
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-warm);
+}
+.cat-feature-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- contents ---- */
+.cat-contents {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-pad) var(--space-2xl);
+}
+
+.cat-contents-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  margin-bottom: 0.5rem;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cat-year { position: relative; }
+
+.cat-year-mark {
+  margin: 1.5rem 0 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.4rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  opacity: 0.16;
+  pointer-events: none;
+}
+.cat-year:first-child .cat-year-mark { margin-top: 0.5rem; }
+
+.cat-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.9rem 0;
+  border-bottom: 1px dashed var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.cat-row-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+.cat-row-text { flex: 0 1 auto; }
+.cat-row--untitled .cat-row-text { font-style: italic; }
+
+.cat-leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  align-self: flex-end;
+  border-bottom: 2px dotted var(--color-terra);
+  opacity: 0.6;
+  transform: translateY(-0.35em);
+}
+
+.cat-row-date {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-terra-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cat-row-blurb {
+  grid-column: 1 / -1;
+  margin-top: 0.15rem;
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.cat-row:hover .cat-row-text { color: var(--color-terra-text); }
+.cat-row:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 4px; }
+
+/* ---- narrow screens ---- */
+@media (max-width: 720px) {
+  .cat-feature--photo { grid-template-columns: 1fr; }
+  .cat-feature-photo { order: -1; }
+}
+
+@media print {
+  .cat-back, .cat-feature-photo { display: none !important; }
+  .cat-row { break-inside: avoid; }
+}

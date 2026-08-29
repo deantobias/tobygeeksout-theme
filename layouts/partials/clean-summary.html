@@ -1,0 +1,40 @@
+{{/*
+  partials/clean-summary.html
+  Returns a summary that always ends on a complete sentence.
+  - Front matter `description` wins if present.
+  - Otherwise: first sentence always; keeps adding sentences (up to 3)
+    while the running total stays within the character limit.
+    Short sentences → you get three. Long ones → you get one.
+  - Never cuts mid-sentence, never adds an ellipsis.
+  Usage:  {{ partial "clean-summary.html" . }}
+*/}}
+{{- $limit := 180 -}}
+{{- $maxSentences := 3 -}}
+{{- $out := "" -}}
+
+{{- if .Description -}}
+  {{- $out = .Description -}}
+{{- else -}}
+  {{- /* htmlUnescape BEFORE plainify — Micro.blog stores curly quotes as entities */ -}}
+  {{- $text := .Content | htmlUnescape | plainify -}}
+  {{- $text = trim (replaceRE `\s+` " " $text) " \n\t​" -}}
+
+  {{- /* split into sentences: anything up to . ! or ? (optionally followed by a closing quote) */ -}}
+  {{- $sentences := findRE `[^.!?]+[.!?]+["”’)]?` $text -}}
+
+  {{- if not $sentences -}}
+    {{- /* no punctuation at all (e.g. a one-line micro): use the whole text */ -}}
+    {{- $out = $text -}}
+  {{- else -}}
+    {{- range $i, $s := $sentences -}}
+      {{- $s = trim $s " " -}}
+      {{- if eq $i 0 -}}
+        {{- $out = $s -}}
+      {{- else if and (lt $i $maxSentences) (le (add (len $out) (len $s) 1) $limit) -}}
+        {{- $out = printf "%s %s" $out $s -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $out -}}

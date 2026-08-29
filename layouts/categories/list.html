@@ -1,49 +1,98 @@
 {{ define "main" }}
-  <div class="category-page-header">
-    {{/* Back link (Aug 1, 2026, Toby): category pages dead-ended with no
-         way up. The full category list lives inside the archive page's
-         Categories fold, so one link to /archive/ covers both "all
-         categories" and "everything chronological". CSS 20. */}}
-    <p class="category-page-back"><a href="{{ "/archive/" | absURL }}">&larr; Back to Archive</a></p>
-    <h1 class="category-page-title">{{ .Title | safeHTML }}</h1>
-  </div>
-  <div class="feed-wrapper">
-    {{ $paginator := .Paginate .Pages.ByDate.Reverse }}
-    {{ range $paginator.Pages }}
-     <div class="post-card">
-        <div class="post-date" aria-hidden="true">
-         <span class="post-date-day">{{ .Date.Format "2" }}</span>
-         <span class="post-date-month">{{ .Date.Format "Jan" }}</span>
-         <span class="post-date-year">{{ .Date.Format "2006" }}</span>
-        </div>
-        <div class="post-card-content">
-          {{/* Category pills removed from cards July 11, 2026 —
-               categories now appear on single posts only. */}}
-          {{ if .Title }}
-            <div class="post-card-title">
-              <a href="{{ .Permalink }}">{{ .Title }}</a>
-            </div>
-          {{ end }}
-          {{ if gt (len .Plain) 800 }}
-            <div class="post-card-excerpt excerpt-fade">
-              {{ .Summary | htmlUnescape | plainify | truncate 300 }}
-            </div>
-            <div class="post-card-footer">
-              <a href="{{ .Permalink }}" class="read-more-link">Keep reading</a>
-            </div>
-          {{ else }}
-            <div class="post-card-excerpt">
-              {{ .Content | htmlUnescape | safeHTML }}
-            </div>
-            <p class="post-card-footer">
-              <a href="{{ .Permalink }}" class="u-url">
-                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞
-              </a>
-            </p>
-          {{ end }}
-        </div>
-      </div>
+{{/* ============================================================
+     CATEGORY PAGE — "magazine contents" layout (Aug 29, 2026, Toby)
+     Masthead + stats dateline, newest post as the feature, every
+     other post as a contents row with leader dots to the date.
+     No pagination: rows are short, so the whole category renders on
+     one page. Summaries come from partials/clean-summary.html and
+     always end on a complete sentence. CSS: section 91.
+     ============================================================ */}}
+{{ $pages := .Pages.ByDate.Reverse }}
+{{ $count := len $pages }}
+
+<div class="cat-mast">
+  {{/* Back link (Aug 1, 2026, Toby): the full category list lives in the
+       archive page's Categories fold, so one link covers both. */}}
+  <p class="cat-back"><a href="{{ "/archive/" | absURL }}">Back to Archive</a></p>
+  <h1 class="cat-title">{{ .Title | safeHTML }}</h1>
+  {{ if gt $count 0 }}
+    {{ $latest := index $pages 0 }}
+    {{ $oldest := index $pages (sub $count 1) }}
+    <p class="cat-dateline">
+      <span><strong>{{ $count }}</strong> {{ if eq $count 1 }}post{{ else }}posts{{ end }}</span>
+      <span>since <strong>{{ $oldest.Date.Format "2006" }}</strong></span>
+      <span>latest <strong>{{ $latest.Date.Format "2 Jan 2006" }}</strong></span>
+    </p>
+  {{ end }}
+</div>
+
+{{ if gt $count 0 }}
+{{ $latest := index $pages 0 }}
+{{ $oldest := index $pages (sub $count 1) }}
+{{ $multiYear := ne ($latest.Date.Format "2006") ($oldest.Date.Format "2006") }}
+
+{{/* ---------- Feature: the newest post ---------- */}}
+{{ with $latest }}
+  {{/* First uploaded photo, skipping book/movie card posters — same
+       rule as the home page journal thumbnails (index.html). */}}
+  {{ $posters := slice }}
+  {{ range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
+    {{ $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) }}
+  {{ end }}
+  {{ $photo := "" }}
+  {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+    {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+    {{ if and (not $photo) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) }}{{ $photo = $u }}{{ end }}
+  {{ end }}
+
+  <section class="cat-feature{{ if $photo }} cat-feature--photo{{ end }}">
+    <div class="cat-feature-text">
+      <p class="cat-kicker">Latest in {{ $.Title | safeHTML }}</p>
+      <h2 class="cat-feature-title">
+        <a href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
+      </h2>
+      <p class="cat-feature-summary">{{ partial "clean-summary.html" . }}</p>
+      <p class="cat-feature-meta">
+        <a href="{{ .Permalink }}" class="u-url"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time></a>
+        {{ if and .Title .ReadingTime }} · {{ .ReadingTime }} min read{{ end }}
+      </p>
+    </div>
+    {{ if $photo }}
+      <a href="{{ .Permalink }}" class="cat-feature-photo" aria-hidden="true" tabindex="-1">
+        <img src="{{ $photo }}" alt="" loading="lazy">
+      </a>
     {{ end }}
-    {{ partial "pagination.html" $paginator }}
+  </section>
+{{ end }}
+
+{{/* ---------- Contents: everything else ---------- */}}
+{{ if gt $count 1 }}
+  <div class="cat-contents">
+    <div class="cat-contents-head" aria-hidden="true"><span>Contents</span><span>Date</span></div>
+    {{ $prevYear := "" }}
+    {{ range after 1 $pages }}
+      {{ $year := .Date.Format "2006" }}
+      {{ if ne $year $prevYear }}
+        {{ if $prevYear }}</div>{{ end }}
+        <div class="cat-year">
+        {{/* Year marker in the margin only when the category spans years */}}
+        {{ if $multiYear }}<div class="cat-year-mark" aria-hidden="true">{{ $year }}</div>{{ end }}
+        {{ $prevYear = $year }}
+      {{ end }}
+
+      <a class="cat-row{{ if not .Title }} cat-row--untitled{{ end }}" href="{{ .Permalink }}">
+        <span class="cat-row-title">
+          <span class="cat-row-text">{{ if .Title }}{{ .Title }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
+          <i class="cat-leader" aria-hidden="true"></i>
+        </span>
+        <time class="cat-row-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time>
+        {{ if .Title }}
+          <span class="cat-row-blurb">{{ partial "clean-summary.html" . }}</span>
+        {{ end }}
+      </a>
+    {{ end }}
+    </div>
   </div>
+{{ end }}
+{{ end }}
 {{ end }}

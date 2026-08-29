@@ -5133,6 +5133,26 @@ body.tgo-night .rail-nav a.active {
   .rail-nav { margin-bottom: 8px; }
   .rail-greeting, .rail-tagline { margin-bottom: 4px; }
   .rail-sky-slot { padding-top: 4px; }
+  /* Second pass, same day: Toby's foldable is shorter than 694px, so
+     the trim alone still clipped the toggle. Now the slot is pinned to
+     the bottom of the SCREEN (position:fixed, rail width, page bg so
+     scrolled rail text does not show through) and the rail gets
+     bottom padding so "Browse past newsletters" can scroll clear of
+     it. Height of the rail no longer matters. The rail has no
+     transform, so fixed here is viewport-relative. */
+  body:not(.type-newsletter):not(.type-post) .site-rail { padding-bottom: 52px; }
+  .rail-sky-slot {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: var(--rail-w);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px 0 10px;
+    text-align: center;
+    background: var(--color-bg);
+    z-index: 5;
+  }
 }
 
 

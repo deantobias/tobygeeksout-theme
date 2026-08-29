@@ -10103,3 +10103,35 @@ body.tgo-night .post-body [style*="f0ddd3"] {
   .cat-back, .cat-feature-photo { display: none !important; }
   .cat-row { break-inside: avoid; }
 }
+
+/* ---- archive masthead (Aug 29, 2026) ----
+   /archive/ shares .cat-mast/.cat-title/.cat-dateline so it matches
+   the category pages. Side padding re-pointed at the archive's own
+   30px boxes (see the main > .page-header block near section 62),
+   and some room before the Categories fold. */
+.cat-mast.archive-mast {
+  padding-left: 30px;
+  padding-right: 30px;
+  margin-bottom: var(--space-lg);
+}
+
+/* ---- page titles everywhere (Aug 29, 2026, Toby) ----
+   About, Now, Search and the Newsletters list keep their
+   .page-header > .page-title markup but take the category masthead
+   type: same big Bricolage title, same solid navy rule, no stats.
+   Overrides section 14 (size clamp at 640px) and the !important
+   gradient rule near section 45 — later in the file, so it wins. */
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+  margin: 0.75rem 0 0.75rem;
+}
+.page-header::after {
+  background: var(--color-navy) !important;
+  height: 3px !important;
+  margin-top: 0.75rem !important;
+}

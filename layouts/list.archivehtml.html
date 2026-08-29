@@ -1,11 +1,22 @@
 {{ define "main" }}
-  {{/* Page heading (July 25, 2026, Toby): the archive was the only
-       one of the four utility pages without one - Now, About and Search
-       all render .page-header > h1.page-title. Same markup here, so it
-       picks up the existing gradient rule under the title (CSS 14) with
-       no new styles. */}}
-  <header class="page-header archive-page-header">
-    <h1 class="page-title">Archive</h1>
+  {{/* Masthead (Aug 29, 2026, Toby): same treatment as the category
+       pages so Archive and its categories read as one family - big
+       Bricolage title, navy rule, stats dateline. Shares the .cat-*
+       classes from CSS section 91; .archive-mast only re-points the
+       side padding at the archive's 30px boxes. Latest date is left
+       out on purpose: the newest post is the first row below. */}}
+  {{ $allPosts := where .Site.Pages "Type" "post" }}
+  {{ $catList := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
+  <header class="cat-mast archive-mast archive-page-header">
+    <h1 class="cat-title">Archive</h1>
+    {{ if gt (len $allPosts) 0 }}
+      {{ $oldestPost := index $allPosts.ByDate 0 }}
+      <p class="cat-dateline">
+        <span><strong>{{ len $allPosts }}</strong> posts</span>
+        <span>since <strong>{{ $oldestPost.Date.Format "2006" }}</strong></span>
+        <span><strong>{{ len $catList }}</strong> categories</span>
+      </p>
+    {{ end }}
   </header>
   <div>
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}

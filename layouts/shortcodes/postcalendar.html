@@ -24,7 +24,7 @@
 <span class="archive-link-sep">&bull;</span>
 <a href="/archive/">Archive &rarr;</a>
 </p>
-<p class="tgo-cal-status">Loading calendar… (Hugo found {{ len $days }} days with posts)</p>
+<p class="tgo-cal-status" data-days="{{ len $days }}"></p>
 <div class="tgo-cal-years" role="group" aria-label="Choose a year"></div>
 <div class="tgo-cal-grid"></div>
 <p class="tgo-cal-legend" hidden>
@@ -41,6 +41,7 @@
     var root = document.getElementById('tgo-cal');
     if (!root) { return; }
     var status = root.querySelector('.tgo-cal-status');
+    if (status) { status.textContent = 'Loading calendar… (Hugo found ' + (status.getAttribute('data-days') || '0') + ' days with posts)'; }
     function fail(msg) { if (status) { status.textContent = 'Calendar problem: ' + msg; } }
     try {
       var node = root.querySelector('.tgo-cal-data');

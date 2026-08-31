@@ -10470,7 +10470,7 @@ h2.feed-label {
    93 · BLAUGUST STATS   (Aug 31, 2026)
    ------------------------------------------------------------
    layouts/shortcodes/blaugust-stats.html, dropped on the
-   /blaugust-2026 page under the badges. Same tile language as
+   /blaugust page, between the tracker and the haul list. Same tile language as
    The Pulse (section 89) so the two stats surfaces feel related,
    but navy-led rather than terracotta-led, to sit with the navy
    Blaugust badge set. Sky tokens only, so it inverts on night.
@@ -10480,8 +10480,9 @@ h2.feed-label {
   margin:2rem 0 2.5rem;
   font-family:var(--font-body);
 }
-.bstats-eyebrow{
+.bstats .bstats-eyebrow{
   font-family:var(--font-body);
+  line-height:1.3;
   font-size:0.82rem;
   font-weight:700;
   letter-spacing:0.14em;
@@ -10493,12 +10494,12 @@ h2.feed-label {
 }
 
 /* --- tiles --- */
-.bstats-grid{
+.bstats .bstats-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
 }
-.bstat{
+.bstats .bstat{
   background:var(--color-bg-card);
   border:1px solid var(--color-border);
   border-radius:8px;
@@ -10510,17 +10511,19 @@ h2.feed-label {
   min-width:0;
   min-height:118px;
 }
-.bstat > *{flex-shrink:0}
+.bstats .bstat > *{flex-shrink:0}
 
-.bstat-label{
+.bstats .bstat-label{
   font-family:var(--font-body);
+  line-height:1.3;
+  margin:0;
   font-size:0.68rem;
   font-weight:700;
   letter-spacing:0.12em;
   text-transform:uppercase;
   color:var(--color-navy-mid);
 }
-.bstat-value{
+.bstats .bstat-value{
   font-family:var(--font-display);
   font-weight:800;
   font-size:2.2rem;
@@ -10529,35 +10532,39 @@ h2.feed-label {
   color:var(--color-navy);
   overflow-wrap:anywhere;
 }
-.bstat-value small{
+.bstats .bstat-value small{
   font-size:0.5em;
   font-weight:700;
   letter-spacing:0;
   margin-left:0.05em;
 }
-.bstat-value--title{
+.bstats .bstat-value--title{
   font-size:1.15rem;
   font-weight:700;
   line-height:1.32;
   letter-spacing:-0.01em;
   margin:0.15rem 0 0.1rem;
 }
-.bstat .bstat-value--title a{
+.bstats .bstat .bstat-value--title a{
   color:var(--color-navy);
   text-decoration:underline;
   text-underline-offset:4px;
   text-decoration-thickness:1px;
 }
-.bstat .bstat-value--title a:hover{color:var(--color-terra-text)}
-.bstat-note{
+.bstats .bstat .bstat-value--title a:hover{color:var(--color-terra-text)}
+.bstats .bstat-note{
   font-size:0.875rem;
   color:var(--color-text-light);
 }
 
 /* --- also filed under --- */
-.bstats-topics{margin-top:1.1rem}
-.bstats-topics .bstat-label{margin:0 0 0.5rem}
-.bstats-topic-list{
+/* Selectors carry ".bstats" on purpose: the page-body list rule
+   (:is(.page-body …) ul → disc + 40px indent) scores (0,1,1) and the
+   site LINKS group scores (0,2,1). Anything lighter than these loses
+   and the pills grow bullets and turn terracotta. Seen live Aug 31. */
+.bstats .bstats-topics{margin-top:1.1rem}
+.bstats .bstats-topics .bstat-label{margin:0 0 0.5rem}
+.bstats ul.bstats-topic-list{
   list-style:none;
   margin:0;
   padding:0;
@@ -10565,8 +10572,15 @@ h2.feed-label {
   flex-wrap:wrap;
   gap:0.45rem;
 }
-.bstats-topic-list li{margin:0;padding:0}
-.bstats-topic-list a{
+.bstats .bstats-topic-list li{
+  list-style:none;
+  display:block;
+  margin:0;
+  padding:0;
+}
+.bstats .bstats-topic-list li::before,
+.bstats .bstats-topic-list li::marker{content:none;display:none}
+.bstats .bstats-topic-list li a{
   display:inline-flex;
   align-items:center;
   gap:0.45rem;
@@ -10581,8 +10595,12 @@ h2.feed-label {
   text-decoration:none;
   line-height:1.2;
 }
-.bstats-topic-list a:hover{border-color:var(--color-navy);color:var(--color-navy)}
-.bstats-topic-count{
+.bstats .bstats-topic-list li a:hover{
+  border-color:var(--color-navy);
+  color:var(--color-navy);
+  text-decoration:none;
+}
+.bstats .bstats-topic-count{
   font-family:var(--font-display);
   font-weight:800;
   font-size:0.8rem;
@@ -10596,8 +10614,8 @@ h2.feed-label {
 
 /* --- phone --- */
 @media (max-width:640px){
-  .bstats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .bstat{padding:0.9rem 1rem;min-height:104px}
-  .bstat-value{font-size:1.8rem}
-  .bstat-value--title{font-size:1.05rem}
+  .bstats .bstats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .bstats .bstat{padding:0.9rem 1rem;min-height:104px}
+  .bstats .bstat-value{font-size:1.8rem}
+  .bstats .bstat-value--title{font-size:1.05rem}
 }

@@ -20,6 +20,10 @@
 {{ $longestTitle := "" }}
 {{ $longestURL := "" }}
 {{ $longestDate := "" }}
+{{ $shortestWords := 999999 }}
+{{ $shortestTitle := "" }}
+{{ $shortestURL := "" }}
+{{ $shortestDate := "" }}
 {{ $mc := dict }}
 {{ $cats := dict }}
 {{ $days := slice }}
@@ -59,6 +63,12 @@
         {{ $longestURL = .RelPermalink }}
         {{ $longestDate = .Date.Format "January 2" }}
       {{ end }}
+      {{ if and .Title (lt $w $shortestWords) }}
+        {{ $shortestWords = $w }}
+        {{ $shortestTitle = .Title }}
+        {{ $shortestURL = .RelPermalink }}
+        {{ $shortestDate = .Date.Format "January 2" }}
+      {{ end }}
     {{ end }}
   {{ end }}
 {{ end }}
@@ -66,12 +76,21 @@
 {{ $avg := 0 }}
 {{ if gt $counted 0 }}{{ $avg = div $words $counted }}{{ end }}
 
+{{/* Reading time: total words / 212, rounded once. Never sum per-post
+     .ReadingTime — each is rounded up, so hundreds of posts overcount
+     badly. Same rule as blaugust-stats.html. */}}
+{{ $readMins := math.Ceil (div (float $words) 212.0) }}
+{{ $readH := math.Floor (div $readMins 60) }}
+{{ $readM := mod (int $readMins) 60 }}
+
 {{ $sorted := sort $posts "Date" "asc" }}
 {{ $firstPost := index $sorted 0 }}
 {{ $lastPost := index (sort $posts "Date" "desc") 0 }}
 
 {{ $uniqDays := uniq (sort $days) }}
 {{ $maxGap := 0 }}
+{{ $maxStreak := 0 }}
+{{ $runStreak := 0 }}
 {{ $prev := "" }}
 {{ range $uniqDays }}
   {{ if $prev }}
@@ -79,7 +98,11 @@
     {{ $d2 := time.AsTime . }}
     {{ $g := int (div (sub $d2.Unix $d1.Unix) 86400) }}
     {{ if gt $g $maxGap }}{{ $maxGap = $g }}{{ end }}
+    {{ if eq $g 1 }}{{ $runStreak = add $runStreak 1 }}{{ else }}{{ $runStreak = 1 }}{{ end }}
+  {{ else }}
+    {{ $runStreak = 1 }}
   {{ end }}
+  {{ if gt $runStreak $maxStreak }}{{ $maxStreak = $runStreak }}{{ end }}
   {{ $prev = . }}
 {{ end }}
 
@@ -166,6 +189,21 @@
       <div class="fact a-perday">
         <span class="fact-label">Per day</span>
         <span class="fact-value">{{ $perDay }}</span>
+      </div>
+      <div class="fact a-read">
+        <span class="fact-label">Reading time</span>
+        <span class="fact-value">{{ if gt $readH 0.0 }}{{ int $readH }}h {{ end }}{{ $readM }}m</span>
+        <span class="fact-note">start to finish</span>
+      </div>
+      <div class="fact a-streak">
+        <span class="fact-label">Longest streak</span>
+        <span class="fact-value">{{ $maxStreak }}</span>
+        <span class="fact-note">days</span>
+      </div>
+      <div class="fact a-short">
+        <span class="fact-label">Shortest post</span>
+        <span class="fact-value fact-value--title"><a href="{{ $shortestURL }}">{{ $shortestTitle }}</a></span>
+        <span class="fact-note">{{ $shortestWords }} words &middot; {{ $shortestDate }}</span>
       </div>
       <div class="fact a-long">
         <span class="fact-label">Longest post</span>

@@ -9124,12 +9124,13 @@ body.tgo-night {
 .factgrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:repeat(4,128px);
+  grid-template-rows:repeat(5,128px);
   grid-template-areas:
     "words words first  first"
     "words words recent recent"
-    "busy   avg    photo gap"
-    "long   long   photo perday";
+    "busy   avg    photo  gap"
+    "read   streak photo  perday"
+    "short  short  long   long";
   gap:10px;
 }
 .fact{
@@ -9156,6 +9157,9 @@ body.tgo-night {
 .a-photo{grid-area:photo}
 .a-gap{grid-area:gap}
 .a-long{grid-area:long}
+.a-short{grid-area:short}
+.a-read{grid-area:read}
+.a-streak{grid-area:streak}
 .a-perday{grid-area:perday}
 
 .fact-label{
@@ -9177,12 +9181,15 @@ body.tgo-night {
 }
 .a-words .fact-value{font-size:3rem}
 .a-first .fact-value,.a-recent .fact-value,.a-long .fact-value{font-size:1.9rem}
+.a-read .fact-value{font-size:1.9rem}
+.a-streak .fact-value{font-size:2.4rem}
 .a-busy .fact-value,.a-avg .fact-value,
 .a-gap .fact-value,.a-perday .fact-value{font-size:2.4rem}
 
 .fact .fact-value--title,
 .a-first .fact-value--title,
 .a-recent .fact-value--title,
+.a-short .fact-value--title,
 .a-long .fact-value--title{
   font-family:var(--font-display);
   font-weight:700;
@@ -9450,17 +9457,24 @@ body.tgo-night .fact-value{color:var(--color-text)}
       "recent recent"
       "photo gap"
       "photo perday"
+      "read read"
+      "streak streak"
+      "short short"
       "long long";
-    grid-template-rows:96px 96px 108px 108px 96px 96px 108px;
+    grid-template-rows:96px 96px 108px 108px 96px 96px 96px 96px 108px 108px;
     gap:8px;
   }
   .a-words .fact-value{font-size:2.1rem}
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
   .a-gap .fact-value,.a-perday .fact-value,
-  .a-busy .fact-value,.a-avg .fact-value{font-size:1.9rem}
+  .a-busy .fact-value,.a-avg .fact-value,
+  .a-read .fact-value,
+  .a-streak .fact-value{font-size:1.9rem}
   .fact .fact-value--title,
   .a-first .fact-value--title,
-  .a-recent .fact-value--title{font-size:1rem}
+  .a-recent .fact-value--title,
+  .a-short .fact-value--title,
+  .a-long .fact-value--title{font-size:1rem}
   .fact{padding:0.9rem 1rem}
   .fact-value{font-size:1.15rem}
   .fact-label{font-size:0.62rem;letter-spacing:0.08em}

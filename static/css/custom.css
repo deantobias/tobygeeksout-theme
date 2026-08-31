@@ -10450,3 +10450,140 @@ h2.feed-label {
   letter-spacing:0.1em;     /* BG is wider than Inter; 2px / .125em was airy */
   font-size:0.85rem;        /* a hair up so the lighter weight still leads the row */
 }
+
+
+/* ============================================================
+   93 · BLAUGUST STATS   (Aug 31, 2026)
+   ------------------------------------------------------------
+   layouts/shortcodes/blaugust-stats.html, dropped on the
+   /blaugust-2026 page under the badges. Same tile language as
+   The Pulse (section 89) so the two stats surfaces feel related,
+   but navy-led rather than terracotta-led, to sit with the navy
+   Blaugust badge set. Sky tokens only, so it inverts on night.
+   ============================================================ */
+
+.bstats{
+  margin:2rem 0 2.5rem;
+  font-family:var(--font-body);
+}
+.bstats-eyebrow{
+  font-family:var(--font-body);
+  font-size:0.82rem;
+  font-weight:700;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--color-navy);
+  margin:0 0 0.9rem;
+  padding-bottom:0.5rem;
+  border-bottom:2px solid var(--color-navy);
+}
+
+/* --- tiles --- */
+.bstats-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.bstat{
+  background:var(--color-bg-card);
+  border:1px solid var(--color-border);
+  border-radius:8px;
+  padding:1.05rem 1.2rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0.2rem;
+  min-width:0;
+  min-height:118px;
+}
+.bstat > *{flex-shrink:0}
+
+.bstat-label{
+  font-family:var(--font-body);
+  font-size:0.68rem;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--color-navy-mid);
+}
+.bstat-value{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:2.2rem;
+  line-height:1.1;
+  letter-spacing:-0.02em;
+  color:var(--color-navy);
+  overflow-wrap:anywhere;
+}
+.bstat-value small{
+  font-size:0.5em;
+  font-weight:700;
+  letter-spacing:0;
+  margin-left:0.05em;
+}
+.bstat-value--title{
+  font-size:1.15rem;
+  font-weight:700;
+  line-height:1.32;
+  letter-spacing:-0.01em;
+  margin:0.15rem 0 0.1rem;
+}
+.bstat .bstat-value--title a{
+  color:var(--color-navy);
+  text-decoration:underline;
+  text-underline-offset:4px;
+  text-decoration-thickness:1px;
+}
+.bstat .bstat-value--title a:hover{color:var(--color-terra-text)}
+.bstat-note{
+  font-size:0.875rem;
+  color:var(--color-text-light);
+}
+
+/* --- also filed under --- */
+.bstats-topics{margin-top:1.1rem}
+.bstats-topics .bstat-label{margin:0 0 0.5rem}
+.bstats-topic-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.45rem;
+}
+.bstats-topic-list li{margin:0;padding:0}
+.bstats-topic-list a{
+  display:inline-flex;
+  align-items:center;
+  gap:0.45rem;
+  padding:0.32rem 0.7rem 0.32rem 0.85rem;
+  border:1px solid var(--color-border);
+  border-radius:999px;
+  background:var(--color-bg-card);
+  color:var(--color-navy);
+  font-family:var(--font-body);
+  font-size:0.875rem;
+  font-weight:600;
+  text-decoration:none;
+  line-height:1.2;
+}
+.bstats-topic-list a:hover{border-color:var(--color-navy);color:var(--color-navy)}
+.bstats-topic-count{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:0.8rem;
+  color:var(--color-btn-ink);
+  background:var(--color-navy);
+  border-radius:999px;
+  min-width:1.5em;
+  padding:0.12em 0.45em;
+  text-align:center;
+}
+
+/* --- phone --- */
+@media (max-width:640px){
+  .bstats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .bstat{padding:0.9rem 1rem;min-height:104px}
+  .bstat-value{font-size:1.8rem}
+  .bstat-value--title{font-size:1.05rem}
+}

@@ -1,0 +1,140 @@
+{{/* BLAUGUST STATS - by-the-numbers block for the Blaugust page.
+     (Aug 31, 2026) Pairs with custom.css section 93.
+
+     Usage on a Micro.blog page or post:
+         {{< blaugust-stats >}}              current year
+         {{< blaugust-stats year="2026" >}}  a specific run
+
+     Counts every post in the "Blaugust <year>" category, the same
+     category the badge (blaugust-badge.html) and the meta count
+     (challenge-count.html) key off, so the three always agree.
+
+     Words are counted the way The Pulse counts them (pulse.html):
+     card markup (movie / book / link cards, card quotes) is stripped
+     first, then the plain text is split on whitespace. Hugo's own
+     .WordCount would include card boilerplate. Reading time is total
+     words at Hugo's default 212 words a minute, NOT the sum of each
+     post's .ReadingTime, which rounds every post up to a whole minute
+     and overcounts.
+
+     Below the tiles: every OTHER category the Blaugust posts carry,
+     with a count, linking to the category page. Toby's call (Aug 31),
+     replacing an earlier long/short split. Skips the Blaugust
+     category itself and the placement/retired categories that
+     cat-priority.html also ignores (Micro, Bookshelf).
+
+     Renders nothing if the category has no posts, so it is safe on
+     a page that is published before the run starts. */}}
+
+{{- $year := int (.Get "year" | default (now.Format "2006")) -}}
+{{- $cat := printf "Blaugust %d" $year -}}
+{{- $goal := 31 -}}
+{{- $posts := where .Site.RegularPages "Params.categories" "intersect" (slice $cat) -}}
+
+{{- if gt (len $posts) 0 -}}
+
+{{- $total := len $posts -}}
+{{- $isCurrent := and (eq $year (int (now.Format "2006"))) (eq (now.Format "1") "8") -}}
+
+{{- $words := 0 -}}
+{{- $cats := dict -}}
+{{- $longestWords := 0 -}}
+{{- $longestTitle := "" -}}
+{{- $longestURL := "" -}}
+{{- $longestDate := "" -}}
+{{- $shortestWords := 0 -}}
+{{- $shortestTitle := "" -}}
+{{- $shortestURL := "" -}}
+{{- $shortestDate := "" -}}
+
+{{- range $posts -}}
+  {{- range .Params.categories -}}
+    {{- $k := printf "%v" . -}}
+    {{- $lk := lower $k -}}
+    {{- if and (ne $k $cat) (ne $lk "micro") (ne $lk "bookshelf") -}}
+      {{- $cats = merge $cats (dict $k (add (int (index $cats $k | default 0)) 1)) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $c := .Content -}}
+  {{- $c = replaceRE `(?s)<blockquote[^>]*class="[^"]*card-quote[^"]*"[^>]*>.*?</blockquote>` "" $c -}}
+  {{- $c = replaceRE `(?s)<p[^>]*class="[^"]*link-desc[^"]*"[^>]*>.*?</p>` "" $c -}}
+  {{- $c = replaceRE `(?s)<table[^>]*class="[^"]*(movie-card|book-card|link-card)[^"]*"[^>]*>.*?</table>` "" $c -}}
+  {{- $plain := trim (replaceRE `\s+` " " ($c | htmlUnescape | plainify)) " " -}}
+  {{- $w := 0 -}}
+  {{- if gt (len $plain) 0 -}}{{- $w = len (split $plain " ") -}}{{- end -}}
+  {{- $words = add $words $w -}}
+  {{- if gt $w $longestWords -}}
+    {{- $longestWords = $w -}}
+    {{- $longestTitle = .Title -}}
+    {{- if not $longestTitle -}}{{- $longestTitle = $plain | truncate 40 -}}{{- end -}}
+    {{- $longestURL = .RelPermalink -}}
+    {{- $longestDate = .Date.Format "January 2" -}}
+  {{- end -}}
+  {{- if and (gt $w 0) (or (eq $shortestWords 0) (lt $w $shortestWords)) -}}
+    {{- $shortestWords = $w -}}
+    {{- $shortestTitle = .Title -}}
+    {{- if not $shortestTitle -}}{{- $shortestTitle = $plain | truncate 40 -}}{{- end -}}
+    {{- $shortestURL = .RelPermalink -}}
+    {{- $shortestDate = .Date.Format "January 2" -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $avg := div $words $total -}}
+{{- $minutes := int (math.Ceil (div (float $words) 212.0)) -}}
+{{- $avgMin := int (math.Ceil (div (float $avg) 212.0)) -}}
+{{- $hours := div $minutes 60 -}}
+{{- $rem := mod $minutes 60 -}}
+{{- $topics := slice -}}
+{{- range $k, $v := $cats -}}{{- $topics = $topics | append (dict "name" $k "count" $v) -}}{{- end -}}
+{{- $topics = sort $topics "count" "desc" -}}
+
+<section class="bstats" aria-label="{{ $cat }} by the numbers">
+  <p class="bstats-eyebrow">{{ $cat }} &middot; by the numbers{{ if $isCurrent }} &middot; through {{ now.Format "August 2" }}{{ end }}</p>
+
+  <div class="bstats-grid">
+    <div class="bstat">
+      <span class="bstat-label">Posts</span>
+      <span class="bstat-value">{{ $total }}</span>
+      <span class="bstat-note">{{ if lt $total $goal }}of {{ $goal }} days{{ else }}in {{ $goal }} days{{ end }}</span>
+    </div>
+    <div class="bstat">
+      <span class="bstat-label">Words</span>
+      <span class="bstat-value">{{ lang.FormatNumberCustom 0 $words }}</span>
+      <span class="bstat-note">across {{ $total }} post{{ if ne $total 1 }}s{{ end }}</span>
+    </div>
+    <div class="bstat">
+      <span class="bstat-label">Reading time</span>
+      <span class="bstat-value">{{ if gt $hours 0 }}{{ $hours }}<small>h</small> {{ $rem }}<small>m</small>{{ else }}{{ $minutes }}<small>min</small>{{ end }}</span>
+      <span class="bstat-note">to read the whole run</span>
+    </div>
+    <div class="bstat">
+      <span class="bstat-label">Average</span>
+      <span class="bstat-value">{{ lang.FormatNumberCustom 0 $avg }}</span>
+      <span class="bstat-note">words per post &middot; {{ $avgMin }} min read</span>
+    </div>
+    <div class="bstat">
+      <span class="bstat-label">Shortest post</span>
+      <span class="bstat-value bstat-value--title"><a href="{{ $shortestURL }}">{{ $shortestTitle }}</a></span>
+      <span class="bstat-note">{{ $shortestWords }} words &middot; {{ $shortestDate }}</span>
+    </div>
+    <div class="bstat">
+      <span class="bstat-label">Longest post</span>
+      <span class="bstat-value bstat-value--title"><a href="{{ $longestURL }}">{{ $longestTitle }}</a></span>
+      <span class="bstat-note">{{ lang.FormatNumberCustom 0 $longestWords }} words &middot; {{ $longestDate }}</span>
+    </div>
+  </div>
+
+  {{- with $topics }}
+  <div class="bstats-topics">
+    <p class="bstat-label">Also filed under</p>
+    <ul class="bstats-topic-list">
+      {{- range . }}
+      <li><a href="{{ "/categories/" | relURL }}{{ .name | replaceRE "#" "" | urlize }}/">{{ .name }}<span class="bstats-topic-count">{{ .count }}</span></a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+</section>
+
+{{- end -}}

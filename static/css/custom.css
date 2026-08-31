@@ -10618,3 +10618,145 @@ h2.feed-label {
   .bstats .bstat-value{font-size:1.8rem}
   .bstats .bstat-value--title{font-size:1.05rem}
 }
+
+/* ============================================
+   94. THEME CHANGELOG (/changelog/)
+   Timeline of theme work. Tokens only, so it
+   rides all five skies. Prefixed .tg-changelog
+   to keep .page-body rules from leaking in.
+   ============================================ */
+
+.tg-changelog {
+  margin-top: 0.5rem;
+}
+
+.tg-changelog .clog-dateline {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+}
+
+.tg-changelog .clog-fineprint {
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  margin: 0 0 2.5rem;
+}
+
+.tg-changelog .clog-month {
+  margin: 0 0 3rem;
+}
+
+.tg-changelog .clog-month-head {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  border-bottom: 3px solid var(--color-navy);
+  padding-bottom: 0.35rem;
+  margin: 0 0 1.75rem;
+}
+
+/* the timeline spine */
+.tg-changelog .clog-entries {
+  border-left: 2px solid var(--color-border);
+  margin-left: 0.5rem;
+  padding-left: 1.9rem;
+}
+
+.tg-changelog .clog-entry {
+  position: relative;
+  margin: 0 0 2.4rem;
+}
+
+.tg-changelog .clog-entry:last-child {
+  margin-bottom: 0.5rem;
+}
+
+/* terracotta dot on the spine */
+.tg-changelog .clog-entry::before {
+  content: "";
+  position: absolute;
+  left: calc(-1.9rem - 7px);
+  top: 0.5em;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-terra);
+  border: 2px solid var(--color-bg);
+  box-sizing: border-box;
+}
+
+.tg-changelog .clog-head {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 0.6rem;
+}
+
+.tg-changelog .clog-date {
+  color: var(--color-terra-text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.tg-changelog .clog-title {
+  color: var(--color-navy);
+}
+
+.tg-changelog .clog-note,
+.tg-changelog .clog-list li {
+  font-family: var(--font-reading);
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.tg-changelog .clog-note {
+  margin: 0;
+}
+
+.tg-changelog .clog-list {
+  list-style: disc;
+  margin: 0;
+  padding-left: 1.3rem;
+}
+
+.tg-changelog .clog-list li {
+  margin: 0 0 0.55rem;
+}
+
+.tg-changelog .clog-list li::marker {
+  color: var(--color-terra);
+}
+
+@media (max-width: 639px) {
+  .tg-changelog .clog-entries {
+    margin-left: 0.2rem;
+    padding-left: 1.4rem;
+  }
+  .tg-changelog .clog-entry::before {
+    left: calc(-1.4rem - 6px);
+    width: 10px;
+    height: 10px;
+  }
+  .tg-changelog .clog-head {
+    font-size: 1.15rem;
+  }
+  .tg-changelog .clog-note,
+  .tg-changelog .clog-list li {
+    font-size: 1.1rem;
+  }
+}

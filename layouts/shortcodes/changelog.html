@@ -1,0 +1,422 @@
+{{- /*
+  changelog.html - Theme changelog timeline for /changelog/
+  Usage on a page: put the shortcode on its own line.
+  Content is hand-maintained; newest entries at the top.
+  Styles: custom.css section 94 (.tg-changelog).
+*/ -}}
+<div class="tg-changelog">
+<p class="clog-dateline">66 logged work days &middot; March 27 &ndash; August 31, 2026</p>
+<p class="clog-fineprint">A quick note: the very minor stuff &mdash; tiny one-line fixes, spacing nudges, behind-the-scenes housekeeping &mdash; is not recorded here. This is just the work worth mentioning.</p>
+<section class="clog-month">
+<h2 class="clog-month-head">August 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 31</span> <span class="clog-title">Blaugust wrap-up + this very page</span></h3>
+<ul class="clog-list">
+<li>Added the page you are reading right now: /changelog/, a timeline of every logged theme work day since March, built as its own shortcode.</li>
+<li>New blaugust-stats shortcode on /blaugust/: a tile grid with posts, words, reading time, and averages, plus “Also filed under” category pills.</li>
+<li>Word counting mirrors The Pulse so the two pages can never disagree.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 29</span> <span class="clog-title">Home page, take two</span></h3>
+<ul class="clog-list">
+<li>Home “Recent Geekouts” rebuilt as a ledger: a featured newest post with kicker and summary, the rest as rows with photos and read times, and every home section under a proper heading with a “more” link.</li>
+<li>The calendar tally moved beside the year picker and now counts distinct posting days; fixed the page leaking its loading text into social cards.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 28</span> <span class="clog-title">Single post redesign</span></h3>
+<ul class="clog-list">
+<li>Titled posts got a priority category pill, a challenge count in the meta line, and a “Keep reading” older/newer pager in place of related posts.</li>
+<li>The post title now slides into the compact header on scroll, with reading time and progress percent.</li>
+<li>Sky toggle reworked into an always-visible three-state pill: Sky, Night, Day.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 25</span> <span class="clog-title">Milestone badge rescue</span></h3>
+<p class="clog-note">Restored the gold day-25 Blaugust badge after a theme re-sync ate the live-only edit — badge markup now lives safely in the challenge-mark partial.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 23</span> <span class="clog-title">The Pulse</span></h3>
+<ul class="clog-list">
+<li>New /the-pulse/ self-updating stats page: hero post count, a nine-tile mosaic, month bars, and a ranked category map — with honest word-count rules.</li>
+<li>Archive blurbs and social descriptions finally decode HTML entities; 165 of them had a literal &amp;rsquo; showing.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 22</span> <span class="clog-title">Post calendar</span></h3>
+<ul class="clog-list">
+<li>New /calendar/ page: a year-view calendar of every post with a year switcher and per-day panels.</li>
+<li>Squashed a sneaky Hugo bug where emoji titles quietly made posts vanish from the count.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 21</span> <span class="clog-title">Re-sync recovery</span></h3>
+<ul class="clog-list">
+<li>Micro.blog’s theme re-sync turned out to be a full replace and wiped five live-only files — all recovered the same morning. GitHub is now the source of truth.</li>
+<li>New nav-icon partial ended the duplicate-icon bug; descender-free links get a snug optical underline; movie card links finally underline on hover.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 19</span> <span class="clog-title">Print support + social cards</span></h3>
+<ul class="clog-list">
+<li>Full print stylesheet and a print button on posts, tuned with an 800-post page-fit audit.</li>
+<li>Social shares now get og:image support: the post’s first real photo, or a branded fallback card.</li>
+<li>New Word Nerd Alert band on the home page; standalone pages moved from the rail to the compact top nav.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 18</span> <span class="clog-title">Accessibility pass</span></h3>
+<ul class="clog-list">
+<li>WCAG 2.1 AA color audit across all five skies: 803 contrast violations down to zero, with new text tokens and a night-flipping button pair.</li>
+<li>Newsletter echo cards now match the actual email, and the analytics script moved to explicit HTTPS.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 17</span> <span class="clog-title">Blaugust progress tracker</span></h3>
+<p class="clog-note">Bullet-journal-style tracker on /blaugust/ with 31 day squares that fill themselves in — dots instead of squares on phones.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 16</span> <span class="clog-title">Fingerspelling experiment + newsletter polish</span></h3>
+<ul class="clog-list">
+<li>Experiment, never kept: built an ASL fingerspelling animation for the “Recent Geekouts” heading, iterated it all day, then pulled it the same day — the techniques are saved for another time.</li>
+<li>Newsletter preview hardened to be truly email-true, right down to Gmail’s blue links.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 15</span> <span class="clog-title">Badge tiers</span></h3>
+<p class="clog-note">Milestone tier badges (Blauginner through Rainbow) now stamp the Blaugust ticket at days 1, 5, 15, 25, and 31; fixed the cut-off badge row on phones.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 13</span> <span class="clog-title">Mentioned Elsewhere</span></h3>
+<ul class="clog-list">
+<li>New “Mentioned Elsewhere” card on posts for links from around the web — webmention receiving was already wired up.</li>
+<li>Fixed wavy underlines clipping descenders in post bodies and hid the rail scrollbar.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 12</span> <span class="clog-title">Mobile header bug, solved for real</span></h3>
+<ul class="clog-list">
+<li>Root-caused the recurring cut-off header on iOS: the script was measuring a scroll-collapsed header during URL-bar resizes.</li>
+<li>Fixed the rabbit mascot flickering after back-button navigation.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 11</span> <span class="clog-title">Challenge marks</span></h3>
+<p class="clog-note">Hand-drawn-style die-cut Blaugust ticket and a pressed #100DaysToOffload stamp, merged into one partial that counts challenge days at build time and restarts each year.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 6</span> <span class="clog-title">Button + underline fixes</span></h3>
+<p class="clog-note">Fixed the unreadable Discord button hover and some stubborn micro underline offsets.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 5</span> <span class="clog-title">Blog card ships</span></h3>
+<p class="clog-note">The 3D-offset blog card went live: navy border, offset shadow, terracotta on hover and at night.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 3</span> <span class="clog-title">Archive nav + footer fixes</span></h3>
+<ul class="clog-list">
+<li>Fixed the archive nav never lighting up — turns out /archive/ thinks it is the home page.</li>
+<li>The footer copyright finally wraps on phones and foldables.</li>
+<li>Designed three blog-card variants for Perch links and picked the 3D offset.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 2</span> <span class="clog-title">Contact page + Blaugust page</span></h3>
+<ul class="clog-list">
+<li>New /contact/ page with a Letterbird form matched to the theme.</li>
+<li>/blaugust got a self-counting tally and constellation badges that swap in automatically as the month goes on.</li>
+<li>New shortcode pulls the OULDHH feed onto /now/ at build time.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Aug 1</span> <span class="clog-title">Archive counts + post badges</span></h3>
+<ul class="clog-list">
+<li>Post-count pills on archive year and month headings.</li>
+<li>Automatic “Post N of 31” badge on every Blaugust post.</li>
+</ul>
+</article>
+</div>
+</section>
+<section class="clog-month">
+<h2 class="clog-month-head">July 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 31</span> <span class="clog-title">The Bookmark</span></h3>
+<ul class="clog-list">
+<li>New /the-bookmark/ reading calendar: month view with day popups, a reading-log toggle, and a goal meter with real book covers.</li>
+<li>/reading/ rebuilt with self-counting pills so the labels can never drift.</li>
+<li>The Queue got a small note explaining that dates are theatrical releases.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 29</span> <span class="clog-title">Connect & Share</span></h3>
+<ul class="clog-list">
+<li>Single posts now end with a Connect & Share card: follow by Email, RSS, or JSON, and share to Micro.blog, Bluesky, or Mastodon (it remembers your instance).</li>
+<li>The rabbit mascot shipped — peeking at the Spotlight banner with a once-a-day “Hey!”.</li>
+<li>Newsletter pages now preview exactly like Gmail renders them; The Queue learned three more release-date formats.</li>
+<li>Micro posts’ links were invisible on the home page — fixed with the terracotta wavy underline.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 28</span> <span class="clog-title">Queue + Watched on phones</span></h3>
+<p class="clog-note">Fixed date collisions on small screens — grid columns now size to the widest text instead of the poster.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 27</span> <span class="clog-title">The Watched page</span></h3>
+<ul class="clog-list">
+<li>New /watched/ page: every rated review with posters and star ratings, rebuilt straight from the posts.</li>
+<li>Category model settled once and for all; the Lora reading weight is now keyed to the sky, heavier by day and lighter at night.</li>
+<li>All the CSS sections renumbered 1 through 73.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 26</span> <span class="clog-title">3-D bookshelf + The Queue</span></h3>
+<ul class="clog-list">
+<li>Bookshelf covers now stand on a rendered wooden plank in 3-D, with fluid cover sizing for foldables.</li>
+<li>New /the-queue/ watchlist page grouping upcoming releases into Out now, months, and bare years.</li>
+<li>Set up a local Hugo test rig — it caught a build breaker on day one.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 25</span> <span class="clog-title">Covers everywhere + plug-in purge</span></h3>
+<ul class="clog-list">
+<li>Book covers and movie posters now show in the home Bookshelf and Reel sections.</li>
+<li>Removed the Blogroll and FeedLand plug-ins: jQuery and Bootstrap gone, page requests down from 36 to 25.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 24</span> <span class="clog-title">Mascot sketches</span></h3>
+<ul class="clog-list">
+<li>Designed the corner-greeter rabbit in mockups (Canva art, pop-in, speech bubble).</li>
+<li>Fixed single posts accidentally inheriting the rail sidebar.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 22</span> <span class="clog-title">The rail + Lora</span></h3>
+<ul class="clog-list">
+<li>The big one: a desktop rail sidebar with avatar, nav, subscribe block, and sky toggle — and Lora became the reading font.</li>
+<li>Home page rebuilt around it: Spotlight, Recent Geekouts, Micros, The Bookshelf with live progress bars, Reel and Remote, and Browse by Category.</li>
+<li>Footer and Spotlight simplified to ride the sky instead of carrying their own colors.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 19</span> <span class="clog-title">Favicon</span></h3>
+<p class="clog-note">The favicon now follows the profile avatar automatically.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 18</span> <span class="clog-title">Gradient titles</span></h3>
+<p class="clog-note">Post titles now render a navy-to-terracotta gradient built from sky tokens, so it adapts to all five skies; excerpts got a soft tease fade.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 16</span> <span class="clog-title">Email-safe echoes</span></h3>
+<p class="clog-note">Attribution pill v2 for echoed posts: table-based and email-safe, with the squished-avatar bug fixed.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 15</span> <span class="clog-title">Sky toggle in the header</span></h3>
+<p class="clog-note">The sky toggle moved from a footer text link to a sun icon in the header, and night pages now paint dark from the very first frame.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 14</span> <span class="clog-title">Captions follow the sky</span></h3>
+<p class="clog-note">Social embed captions switched to theme tokens so they shift with the sky like everything else.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 13</span> <span class="clog-title">Night-proofing sweep</span></h3>
+<ul class="clog-list">
+<li>Retired the banner post header for a plain title with a small terracotta accent rule.</li>
+<li>Swept the whole stylesheet for hardcoded colors that broke at night, and added a dropcap style.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 12</span> <span class="clog-title">The sky ships</span></h3>
+<ul class="clog-list">
+<li>Sunrise/sunset theme went live: the whole site moves through five skies — day, dawn, sunset, dusk, night — on the reader’s clock, with a contrast guard and a sunset logo swap.</li>
+<li>Reworked the same day after a live readability problem: continuous color blending replaced with five fixed skies.</li>
+<li>Newsletters pinned to paper-day colors so they read like email even at night.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 11</span> <span class="clog-title">Home overhaul</span></h3>
+<ul class="clog-list">
+<li>Spotlight marquee up top, the feed capped at six recent posts, and a “View the full archive” button instead of numbered pagination.</li>
+<li>Stationary back pill on mobile posts; microformats added for webmentions.</li>
+<li>Fixed the archive quietly stopping at April (a stale shadow template).</li>
+<li>The reply icon now stays anchored to the first line when a long link title wraps on mobile.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 10</span> <span class="clog-title">The logo</span></h3>
+<ul class="clog-list">
+<li>The image logo replaced the text wordmark site-wide, tuned across every breakpoint.</li>
+<li>Closed up the gap between the new logo and the about strip.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 9</span> <span class="clog-title">Perch Mail</span></h3>
+<ul class="clog-list">
+<li>Newsletter pages rebuilt as a two-panel email-client layout: issue list on one side, reader on the other.</li>
+<li>Header avatar with an idle bob, a warm terracotta featured marquee, a skip-to-content link, a real search form, and a keyboard-aware mobile tab bar.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 8</span> <span class="clog-title">Header gap fix</span></h3>
+<p class="clog-note">Chased a 40px phantom gap above newsletter cards to one stale variable living in three different places.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 7</span> <span class="clog-title">View transitions</span></h3>
+<ul class="clog-list">
+<li>Cross-document view transitions shipped after a long flicker hunt — pages now slide instead of blinking.</li>
+<li>New replying-to block for reply posts with a dashed thread line; link preview cards remapped to theme tokens.</li>
+<li>Home avatar swapped to the orange-circle art with “Hi, I’m Toby”.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jul 3</span> <span class="clog-title">More like this</span></h3>
+<p class="clog-note">Related posts rewritten with multi-category scoring and a three-column card grid.</p>
+</article>
+</div>
+</section>
+<section class="clog-month">
+<h2 class="clog-month-head">June 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 29</span> <span class="clog-title">Light/dark mockup</span></h3>
+<p class="clog-note">Experiment, never implemented: a light/dark toggle mockup with a proposed dark token map. It was set aside, but it planted the seed for what later became the sky theme.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 28</span> <span class="clog-title">Fold tuning</span></h3>
+<p class="clog-note">Softened the post header terracotta, moved pills to navy, fixed Samsung Fold font sizing, and ran a full color audit.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 27</span> <span class="clog-title">Glass capsule header</span></h3>
+<ul class="clog-list">
+<li>Experiment, removed later: the navy header morphed into a floating frosted-glass pill on scroll, with a progress bar and a shrinking logo — replaced down the road by the rail and compact header.</li>
+<li>Post headers redesigned as full-bleed terracotta banners (also retired later), and Bricolage Grotesque arrived for the logo.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 26</span> <span class="clog-title">Inter actually loads now</span></h3>
+<p class="clog-note">Fixed mobile-only bold paragraphs: the body font’s @font-face had no source, so it had never loaded at all.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 24</span> <span class="clog-title">Newsletter pages</span></h3>
+<ul class="clog-list">
+<li>Newsletter list styled with numbered entries and a banner; new newsletter single template with prev/next.</li>
+<li>Fixed a site-breaking stray template tag that had been silently truncating the home page.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Jun 8</span> <span class="clog-title">Rhythm + mosaics</span></h3>
+<p class="clog-note">Unified list styles and line-height across every content context, added a responsive photo mosaic for multi-image posts, and styled conversation replies as warm cards.</p>
+</article>
+</div>
+</section>
+<section class="clog-month">
+<h2 class="clog-month-head">May 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">May 30</span> <span class="clog-title">Reblog cards</span></h3>
+<p class="clog-note">Reblog quotes gained floating cover thumbnails and a new rounded card style with an attribution pill.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">May 28</span> <span class="clog-title">Threads + link cards</span></h3>
+<p class="clog-note">Drafted a Threads embed shortcode and designed the link preview card.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">May 27</span> <span class="clog-title">Card link underlines</span></h3>
+<p class="clog-note">Book and movie card links got their terracotta underlines back.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">May 24</span> <span class="clog-title">Blockquote glow-up</span></h3>
+<p class="clog-note">Blockquotes moved to a terracotta left border with a faint oversized decorative quote mark behind the text.</p>
+</article>
+</div>
+</section>
+<section class="clog-month">
+<h2 class="clog-month-head">April 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 19</span> <span class="clog-title">Bookshelf grid</span></h3>
+<p class="clog-note">Reading page shelves now fill cleanly on desktop, phones, and the Pixel Fold.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 18</span> <span class="clog-title">Reading + Now pages</span></h3>
+<ul class="clog-list">
+<li>Reading page restyled with a CSS wood-grain shelf and covers-only rows; the Now page fully redesigned with the navy Tinkering card and OULDHH badge.</li>
+<li>Mobile dates collapse to an editorial style: big day number up top, content full width.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 16</span> <span class="clog-title">Embed shortcodes fixed</span></h3>
+<ul class="clog-list">
+<li>The YouTube and Instagram shortcodes finally worked — the folder was named layout instead of layouts. One letter.</li>
+<li>YouTube got home-page thumbnails and Shorts support; Instagram got a proper embed with a newsletter fallback.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 14</span> <span class="clog-title">Keep reading</span></h3>
+<p class="clog-note">Related posts moved to multi-category overlap scoring with three buckets: best titled match, a couple of micros, and wildcards.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 13</span> <span class="clog-title">Sticky TOC mystery</span></h3>
+<ul class="clog-list">
+<li>The table of contents refused to stick because a browser extension was silently killing position: sticky. Fixed with one override.</li>
+<li>The year joined the date stack on post cards.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 11</span> <span class="clog-title">One card to rule them all</span></h3>
+<p class="clog-note">Micro cards and post cards merged into a single unified card, carousel controls rebuilt, and a performance pass with font preloads and critical CSS.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 6</span> <span class="clog-title">Feed rescue</span></h3>
+<p class="clog-note">One post had a stray bit of HTML inside it that broke the layout of every card below it on the home page — added guard rules so a single bad post can never wreck the whole feed again.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 5</span> <span class="clog-title">Pill consistency</span></h3>
+<p class="clog-note">Category pills standardized above the content on both card types, and a paste accident that doubled the dates cleaned up.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 3</span> <span class="clog-title">The carousel</span></h3>
+<p class="clog-note">Experiment, removed later: the static featured banner became a Splide fade carousel pulling from long-form posts — retired when the home page was redesigned that summer.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Apr 2</span> <span class="clog-title">Progress bar + TOC</span></h3>
+<p class="clog-note">Scroll progress bar added site-wide, and a table-of-contents sidebar built for long reads.</p>
+</article>
+</div>
+</section>
+<section class="clog-month">
+<h2 class="clog-month-head">March 2026</h2>
+<div class="clog-entries">
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Mar 31</span> <span class="clog-title">Blockquote consistency</span></h3>
+<p class="clog-note">Card blockquotes matched to the single-post treatment, and “Long Read” became “Long Posts”.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Mar 30</span> <span class="clog-title">Excerpt fix</span></h3>
+<p class="clog-note">Feed excerpts stopped stripping HTML — summaries keep their formatting now.</p>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Mar 29</span> <span class="clog-title">Archive, categories, pagination</span></h3>
+<ul class="clog-list">
+<li>Archive rewritten with year and month grouping; category pages rebuilt to match the home cards; homepage pagination and a search box added.</li>
+<li>Accessibility score jumped from 76 to 93.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Mar 28</span> <span class="clog-title">Nav + landing page</span></h3>
+<ul class="clog-list">
+<li>Subscribe joined the nav, a More dropdown appeared, and the desktop breakpoint was tuned for the Galaxy Z Fold 7.</li>
+<li>Home page rebuilt with an about strip, a subscribe strip, and a five-post feed.</li>
+<li>Single posts gained the Surprise Me button and related posts.</li>
+</ul>
+</article>
+<article class="clog-entry">
+<h3 class="clog-head"><span class="clog-date">Mar 27</span> <span class="clog-title">Where it all started</span></h3>
+<p class="clog-note">First logged session: page title alignment, theme-color meta, every category on the home page, and side-by-side prev/next on mobile.</p>
+</article>
+</div>
+</section>
+</div>

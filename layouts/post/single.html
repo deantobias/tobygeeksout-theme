@@ -92,10 +92,15 @@
     </div>
   </header>
 
-  {{ $isLongRead := false }}
-  {{ range .Params.categories }}
-    {{ if eq . "Long Read" }}{{ $isLongRead = true }}{{ end }}
-  {{ end }}
+  {{/* TOC sidebar gate (Sept 1, 2026) — used to require the "Long Read"
+       category, which meant a Blaugust post with four H2s got no TOC
+       just because it was never tagged. Now the headings decide: any
+       post with 3+ H2s in its body gets the two-column .post-layout and
+       the sidebar, whatever its categories. The script below re-checks
+       the live DOM with the same threshold, so a shortcode that injects
+       or strips headings can't leave an empty box behind. */}}
+  {{ $h2Count := len (findRE "<h2[\\s>]" .Content) }}
+  {{ $isLongRead := ge $h2Count 3 }}
 
   <div class="{{ if $isLongRead }}post-layout{{ end }}">
     <div class="post-body e-content">

@@ -108,7 +108,13 @@ body {
   font-family: var(--font-body);
   line-height: 1.7;
   overflow: visible !important;
-  overflow-x: hidden !important;
+  /* `clip`, not `hidden` (Sept 1, 2026). Since <html> got overflow-x: clip
+     (section 84) the body's overflow no longer propagates to the viewport,
+     so `hidden` made body its own scroll container (overflow-y computed to
+     auto). Nothing ever scrolled inside it, so position: sticky on the
+     TOC sidebar had no scrollport to stick to and just scrolled away.
+     clip clips without creating a scroll container; sticky works again. */
+  overflow-x: clip !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
@@ -7684,11 +7690,12 @@ body.tgo-night .link-card.blog-card:hover {
   .tg-milestone { display: none; }
 }
 
-/* Kill any horizontal overflow. body already has overflow-x: hidden
-   (section 3) but <html> does not, so anything that pokes past the
-   right edge can still scroll the page on a phone. `clip` rather than
-   `hidden` — hidden would force overflow-y to auto and could break the
-   sticky TOC sidebar; clip leaves the vertical axis alone. */
+/* Kill any horizontal overflow. body has overflow-x: clip (section 3;
+   it was `hidden` until Sept 1, 2026, which is exactly what broke the
+   sticky TOC sidebar once this html rule stopped the body value from
+   propagating to the viewport). `clip` rather than `hidden` on both:
+   hidden forces overflow-y to auto and makes a scroll container; clip
+   leaves the vertical axis alone. */
 html { overflow-x: clip; }
 .post-header-inner { overflow-x: clip; }
 

@@ -344,53 +344,70 @@
   var plainText = title ? title + ' ' + url : url;
 
   var mb = document.getElementById('cs-microblog');
-  /* Mobile (Sept 2, 2026): phones block window.open() once the tap
-     gesture is over, so the 900ms web fallback never opened on iOS
-     or Android. On coarse-pointer devices the fallback now navigates
-     the SAME tab to the web composer instead (never popup-blocked);
-     if the app took over, the page is hidden and the timer is
-     cancelled. Desktop keeps the new-tab behaviour. */
+  /* Mobile (Sept 2, 2026): phones block window.open() once the tap is
+     over, so the old 900ms new-tab fallback never opened. Now, on
+     coarse-pointer devices, a helper tab is opened DURING the tap and
+     that tab does the work: on Android it fires a share intent at the
+     app (ACTION_SEND, package blog.micro.android — the app drops text
+     sent via microblog://post?text=, and only reads shared text on a
+     cold start, hence NEW_TASK|CLEAR_TASK launch flags); elsewhere it
+     tries the microblog:// scheme. If nothing takes the helper tab
+     out of view within 1.5s, it becomes the web composer. The blog
+     tab is never navigated away, so closing the helper tab lands the
+     reader back on the post (Toby's ask). Desktop keeps the old
+     scheme-then-new-tab behaviour. */
   var isMobile = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
                  /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  /* Android: every Chromium browser (Chrome, Brave, Edge, Samsung
-     Internet, Firefox too these days) understands intent:// links,
-     which hand the FULL post text to the app (package
-     blog.micro.android) and carry their own web fallback when the app
-     is missing. The same-tab timer below still runs as a safety net
-     for any browser that ignores intent://; it is cancelled the moment
-     the page hides or navigates away. */
   var isAndroid = /Android/i.test(navigator.userAgent);
   if (mb) mb.addEventListener('click', function () {
     var text = encodeURIComponent(title ? '[' + title + '](' + url + ')' : url);
     var webUrl = 'https://micro.blog/post?text=' + text;
+    var appUrl = isAndroid
+      ? 'intent:#Intent;action=android.intent.action.SEND;type=text/plain;' +
+        'package=blog.micro.android;launchFlags=0x10008000;' +
+        'S.android.intent.extra.TEXT=' + text + ';' +
+        'S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end'
+      : 'microblog://post?text=' + text;
+
+    if (isMobile) {
+      var w = null;
+      try { w = window.open('', '_blank'); } catch (e) {}
+      if (w) {
+        var d = w.document;
+        d.open();
+        d.write('<!doctype html><html><head><meta charset="utf-8">' +
+          '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+          '<title>Opening Micro.blog…</title>' +
+          '<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+          'font:1.05rem/1.5 Georgia,serif;color:#1E2D4A;background:#FAF8F5;text-align:center;padding:24px}' +
+          'a{color:#A65326}</style></head><body><div>' +
+          '<p><strong>Opening Micro.blog…</strong></p>' +
+          '<p>If the app opened, you can close this tab.<br>' +
+          'Otherwise <a href="' + webUrl.replace(/"/g, '&quot;') + '">continue on the web</a>.</p>' +
+          '</div><script>(function(){var app=' + JSON.stringify(appUrl) + ',web=' + JSON.stringify(webUrl) + ';' +
+          'var t=setTimeout(function(){if(!document.hidden)location.replace(web);},1500);' +
+          'document.addEventListener("visibilitychange",function(){if(document.hidden)clearTimeout(t);});' +
+          'location.href=app;})();<\/script></body></html>');
+        d.close();
+        return;
+      }
+      /* Popup blocked: fall back to the same-tab flow. */
+      var t = setTimeout(function () { if (!document.hidden) window.location.href = webUrl; }, 1500);
+      document.addEventListener('visibilitychange', function () { if (document.hidden) clearTimeout(t); });
+      window.addEventListener('pagehide', function () { clearTimeout(t); }, { once: true });
+      window.location.href = appUrl;
+      return;
+    }
+
+    /* Desktop: scheme first, web composer in a new tab if nothing took over. */
     var timer = setTimeout(function () {
-      if (document.hidden) return;
-      if (isMobile) { window.location.href = webUrl; }
-      else { window.open(webUrl, '_blank', 'noopener'); }
-    }, isMobile ? 1500 : 900);
+      window.open(webUrl, '_blank', 'noopener');
+    }, 900);
     var cancel = function () {
       if (document.hidden) { clearTimeout(timer); document.removeEventListener('visibilitychange', cancel); }
     };
     document.addEventListener('visibilitychange', cancel);
-    window.addEventListener('pagehide', function () { clearTimeout(timer); }, { once: true });
-    if (isAndroid) {
-      /* Use the app's system SHARE handler (ACTION_SEND, added in
-         app 2.0) rather than the microblog:// scheme: on Toby's Pixel
-         the scheme opened the app but never filled in the text. The
-         share handler is the same path as sharing from any Android
-         app, which always starts a new post. */
-      window.location.href = 'intent:#Intent;action=android.intent.action.SEND;' +
-        'type=text/plain;package=blog.micro.android;' +
-        /* NEW_TASK|CLEAR_TASK: the app only reads shared text on a
-           cold start (Sept 2 test: first share filled in, second did
-           not while the app sat in the background), so ask Android to
-           restart its task each time. Browsers may ignore this. */
-        'launchFlags=0x10008000;' +
-        'S.android.intent.extra.TEXT=' + text + ';' +
-        'S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
-    } else {
-      window.location.href = 'microblog://post?text=' + text;
-    }
+    window.location.href = appUrl;
   });
 
   var masto = document.getElementById('cs-mastodon');

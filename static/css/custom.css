@@ -7553,11 +7553,13 @@ body.tgo-night .link-card.blog-card:hover {
    touching the desktop cap. */
 @media (min-width: 601px) and (max-width: 1023px) {
   .post-header-inner { --mark-w: clamp(230px, 28vw, 270px); }
-  /* Foldables get the full lift Toby asked for (Sept 2, 2026): the
-     header clearance is taller here, so the mark can float well above
-     the title block without ducking under the fixed bar. Checked at
-     736px (Pixel Fold inner). Badge pair below: -3.8rem. */
-  .tg-mark { --mark-top: -1.5rem; }
+  /* Foldables get the big lift Toby asked for (Sept 2, 2026). Was
+     -1.5rem for a few hours: fine at 736px (phone-style header), but
+     at 768-1023 the ICON-ROW header is 66px tall and the badge's top
+     slid under it (Toby's Pixel Fold screenshot). The ticket keeps
+     -0.7rem ("a bit lower, not too much"); the BADGE breaks the
+     -2.3rem pairing in this band — see its rule below. */
+  .tg-mark { --mark-top: -0.7rem; }
 }
 
 /* Dark skies print the stamp white and thicken it slightly — light ink
@@ -7672,9 +7674,14 @@ body.tgo-night .link-card.blog-card:hover {
   }
 }
 
-/* Badge half of the foldable-band lift above. */
+/* Badge half of the foldable-band lift above. NOT the -2.3rem
+   pairing: strict pairing would be -3.0rem, which puts the badge's
+   top under the 66px icon-row header at 768-1023. -2.1rem is the
+   ceiling there (~5px clearance at 769px, verified live) — the badge
+   rides ~0.9rem deeper on the ticket's blank stub in this band and
+   still reads as sitting on the corner. */
 @media (min-width: 601px) and (max-width: 1023px) {
-  .tg-milestone { top: -3.8rem; }
+  .tg-milestone { top: -2.1rem; }
 }
 
 /* PHONE. Here the ticket is a float, flush to the top of the header, so

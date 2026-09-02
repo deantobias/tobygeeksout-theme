@@ -344,15 +344,27 @@
   var plainText = title ? title + ' ' + url : url;
 
   var mb = document.getElementById('cs-microblog');
+  /* Mobile (Sept 2, 2026): phones block window.open() once the tap
+     gesture is over, so the 900ms web fallback never opened on iOS
+     or Android. On coarse-pointer devices the fallback now navigates
+     the SAME tab to the web composer instead (never popup-blocked);
+     if the app took over, the page is hidden and the timer is
+     cancelled. Desktop keeps the new-tab behaviour. */
+  var isMobile = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+                 /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (mb) mb.addEventListener('click', function () {
     var text = encodeURIComponent(title ? '[' + title + '](' + url + ')' : url);
+    var webUrl = 'https://micro.blog/post?text=' + text;
     var timer = setTimeout(function () {
-      window.open('https://micro.blog/post?text=' + text, '_blank', 'noopener');
-    }, 900);
+      if (document.hidden) return;
+      if (isMobile) { window.location.href = webUrl; }
+      else { window.open(webUrl, '_blank', 'noopener'); }
+    }, isMobile ? 1500 : 900);
     var cancel = function () {
       if (document.hidden) { clearTimeout(timer); document.removeEventListener('visibilitychange', cancel); }
     };
     document.addEventListener('visibilitychange', cancel);
+    window.addEventListener('pagehide', function () { clearTimeout(timer); }, { once: true });
     window.location.href = 'microblog://post?text=' + text;
   });
 

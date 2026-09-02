@@ -7500,12 +7500,15 @@ body.tgo-night .link-card.blog-card:hover {
 
   /* Was 2.3rem (title cap line) until Sept 2, 2026: on foldables the
      mark sat low with dead space above it (Toby, on a Pixel Fold).
-     1rem floats it between the eyebrow row and the title — checked at
-     736px and 1568px. If this changes again, the milestone badge's
-     -1.3rem below MUST move by the same amount: the pair is what puts
-     the badge on the ticket's blank stub corner. In rem so it tracks
-     the 20px → 22px html font-size step at 640px. */
-  --mark-top: 1rem;
+     0.25rem is the DESKTOP ceiling — any higher and the milestone
+     badge (which rides 2.3rem above this value) slides under the
+     fixed opaque header bar (~55px tall, z-index 1000). The 601-1023
+     foldable band overrides this further down with -1.5rem, where the
+     taller header clearance leaves room. THE PAIRING RULE: the
+     milestone badge top is always --mark-top minus 2.3rem; change one,
+     change the other, in every band. In rem so it tracks the
+     20px → 22px html font-size step at 640px. */
+  --mark-top: 0.25rem;
 
   position: absolute;
   top: var(--mark-top);
@@ -7550,6 +7553,11 @@ body.tgo-night .link-card.blog-card:hover {
    touching the desktop cap. */
 @media (min-width: 601px) and (max-width: 1023px) {
   .post-header-inner { --mark-w: clamp(230px, 28vw, 270px); }
+  /* Foldables get the full lift Toby asked for (Sept 2, 2026): the
+     header clearance is taller here, so the mark can float well above
+     the title block without ducking under the fixed bar. Checked at
+     736px (Pixel Fold inner). Badge pair below: -3.8rem. */
+  .tg-mark { --mark-top: -1.5rem; }
 }
 
 /* Dark skies print the stamp white and thicken it slightly — light ink
@@ -7652,13 +7660,21 @@ body.tgo-night .link-card.blog-card:hover {
 @media (min-width: 601px) {
   .tg-milestone {
     display: block;
-    /* Locked to the ticket: --mark-top minus the original 2.3rem gap.
-       The ticket moved up 1.3rem on Sept 2, 2026, so the badge moves
-       the same 1.3rem — it was top: 0 when --mark-top was 2.3rem. */
-    top: -1.3rem;
+    /* Locked to the ticket: always --mark-top minus 2.3rem (the badge
+       was top: 0 back when --mark-top was 2.3rem). Desktop 0.25rem
+       mark-top -> -2.05rem here; the 601-1023 band overrides both
+       (mark-top -1.5rem -> badge -3.8rem below). Can't be a calc() on
+       var(--mark-top) because that variable lives on .tg-mark, a
+       SIBLING — it does not inherit to the badge. */
+    top: -2.05rem;
     right: 18px;
     width: calc(var(--mark-w) * 0.5);
   }
+}
+
+/* Badge half of the foldable-band lift above. */
+@media (min-width: 601px) and (max-width: 1023px) {
+  .tg-milestone { top: -3.8rem; }
 }
 
 /* PHONE. Here the ticket is a float, flush to the top of the header, so

@@ -381,6 +381,11 @@
          app, which always starts a new post. */
       window.location.href = 'intent:#Intent;action=android.intent.action.SEND;' +
         'type=text/plain;package=blog.micro.android;' +
+        /* NEW_TASK|CLEAR_TASK: the app only reads shared text on a
+           cold start (Sept 2 test: first share filled in, second did
+           not while the app sat in the background), so ask Android to
+           restart its task each time. Browsers may ignore this. */
+        'launchFlags=0x10008000;' +
         'S.android.intent.extra.TEXT=' + text + ';' +
         'S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
     } else {

@@ -352,9 +352,23 @@
      cancelled. Desktop keeps the new-tab behaviour. */
   var isMobile = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
                  /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  /* Android Chrome / Samsung Internet understand intent:// links, which
+     hand the FULL post text to the app (package blog.micro.android)
+     and carry their own web fallback when the app is missing, so no
+     timer guesswork is needed there. Firefox etc. fall through to the
+     plain scheme + timer path below. */
+  var isAndroidIntent = /Android/i.test(navigator.userAgent) &&
+                        /Chrome|SamsungBrowser/i.test(navigator.userAgent) &&
+                        !/Firefox|FxiOS|EdgA/i.test(navigator.userAgent);
   if (mb) mb.addEventListener('click', function () {
     var text = encodeURIComponent(title ? '[' + title + '](' + url + ')' : url);
     var webUrl = 'https://micro.blog/post?text=' + text;
+    if (isAndroidIntent) {
+      window.location.href = 'intent://post?text=' + text +
+        '#Intent;scheme=microblog;package=blog.micro.android;' +
+        'S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+      return;
+    }
     var timer = setTimeout(function () {
       if (document.hidden) return;
       if (isMobile) { window.location.href = webUrl; }

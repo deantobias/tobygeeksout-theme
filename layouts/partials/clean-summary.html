@@ -6,6 +6,11 @@
     while the running total stays within the character limit.
     Short sentences → you get three. Long ones → you get one.
   - Never cuts mid-sentence, never adds an ellipsis.
+  - Decimal numbers (5.8, $4.99, 4.5 stars, etc.) are protected from
+    being misread as sentence-ending periods (fixed 2026-09-09 — see
+    "Mine has a 5." bug on the iPhone Duo post, same class of issue
+    as the pre-existing "Dr." abbreviation limitation, which is not
+    fixed by this change).
   Usage:  {{ partial "clean-summary.html" . }}
 */}}
 {{- $limit := 180 -}}
@@ -18,6 +23,11 @@
   {{- /* htmlUnescape BEFORE plainify — Micro.blog stores curly quotes as entities */ -}}
   {{- $text := .Content | htmlUnescape | plainify -}}
   {{- $text = trim (replaceRE `\s+` " " $text) " \n\t​" -}}
+
+  {{- /* protect digit.digit patterns (5.8-inch, $4.99, 4.5 stars) so the
+         sentence splitter below doesn't mistake that period for a
+         sentence end — restored right before output */ -}}
+  {{- $text = replaceRE `(\d)\.(\d)` "${1}@@DOT@@${2}" $text -}}
 
   {{- /* split into sentences: anything up to . ! or ? (optionally followed by a closing quote) */ -}}
   {{- $sentences := findRE `[^.!?]+[.!?]+["”’)]?` $text -}}
@@ -37,4 +47,5 @@
   {{- end -}}
 {{- end -}}
 
+{{- $out = replaceRE `@@DOT@@` "." $out -}}
 {{- $out -}}

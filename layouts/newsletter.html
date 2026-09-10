@@ -38,7 +38,6 @@
     .sub-btn       { display: block !important; text-align: center !important; }
     .cat-date      { font-size: 10px !important; letter-spacing: 0.5px !important; }
     .outer-pad     { padding-left: 12px !important; padding-right: 12px !important; }
-    .mosaic-img    { width: 100% !important; display: block !important; margin: 0 0 12px 0 !important; }
   }
   {{ .CustomCSS }}
 </style>
@@ -105,22 +104,8 @@
             </p>
 
             <!-- Post content -->
-            <!-- Photo mosaic (Sept 10, 2026): when a post carries 2+ uploader-style
-                 photos (<p><img></p>, no inline style on the img), Hugo unwraps them
-                 and inlines a 48% side-by-side style so the email shows two photos
-                 per row, matching the blog's custom.css Section 18. The 480px media
-                 query at the top drops them back to one per row on phones.
-                 Posts whose photos already carry inline styles (hand-built tables,
-                 cards) are left alone. -->
-            {{ $body := .Content }}
-            {{ $photo := `<p>\s*<img([^>]*)>\s*</p>` }}
-            {{ $styled := `<p>\s*<img[^>]*style=[^>]*>\s*</p>` }}
-            {{ if and (ge (len (findRE $photo $body)) 2) (not (findRE $styled $body)) }}
-            {{ $body = replaceRE $photo `<img$1 class="mosaic-img" style="width:48%;display:inline-block;vertical-align:top;margin:0 1% 8px 1%;border-radius:6px;">` $body }}
-            {{ $body = replaceRE `>\s+(<img[^>]*class="mosaic-img")` `>$1` $body }}
-            {{ end }}
             <div class="post-content" style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.75; color: #1A1A18;">
-            {{ $body }}
+              {{ .Content }}
             </div>
 
             {{ if gt (len .Params.audio) 0 }}

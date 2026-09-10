@@ -1,10 +1,8 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  /* =============================================
-     TOBY GEEKS OUT! — Newsletter Template
-     For: layouts/newsletter.html on Micro.blog
-     ============================================= */
-
-  /* Reset */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700&display=swap');
+  /* Gmail-safe: only @media queries and basic resets here.
+     All design styles are inlined on elements below. */
   body, table, td, p, a, li, blockquote {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -13,312 +11,187 @@
     margin: 0;
     padding: 0;
     background-color: #F2EDE8;
-    font-family: Georgia, 'Times New Roman', serif;
-    color: #1A1A18;
+    width: 100% !important;
+    min-width: 100%;
   }
-  img { border: 0; display: block; }
-  table { border-collapse: collapse; }
-
-  /* Wrapper */
-  .email-wrapper {
-    width: 100%;
-    background-color: #F2EDE8;
-    padding: 24px 16px;
-  }
-  .email-container {
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: #FAF8F5;
-  }
-
-  /* ---- HEADER ---- */
-  .email-header {
-    background-color: #1E2D4A;
-    border-bottom: 3px solid #C4622D;
-    padding: 20px 28px 18px 28px;
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .header-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 18px;
-    border: 2px solid #C4622D;
-    vertical-align: middle;
-  }
-  .header-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffffff;
-    letter-spacing: -0.3px;
-    line-height: 1.2;
-  }
-  .header-title .accent { color: #C4622D; }
-  .header-subtitle {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
-    margin-top: 3px;
-  }
-  .header-web-link {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  /* ---- INTRO BLOCK ---- */
-  .email-intro {
-    background-color: #F2EDE8;
-    border-bottom: 1px solid #E5DDD5;
-    padding: 18px 28px;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 15px;
-    line-height: 1.7;
-    color: #6B645D;
-    font-style: italic;
-  }
-
-  /* ---- POST AREA ---- */
-  .email-body {
-    padding: 32px 28px 8px 28px;
-    background-color: #FAF8F5;
-  }
-
-  /* Post title */
-  .post-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 24px;
-    font-weight: bold;
-    color: #1E2D4A;
-    line-height: 1.3;
-    margin: 0 0 18px 0;
-  }
-
-  /* Post content typography */
-  .post-content {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 16px;
-    line-height: 1.75;
-    color: #1A1A18;
-  }
-  .post-content p {
-    margin: 0 0 18px 0;
-  }
-  .post-content a {
-    color: #C4622D;
-    text-decoration: underline;
-  }
-  .post-content blockquote {
-    border-left: 3px solid #C4622D;
-    margin: 0 0 20px 0;
-    padding: 4px 0 4px 18px;
-    color: #6B645D;
-    font-style: italic;
-  }
-  .post-content h2 {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 19px;
-    font-weight: bold;
-    color: #1E2D4A;
-    margin: 28px 0 12px 0;
-  }
-  .post-content h3 {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 17px;
-    font-weight: bold;
-    color: #1E2D4A;
-    margin: 24px 0 10px 0;
-  }
-  .post-content ul, .post-content ol {
-    margin: 0 0 18px 0;
-    padding-left: 24px;
-  }
-  .post-content li {
-    margin-bottom: 6px;
-  }
-  .post-content img {
+  * {
     max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin: 8px 0 18px 0;
+    box-sizing: border-box;
   }
-
-  /* Post permalink / date line */
-  .post-meta {
-    padding: 16px 28px 24px 28px;
-    background-color: #FAF8F5;
+  img {
+    border: 0;
+    display: block;
+    max-width: 100% !important;
+    height: auto !important;
   }
-  .post-permalink {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    color: #9C9489;
-    font-style: italic;
-    text-decoration: none;
+  table {
+    border-collapse: collapse;
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
   }
-  .post-permalink:hover { color: #C4622D; }
-
-  /* Divider between posts */
-  .post-divider {
-    border: none;
-    border-top: 2px solid #C4622D;
-    margin: 0;
-    opacity: 0.3;
-  }
-
-  /* ---- FOOTER ---- */
-  .email-footer {
-    background-color: #1E2D4A;
-    padding: 22px 28px;
-  }
-  .footer-tagline {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    margin: 0 0 8px 0;
-    line-height: 1.6;
-  }
-  .footer-tagline strong {
-    color: rgba(255,255,255,0.85);
-  }
-  .footer-links {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    color: rgba(255,255,255,0.35);
-    margin: 0;
-    line-height: 1.8;
-  }
-  .footer-links a {
-    color: #C4622D;
-    text-decoration: none;
-  }
-  .footer-links .divider {
-    color: rgba(255,255,255,0.2);
-    margin: 0 6px;
-  }
-  .footer-address {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    color: rgba(255,255,255,0.25);
-    margin: 8px 0 0 0;
-    line-height: 1.6;
-  }
-
-  /* ---- RESPONSIVE ---- */
   @media only screen and (max-width: 480px) {
-    .email-header { padding: 16px 18px; }
-    .email-intro  { padding: 14px 18px; }
-    .email-body   { padding: 24px 18px 8px 18px; }
-    .post-meta    { padding: 12px 18px 20px 18px; }
-    .email-footer { padding: 18px 18px; }
-    .header-title { font-size: 19px; }
-    .post-title   { font-size: 21px; }
-    .post-content { font-size: 15px; }
+    .mobile-pad    { padding-left: 18px !important; padding-right: 18px !important; }
+    .mobile-title  { font-size: 19px !important; }
+    .post-title    { font-size: 22px !important; line-height: 1.4 !important; }
+    .post-content  { font-size: 17px !important; line-height: 1.8 !important; }
+    .sub-heading   { font-size: 20px !important; }
+    .sub-btn       { display: block !important; text-align: center !important; }
+    .cat-date      { font-size: 10px !important; letter-spacing: 0.5px !important; }
+    .outer-pad     { padding-left: 12px !important; padding-right: 12px !important; }
+    .mosaic-img    { width: 100% !important; display: block !important; margin: 0 0 12px 0 !important; }
   }
-
   {{ .CustomCSS }}
 </style>
 
-<div class="email-wrapper">
-  <div class="email-container">
+<!-- Outer wrapper -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F2EDE8;">
+  <tr>
+    <td align="center" style="padding: 24px 16px;" class="outer-pad">
 
-    <!-- =====================
-         HEADER
-         ===================== -->
-    <div class="email-header">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <!-- Email container -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #FAF8F5; margin: 0 auto;">
+
+        <!-- =====================
+             HEADER IMAGE
+             ===================== -->
         <tr>
-          <td valign="middle">
-            <table cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                <td valign="middle" style="padding-right: 12px;">
-                  <img src="{{ .Site.Author.avatar }}" width="36" height="36" alt="{{ .Site.Title }}" class="header-avatar" />
-                </td>
-                <td valign="middle">
-                  <div class="header-title">Toby Geeks <span class="accent">Out!</span></div>
-                  <div class="header-subtitle">The Newsletter</div>
-                </td>
-              </tr>
-            </table>
+          <td style="padding:0;background-color:#1E2D4A;">
+            <img src="https://iili.io/CukEGI9.png"
+                 alt="Toby Geeks Out! — Kentucky-made. Internet-brained."
+                 style="display:block;width:100%;max-width:600px;height:auto;border:0;" />
           </td>
-          <td align="right" valign="middle">
+        </tr>
+
+        <!-- =====================
+             READ ONLINE BAR
+             ===================== -->
+        <tr>
+          <td style="background-color:#FAF8F5;border-bottom:1px solid #E5DDD5;padding:10px 28px;text-align:right;" class="mobile-pad">
             {{ if eq (len .Pages) 1 }}
               {{ with index .Pages 0 }}
-                <a href="{{ .Permalink }}" class="header-web-link">View on the web →</a>
+                <a href="{{ .Permalink }}" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#C4622D;text-decoration:none;letter-spacing:0.5px;">Read online →</a>
               {{ end }}
             {{ end }}
           </td>
         </tr>
+
+        <!-- =====================
+             INTRO (optional)
+             ===================== -->
+        {{ if gt (len .Intro) 0 }}
+        <tr>
+          <td style="background-color: #F2EDE8; border-bottom: 1px solid #E5DDD5; padding: 18px 28px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #6B645D; font-style: italic;" class="mobile-pad">
+            {{ .Intro }}
+          </td>
+        </tr>
+        {{ end }}
+
+        <!-- =====================
+             POSTS LOOP
+             ===================== -->
+        {{ range .Pages }}
+
+        <!-- Post body -->
+        <tr>
+          <td style="background-color: #FAF8F5; padding: 32px 28px 8px 28px;" class="mobile-pad">
+
+            {{ if .Title }}
+            <h1 class="post-title" style="font-family: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #1E2D4A; line-height: 1.3; margin: 0 0 10px 0;">{{ .Title }}</h1>
+            {{ end }}
+
+            <!-- Date only -->
+            <p class="cat-date" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #9C9489; margin: 0 0 22px 0;">
+              {{ .Date.Format "January 2, 2006" }}
+            </p>
+
+            <!-- Post content -->
+            <!-- Photo mosaic (Sept 10, 2026): when a post carries 2+ uploader-style
+                 photos (<p><img></p>, no inline style on the img), Hugo unwraps them
+                 and inlines a 48% side-by-side style so the email shows two photos
+                 per row, matching the blog's custom.css Section 18. The 480px media
+                 query at the top drops them back to one per row on phones.
+                 Posts whose photos already carry inline styles (hand-built tables,
+                 cards) are left alone. -->
+            {{ $body := .Content }}
+            {{ $photo := `<p>\s*<img([^>]*)>\s*</p>` }}
+            {{ $styled := `<p>\s*<img[^>]*style=[^>]*>\s*</p>` }}
+            {{ if and (ge (len (findRE $photo $body)) 2) (not (findRE $styled $body)) }}
+            {{ $body = replaceRE $photo `<img$1 class="mosaic-img" style="width:48%;display:inline-block;vertical-align:top;margin:0 1% 8px 1%;border-radius:6px;">` $body }}
+            {{ $body = replaceRE `>\s+(<img[^>]*class="mosaic-img")` `>$1` $body }}
+            {{ end }}
+            <div class="post-content" style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.75; color: #1A1A18;">
+            {{ $body }}
+            </div>
+
+            {{ if gt (len .Params.audio) 0 }}
+            <p style="margin: 16px 0 0 0;">
+              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #C4622D; text-decoration: none;">View post →</a>
+            </p>
+            {{ end }}
+            {{ if gt (len .Params.video) 0 }}
+            <p style="margin: 16px 0 0 0;">
+              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #C4622D; text-decoration: none;">View post →</a>
+            </p>
+            {{ end }}
+
+          </td>
+        </tr>
+
+        <!-- Post divider -->
+        <tr>
+          <td style="padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="border-top: 2px solid #C4622D; opacity: 0.3; font-size: 0; line-height: 0;"> </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        {{ end }}
+
+        <!-- =====================
+             SUBSCRIBE BLOCK
+             ===================== -->
+        <tr>
+          <td style="background-color: #FAF8F5; padding: 0 28px 32px 28px;" class="mobile-pad">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td width="4" style="background-color: #C4622D; font-size: 0; line-height: 0;"> </td>
+                <td style="background-color: #ffffff; padding: 24px; border-radius: 0 4px 4px 0;">
+                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #C4622D; margin: 0 0 8px 0;">Enjoying this?</p>
+                  <h2 class="sub-heading" style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: bold; color: #1E2D4A; line-height: 1.3; margin: 0 0 10px 0;">Get Toby Geeks Out! in your inbox.</h2>
+                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.65; color: #6B645D; margin: 0 0 20px 0;">New posts on tech, neurodivergence, tiny house living, and whatever else has my attention — delivered straight to you. No algorithm, no noise.</p>
+                  <a href="https://tobygeeksout.micro.blog/subscribe/" class="sub-btn" style="display: inline-block; background-color: #1E2D4A; color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; padding: 12px 22px; border-radius: 4px;">Subscribe for free →</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- =====================
+             FOOTER
+             ===================== -->
+        <tr>
+          <td style="background-color: #1E2D4A; padding: 22px 28px;" class="mobile-pad">
+            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,0.55); margin: 0 0 8px 0; line-height: 1.6;">
+              <strong style="color: rgba(255,255,255,0.85);">Toby Geeks Out!</strong> — Writing from a tiny house in Elkhorn City, Kentucky.
+            </p>
+            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: rgba(255,255,255,0.35); margin: 0; line-height: 1.8;">
+              <a href="{{ .Footer.UnsubscribeURL }}" style="color: #C4622D; text-decoration: none;">Unsubscribe</a>
+              <span style="color: rgba(255,255,255,0.2); margin: 0 6px;">|</span>
+              <a href="{{ .Site.BaseURL }}" style="color: rgba(255,255,255,0.4); text-decoration: none;">{{ .Site.Hostname }}</a>
+              {{ if gt (len .Footer.MailingAddress) 0 }}
+                <span style="color: rgba(255,255,255,0.2); margin: 0 6px;">|</span> {{ .Footer.MailingAddress }}
+              {{ end }}
+            </p>
+          </td>
+        </tr>
+
       </table>
-    </div>
+      <!-- /email container -->
 
-    <!-- =====================
-         INTRO (optional)
-         ===================== -->
-    {{ if gt (len .Intro) 0 }}
-      <div class="email-intro">{{ .Intro }}</div>
-    {{ end }}
-
-    <!-- =====================
-         POSTS LOOP
-         ===================== -->
-    {{ range .Pages }}
-
-      <!-- Post body -->
-      <div class="email-body">
-        {{ if .Title }}
-          <h1 class="post-title">{{ .Title }}</h1>
-        {{ end }}
-        <div class="post-content">
-          {{ .Content }}
-        </div>
-      </div>
-
-      <!-- Post meta: date + permalink -->
-      <div class="post-meta">
-        <a href="{{ .Permalink }}" class="post-permalink">{{ .Date.Format "January 2, 2006" }}</a>
-
-        {{ if gt (len .Params.audio) 0 }}
-           ·  <a href="{{ .Permalink }}" class="post-permalink">Audio</a>
-        {{ end }}
-        {{ if gt (len .Params.video) 0 }}
-           ·  <a href="{{ .Permalink }}" class="post-permalink">Video</a>
-        {{ end }}
-      </div>
-
-      <hr class="post-divider" />
-
-    {{ end }}
-
-    <!-- =====================
-         FOOTER
-         ===================== -->
-    <div class="email-footer">
-      <p class="footer-tagline">
-        <strong>Toby Geeks Out!</strong> — Writing from a tiny house in Elkhorn City, Kentucky.
-      </p>
-      <p class="footer-links">
-        <a href="{{ .Footer.UnsubscribeURL }}">Unsubscribe</a>
-        <span class="divider">|</span>
-        <a href="{{ .Site.BaseURL }}" style="color: rgba(255,255,255,0.4);">{{ .Site.Hostname }}</a>
-        {{ if gt (len .Footer.MailingAddress) 0 }}
-          <span class="divider">|</span> {{ .Footer.MailingAddress }}
-        {{ end }}
-      </p>
-    </div>
-
-  </div>
-</div>
+    </td>
+  </tr>
+</table>
+<!-- /outer wrapper -->

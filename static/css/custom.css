@@ -1675,27 +1675,53 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 }
 
 /* ------------------------------------------------------------
-   18. MULTI-PHOTO MOSAIC (2+ bare images → 2-column masonry)
-   Triggers only when a post has 2+ direct-child images.
+   18. MULTI-PHOTO MOSAIC (2+ photos → 2-column masonry)
+   Triggers when a post has 2+ photos, in either shape Micro.blog
+   produces:
+     a) bare direct-child <img> tags (hand-written HTML posts)
+     b) <p><img></p> wrappers — the uploader / Markdown output,
+        which is what most photo posts actually contain
    Single photos stay full-width. Text/embeds span all columns.
+
+   Sept 10, 2026: case (b) added. Until then only (a) matched, so
+   upload-style posts showed two stacked full-width photos.
+   Note: :has() cannot be nested inside :has(), so (b) cannot ask
+   the container "do you hold two photo <p>s?". Instead the
+   container goes multi-column on ANY photo <p>, and a lone photo
+   <p> (first AND last of its kind, via :nth-child(n of S)) spans
+   both columns, which renders exactly like normal flow.
+   The email newsletter has its own copy of this idea (Hugo
+   replaceRE in the template at micro.blog → Newsletter → Settings).
    ------------------------------------------------------------ */
-:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) {
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)),
+:is(.post-card-excerpt, .post-body):has(> p > img:only-child) {
   column-count: 1;          /* phones: one photo per row, easier to view */
   column-gap: 6px;
 }
 @media (min-width: 600px) { /* foldable unfolded, tablet, desktop: 2-column mosaic */
-  :is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) {
+  :is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)),
+  :is(.post-card-excerpt, .post-body):has(> p > img:only-child) {
     column-count: 2;
   }
 }
-:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > img {
-  width: 100%;
-  display: block;
+/* Photo tiles: a bare <img>, or the <p> that wraps one */
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > img,
+:is(.post-card-excerpt, .post-body) > p:has(> img:only-child) {
   margin: 0 0 6px;
-  border-radius: 6px;
   break-inside: avoid;
 }
-:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > :not(img) {
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > img,
+:is(.post-card-excerpt, .post-body) > p:has(> img:only-child) > img {
+  width: 100%;
+  display: block;
+  margin: 0;
+  border-radius: 6px;
+}
+/* Everything that is not a photo tile spans both columns,
+   and so does a lone photo <p> (only one of its kind in the post) */
+:is(.post-card-excerpt, .post-body):has(> img:nth-of-type(2)) > :not(img),
+:is(.post-card-excerpt, .post-body):has(> p > img:only-child) > :not(p:has(> img:only-child)),
+:is(.post-card-excerpt, .post-body) > p:nth-child(1 of p:has(> img:only-child)):nth-last-child(1 of p:has(> img:only-child)) {
   column-span: all;
 }
 

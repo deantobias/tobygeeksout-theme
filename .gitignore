@@ -12,3 +12,16 @@ _to_delete/
 
 # local scratch, never ship to the theme
 recovery/
+
+# Mockups and Claude session outputs, never ship to the theme
+Claude outputs/
+*mockup*.html
+
+# Screenshots, screen recordings and other non-theme files
+Screenshot*
+Screen Shot*
+Screen Recording*
+*.heic
+*.mov
+*.mp4
+*.zip

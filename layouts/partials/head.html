@@ -153,7 +153,12 @@
 </style>
 
 <!-- Theme stylesheet — query string busts Micro.blog cache on updates -->
-<link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ .Site.Params.theme_seconds }}">
+{{/* Cache buster (Sept 29, 2026): was ?{{ .Site.Params.theme_seconds }},
+     but the live site stayed stuck on 202609021255 whatever config.json
+     said, so browsers kept an old custom.css against new templates.
+     now.Unix changes on every Micro.blog rebuild (every post, every
+     Update Design), so a fresh stylesheet URL ships with every build. */}}
+<link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ now.Unix }}">
 
 <!-- Hold first paint until the whole page (incl. end-of-body scripts) is
      parsed, so view transitions snapshot the finished layout instead of a

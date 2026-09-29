@@ -4024,14 +4024,17 @@ table.link-card a[style*="inline-block"] {
 }
 
 /* No Share row on phones, or on touch devices under 1024px (foldables,
-   tablets) — the device's own share sheet covers it. "& Share" and the
-   Follow label go too (the heading says it). A narrow desktop window
+   tablets) — the device's own share sheet covers it. The heading swaps
+   to "Follow" (with its own tagline) and the Follow label goes too. A narrow desktop window
    with a mouse keeps Share. */
+.cs-heading-compact { display: none; }
 @media (max-width: 599px), (max-width: 1023px) and (hover: none) and (pointer: coarse) {
   .cs-share-row,
   .cs-masto-prompt,
-  .cs-heading-share,
+  .cs-heading-full,
   .connect-share .cs-follow-label { display: none; }
+  /* All follow options here, so: "Follow" + a tagline for the buttons */
+  .cs-heading-compact { display: inline; }
 }
 
 /* Phones: narrower side margins and a tighter card (html is 20px

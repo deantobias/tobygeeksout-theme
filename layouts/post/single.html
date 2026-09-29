@@ -159,7 +159,11 @@
   {{ $shareText := .Permalink }}{{ with .Title }}{{ $shareText = printf "%s %s" . $.Permalink }}{{ end }}
   <div class="connect-share" id="connect-share" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
     <div class="connect-share-top">
-      <p class="connect-share-heading">Connect<span class="cs-heading-share"> &amp; Share</span></p>
+      {{/* Heading + tagline swap (Sept 29, 2026): where the Share row is
+           hidden (phones, touch devices under 1024px) the card is all
+           follow options, so it reads "Follow" and the tagline points at
+           Email / RSS / JSON. Desktop keeps "Connect & Share". */}}
+      <p class="connect-share-heading"><span class="cs-heading-full">Connect<span class="cs-heading-share"> &amp; Share</span></span><span class="cs-heading-compact">Follow</span></p>
       <span class="cs-social-top">
         <a class="cs-pill cs-pill--icon" href="https://micro.blog/technogeek75" target="_blank" rel="me noopener" aria-label="Follow on Micro.blog">
           {{ partial "icon.html" (dict "name" "microblog") }}
@@ -172,7 +176,7 @@
         </a>
       </span>
     </div>
-    <p class="connect-share-tagline">Enjoyed this? Follow along wherever you like to read.</p>
+    <p class="connect-share-tagline"><span class="cs-heading-full">Enjoyed this? Follow along wherever you like to read.</span><span class="cs-heading-compact">Enjoyed this? Get new posts by email or feed.</span></p>
     <div class="connect-share-row">
       <span class="connect-share-label cs-follow-label">Follow</span>
       <span class="connect-share-pills">

@@ -135,7 +135,11 @@
         {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
         <span class="tgo-rss-label">Copy link</span>
       </button>
-      {{ partial "reply-by-email.html" . }}
+      {{/* Micro.blog's plugin prints "✍️ Reply by email"; swap the emoji
+           for the theme's mail icon so it matches Copy link. */}}
+      {{ $rbeIcon := partial "icon.html" (dict "name" "mail") }}
+      {{ $rbe := partial "reply-by-email.html" . }}
+      {{ replaceRE `\x{270D}\x{FE0F}?\s*` (printf "%s " $rbeIcon) (string $rbe) | safeHTML }}
     </span>
   </div>
 

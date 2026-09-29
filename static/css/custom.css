@@ -3962,6 +3962,9 @@ table.link-card a[style*="inline-block"] {
 .post-actions .connect-share-label { flex: none; }
 .post-actions .connect-share-pills { flex: 1 1 0; min-width: 0; }
 .post-actions .tgo-icon { width: 14px; height: 14px; }
+/* Reply by email pill (section 24) inherits the body line-height, which
+   made it taller than Copy link; match the other pills */
+.post-actions .reply-by-email { line-height: normal !important; }
 @media (max-width: 1023px) {
   .post-actions { margin-left: var(--space-xl); margin-right: var(--space-xl); }
 }

@@ -3797,8 +3797,9 @@ table.link-card a[style*="inline-block"] {
    Sept 29, 2026: Copy link + Reply by email moved to a "This
    post" row (.post-actions) right under the post body; Follow
    gained Toby's Micro.blog, Bluesky and Mastodon profiles; Share
-   is desktop-only; under 1024px the Follow pills go icon-only
-   with a press-and-hold name bubble. The feed/copy pills reuse
+   is desktop-only; under 1024px the profiles sit as round icons
+   beside the heading and Email/RSS/JSON show just the words.
+   The feed/copy pills reuse
    custom_footer's .tgo-rss-copy clipboard script; the share
    pills' own script lives in post/single.html. Built entirely
    on the color tokens so all the timed skies work untouched.
@@ -3942,7 +3943,7 @@ table.link-card a[style*="inline-block"] {
   .connect-share-label { flex: none; }
 }
 
-/* ---- Sept 29, 2026: This post row + Follow profiles + compact icons ----
+/* ---- Sept 29, 2026: This post row + Follow profiles + heading icons ----
    Markup in post/single.html. No new colors: everything rides the
    existing tokens, so the timed skies keep working. */
 
@@ -3975,55 +3976,51 @@ table.link-card a[style*="inline-block"] {
   .connect-share-pills { flex: 1 1 0; min-width: 0; }
 }
 
-/* Under 1024px: feed + profile pills go icon-only, 40px round tap
-   targets. Press and hold (or hover/focus) shows the data-tip name
-   bubble — script in single.html. Desktop keeps full-text pills. */
-@media (max-width: 1023px) {
-  .cs-pill--icon {
-    position: relative;
-    width: 40px;
-    padding: 0;
-    justify-content: center;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  .cs-pill--icon .cs-pill-text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  .connect-share .cs-pill--icon .tgo-icon { width: 16px; height: 16px; }
-  .cs-pill--icon::after {
-    content: attr(data-tip);
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translate(-50%, 4px);
-    padding: 5px 10px;
-    border-radius: var(--radius);
-    background: var(--color-text);
-    color: var(--color-bg);
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.12s, transform 0.12s;
-    z-index: 5;
-  }
-  /* last icon (Mastodon) lines its bubble up to the right so it
-     never runs off the screen */
-  .cs-pill--icon:last-child::after { left: auto; right: 0; transform: translateY(4px); }
-  .cs-pill--icon.tip-on::after { opacity: 1; transform: translate(-50%, 0); }
-  .cs-pill--icon.tip-on:last-child::after { transform: none; }
+/* Heading row: "Connect & Share" + the three profile icons. The icons
+   only show under 1024px (phones, foldables, tablets); desktop keeps
+   the full-text profile pills inside the Follow row instead. */
+.connect-share-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
 }
-@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
-  .cs-pill--icon::after { transition: none; }
+.connect-share-top .connect-share-heading { margin: 0; }
+.cs-social-top { display: none; gap: 6px; align-items: center; }
+.cs-pill--icon {
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  justify-content: center;
+}
+.connect-share .cs-pill--icon .tgo-icon { width: 16px; height: 16px; }
+/* Links (Email, profiles) inherited the body line-height and sat a
+   few px taller than the button pills; match them */
+.connect-share .cs-pill { line-height: normal; }
+@media (max-width: 1023px) {
+  .cs-social-top { display: flex; }
+  .cs-social-inline { display: none; }
+  /* Email / RSS / JSON: words only (RSS/JSON still show "Copied!") */
+  .connect-share .cs-feed-pill .tgo-icon { display: none; }
+}
+
+/* Touch screens (Sept 29, 2026): no grey/blue tap flash, and no
+   "sticky hover" — phones keep :hover on the last thing tapped, which
+   left pills filled in after a tap. Hover fills stay for mouse users;
+   the Copied state still shows. */
+.cs-pill,
+.post-actions .reply-by-email { -webkit-tap-highlight-color: transparent; }
+@media (hover: none) {
+  .cs-pill:hover:not(.is-copied) { background: transparent; }
+  .cs-pill--solid:hover {
+    background: var(--color-terra);
+    border-color: var(--color-terra);
+  }
+  .post-actions .reply-by-email:hover {
+    background: transparent !important;
+    border-color: var(--color-terra) !important;
+  }
 }
 
 /* No Share row on phones, or on touch devices under 1024px (foldables,
@@ -4037,27 +4034,17 @@ table.link-card a[style*="inline-block"] {
   .connect-share .cs-follow-label { display: none; }
 }
 
-/* Phones: tighter card + side margins so Email + five icons fit on
-   one line (html is 20px here, so rem spacing runs large). The
-   "This post" label steps aside so Copy link + Reply by email stay
-   on one line; the rule above the row already sets it apart. */
+/* Phones: narrower side margins and a tighter card (html is 20px
+   here, so rem spacing runs large). The "This post" label steps aside
+   so Copy link + Reply by email stay on one line; the rule above the
+   row already sets it apart. */
 @media (max-width: 599px) {
   .connect-share,
   .post-actions { margin-left: var(--space-md); margin-right: var(--space-md); }
   .connect-share { padding: 14px 12px 14px 14px; }
-  .connect-share .cs-pill--solid { padding-left: 12px; padding-right: 12px; }
   .connect-share-tagline { margin-bottom: 12px; }
   .connect-share-pills { gap: 6px; }
-  .cs-pill--icon { width: 38px; min-height: 38px; }
   .post-actions .connect-share-label { display: none; }
-}
-
-/* Small phones (~360px): slightly smaller round buttons so the
-   Follow row still fits on one line */
-@media (max-width: 374px) {
-  .connect-share-pills { gap: 4px; }
-  .connect-share .cs-pill--solid { padding-left: 10px; padding-right: 10px; }
-  .cs-pill--icon { width: 36px; min-height: 36px; }
 }
 
 /* Join the conversation — moved inside the article July 29, 2026,

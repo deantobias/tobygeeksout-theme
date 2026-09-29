@@ -122,38 +122,70 @@
     {{ end }}
   </div>
 
-  {{/* Connect & Share (July 29, 2026) — replaces the old subscribe
-       line AND the standalone Reply by Email row. One card, two rows:
-       Follow (email, RSS, JSON — the feed pills copy their URL via
-       custom_footer's .tgo-rss-copy clipboard script) and Share
-       (Micro.blog app-or-web, Bluesky, Mastodon ask-once instance,
-       copy link, reply by email). Share text comes from data-title/
-       data-url; the script sits near the end of this template.
-       Styled in custom.css section 43. */}}
+  {{/* This post (Sept 29, 2026) — Copy link + Reply by email moved out
+       of Connect & Share to sit right under the post body: they're
+       about THIS post, so they come first. Copy link uses
+       custom_footer's .tgo-rss-copy clipboard script. Styled in
+       custom.css section 43. */}}
+  <div class="post-actions">
+    <span class="connect-share-label">This post</span>
+    <span class="connect-share-pills">
+      <button type="button" class="cs-pill tgo-rss-copy" data-feed-url="{{ .Permalink }}">
+        {{ partial "icon.html" (dict "name" "link" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">Copy link</span>
+      </button>
+      {{ partial "reply-by-email.html" . }}
+    </span>
+  </div>
+
+  {{/* Connect & Share (July 29, 2026; reworked Sept 29, 2026).
+       Follow: Email, RSS, JSON, plus Toby's Micro.blog, Bluesky and
+       Mastodon profiles (rel="me" so Mastodon can verify the blog).
+       Share: Micro.blog app-or-web, Bluesky, Mastodon ask-once
+       instance — desktop only. Touch devices under 1024px (foldables,
+       tablets) and all phones hide the Share row, "& Share" and the
+       Follow label, since the device's own share sheet covers sharing.
+       Under 1024px the feed + profile pills go icon-only (.cs-pill--icon)
+       with a press-and-hold / hover name bubble from data-tip.
+       Share text comes from data-title/data-url; the scripts sit near
+       the end of this template. Styled in custom.css section 43. */}}
   {{ $shareText := .Permalink }}{{ with .Title }}{{ $shareText = printf "%s %s" . $.Permalink }}{{ end }}
   <div class="connect-share" id="connect-share" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
-    <p class="connect-share-heading">Connect &amp; Share</p>
-    <p class="connect-share-tagline">Enjoyed this? Get new posts in your inbox.</p>
+    <p class="connect-share-heading">Connect<span class="cs-heading-share"> &amp; Share</span></p>
+    <p class="connect-share-tagline">Enjoyed this? Follow along wherever you like to read.</p>
     <div class="connect-share-row">
-      <span class="connect-share-label">Follow</span>
+      <span class="connect-share-label cs-follow-label">Follow</span>
       <span class="connect-share-pills">
         <a class="cs-pill cs-pill--solid" href="https://tobygeeksout.micro.blog/subscribe/">
           {{ partial "icon.html" (dict "name" "mail") }} Email
         </a>
-        <button type="button" class="cs-pill tgo-rss-copy"
+        <button type="button" class="cs-pill cs-pill--icon tgo-rss-copy" data-tip="Copy RSS feed"
           data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
           {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
           {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-          <span class="tgo-rss-label">RSS</span>
+          <span class="tgo-rss-label cs-pill-text">RSS</span>
         </button>
-        <button type="button" class="cs-pill tgo-rss-copy" data-feed-url="{{ .Site.BaseURL }}feed.json">
+        <button type="button" class="cs-pill cs-pill--icon tgo-rss-copy" data-tip="Copy JSON feed" data-feed-url="{{ .Site.BaseURL }}feed.json">
           {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
           {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-          <span class="tgo-rss-label">JSON</span>
+          <span class="tgo-rss-label cs-pill-text">JSON</span>
         </button>
+        <a class="cs-pill cs-pill--icon" href="https://micro.blog/technogeek75" target="_blank" rel="me noopener"
+          aria-label="Follow on Micro.blog" data-tip="Follow on Micro.blog">
+          {{ partial "icon.html" (dict "name" "microblog") }} <span class="cs-pill-text">Micro.blog</span>
+        </a>
+        <a class="cs-pill cs-pill--icon" href="https://bsky.app/profile/technogeek75.bsky.social" target="_blank" rel="me noopener"
+          aria-label="Follow on Bluesky" data-tip="Follow on Bluesky">
+          {{ partial "icon.html" (dict "name" "bluesky") }} <span class="cs-pill-text">Bluesky</span>
+        </a>
+        <a class="cs-pill cs-pill--icon" href="https://mastodon.social/@technogeek75" target="_blank" rel="me noopener"
+          aria-label="Follow on Mastodon" data-tip="Follow on Mastodon">
+          {{ partial "icon.html" (dict "name" "mastodon") }} <span class="cs-pill-text">Mastodon</span>
+        </a>
       </span>
     </div>
-    <div class="connect-share-row">
+    <div class="connect-share-row cs-share-row">
       <span class="connect-share-label">Share</span>
       <span class="connect-share-pills">
         <button type="button" class="cs-pill" id="cs-microblog">
@@ -165,12 +197,6 @@
         <button type="button" class="cs-pill" id="cs-mastodon">
           {{ partial "icon.html" (dict "name" "mastodon") }} Mastodon
         </button>
-        <button type="button" class="cs-pill tgo-rss-copy" data-feed-url="{{ .Permalink }}">
-          {{ partial "icon.html" (dict "name" "link" "class" "tgo-rss-icon") }}
-          {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-          <span class="tgo-rss-label">Copy link</span>
-        </button>
-        {{ partial "reply-by-email.html" . }}
       </span>
     </div>
     <div class="cs-masto-prompt" id="cs-masto-prompt" hidden>
@@ -439,6 +465,40 @@
   });
   if (go) go.addEventListener('click', submitMasto);
   if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitMasto(); });
+})();
+</script>
+
+<script>
+/* Follow icon labels (Sept 29, 2026): under 1024px the feed + profile
+   pills are icon-only (.cs-pill--icon). Press and hold ~450ms shows the
+   data-tip name bubble (custom.css section 43) and swallows that one
+   click so the reader can check without leaving; a quick tap works as
+   normal. Mouse hover and keyboard focus show the same bubble. The
+   long-press callout is turned off on these buttons only. */
+(function () {
+  var pills = document.querySelectorAll('.connect-share .cs-pill--icon');
+  if (!pills.length) return;
+  var compact = window.matchMedia('(max-width: 1023px)');
+  pills.forEach(function (btn) {
+    var timer, hideT, held = false;
+    function show() { if (!compact.matches) return; clearTimeout(hideT); btn.classList.add('tip-on'); }
+    function hide(delay) { clearTimeout(hideT); hideT = setTimeout(function () { btn.classList.remove('tip-on'); }, delay || 0); }
+    btn.addEventListener('touchstart', function () {
+      held = false;
+      if (!compact.matches) return;
+      timer = setTimeout(function () { held = true; show(); }, 450);
+    }, { passive: true });
+    btn.addEventListener('touchmove', function () { clearTimeout(timer); }, { passive: true });
+    btn.addEventListener('touchend', function () { clearTimeout(timer); if (held) hide(1400); });
+    btn.addEventListener('click', function (e) {
+      if (held) { e.preventDefault(); e.stopImmediatePropagation(); held = false; }
+    }, true);
+    btn.addEventListener('contextmenu', function (e) { if (compact.matches) e.preventDefault(); });
+    btn.addEventListener('mouseenter', show);
+    btn.addEventListener('mouseleave', function () { hide(); });
+    btn.addEventListener('focus', show);
+    btn.addEventListener('blur', function () { hide(); });
+  });
 })();
 </script>
 

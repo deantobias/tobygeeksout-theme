@@ -74,17 +74,27 @@
 </div>
 <div class="subscribe-strip">
   <div class="subscribe-inner">
-    <p class="subscribe-heading">Get it in your inbox</p>
+    {{/* Sept 29, 2026: heading was "Get it in your inbox", which only
+         fits email; RSS and JSON aren't an inbox. JSON button added so
+         the strip matches the rail and the post Connect card. Short
+         labels (Email / RSS / JSON) keep all three on one row on phones. */}}
+    <p class="subscribe-heading">Follow along</p>
     <p class="subscribe-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
     <div class="subscribe-actions">
       <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">
-        {{ partial "icon.html" (dict "name" "mail") }} Subscribe by email
+        {{ partial "icon.html" (dict "name" "mail") }} Email
       </a>
       <button type="button" class="btn-subscribe btn-subscribe-quiet" id="tgo-rss-copy"
         data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
         {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
         {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-        <span class="tgo-rss-label">Subscribe via RSS</span>
+        <span class="tgo-rss-label">RSS</span>
+      </button>
+      <button type="button" class="btn-subscribe btn-subscribe-quiet tgo-rss-copy"
+        data-feed-url="{{ .Site.BaseURL }}feed.json">
+        {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">JSON</span>
       </button>
     </div>
     {{/* The standalone /newsletters/ list route isn't controlled by

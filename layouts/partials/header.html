@@ -93,7 +93,7 @@
   </nav>
 
   <div class="rail-subscribe">
-    <p class="rail-sub-heading">Get it in your inbox</p>
+    <p class="rail-sub-heading">Follow along</p>
     <p class="rail-sub-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
     <a href="https://tobygeeksout.micro.blog/subscribe/" class="rail-btn rail-btn--primary">
       {{ partial "icon.html" (dict "name" "mail") }} Subscribe by email
@@ -102,13 +102,13 @@
       data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
       {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
       {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-      <span class="tgo-rss-label">RSS (XML)</span>
+      <span class="tgo-rss-label">RSS</span>
     </button>
     <button type="button" class="rail-btn rail-btn--quiet tgo-rss-copy"
       data-feed-url="{{ .Site.BaseURL }}feed.json">
-      {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+      {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
       {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-      <span class="tgo-rss-label">RSS (JSON)</span>
+      <span class="tgo-rss-label">JSON</span>
     </button>
     {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
     <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="rail-newsletters">Browse past newsletters →</a>

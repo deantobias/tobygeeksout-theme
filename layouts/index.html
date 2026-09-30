@@ -41,9 +41,10 @@
        Recent Geekouts - now INCLUDES Spotlight posts, tagged
          "★ Spotlight" (the tag links to /categories/spotlight/). The
          rabbit + Hey! stand at the right end of its rule on desktop.
-       From the archive - inside Recent Geekouts: the newest Spotlight
-         post not already above is PINNED first, plus 2 random older
-         posts with Shuffle.
+       Pinned Spotlight - the newest Spotlight post, in a slim row
+         right under the Recent Geekouts heading.
+       From the archive - inside Recent Geekouts: 3 random older posts
+         with Shuffle.
          Replaces the Spotlight marquee and "More in the Spotlight".
        Micro + Word Nerd Alert side by side (stacked below 1024)
        Watching & Reading - three cover cards (latest rating, newest
@@ -76,6 +77,19 @@
   {{ if not .Title }}{{ $skip = true }}{{ end }}
   {{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
+{{ end }}
+{{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent
+     Geekouts"): the newest titled Spotlight post is pinned in a slim row
+     right under the Recent Geekouts heading, until a newer Spotlight
+     post replaces it. It comes straight from the Spotlight category, and
+     it is taken OUT of the pool below so it never shows twice (not in
+     the rows, not in From the archive). */}}
+{{ $pin := false }}
+{{ range $spotlightPosts }}{{ if and (not $pin) .Title }}{{ $pin = . }}{{ end }}{{ end }}
+{{ if $pin }}
+  {{ $unpinned := slice }}
+  {{ range $recentPool }}{{ if ne .RelPermalink $pin.RelPermalink }}{{ $unpinned = $unpinned | append . }}{{ end }}{{ end }}
+  {{ $recentPool = $unpinned }}
 {{ end }}
 {{ $recent := first 6 $recentPool }}
 {{ $spotURL := "/categories/spotlight/" | absURL }}
@@ -173,6 +187,13 @@
     try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
   })();
   </script>
+  {{ with $pin }}
+  <div class="rg-pin">
+    <span class="rg-pin-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a><span class="rg-pin-label">Pinned</span></span>
+    <a class="rg-pin-title journal-stretch" href="{{ .Permalink }}">{{ .Title }}</a>
+    <time class="rg-pin-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+  </div>
+  {{ end }}
   <div class="journal-list">
   {{ range $i, $p := $recent }}
     {{/* Journal entry — the whole row is the permalink. Date block
@@ -277,49 +298,29 @@
        Recent Geekouts. Same pool as Recent Geekouts (same exclusions,
        titled posts only) minus the six already showing above - so no
        reading, bookshelf, watchlist or rating posts, ever.
-       PINNED FIRST (Toby, Sept 30: "it should show recent spotlight and
-       pinned"): the newest Spotlight post that is NOT already showing
-       in Recent Geekouts always holds the first slot, with its
-       "★ Spotlight" tag linking to the Spotlight archive. It comes
-       straight from the Spotlight category, so it shows even if that
-       post also carries an excluded category. The other two slots are
-       random older posts (older Spotlights included) and change on
-       every visit and every Shuffle; the pinned one never moves. With
-       no Spotlight left to pin, all three slots are random.
+       The pinned Spotlight now sits at the TOP of Recent Geekouts (see
+       the pin block up top) and is not in this pool. Older Spotlight
+       posts can still turn up here, with their "★ Spotlight" tag.
        Hugo renders a first set so the panel works with JS off. The
        random pool rides along as JSON, capped at the 250 most recent
        older posts to keep the page light.
        No "Surprise me" here on purpose: it lives in the rail (desktop)
        and the welcome line (phones) - one per screen.
        ============================================================ */}}
-  {{- $recentURLs := slice -}}
-  {{- range $recent -}}{{- $recentURLs = $recentURLs | append .RelPermalink -}}{{- end -}}
-  {{- $pin := false -}}
-  {{- range $spotlightPosts -}}
-    {{- if and (not $pin) .Title (not (in $recentURLs .RelPermalink)) -}}{{- $pin = . -}}{{- end -}}
-  {{- end -}}
   {{- $archAll := after 6 $recentPool -}}
   {{- $archData := slice -}}
   {{- $archFirst := slice -}}
   {{- range first 250 $archAll -}}
-    {{- if not (and $pin (eq .RelPermalink $pin.RelPermalink)) -}}
-      {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight")) -}}
-      {{- if lt (len $archFirst) (cond (ne $pin false) 2 3) -}}{{- $archFirst = $archFirst | append . -}}{{- end -}}
-    {{- end -}}
+    {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight")) -}}
+    {{- if lt (len $archFirst) 3 -}}{{- $archFirst = $archFirst | append . -}}{{- end -}}
   {{- end -}}
-  {{ if or $pin $archData }}
+  {{ if $archData }}
   <section class="arch" aria-labelledby="arch-heading">
     <div class="arch-head">
       <h3 class="arch-title" id="arch-heading">From the archive</h3>
       <button type="button" class="arch-shuffle" id="arch-shuffle" hidden>↻ Shuffle</button>
     </div>
     <ol class="arch-list" id="arch-list" aria-live="polite">
-      {{ with $pin }}
-      <li class="arch-item arch-item--pin">
-        <span class="arch-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a><span class="arch-date">{{ .Date.Format "Jan 2, 2006" }}</span></span>
-        <a class="arch-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
-      </li>
-      {{ end }}
       {{ range $archFirst }}
       <li class="arch-item arch-item--deal">
         <span class="arch-meta">{{ if in .Params.categories "Spotlight" }}<a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>{{ end }}<span class="arch-date">{{ .Date.Format "Jan 2, 2006" }}</span></span>
@@ -336,7 +337,7 @@
       if (!list || !btn || !src) return;
       var pool = [];
       try { pool = JSON.parse(src.textContent) || []; } catch (e) { return; }
-      var slots = list.querySelector('.arch-item--pin') ? 2 : 3;
+      var slots = 3;
       if (pool.length <= slots) return;
       var spotURL = {{ $spotURL }};
       function pick(arr, n) {
@@ -467,17 +468,24 @@
   </div>
   {{ end }}
   {{ if $wordPool }}
-    {{ $words := first 7 $wordPool }}
-    {{ $now := index $words 0 }}
+    {{ $now := index $wordPool 0 }}
     {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
 
+    {{/* Sept 30, 2026 (Toby): the "Before this" pills are gone from the
+         home page - three rows of them ate the space the word itself
+         needs now that it shares a row with the micro. "All words →"
+         stays, moved up into the label row to mirror the micro card's
+         "More micros →". With no pills there is nothing to swap, so
+         the hidden word store and "Back to today" went too (the swap
+         script in custom_footer.html exits early when the store is
+         absent). The pills still live in git history (commit 80ec667). */}}
     <section class="wna" aria-labelledby="wna-heading">
       <p class="wna-eyebrow">
         <strong id="wna-heading">Word Nerd Alert</strong>
         <a class="wna-permalink" href="{{ $now.RelPermalink }}">
           <time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "2 Jan 2006" }}</time>
         </a>
-        <button type="button" class="wna-older" hidden>← Back to today</button>
+        <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
       </p>
 
       <div class="wna-body" aria-live="polite">
@@ -488,32 +496,6 @@
            word to the micro's height; opens the word's own post, same
            tab. Follows whichever word a "Before this" pill swaps in. */}}
       <a class="wna-more" href="{{ $now.RelPermalink }}">Keep reading →</a>
-
-      {{ if gt (len $words) 1 }}
-      <div class="wna-prev">
-        <span class="wna-prev-label">Before this</span>
-        {{ range $i, $p := $words }}
-          {{ if gt $i 0 }}
-            {{ $label := replaceRE `^.*?:\s*` "" $p.Title }}
-            {{ with index (findRE `(?s)class="define-word"[^>]*>.*?</p>` $p.Content 1) 0 }}
-              {{ $label = trim (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?>(.*?)</p>$` "$1" .)) " " }}
-            {{ end }}
-            <a class="wna-chip" href="{{ $p.RelPermalink }}" data-i="{{ $i }}">{{ $label }}</a>
-          {{ end }}
-        {{ end }}
-        <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
-      </div>
-      {{ end }}
-
-      {{/* Hidden store: every word's body, so a pill can swap the band
-           in place instead of navigating away. <template> content is
-           parsed but not rendered, so it costs layout nothing. */}}
-      {{ range $i, $p := $words }}
-        <template class="wna-store" data-i="{{ $i }}"
-                  data-url="{{ $p.RelPermalink }}"
-                  data-date="{{ $p.Date.Format "2 Jan 2006" }}"
-                  data-iso="{{ $p.Date.Format "2006-01-02" }}">{{ replaceRE $stripImg "" $p.Content | safeHTML }}</template>
-      {{ end }}
     </section>
   {{ end }}
   </div>

@@ -84,14 +84,31 @@
      post replaces it. It comes straight from the Spotlight category, and
      it is taken OUT of the pool below so it never shows twice (not in
      the rows, not in From the archive). */}}
+{{/* TWO-WEEK PIN (Sept 30, 2026, Toby): the pin lasts 14 days from
+     the post's date, then the post goes back into Recent Geekouts at
+     its own date with its "★ Spotlight" tag. Micro.blog only rebuilds
+     on publish, so the 14-day check runs in the BROWSER (script above
+     the pin row sets html.tgo-pin-live); the build only drops a pin
+     that is already past 14 days. When the pinned post would also be
+     one of the six rows, both versions of the list are rendered:
+       .journal-list--pin    pin live: rows WITHOUT the pinned post
+       .journal-list--nopin  pin over: rows WITH it, at its date
+     CSS section 95 shows one. No JS = the pin is over (safe default:
+     the post is in the list). */}}
 {{ $pin := false }}
 {{ range $spotlightPosts }}{{ if and (not $pin) .Title }}{{ $pin = . }}{{ end }}{{ end }}
-{{ if $pin }}
-  {{ $unpinned := slice }}
-  {{ range $recentPool }}{{ if ne .RelPermalink $pin.RelPermalink }}{{ $unpinned = $unpinned | append . }}{{ end }}{{ end }}
-  {{ $recentPool = $unpinned }}
-{{ end }}
+{{ if $pin }}{{ if ge (now.Sub $pin.Date).Hours 336 }}{{ $pin = false }}{{ end }}{{ end }}
+{{ $pinURL := "" }}
+{{ with $pin }}{{ $pinURL = .RelPermalink }}{{ end }}
 {{ $recent := first 6 $recentPool }}
+{{ $pinInRows := false }}
+{{ range $recent }}{{ if eq .RelPermalink $pinURL }}{{ $pinInRows = true }}{{ end }}{{ end }}
+{{ $lists := slice (dict "rows" $recent "cls" "") }}
+{{ if $pinInRows }}
+  {{ $unpinned := slice }}
+  {{ range $recentPool }}{{ if ne .RelPermalink $pinURL }}{{ $unpinned = $unpinned | append . }}{{ end }}{{ end }}
+  {{ $lists = slice (dict "rows" (first 6 $unpinned) "cls" " journal-list--pin") (dict "rows" $recent "cls" " journal-list--nopin") }}
+{{ end }}
 {{ $spotURL := "/categories/spotlight/" | absURL }}
 {{/* WCAG 1.3.1 / 2.4.6 (Aug 18, 2026): the home page had no h1 at all —
      its heading outline started at the h2 post titles. Post and archive
@@ -188,14 +205,21 @@
   })();
   </script>
   {{ with $pin }}
+  <script>
+  (function () {
+    /* Two-week pin: live for 14 days from the post's date. */
+    if (Date.now() - {{ .Date.Unix }} * 1000 < 14 * 864e5) document.documentElement.classList.add('tgo-pin-live');
+  })();
+  </script>
   <div class="rg-pin">
     <span class="rg-pin-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a></span>
     <a class="rg-pin-title journal-stretch" href="{{ .Permalink }}">{{ .Title }}</a>
     <time class="rg-pin-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
   </div>
   {{ end }}
-  <div class="journal-list">
-  {{ range $i, $p := $recent }}
+  {{ range $lists }}
+  <div class="journal-list{{ .cls }}">
+  {{ range $i, $p := .rows }}
     {{/* Journal entry — the whole row is the permalink. Date block
          keeps the exact same day/month/year setup the cards had. */}}
     {{/* Thumbnail (July 25, 2026, Toby): ONLY images Toby uploaded
@@ -291,6 +315,7 @@
     {{ end }}
   {{ end }}
   </div>
+  {{ end }}
 
   {{/* ============================================================
        FROM THE ARCHIVE (Sept 30, 2026, Toby)
@@ -307,11 +332,15 @@
        No "Surprise me" here on purpose: it lives in the rail (desktop)
        and the welcome line (phones) - one per screen.
        ============================================================ */}}
-  {{- $archAll := after 6 $recentPool -}}
+  {{/* Two-week pin: when both list versions render, they cover the
+       first SEVEN posts, so the archive starts after 7. A live pin
+       that is older than the rows is flagged "p" and the shuffle
+       skips it while the pin is up. */}}
+  {{- $archAll := after (cond $pinInRows 7 6) $recentPool -}}
   {{- $archData := slice -}}
   {{- $archFirst := slice -}}
   {{- range first 250 $archAll -}}
-    {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight")) -}}
+    {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight") "p" (eq .RelPermalink $pinURL)) -}}
     {{- if lt (len $archFirst) 3 -}}{{- $archFirst = $archFirst | append . -}}{{- end -}}
   {{- end -}}
   {{ if $archData }}
@@ -337,6 +366,7 @@
       if (!list || !btn || !src) return;
       var pool = [];
       try { pool = JSON.parse(src.textContent) || []; } catch (e) { return; }
+      if (document.documentElement.classList.contains('tgo-pin-live')) pool = pool.filter(function (p) { return !p.p; });
       var slots = 3;
       if (pool.length <= slots) return;
       var spotURL = {{ $spotURL }};

@@ -11113,6 +11113,13 @@ h2.feed-label {
   .rg-pin { padding: 0.85rem 1rem; }
   .rg-pin-title { flex-basis: 100%; font-size: 1.15rem; }
 }
+/* Two-week pin (Toby, Sept 30): the pin row and the "pin live" list
+   show only while html.tgo-pin-live is set (script above the pin row,
+   14 days from the post's date). Otherwise the post sits in the list
+   at its own date with its ★ tag. No JS = pin over. */
+html:not(.tgo-pin-live) .rg-pin,
+html:not(.tgo-pin-live) .journal-list--pin,
+html.tgo-pin-live .journal-list--nopin { display: none !important; }
 
 /* ---- From the archive ---- */
 .arch {

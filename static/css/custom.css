@@ -4388,6 +4388,10 @@ html.tgo-anim {
   .site-nav-row:has(.tgo-sky-btn--nav)::after { content: none; }
 }
 @media (max-width: 767px) { .tgo-sky-btn--header { display: inline-flex; } }
+/* Phones (Sep 30, 2026, Toby): nudged 10px up from center so the pill
+   clears the top of the "Out!" in the wordmark. Posts override this
+   (the toggle is a flex item there, transform: none). */
+@media (max-width: 767px) { .tgo-sky-btn--header { transform: translateY(calc(-50% - 10px)); } }
 @media (min-width: 768px) { .tgo-sky-btn--nav    { display: inline-flex; } }
 
 /* Sun icon */
@@ -6953,6 +6957,25 @@ main > .page-header,
 }
 @media (max-width: 639px) {
   .tgo-rabbit--strip { width: 52px; }
+}
+/* Phones (Sep 30, 2026, Toby: "rabbit ear is slightly cut off").
+   Centered on the whole strip, the rabbit rode up under the fixed
+   header once the strip got shorter (Sept 30 trim): the strip's top
+   padding IS the header clearance, so "50%" sat him ~4px under the
+   header's bottom edge. He now lines up with the top of "Hi, I'm
+   Toby" (same +48 / +72px clearance the text uses), and the Hey!
+   bubble sits above the heading in the gap under the header instead
+   of covering "Toby". */
+@media (max-width: 767px) {
+  .tgo-rabbit--strip {
+    top: calc(var(--header-actual-h, var(--header-h)) + 48px);
+    transform: translateX(100%);
+  }
+  .tgo-rabbit--strip.is-in { transform: translateX(0); }
+  .tgo-rabbit--strip .tgo-rabbit-bubble { top: -40px; right: calc(100% - 6px); }
+}
+@media (min-width: 600px) and (max-width: 767px) {
+  .tgo-rabbit--strip { top: calc(var(--header-actual-h, var(--header-h)) + 72px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

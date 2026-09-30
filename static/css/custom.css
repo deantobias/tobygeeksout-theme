@@ -4669,6 +4669,23 @@ body.tgo-night .about-text a { color: #E0906B; }
 .define-card .define-word    { font-family: var(--font-display); }
 .define-card .define-def     { font-family: var(--font-body); }
 
+/* Hanging indent for numbered senses (Sep 30, 2026, Toby). A long
+   sense used to wrap back under its number (": eager" flush left).
+   The number now sits in a fixed 22px slot and wrapped lines line up
+   with the text after it, the same 22px the examples are indented
+   (inline margin-left:22px), so each sense reads as one block.
+   Single-sense cards (no .define-num) are untouched. Blog only; the
+   email keeps its inline layout. */
+.define-card .define-def:has(.define-num) {
+  padding-left: 22px;
+  text-indent: -22px;
+}
+.define-card .define-num {
+  display: inline-block;
+  min-width: 22px;
+  text-indent: 0;
+}
+
 /* Night footer override removed July 22, 2026 — the footer no longer
    has its own background (simplified, rides the sky bg directly), so
    the old terracotta-after-dark panel is obsolete. */
@@ -11258,6 +11275,12 @@ h2.feed-label {
   padding: 1.1rem 0 0;
   border-bottom: 0;
 }
+/* No big day/month in the micro card (Sep 30, Toby: "we don't need big
+   date and month since the permalink takes care of it"). The ledger
+   date is aria-hidden already; the permalink date at the bottom is
+   the real one. The text takes the full card width. */
+.home-pair .micro-section .journal-date { display: none; }
+.home-pair .micro-section .micro-entry { grid-template-columns: minmax(0, 1fr); gap: 0; }
 @media (min-width: 1024px) {
   .home-pair--two { align-items: stretch; }
 }
@@ -11355,6 +11378,13 @@ h2.feed-label {
   .home-pair--two .micro-entry-main { display: flex; flex-direction: column; min-height: 0; }
   .home-pair--two .micro-entry-text { flex: 0 1 auto; min-height: 0; }
   .home-pair--two .micro-entry-date { flex: none; }
+  /* Dates to the bottom edge (Sep 30, Toby): when one card is shorter
+     than the pair, its date used to sit right under the text and
+     leave a gap below. Pushed down, both dates share the bottom line.
+     Skipped when the card is cut - then "Keep reading" owns the
+     bottom and the date stays right under the text. */
+  .home-pair--two .micro-entry-text:not(.is-cut) ~ .micro-entry-date,
+  .home-pair--two .wna-body:not(.is-cut) ~ .wna-date { margin-top: auto; }
   /* word: card > eyebrow, body, pills, link */
   .home-pair--two .wna-eyebrow { order: 1; flex: none; }
   .home-pair--two .wna-body { order: 2; flex: 0 1 auto; min-height: 0; }

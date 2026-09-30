@@ -2761,6 +2761,14 @@ body.page .post-header {
   padding: var(--space-xl) var(--page-pad) var(--space-2xl);
   text-align: center;
 }
+/* Search -> footer gap (Sep 30, 2026, Toby). With the rail up (768+),
+   search is the last thing in the column, and its 60px bottom padding
+   stacked on the feed's 30px + the footer's 60px margin + 20px padding
+   left ~170px of empty page under it vs ~40px above. Dropped to ~110px.
+   Phones keep the padding: "Follow along" sits under search there. */
+@media (min-width: 768px) {
+  .homepage-search { padding-bottom: 0; }
+}
 
 .homepage-search-inner {
   display: flex !important;

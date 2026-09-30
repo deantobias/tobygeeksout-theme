@@ -11035,8 +11035,9 @@ h2.feed-label {
 
 /* ---- Pinned Spotlight row (Toby, Sept 30: "top of Recent Geekouts") ----
    Slim warm row between the heading and the Latest post: tag (links to
-   the Spotlight archive), "Pinned", the title (stretched link, so the
-   whole row opens the post), date on the right. */
+   the Spotlight archive), the title (stretched link, so the whole row
+   opens the post), date on the right. No "Pinned" label and no excerpt
+   (Toby: title only, for now). */
 .rg-pin {
   position: relative;
   display: flex;
@@ -11051,14 +11052,6 @@ h2.feed-label {
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 .rg-pin-meta { display: inline-flex; align-items: center; gap: 0.55rem; }
-.rg-pin-label {
-  font-family: var(--font-body);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
 .rg-pin-title {
   flex: 1 1 16rem;
   min-width: 0;
@@ -11254,13 +11247,54 @@ h2.feed-label {
 }
 
 /* Word card label row (Toby, Sept 30): the "Before this" pills are
-   gone from home; "All words →" moved up into the label row, right
-   side, mirroring the micro card's "More micros →". The date drops to
-   its own line under the label so the row never wraps at half width. */
+   gone from home; "All words →" sits in the label row, right side,
+   mirroring the micro card's "More micros →". The date is at the
+   BOTTOM now, styled like the micro's date. */
 .home-pair .wna-eyebrow { align-items: baseline; }
-.home-pair .wna-eyebrow strong { order: 1; }
-.home-pair .wna-eyebrow .wna-all { order: 2; margin-left: auto; }
-.home-pair .wna-eyebrow .wna-permalink { order: 3; flex-basis: 100%; }
+.home-pair .wna-eyebrow .wna-all { margin-left: auto; }
+.wna-date {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: none;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.wna-date:hover { color: var(--color-terra-text); }
+@media (min-width: 1024px) {
+  .home-pair--two .wna-date { order: 3; flex: none; align-self: flex-start; }
+}
+
+/* Word card shows the WORD (Toby: "I want define shows defines").
+   On the home page only: anything in the post outside the define card
+   (a quote, a reblog), the card's own note row, and any blockquote are
+   hidden - all still show on the post, one "Keep reading" away. The card was
+   built for email (34/40px cell padding, 54px word), so here the cell
+   padding goes and the word scales down to fit half a column; part of
+   speech, word, rule, definitions and example stay. */
+.home-pair .wna-body > :not(.define-card):not(:has(.define-card)) { display: none; }
+.home-pair .wna-body .define-card tr:has(.define-note) { display: none; }
+.home-pair .wna-body blockquote { display: none; }
+.home-pair .wna-body .define-card { margin: 0.9rem 0 0 !important; }
+.home-pair .wna-body .define-card td { padding: 0 !important; }
+.home-pair .wna-body .define-card td > table { margin: 0.55rem 0 0.9rem; }
+/* Sizes stepped down (Toby: "reduce the font sizes ... to make sure
+   it fits for most defines"). */
+.home-pair .wna-body .define-eyebrow { font-size: 0.7rem !important; margin: 0 0 0.3rem !important; }
+.home-pair .wna-body .define-word {
+  font-size: clamp(1.75rem, 2.3vw, 2.2rem) !important;
+  margin: 0 !important;
+}
+.home-pair .wna-body .define-def {
+  font-size: 1rem !important;
+  line-height: 1.45 !important;
+  margin: 0 0 0.4rem !important;
+}
+.home-pair .wna-body .define-num { font-size: 0.8rem !important; }
+.home-pair .wna-body .define-example { font-size: 0.9rem !important; }
 
 /* ---- Micro + Word Nerd Alert: fit to each other (Toby, Sept 30) ----
    Micro.blog sets no length limit on micros, and a word can run long

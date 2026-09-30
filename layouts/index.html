@@ -189,7 +189,7 @@
   </script>
   {{ with $pin }}
   <div class="rg-pin">
-    <span class="rg-pin-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a><span class="rg-pin-label">Pinned</span></span>
+    <span class="rg-pin-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a></span>
     <a class="rg-pin-title journal-stretch" href="{{ .Permalink }}">{{ .Title }}</a>
     <time class="rg-pin-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
   </div>
@@ -482,15 +482,15 @@
     <section class="wna" aria-labelledby="wna-heading">
       <p class="wna-eyebrow">
         <strong id="wna-heading">Word Nerd Alert</strong>
-        <a class="wna-permalink" href="{{ $now.RelPermalink }}">
-          <time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "2 Jan 2006" }}</time>
-        </a>
         <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
       </p>
 
       <div class="wna-body" aria-live="polite">
         {{ replaceRE $stripImg "" $now.Content | safeHTML }}
       </div>
+      {{/* Sept 30, 2026 (Toby): the date moved from the label row to the
+           bottom, written and linked exactly like the micro's date. */}}
+      <a class="wna-permalink wna-date u-url" href="{{ $now.RelPermalink }}"><time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "January 2, 2006" }}</time> ∞</a>
       {{/* Sept 30, 2026 (Toby: "what if the define gets too long?"):
            shown only when the fit script under the pair cuts this
            word to the micro's height; opens the word's own post, same
@@ -503,8 +503,9 @@
   {{/* Fit script (Sept 30, 2026, Toby): the SHORTER card sets the
        pair's height; the longer one is cut to it and shows "Keep
        reading" (CSS section 95 does the cut and the fade). Floor 16rem,
-       ceiling 36rem. Re-fits on resize, after fonts/images load, and
-       when a "Before this" pill swaps the word. Desktop only. */}}
+       ceiling 36rem - except the word card is never cut above its last
+       definition. Re-fits on resize and after fonts/images load.
+       Desktop only. */}}
   <script>
   (function () {
     var pair = document.querySelector('.home-pair--two');
@@ -536,6 +537,15 @@
       var hm = mCard.offsetHeight, hw = wCard.offsetHeight;
       pair.classList.remove('is-measuring');
       var target = Math.min(Math.max(Math.min(hm, hw), rem(16)), rem(36));
+      /* Toby: "I want define shows defines". The word card is never cut
+         above its last definition - room is kept below it for the fade
+         and the link. If that is taller than the micro, the micro just
+         keeps some empty space at the bottom. */
+      var defs = wBody.querySelectorAll('.define-card .define-def');
+      if (defs.length) {
+        var need = defs[defs.length - 1].getBoundingClientRect().bottom - wCard.getBoundingClientRect().top + rem(9.5);
+        target = Math.max(target, Math.min(need, hw));
+      }
       [[cards[0], hm], [cards[1], hw]].forEach(function (x) {
         if (x[1] > target + 2) {
           x[0][0].style.height = target + 'px';

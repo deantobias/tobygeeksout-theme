@@ -10953,25 +10953,31 @@ h2.feed-label {
 
 /* ---- the rabbit, now on the Recent Geekouts rule ----
    Desktop rail layout only (768+); phones keep the strip slot
-   (section 75 switches at the same 768 line). He stands on the
-   3px rule at its right end, "Hey!" to his left. The heading gets
-   room above it so his ears clear .feed-wrapper's overflow clip,
-   and room on the right so "Everything, by year" never sits under
-   him. Slides in from the right like the old banner slot did. */
-.feed-head--rabbit { position: relative; }
+   (section 75 switches at the same 768 line). He lives in a
+   zero-height anchor ABOVE .feed-wrapper that spans the whole content
+   column, so right:0 is the screen's right edge (Toby: "rabbit should
+   be at the end of the screen", same spot as the old banner). The
+   greet script in index.html sets his top so his feet land on the
+   3px rule. Sizes match the old banner slot: 64px on foldable-width
+   rails, 88px from 1280 up. The heading keeps room above it for his
+   ears and a little room on the right so "Everything, by year" never
+   runs under him on narrower desktops. Slides in from the edge. */
+.rg-rabbit-anchor { position: relative; height: 0; }
 .tgo-rabbit--rule {
-  top: auto;
-  bottom: 0;
+  top: 0;
   right: 0;
-  width: 56px;
+  width: 64px;
   transform: translateX(100%);
 }
 .tgo-rabbit--rule.is-in { transform: translateX(0); }
+@media (min-width: 1280px) {
+  .tgo-rabbit--rule { width: 88px; }
+}
 @media (max-width: 767px) {
-  .tgo-rabbit--rule { display: none; }
+  .rg-rabbit-anchor { display: none; }
 }
 @media (min-width: 768px) {
-  .feed-head--rabbit { margin-top: 3.25rem; padding-right: 76px; }
+  .feed-head--rabbit { margin-top: 3.25rem; padding-right: 1.5rem; }
 }
 
 /* ---- ★ Spotlight tag (links to /categories/spotlight/) ----
@@ -11195,19 +11201,58 @@ h2.feed-label {
   .home-pair .micro-section { padding: 1rem 1rem 1.1rem; }
 }
 
-/* A LONG word (several senses, a quote, a reblog card) would make
-   the half-width band tower over the micro beside it. Side by side
-   only, the body stops at 24rem with a fade and a "Show the whole
-   entry" button (added by the script in index.html only when the
-   entry is actually cut). Stacked on phones it shows in full, as
-   it always has. */
+/* ---- Micro + Word Nerd Alert: fit to each other (Toby, Sept 30) ----
+   Micro.blog sets no length limit on micros, and a word can run long
+   too. Rule Toby asked for: whichever card is SHORTER sets the height
+   of the pair; the longer one is cut to that height - its text runs
+   right down to a "Keep reading" link at the bottom (with a fade), no
+   gap - and the link opens that post. A card that fits shows in full
+   with no link. The script under the pair in index.html measures both
+   and sets the height (never below 16rem, so a one-line micro can't
+   squash the word to nothing; never above 36rem). Both "Keep reading"
+   links sit on the same line because each is the card's last line.
+   Desktop side-by-side only; stacked on phones everything shows in
+   full, as it always has. Photos inside a micro are capped so one
+   tall picture can't stretch the pair. */
+.home-pair .micro-entry-text img { max-width: 100%; max-height: 18rem; width: auto; height: auto; }
+.micro-more,
+.wna-more {
+  display: none;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+  text-decoration: none;
+}
+.micro-more:hover,
+.wna-more:hover { text-decoration: underline; text-underline-offset: 3px; }
+.micro-more:focus-visible,
+.wna-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
 @media (min-width: 1024px) {
-  .home-pair--two .wna-body.is-clamped {
-    max-height: 24rem;
-    overflow: hidden;
-    position: relative;
-  }
-  .home-pair--two .wna-body.is-clamped::after {
+  .home-pair--two.is-measuring { align-items: start; }
+  .home-pair--two .micro-section,
+  .home-pair--two .wna { display: flex; flex-direction: column; min-height: 0; }
+  .home-pair--two .micro-section { padding-bottom: 1rem; }
+  /* micro: card > .micro-entry (grid) > .micro-entry-main (column) > text */
+  .home-pair--two .micro-section .feed-head { flex: none; }
+  .home-pair--two .micro-entry { flex: 1 1 auto; min-height: 0; grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .home-pair--two .micro-entry-main { display: flex; flex-direction: column; min-height: 0; }
+  .home-pair--two .micro-entry-text { flex: 0 1 auto; min-height: 0; }
+  .home-pair--two .micro-entry-date { flex: none; }
+  /* word: card > eyebrow, body, pills, link */
+  .home-pair--two .wna-eyebrow { order: 1; flex: none; }
+  .home-pair--two .wna-body { order: 2; flex: 0 1 auto; min-height: 0; }
+  .home-pair--two .wna-prev { order: 5; flex: none; }
+  /* the link: last line, pushed to the bottom edge */
+  .home-pair--two .micro-more,
+  .home-pair--two .wna-more { order: 9; flex: none; margin-top: auto; padding-top: 0.9rem; }
+  .home-pair--two .micro-more.is-needed,
+  .home-pair--two .wna-more.is-needed { display: inline-block; align-self: flex-start; }
+  /* the cut */
+  .home-pair--two .is-cut { overflow: hidden; position: relative; }
+  .home-pair--two .is-cut::after {
     content: "";
     position: absolute;
     left: 0;
@@ -11217,27 +11262,6 @@ h2.feed-label {
     background: linear-gradient(to bottom, transparent, var(--color-bg-warm));
     pointer-events: none;
   }
-}
-.wna-more {
-  appearance: none;
-  -webkit-appearance: none;
-  display: none;
-  margin: 0.6rem 0 0;
-  padding: 0;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-terra-text);
-}
-.wna-more:hover { text-decoration: underline; text-underline-offset: 3px; }
-.wna-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
-@media (min-width: 1024px) {
-  .home-pair--two .wna-more.is-needed { display: inline-block; }
 }
 
 /* ---- Watching & Reading ---- */

@@ -653,6 +653,33 @@
       {{- $covers = merge $covers (dict $key $cover) -}}
     {{- end -}}
   {{- end -}}
+  {{/* Sept 30, 2026 (Toby: "not sure what you mean between books right
+       now"): with no Currently Reading POST, the card used to say
+       "Between books right now" even while books sat on the Micro.blog
+       "Currently reading" shelf. It now falls back to that shelf
+       (title + cover, no progress - the shelf has none). Micro.blog's
+       shelf data is read defensively: any shelf whose name squashes to
+       "currentlyreading", as a plain list or a JSON Feed ("items"),
+       with "title" and "image"/"cover_url". If nothing is found the card
+       simply invites a look at the shelf. */}}
+  {{- $shelfBook := dict -}}
+  {{- $shelfCount := 0 -}}
+  {{- if not $wrBook -}}
+    {{- with site.Data.bookshelves -}}
+      {{- range $k, $v := . -}}
+        {{- if eq (replaceRE `[^a-z]` "" (lower (printf "%v" $k))) "currentlyreading" -}}
+          {{- $list := $v -}}
+          {{- if reflect.IsMap $v -}}{{- $list = index $v "items" | default slice -}}{{- end -}}
+          {{- range $list -}}
+            {{- $shelfCount = add $shelfCount 1 -}}
+            {{- if and (eq $shelfCount 1) (reflect.IsMap .) -}}{{- $shelfBook = . -}}{{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $shelfTitle := index $shelfBook "title" | default "" -}}
+  {{- $shelfCover := index $shelfBook "image" | default (index $shelfBook "cover_url") | default "" -}}
   <section class="wr-section" aria-labelledby="wr-heading">
     <div class="feed-head">
       <h2 class="feed-label" id="wr-heading">Watching &amp; Reading</h2>
@@ -679,7 +706,8 @@
       </a>
 
       <a class="wr-card" href="{{ "/reading/" | absURL }}">
-        {{ with index $covers "book" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}
+        {{ $bookCover := index $covers "book" | default $shelfCover }}
+        {{ with $bookCover }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}
         <span class="wr-body">
           <span class="wr-name">📚 The Bookshelf</span>
           {{ with $wrBook }}
@@ -697,7 +725,11 @@
           </span>
           {{ end }}
           {{ else }}
-          <span class="wr-line">Between books right now</span>
+          {{ with $shelfTitle }}
+          <span class="wr-line">Reading now: <em>{{ . }}</em>{{ if gt $shelfCount 1 }} <span class="wr-more">+ {{ sub $shelfCount 1 }} more</span>{{ end }}</span>
+          {{ else }}
+          <span class="wr-line">See what's on my shelf</span>
+          {{ end }}
           {{ end }}
           <span class="wr-see">See the Bookshelf →</span>
         </span>

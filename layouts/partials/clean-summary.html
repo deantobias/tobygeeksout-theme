@@ -1,51 +1,154 @@
 {{/*
   partials/clean-summary.html
-  Returns a summary that always ends on a complete sentence.
-  - Front matter `description` wins if present.
-  - Otherwise: first sentence always; keeps adding sentences (up to 3)
-    while the running total stays within the character limit.
-    Short sentences → you get three. Long ones → you get one.
-  - Never cuts mid-sentence, never adds an ellipsis.
-  - Decimal numbers (5.8, $4.99, 4.5 stars, etc.) are protected from
-    being misread as sentence-ending periods (fixed 2026-09-09 — see
-    "Mine has a 5." bug on the iPhone Duo post, same class of issue
-    as the pre-existing "Dr." abbreviation limitation, which is not
-    fixed by this change).
-  Usage:  {{ partial "clean-summary.html" . }}
+  The one place every list blurb comes from (archive, category pages,
+  generic lists, newsletters). Keeps the post's bold / italic / inline
+  code instead of flattening it to plain text (Sept 30, 2026, Toby) and
+  turns define-card posts (Word of the Day) into a real blurb instead of
+  the old run-together "Noun megrim 1 : migraine 2 : vertigo".
+
+  Call with a dict (or, for plain sentence mode, just the page itself -
+  {{ partial "clean-summary.html" . }} still works, the home page uses it):
+    {{ partial "clean-summary.html" (dict "page" .) }}
+        Sentence mode. Always ends on a complete sentence.
+        - Front matter `description` wins if present (shown as plain text).
+        - Otherwise: first sentence always; keeps adding sentences (up to 3)
+          while the running total stays within the character limit.
+          Short sentences -> you get three. Long ones -> you get one.
+        - Never cuts mid-sentence, never adds an ellipsis.
+        - Decimal numbers (5.8, $4.99, 4.5 stars, etc.) are protected from
+          being misread as sentence-ending periods (fixed 2026-09-09 - see
+          "Mine has a 5." bug on the iPhone Duo post, same class of issue
+          as the pre-existing "Dr." abbreviation limitation, which is not
+          fixed by this change).
+    {{ partial "clean-summary.html" (dict "page" . "cut" 80) }}
+        Cut mode: the post's summary cut to about 80 visible characters
+        on a word boundary, "..." added. Hugo's truncate is HTML-aware, so
+        a cut inside <em> still closes the tag. Used by the archive rows and
+        the long-post cards, which used to do  Summary | plainify | truncate.
+
+  Define cards (class="define-card", the Word of the Day posts) become:
+     [part of speech] [word, only if the post has no title] 1 sense 2 sense
+  Every sense is kept, examples are left for the post itself. Everything
+  is pulled out of the card's own classes (define-eyebrow / -word / -def /
+  -num), the same ones the card CSS and the home page fit script use.
+
+  What survives in a blurb: em, strong, b, i, code (see marked.html).
+  Links are dropped on purpose - most blurbs sit inside a link already.
+
+  Output is HTML (template.HTML). Nothing from the post is ever passed
+  through unescaped: text is decoded, re-escaped, and only then are the
+  marker characters swapped back into tags.
 */}}
+{{- /* Two ways in: a dict (archive, categories, lists) or a bare Page
+       (the home page still calls it with `.`). A Page always has a Kind;
+       a dict has no such key, so `not .Kind` tells them apart. */ -}}
+{{- $p := . -}}
+{{- $cut := 0 -}}
+{{- if not .Kind -}}
+  {{- $p = .page -}}
+  {{- $cut = .cut | default 0 -}}
+{{- end -}}
 {{- $limit := 180 -}}
 {{- $maxSentences := 3 -}}
+{{- $O := "\uE000" -}}
+{{- $C := "\uE001" -}}
 {{- $out := "" -}}
+{{- $content := $p.Content -}}
 
-{{- if .Description -}}
-  {{- $out = .Description -}}
+{{- if and (not $cut) $p.Description -}}
+  {{- $out = $p.Description -}}
+
+{{- else if findRE `class="define-card"` $content -}}
+  {{- /* marker pairs for the parts of the define blurb; clean-summary
+         swaps them for <span class="blurb-*"> at the bottom */ -}}
+  {{- $pO := printf "%spos%s" $O $C -}}{{- $pC := printf "%s/pos%s" $O $C -}}
+  {{- $wO := printf "%sword%s" $O $C -}}{{- $wC := printf "%s/word%s" $O $C -}}
+  {{- $sO := printf "%ssense%s" $O $C -}}{{- $sC := printf "%s/sense%s" $O $C -}}
+  {{- $nO := printf "%snum%s" $O $C -}}{{- $nC := printf "%s/num%s" $O $C -}}
+
+  {{- $pos := "" -}}
+  {{- if findRE `class="define-eyebrow"` $content -}}
+    {{- $pos = partial "marked.html" (replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $content) -}}
+  {{- end -}}
+  {{- $word := "" -}}
+  {{- if findRE `class="define-word"` $content -}}
+    {{- $word = partial "marked.html" (replaceRE `(?s)^.*?class="define-word"[^>]*>(.*?)</p>.*$` "$1" $content) -}}
+  {{- end -}}
+
+  {{- if $pos -}}{{- $out = printf "%s%s%s%s" $out $pO $pos $pC -}}{{- end -}}
+  {{- /* The word is left out when the post has a title (the title is
+         "Word Nerd Alert: Agog" and says it already). An untitled
+         define post needs it or the blurb has no subject. */ -}}
+  {{- if and $word (not $p.Title) -}}{{- $out = printf "%s %s%s%s" $out $wO $word $wC -}}{{- end -}}
+
+  {{- range findRE `(?s)<p class="define-def"[^>]*>.*?</p>` $content -}}
+    {{- $num := "" -}}
+    {{- if findRE `class="define-num"` . -}}
+      {{- $num = trim (replaceRE `(?s)^.*?class="define-num"[^>]*>(.*?)</span>.*$` "$1" . | plainify) " \n\t\u00A0" -}}
+    {{- end -}}
+    {{- $body := partial "marked.html" (replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" .) -}}
+    {{- /* the card writes each sense MW-style, ": a driving force" */ -}}
+    {{- $body = trim $body ": \n\t" -}}
+    {{- if $body -}}
+      {{- if $num -}}{{- $body = printf "%s%s%s %s" $nO $num $nC $body -}}{{- end -}}
+      {{- $out = printf "%s %s%s%s" $out $sO $body $sC -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $out = trim $out " " -}}
+
 {{- else -}}
-  {{- /* htmlUnescape BEFORE plainify — Micro.blog stores curly quotes as entities */ -}}
-  {{- $text := .Content | htmlUnescape | plainify -}}
-  {{- $text = trim (replaceRE `\s+` " " $text) " \n\t​" -}}
+  {{- $src := $content -}}
+  {{- if $cut -}}{{- $src = $p.Summary -}}{{- end -}}
+  {{- $text := partial "marked.html" $src -}}
 
-  {{- /* protect digit.digit patterns (5.8-inch, $4.99, 4.5 stars) so the
-         sentence splitter below doesn't mistake that period for a
-         sentence end — restored right before output */ -}}
-  {{- $text = replaceRE `(\d)\.(\d)` "${1}@@DOT@@${2}" $text -}}
-
-  {{- /* split into sentences: anything up to . ! or ? (optionally followed by a closing quote) */ -}}
-  {{- $sentences := findRE `[^.!?]+[.!?]+["”’)]?` $text -}}
-
-  {{- if not $sentences -}}
-    {{- /* no punctuation at all (e.g. a one-line micro): use the whole text */ -}}
+  {{- if $cut -}}
     {{- $out = $text -}}
   {{- else -}}
-    {{- range $i, $s := $sentences -}}
-      {{- $s = trim $s " " -}}
-      {{- if eq $i 0 -}}
-        {{- $out = $s -}}
-      {{- else if and (lt $i $maxSentences) (le (add (len $out) (len $s) 1) $limit) -}}
-        {{- $out = printf "%s %s" $out $s -}}
+    {{- /* protect digit.digit patterns (5.8-inch, $4.99, 4.5 stars) so the
+           sentence splitter below doesn't mistake that period for a
+           sentence end - restored right before output */ -}}
+    {{- $text = replaceRE `(\d)\.(\d)` "${1}@@DOT@@${2}" $text -}}
+
+    {{- /* split into sentences: anything up to . ! or ? (optionally followed by a closing quote) */ -}}
+    {{- $sentences := findRE `[^.!?]+[.!?]+["”’)]?` $text -}}
+
+    {{- if not $sentences -}}
+      {{- /* no punctuation at all (e.g. a one-line micro): use the whole text */ -}}
+      {{- $out = $text -}}
+    {{- else -}}
+      {{- range $i, $s := $sentences -}}
+        {{- $s = trim $s " " -}}
+        {{- if eq $i 0 -}}
+          {{- $out = $s -}}
+        {{- else if and (lt $i $maxSentences) (le (add (len $out) (len $s) 1) $limit) -}}
+          {{- $out = printf "%s %s" $out $s -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+
+    {{- /* A sentence can end inside <em>...</em>, so close whatever is
+           still open or the tag would swallow the rest of the row. */ -}}
+    {{- range slice "em" "strong" "b" "i" "code" -}}
+      {{- $tag := . -}}
+      {{- $opens := len (findRE (printf "%s%s%s" $O $tag $C) $out) -}}
+      {{- $closes := len (findRE (printf "%s/%s%s" $O $tag $C) $out) -}}
+      {{- if gt $opens $closes -}}
+        {{- range seq (sub $opens $closes) -}}{{- $out = printf "%s%s/%s%s" $out $O $tag $C -}}{{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
 
+{{- /* Finish: restore dots, escape EVERYTHING, then turn the markers back
+       into tags. Order matters - escaping first is what makes it safe. */ -}}
 {{- $out = replaceRE `@@DOT@@` "." $out -}}
-{{- $out -}}
+{{- $out = htmlEscape $out -}}
+{{- $out = replaceRE `\x{E000}(/?)(em|strong|b|i|code)\x{E001}` "<${1}${2}>" $out -}}
+{{- $out = replaceRE `\x{E000}pos\x{E001}` `<span class="blurb-pos">` $out -}}
+{{- $out = replaceRE `\x{E000}word\x{E001}` `<span class="blurb-word">` $out -}}
+{{- $out = replaceRE `\x{E000}sense\x{E001}` `<span class="blurb-sense">` $out -}}
+{{- $out = replaceRE `\x{E000}num\x{E001}` `<span class="blurb-num">` $out -}}
+{{- $out = replaceRE `\x{E000}/(pos|word|sense|num)\x{E001}` "</span>" $out -}}
+{{- $final := safeHTML $out -}}
+{{- if $cut -}}{{- $final = $final | truncate $cut -}}{{- end -}}
+{{- $final -}}

@@ -64,8 +64,11 @@
                    dashes and ellipses as HTML entities, so plainify alone left literal
                    "&rsquo;" text in the blurbs. htmlUnescape FIRST, same order the
                    rest of the theme uses. Trim newlines/tabs too — some summaries
-                   start with a stray line break or zero-width space. */}}
-              {{ $blurb := trim (.Summary | htmlUnescape | plainify | truncate 80) " \n\t\u200b" }}
+                   start with a stray line break or zero-width space.
+                   All of that now lives in partials/clean-summary.html +
+                   marked.html (Sept 30, 2026, Toby), which ALSO keeps bold /
+                   italic / code instead of flattening to plain text. */}}
+              {{ $blurb := partial "clean-summary.html" (dict "page" . "cut" 80) }}
               <a href="{{ .Permalink }}" class="archive-item-untitled">{{ if $blurb }}{{ $blurb }}{{ else }}Untitled post from {{ .Date.Format "January 2, 2006" }}{{ end }}</a>
             {{ end }}
           </li>

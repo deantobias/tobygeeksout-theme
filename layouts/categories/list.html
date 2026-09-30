@@ -51,7 +51,7 @@
       <h2 class="cat-feature-title">
         <a href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
       </h2>
-      <p class="cat-feature-summary">{{ partial "clean-summary.html" . }}</p>
+      <p class="cat-feature-summary">{{ partial "clean-summary.html" (dict "page" .) }}</p>
       <p class="cat-feature-meta">
         <a href="{{ .Permalink }}" class="u-url"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time></a>
         {{ if and .Title .ReadingTime }} · {{ .ReadingTime }} min read{{ end }}
@@ -82,12 +82,12 @@
 
       <a class="cat-row{{ if not .Title }} cat-row--untitled{{ end }}" href="{{ .Permalink }}">
         <span class="cat-row-title">
-          <span class="cat-row-text">{{ if .Title }}{{ .Title }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
+          <span class="cat-row-text">{{ if .Title }}{{ .Title }}{{ else }}{{ partial "clean-summary.html" (dict "page" .) }}{{ end }}</span>
           <i class="cat-leader" aria-hidden="true"></i>
         </span>
         <time class="cat-row-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time>
         {{ if .Title }}
-          <span class="cat-row-blurb">{{ partial "clean-summary.html" . }}</span>
+          <span class="cat-row-blurb">{{ partial "clean-summary.html" (dict "page" .) }}</span>
         {{ end }}
       </a>
     {{ end }}

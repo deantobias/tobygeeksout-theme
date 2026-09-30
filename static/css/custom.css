@@ -11553,3 +11553,125 @@ html.tgo-pin-live .journal-list--nopin { display: none !important; }
 }
 .footer-challenges a { color: var(--color-terra-text); font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
 .footer-challenges a:hover { opacity: 0.8; }
+
+
+/* ============================================================
+   96 · SINGLE POST EDGE FADE   (Sept 30, 2026, Toby)
+   ============================================================
+   Picked from mockups v1-v2 (Claude outputs/v2-scroll-fade-mockup.html),
+   option A, the soft v2: text softens as it slides under the header
+   and as it comes up from the bottom. Two fixed bands in the page
+   color; nothing moves. Toby could see v1 (72/110px, straight fade)
+   day and night, so v2 is short (44/64px, 36/52px on phones) and
+   EASED - it thins out slowly, so there's no visible band edge.
+   The bands are drawn in var(--color-bg), set on the element itself
+   so they follow the timed skies. The script at the end of
+   layouts/post/single.html places them: top edge = the header's
+   bottom, bottom edge = the top of the phone tab bar (or the screen
+   bottom when it's tucked), width = the .post-body column so a Long
+   Read's TOC is never faded. The top band shows once you've
+   scrolled; the bottom one hides at the end of the page. Under the
+   header, tab bar and back pill (z 1000+). Hidden in print. */
+.post-edge {
+  position: fixed;
+  left: var(--post-edge-l, 0);
+  width: var(--post-edge-w, 100%);
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.post-edge--top {
+  top: var(--post-edge-top, 0);
+  height: 44px;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--color-bg) 100%, transparent) 0.0%,
+    color-mix(in srgb, var(--color-bg) 73.8%, transparent) 8.3%,
+    color-mix(in srgb, var(--color-bg) 54.1%, transparent) 16.7%,
+    color-mix(in srgb, var(--color-bg) 38.2%, transparent) 25.0%,
+    color-mix(in srgb, var(--color-bg) 27.8%, transparent) 33.3%,
+    color-mix(in srgb, var(--color-bg) 19.4%, transparent) 41.7%,
+    color-mix(in srgb, var(--color-bg) 12.6%, transparent) 50.0%,
+    color-mix(in srgb, var(--color-bg) 7.5%, transparent) 58.3%,
+    color-mix(in srgb, var(--color-bg) 4.2%, transparent) 66.7%,
+    color-mix(in srgb, var(--color-bg) 2.1%, transparent) 75.0%,
+    color-mix(in srgb, var(--color-bg) 0.8%, transparent) 83.3%,
+    color-mix(in srgb, var(--color-bg) 0.2%, transparent) 91.7%,
+    color-mix(in srgb, var(--color-bg) 0%, transparent) 100.0%
+  );
+}
+.post-edge--bottom {
+  bottom: var(--post-edge-bottom, 0);
+  height: 64px;
+  background: linear-gradient(to top,
+    color-mix(in srgb, var(--color-bg) 100%, transparent) 0.0%,
+    color-mix(in srgb, var(--color-bg) 73.8%, transparent) 8.3%,
+    color-mix(in srgb, var(--color-bg) 54.1%, transparent) 16.7%,
+    color-mix(in srgb, var(--color-bg) 38.2%, transparent) 25.0%,
+    color-mix(in srgb, var(--color-bg) 27.8%, transparent) 33.3%,
+    color-mix(in srgb, var(--color-bg) 19.4%, transparent) 41.7%,
+    color-mix(in srgb, var(--color-bg) 12.6%, transparent) 50.0%,
+    color-mix(in srgb, var(--color-bg) 7.5%, transparent) 58.3%,
+    color-mix(in srgb, var(--color-bg) 4.2%, transparent) 66.7%,
+    color-mix(in srgb, var(--color-bg) 2.1%, transparent) 75.0%,
+    color-mix(in srgb, var(--color-bg) 0.8%, transparent) 83.3%,
+    color-mix(in srgb, var(--color-bg) 0.2%, transparent) 91.7%,
+    color-mix(in srgb, var(--color-bg) 0%, transparent) 100.0%
+  );
+}
+.post-edge.is-on { opacity: 1; }
+@media (max-width: 767px) {
+  .post-edge--top { height: 36px; }
+  .post-edge--bottom { height: 52px; }
+}
+@media print {
+  .post-edge { display: none !important; }
+}
+
+/* ------------------------------------------------------------
+   96. LIST BLURBS - formatting + Word of the Day (Sept 30, 2026)
+   partials/clean-summary.html now keeps em / strong / code in the
+   blurbs on the archive, category pages and lists instead of
+   flattening them, and turns define-card posts (Word of the Day)
+   into  NOUN  1 sense  2 sense  instead of one run-together line.
+   The blurb sits in italic muted text almost everywhere, so the
+   define pieces reset to upright. Colors are existing tokens:
+   terra-text for the small caps / numerals (same ink as the row
+   dates), navy for the word.
+   ------------------------------------------------------------ */
+.cat-row-blurb em,
+.archive-item-untitled em,
+.cat-row--untitled .cat-row-text em { font-style: normal; }   /* italic inside italic reads as roman */
+
+.blurb-pos {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+  margin-right: 0.35em;
+}
+.blurb-word {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 700;
+  color: var(--color-navy);
+  margin-right: 0.3em;
+}
+.blurb-num {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.8em;
+  font-weight: 700;
+  color: var(--color-terra-text);
+  margin-right: 0.2em;
+}
+.blurb-sense + .blurb-sense { margin-left: 0.5em; }
+
+/* the feature block has room: stack the senses like the card does */
+.cat-feature-summary .blurb-pos { display: block; margin: 0 0 0.3rem; }
+.cat-feature-summary .blurb-sense { display: block; margin-left: 0; }
+.cat-feature-summary .blurb-sense + .blurb-sense { margin-top: 0.2rem; }
+.cat-feature-summary .blurb-num { margin-right: 0.35em; }

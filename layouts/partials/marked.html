@@ -1,0 +1,43 @@
+{{- /* ------------------------------------------------------------------
+     layouts/partials/marked.html  (Sept 30, 2026, Toby)
+
+     Turns a chunk of post HTML into "marked text" for the list blurbs
+     (partials/clean-summary.html is the only caller).
+
+     WHY: the blurbs used to run  htmlUnescape | plainify , which flattens
+     bold, italics and inline code into plain text. Lists (archive,
+     categories, newsletters) should show that formatting. But a blurb
+     often sits INSIDE a link (every category row is one big <a>), so
+     anything else - links, images, blockquotes, tables - is still
+     dropped, and only these inline tags survive: em, strong, b, i, code.
+
+     HOW: surviving tags are swapped for private-use marker characters
+     (U+E000 name U+E001) so the plain-text steps in clean-summary
+     (sentence splitting, HTML escaping) can't mangle them. clean-summary
+     turns the markers back into real tags at the very end, AFTER it has
+     escaped everything else, so text like "&lt;b&gt;" in a post stays
+     visible text and can never become live markup.
+
+     Steps, in order:
+       1. drop <script> / <style> blocks with their contents
+       2. block-level closers and <br> become a space (so "</p><p>"
+          doesn't glue two words together)
+       3. em / strong / b / i / code become markers (attributes dropped)
+       4. every other tag is removed
+       5. entities are decoded (Micro.blog stores curly quotes as
+          &rsquo; etc. - see project_htmlunescape_before_plainify)
+       6. whitespace collapsed and trimmed, zero-width spaces included
+
+     Call:  {{ $m := partial "marked.html" $somehtml }}
+     Returns a plain string.
+     ------------------------------------------------------------------ */ -}}
+{{- $O := "\uE000" -}}
+{{- $C := "\uE001" -}}
+{{- $s := printf "%s" . -}}
+{{- $s = replaceRE `(?is)<(script|style)\b[^>]*>.*?</(script|style)>` "" $s -}}
+{{- $s = replaceRE `(?i)</(p|div|li|blockquote|h[1-6]|tr|td|th|figcaption|dd|dt)>|<br\s*/?>` " " $s -}}
+{{- $s = replaceRE `<(/?)(em|strong|b|i|code)(?:\s[^>]*)?>` (printf "%s${1}${2}%s" $O $C) $s -}}
+{{- $s = replaceRE `<[^>]*>` "" $s -}}
+{{- $s = htmlUnescape $s -}}
+{{- $s = trim (replaceRE `\s+` " " $s) " \n\t\u200B\u00A0" -}}
+{{- return $s -}}

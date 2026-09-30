@@ -8,6 +8,11 @@
   {{ partial "icon.html" (dict "name" "arrow-left") }}
   <span>Back</span>
 </a>
+{{/* Edge fade (Sept 30, 2026, Toby): soft bands at the top and bottom
+     of the screen - custom.css section 96; placed by the script at the
+     end of this file. */}}
+<div class="post-edge post-edge--top" aria-hidden="true"></div>
+<div class="post-edge post-edge--bottom" aria-hidden="true"></div>
 <article class="h-entry">
   {{/* Hidden microformats2 author card (July 11, 2026) — webmention
        parsers on receiving blogs read this to show name + avatar with
@@ -541,4 +546,49 @@
 </script>
 {{ end }}
 
+<script>
+/* Edge fade (Sept 30, 2026, Toby) - places the two bands from
+   custom.css section 96. Top band: starts at the header's bottom edge
+   (the header shrinks as you scroll, so it's re-measured every
+   frame), shown once you've scrolled. Bottom band: sits on the phone
+   tab bar, or the screen bottom when the bar is tucked or on desktop;
+   hidden near the end of the page so the last lines aren't faded.
+   Both span only the .post-body column. The tab bar slides, so after
+   each scroll it keeps re-measuring for a moment. */
+(function () {
+  var top = document.querySelector('.post-edge--top');
+  var bot = document.querySelector('.post-edge--bottom');
+  var body = document.querySelector('.post-body');
+  if (!top || !bot || !body) return;
+  var hdr = document.querySelector('.site-header');
+  var bar = document.querySelector('.mobile-tab-bar');
+  var root = document.documentElement;
+  var until = 0, running = false;
+  function place() {
+    var vh = window.innerHeight, y = window.scrollY;
+    var b = body.getBoundingClientRect();
+    root.style.setProperty('--post-edge-l', Math.max(0, b.left) + 'px');
+    root.style.setProperty('--post-edge-w', Math.min(b.width, window.innerWidth) + 'px');
+    var t = hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) : 0;
+    root.style.setProperty('--post-edge-top', t + 'px');
+    var off = 0;
+    if (bar && getComputedStyle(bar).display !== 'none') off = Math.max(0, vh - bar.getBoundingClientRect().top);
+    root.style.setProperty('--post-edge-bottom', off + 'px');
+    top.classList.toggle('is-on', y > 10);
+    bot.classList.toggle('is-on', root.scrollHeight - vh - y > 40);
+  }
+  function loop() {
+    place();
+    if (performance.now() < until) requestAnimationFrame(loop); else running = false;
+  }
+  function kick() {
+    until = performance.now() + 450;
+    if (!running) { running = true; requestAnimationFrame(loop); }
+  }
+  window.addEventListener('scroll', kick, { passive: true });
+  window.addEventListener('resize', kick);
+  window.addEventListener('load', kick);
+  place();
+})();
+</script>
 {{ end }}

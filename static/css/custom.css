@@ -10935,3 +10935,415 @@ h2.feed-label {
     font-size: 1.1rem;
   }
 }
+
+
+/* ============================================================
+   95 · SIMPLER HOME PAGE   (Sept 30, 2026, Toby)
+   ============================================================
+   Planned in mockups v1-v16. Home order: welcome (phones) ->
+   Recent Geekouts (+ rabbit on its rule, + ★ Spotlight tags) ->
+   From the archive (3 random older posts + Shuffle) -> Browse by
+   Category -> Micro and Word Nerd Alert side by side -> Watching &
+   Reading (3 cover cards) -> search -> Follow along (phones).
+   Gone from home: Spotlight marquee, "More in the Spotlight",
+   the Bookshelf and Reel and Remote sections, "View the full
+   archive". Markup: layouts/index.html. Tokens only, so every
+   rule rides all five skies.
+   ------------------------------------------------------------ */
+
+/* ---- the rabbit, now on the Recent Geekouts rule ----
+   Desktop rail layout only (768+); phones keep the strip slot
+   (section 75 switches at the same 768 line). He stands on the
+   3px rule at its right end, "Hey!" to his left. The heading gets
+   room above it so his ears clear .feed-wrapper's overflow clip,
+   and room on the right so "Everything, by year" never sits under
+   him. Slides in from the right like the old banner slot did. */
+.feed-head--rabbit { position: relative; }
+.tgo-rabbit--rule {
+  top: auto;
+  bottom: 0;
+  right: 0;
+  width: 56px;
+  transform: translateX(100%);
+}
+.tgo-rabbit--rule.is-in { transform: translateX(0); }
+@media (max-width: 767px) {
+  .tgo-rabbit--rule { display: none; }
+}
+@media (min-width: 768px) {
+  .feed-head--rabbit { margin-top: 3.25rem; padding-right: 76px; }
+}
+
+/* ---- ★ Spotlight tag (links to /categories/spotlight/) ----
+   Same surface as the Word Nerd Alert chips (bg-card + border +
+   terra ink), which already pass on every sky. position+z-index
+   lift it above the stretched row link below. */
+.spot-tag {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-terra-text);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.spot-tag:hover,
+.spot-tag:focus-visible {
+  background: var(--color-terra-btn);
+  border-color: var(--color-terra-btn);
+  color: var(--color-btn-ink);
+}
+.spot-tag:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+
+/* A Spotlight row/feature is a <div>, not an <a> (a link can't hold
+   the tag's link). Its title link stretches over the whole row, so
+   it still clicks through anywhere, exactly like the other rows. */
+.journal-feature--spot,
+.journal-entry--spot { position: relative; }
+.journal-stretch { text-decoration: none; }
+.journal-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.journal-stretch:focus-visible { outline: none; }
+.journal-stretch:focus-visible::after {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
+}
+.journal-entry--spot:focus-within .journal-title,
+.journal-feature--spot:focus-within .journal-feature-title { color: var(--color-terra-text); }
+.journal-entry--spot:hover .journal-date-day { color: var(--color-terra); }
+
+/* ---- From the archive ---- */
+.arch {
+  margin-top: 1.75rem;
+  padding: 1.4rem 1.6rem 1.2rem;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.arch-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.arch .arch-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  color: var(--color-navy);
+}
+.arch-shuffle {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-terra-text);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.arch-shuffle:hover,
+.arch-shuffle:focus-visible {
+  background: var(--color-terra-btn);
+  border-color: var(--color-terra-btn);
+  color: var(--color-btn-ink);
+}
+.arch-shuffle:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+.arch-shuffle[hidden] { display: none; }
+.arch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 1.75rem;
+  transition: opacity 0.15s;
+}
+.arch-list.is-dealing { opacity: 0.25; }
+.arch-item { margin: 0; padding: 1rem 0 0.3rem; }
+.arch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+.arch-date {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.arch-link {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-navy);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.arch-link:hover,
+.arch-link:focus { color: var(--color-terra-text); }
+@media (max-width: 1023px) {
+  .arch-list { grid-template-columns: 1fr; }
+  .arch-item { padding: 0.9rem 0; border-bottom: 1px solid var(--color-border); }
+  .arch-item:last-child { border-bottom: 0; }
+}
+@media (max-width: 640px) {
+  .arch { padding: 1.1rem 1rem 0.5rem; }
+  .arch .arch-title { font-size: 1.3rem; }
+  .arch-link { font-size: 1.1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arch-list { transition: none; }
+}
+
+/* ---- Micro + Word Nerd Alert, one row from 1024 up ----
+   The band now lives INSIDE .feed-wrapper, so section 86's sibling
+   gutter math (width: calc(100% - 4rem), auto margins) is undone
+   here. .micro-section is no longer a direct child of the wrapper,
+   so it loses section 86's 30px top margin - the pair carries it. */
+.home-pair { margin-top: 30px; }
+.home-pair .micro-section { margin-top: 0; }
+.home-pair .wna { width: auto; max-width: none; margin: 0; }
+@media (min-width: 1024px) {
+  .home-pair--two {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+}
+@media (max-width: 1023px) {
+  .home-pair--two .wna { margin-top: 30px; }
+}
+
+/* Toby (Sept 30): side by side, the micro and the word "don't even
+   match" - one was an open section with a big heading and a navy
+   rule, the other a warm card with a small label. The micro now
+   wears the Word Nerd Alert card: same warm fill, terra edge,
+   corners and padding, and its heading shrinks to the same small
+   Bricolage label, so the two read as a pair. The band itself is
+   untouched (Toby kept its look on Aug 29). Both cards stretch to
+   the taller one's height on desktop. */
+.home-pair .micro-section {
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-terra);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  padding: 2rem 2rem 1.25rem calc(2rem - 4px);
+}
+.home-pair .micro-section .feed-head {
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.home-pair .micro-section .feed-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.home-pair .micro-section .feed-more {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+.home-pair .micro-section .micro-entry {
+  padding: 1.1rem 0 0;
+  border-bottom: 0;
+}
+@media (min-width: 1024px) {
+  .home-pair--two { align-items: stretch; }
+}
+@media (max-width: 640px) {
+  .home-pair .micro-section { padding: 1rem 1rem 1.1rem; }
+}
+
+/* A LONG word (several senses, a quote, a reblog card) would make
+   the half-width band tower over the micro beside it. Side by side
+   only, the body stops at 24rem with a fade and a "Show the whole
+   entry" button (added by the script in index.html only when the
+   entry is actually cut). Stacked on phones it shows in full, as
+   it always has. */
+@media (min-width: 1024px) {
+  .home-pair--two .wna-body.is-clamped {
+    max-height: 24rem;
+    overflow: hidden;
+    position: relative;
+  }
+  .home-pair--two .wna-body.is-clamped::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4.5rem;
+    background: linear-gradient(to bottom, transparent, var(--color-bg-warm));
+    pointer-events: none;
+  }
+}
+.wna-more {
+  appearance: none;
+  -webkit-appearance: none;
+  display: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.wna-more:hover { text-decoration: underline; text-underline-offset: 3px; }
+.wna-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+@media (min-width: 1024px) {
+  .home-pair--two .wna-more.is-needed { display: inline-block; }
+}
+
+/* ---- Watching & Reading ---- */
+.wr-section { margin-top: 30px; }
+.wr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+  padding-top: 1.5rem;
+}
+.wr-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.wr-cover {
+  display: block;
+  width: 96px;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 0 var(--color-border), 0 10px 22px -14px rgba(30, 45, 74, 0.4);
+  transition: transform 0.3s ease;
+}
+.wr-cover--blank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  font-size: 1.6rem;
+}
+.wr-card:hover .wr-cover { transform: translateY(-2px); }
+.wr-body { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.wr-name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-navy);
+  transition: color 0.15s;
+}
+.wr-card:hover .wr-name,
+.wr-card:focus .wr-name { color: var(--color-terra-text); }
+.wr-line {
+  font-family: var(--font-reading);
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+.wr-more {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.wr-stars { color: var(--color-terra); letter-spacing: 1px; font-size: 0.9rem; }
+.wr-prog { display: flex; flex-direction: column; gap: 0.3rem; }
+.wr-bar {
+  display: block;
+  height: 6px;
+  max-width: 200px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.wr-bar-fill { display: block; height: 100%; background: var(--color-terra); }
+.wr-prog-text {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-terra-text);
+}
+.wr-see {
+  margin-top: 0.2rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+@media (max-width: 1023px) {
+  .wr-grid { grid-template-columns: 1fr; gap: 1.1rem; }
+  .wr-card { grid-template-columns: 76px minmax(0, 1fr); }
+  .wr-cover { width: 76px; }
+}
+
+/* ---- Follow along, now at the END of the page (phones) ----
+   The strip had no top padding because it used to sit right under
+   the about strip. #follow is the welcome line's jump target; the
+   scroll margin keeps it clear of the fixed header. */
+.subscribe-strip--end { padding-top: 28px; }
+#follow { scroll-margin-top: calc(var(--header-actual-h, var(--header-h)) + 16px); }
+
+/* ---- footer: Challenges line (Blaugust left the nav) ---- */
+.footer-challenges {
+  margin: 0 0 0.15rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+.footer-challenges a { color: var(--color-terra-text); font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+.footer-challenges a:hover { opacity: 0.8; }

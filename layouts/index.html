@@ -33,7 +33,39 @@
      NOTE: the CATEGORY is "Word of the Day"; the band is LABELLED
      "Word Nerd Alert". Do not rename the category - this line, the
      band, and the /categories/word-of-the-day/ link all depend on it. */}}
-{{ $excluded := slice "Spotlight" "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" }}
+{{/* Sept 30, 2026 (Toby): THE SIMPLER HOME PAGE. Planned in mockups
+     v1-v16 (Claude outputs/v16-home-simpler-mockup.html). Three jobs:
+     say who you are, show what's new, give people a way to follow.
+     Everything else links out. New order:
+       Welcome (phones only; the rail says hi on desktop)
+       Recent Geekouts - now INCLUDES Spotlight posts, tagged
+         "★ Spotlight" (the tag links to /categories/spotlight/). The
+         rabbit + Hey! stand at the right end of its rule on desktop.
+       From the archive - 3 random older posts + Shuffle, inside
+         Recent Geekouts; one of the 3 is always a Spotlight post.
+         Replaces the Spotlight marquee and "More in the Spotlight".
+       Micro + Word Nerd Alert side by side (stacked below 1024)
+       Watching & Reading - three cover cards (latest rating, newest
+         Currently Reading post with progress, newest watchlist entry),
+         each linking to its page. Replaces the home Bookshelf and
+         Reel and Remote sections.
+       Browse by Category - moved up, right after From the archive
+       Search, unchanged
+       Follow along (phones only; the rail has it on desktop) - moved
+         from the top to the end.
+     The "View the full archive" button is gone: Archive is in the
+     nav/rail and "Everything, by year" heads Recent Geekouts.
+     Styles: custom.css section 95. The removed sections' markup is in
+     git history (last in commit 2072a44) if anything needs to return. */}}
+{{/* Sept 30, 2026: "Spotlight" came OFF this list - Spotlight posts now
+     show in Recent Geekouts with a ★ tag instead of living in a marquee
+     above it (a new Spotlight post would otherwise sit below older
+     posts once the marquee was gone). SAFETY NET added below the loop:
+     any post carrying a movie card that says "Want to Watch" (the exact
+     test the Queue page uses) stays out even if it was never tagged
+     Reel and Remote, so watchlist entries can't leak into this feed or
+     into From the archive. */}}
+{{ $excluded := slice "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
   {{ $skip := false }}
@@ -41,9 +73,11 @@
     {{ if in $excluded . }}{{ $skip = true }}{{ end }}
   {{ end }}
   {{ if not .Title }}{{ $skip = true }}{{ end }}
+  {{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{ $recent := first 6 $recentPool }}
+{{ $spotURL := "/categories/spotlight/" | absURL }}
 {{/* WCAG 1.3.1 / 2.4.6 (Aug 18, 2026): the home page had no h1 at all —
      its heading outline started at the h2 post titles. Post and archive
      pages already have proper h1s; this gives the home page one without
@@ -51,79 +85,49 @@
      utility (CSS section 30). */}}
 <h1 class="sr-only">{{ .Site.Title }}</h1>
 <div class="about-strip">
-  {{/* Mobile slot for the Spotlight rabbit (July 30, 2026) — on
-       phones/tablets the Spotlight sits below the fold, so the
-       rabbit peeks in next to "Hi, I'm Toby" instead. CSS section
-       75 shows exactly one slot per breakpoint; the greet script
-       below the banner drives whichever is visible. */}}
+  {{/* Mobile slot for the rabbit (July 30, 2026) — phones/tablets
+       below 768 have no rail, so the rabbit peeks in next to "Hi, I'm
+       Toby". CSS section 75 shows exactly one slot per breakpoint; the
+       greet script under the Recent Geekouts heading drives whichever
+       is visible. */}}
   <div class="tgo-rabbit tgo-rabbit--strip" aria-hidden="true">
     <span class="tgo-rabbit-bubble">Hey!</span>
     <img src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" loading="eager">
   </div>
   <div class="about-text">
     <strong>Hi, I'm Toby</strong>
-    <p class="about-greeting">Thanks for stopping by.</p>
     <p class="about-tagline" id="tgo-tagline" aria-live="polite">Technogeek.</p>
-    {{/* About + Now trimmed July 30, 2026 (Toby): both already live
-         in the nav — the greeting row keeps only the one link the
-         nav doesn't have. */}}
+    {{/* Sept 30, 2026: the "Thanks for stopping by." line came out and
+         the subscribe strip moved to the end of the page, so phones
+         reach Recent Geekouts on the first screen. "Follow along ↓"
+         jumps down to it. (About + Now were trimmed July 30 - both
+         live in the nav.) */}}
     <div class="about-links">
       <a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
+      <span aria-hidden="true">·</span>
+      <a href="#follow">Follow along ↓</a>
     </div>
   </div>
 </div>
-<div class="subscribe-strip">
-  <div class="subscribe-inner">
-    {{/* Sept 29, 2026: heading was "Get it in your inbox", which only
-         fits email; RSS and JSON aren't an inbox. JSON button added so
-         the strip matches the rail and the post Connect card. Short
-         labels (Email / RSS / JSON) keep all three on one row on phones. */}}
-    <p class="subscribe-heading">Follow along</p>
-    <p class="subscribe-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
-    <div class="subscribe-actions">
-      <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">
-        {{ partial "icon.html" (dict "name" "mail") }} Email
-      </a>
-      <button type="button" class="btn-subscribe btn-subscribe-quiet" id="tgo-rss-copy"
-        data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
-        {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
-        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-        <span class="tgo-rss-label">RSS</span>
-      </button>
-      <button type="button" class="btn-subscribe btn-subscribe-quiet tgo-rss-copy"
-        data-feed-url="{{ .Site.BaseURL }}feed.json">
-        {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
-        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
-        <span class="tgo-rss-label">JSON</span>
-      </button>
+
+<div class="feed-wrapper">
+  {{/* Aug 29, 2026 (Toby): "the ledger". Every feed section now opens
+       with .feed-head - big navy title, 3px navy rule, optional
+       "more" link on the right - matching the category mastheads
+       shipped earlier today. Styles: custom.css section 92. */}}
+  {{/* Sept 30, 2026 (Toby): the rabbit moved here from the Spotlight
+       marquee (gone). On desktop (rail layout, 768+) he stands at the
+       RIGHT END of this heading's rule - his art bleeds off its own
+       right edge - with "Hey!" to his left, so the greeting is the
+       first thing on the page. Phones keep the about-strip slot.
+       Same 24-hour greet as before; the script moved with him. */}}
+  <div class="feed-head feed-head--rabbit">
+    <h2 class="feed-label">Recent Geekouts</h2>
+    <a class="feed-more" href="{{ "/archive/" | absURL }}">Everything, by year →</a>
+    <div class="tgo-rabbit tgo-rabbit--rule" aria-hidden="true">
+      <span class="tgo-rabbit-bubble">Hey!</span>
+      <img src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" loading="eager">
     </div>
-    {{/* The standalone /newsletters/ list route isn't controlled by
-         this theme (Micro.blog appears to handle it as a built-in
-         page), so this links into the reader itself instead —
-         landing on the latest issue with the full inbox list showing
-         (desktop: side-by-side, same as always; mobile: list-first,
-         via ?view=list, see newsletter/single.html). */}}
-    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
-    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
-  </div>
-</div>
-{{/* Spotlight marquee — latest post tagged "Spotlight" (curated by
-     Toby, replaces the old Long Read-driven featured banner).
-     Category pills removed from cards and marquee July 11, 2026 —
-     categories now appear on single posts only. */}}
-{{ range first 1 $spotlightPosts }}
-{{ if .Title }}
-<div class="featured-banner">
-  {{/* Spotlight rabbit (July 29, 2026) — Toby's mascot, drawn by him
-       in Canva (transparent PNG, art bleeds off its own right edge).
-       Anchored to the banner's right side, scrolls with the page.
-       First visit per 24h: slides in and says Hey! in Caveat, then
-       stays full size (no shrink — that was for the old fixed-pin
-       plan). Repeat visits inside 24h: just sits there. Styled in
-       custom.css section 75. */}}
-  <div class="tgo-rabbit tgo-rabbit--banner" aria-hidden="true">
-    <span class="tgo-rabbit-bubble">Hey!</span>
-    <img src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" loading="eager">
   </div>
   <script>
   (function () {
@@ -146,120 +150,6 @@
     try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
   })();
   </script>
-  <div class="featured-shell">
-    <div class="featured-inner">
-      <div class="featured-eyebrow">
-        {{ partial "icon.html" (dict "name" "star") }}
-        <span>Spotlight</span>
-      </div>
-      <h2 class="featured-title">{{ .Title }}</h2>
-      {{/* Tease fade matches the cards (custom.css section 40) —
-           spotlight keeps its 250-char cut (July 18, 2026, Toby's
-           call) and fades whenever that cut actually trims text;
-           short summaries render in full, no fade. */}}
-      {{ $spotlightPlain := .Summary | htmlUnescape | plainify }}
-      <p class="featured-excerpt{{ if gt (len $spotlightPlain) 250 }} excerpt-fade{{ end }}">{{ $spotlightPlain | truncate 250 }}</p>
-      <div class="featured-meta">
-        <a href="{{ .Permalink }}" class="btn-featured">Read it {{ partial "icon.html" (dict "name" "arrow-right") }}</a>
-        <span class="featured-date">
-          <time datetime="{{ .Date.Format "2006-01-02" }}">
-            {{ .Date.Format "January 2, 2006" }}
-          </time>
-        </span>
-      </div>
-    </div>
-    {{/* Older Spotlight posts would otherwise vanish from the home
-         page once a newer one publishes. This strip keeps the two
-         previous ones one tap away, right under the marquee. */}}
-    {{ $older := first 2 (after 1 $spotlightPosts) }}
-    {{ if $older }}
-    <div class="featured-more">
-      <div class="featured-more-label">More in the Spotlight</div>
-      {{ range $older }}
-      <a class="featured-more-item" href="{{ .Permalink }}">
-        <span class="featured-more-title">{{ .Title }}</span>
-        <span class="featured-more-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-      </a>
-      {{ end }}
-    </div>
-    {{ end }}
-  </div>
-</div>
-{{ end }}
-{{ end }}
-{{/* ============================================================
-     WORD NERD ALERT (Aug 19, 2026, Toby)
-     Sits above Recent Geekouts. Renders the newest "Word of the Day"
-     post IN FULL, exactly like Micros does - these are short form, so
-     there is nothing to click through for. The TITLE is deliberately
-     ignored: the card states the word itself, and "Word Nerd Alert:
-     Exigent" above a card reading "exigent" is the same word twice.
-     The only thing removed is the trailing image row - the hiraeth
-     artwork is identical on every post in the series and repeats
-     badly when it is the one thing on screen.
-     ============================================================ */}}
-{{ $wordPool := slice }}
-{{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-  {{ if in .Params.categories "Word of the Day" }}
-    {{ $wordPool = $wordPool | append . }}
-  {{ end }}
-{{ end }}
-
-{{ if $wordPool }}
-  {{ $words := first 7 $wordPool }}
-  {{ $now := index $words 0 }}
-  {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
-
-  <section class="wna" aria-labelledby="wna-heading">
-    <p class="wna-eyebrow">
-      <strong id="wna-heading">Word Nerd Alert</strong>
-      <a class="wna-permalink" href="{{ $now.RelPermalink }}">
-        <time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "2 Jan 2006" }}</time>
-      </a>
-      <button type="button" class="wna-older" hidden>← Back to today</button>
-    </p>
-
-    <div class="wna-body" aria-live="polite">
-      {{ replaceRE $stripImg "" $now.Content | safeHTML }}
-    </div>
-
-    {{ if gt (len $words) 1 }}
-    <div class="wna-prev">
-      <span class="wna-prev-label">Before this</span>
-      {{ range $i, $p := $words }}
-        {{ if gt $i 0 }}
-          {{ $label := replaceRE `^.*?:\s*` "" $p.Title }}
-          {{ with index (findRE `(?s)class="define-word"[^>]*>.*?</p>` $p.Content 1) 0 }}
-            {{ $label = trim (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?>(.*?)</p>$` "$1" .)) " " }}
-          {{ end }}
-          <a class="wna-chip" href="{{ $p.RelPermalink }}" data-i="{{ $i }}">{{ $label }}</a>
-        {{ end }}
-      {{ end }}
-      <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
-    </div>
-    {{ end }}
-
-    {{/* Hidden store: every word's body, so a pill can swap the band
-         in place instead of navigating away. <template> content is
-         parsed but not rendered, so it costs layout nothing. */}}
-    {{ range $i, $p := $words }}
-      <template class="wna-store" data-i="{{ $i }}"
-                data-url="{{ $p.RelPermalink }}"
-                data-date="{{ $p.Date.Format "2 Jan 2006" }}"
-                data-iso="{{ $p.Date.Format "2006-01-02" }}">{{ replaceRE $stripImg "" $p.Content | safeHTML }}</template>
-    {{ end }}
-  </section>
-{{ end }}
-
-<div class="feed-wrapper">
-  {{/* Aug 29, 2026 (Toby): "the ledger". Every feed section now opens
-       with .feed-head - big navy title, 3px navy rule, optional
-       "more" link on the right - matching the category mastheads
-       shipped earlier today. Styles: custom.css section 92. */}}
-  <div class="feed-head">
-    <h2 class="feed-label">Recent Geekouts</h2>
-    <a class="feed-more" href="{{ "/archive/" | absURL }}">Everything, by year →</a>
-  </div>
   <div class="journal-list">
   {{ range $i, $p := $recent }}
     {{/* Journal entry — the whole row is the permalink. Date block
@@ -296,7 +186,26 @@
          title + one-line summary + read time. The .journal-slot stays
          exactly as it was - Toby is reworking it (rabbit art) in a
          separate pass, so its markup and class must not change. */}}
+    {{/* Sept 30, 2026 (Toby): Spotlight posts get a "★ Spotlight" tag
+         that LINKS to the Spotlight archive. A link can't sit inside the
+         row's own link, so a Spotlight post renders as a <div> whose
+         title is the permalink, stretched over the whole row by CSS
+         (.journal-stretch::after, section 95) - the row still clicks
+         through anywhere, and the tag sits above that layer. Every
+         other post keeps the exact markup it had. */}}
+    {{ $isSpot := in .Params.categories "Spotlight" }}
     {{ if eq $i 0 }}
+    {{ if $isSpot }}
+    <div class="journal-feature journal-feature--spot{{ if $thumb }} has-photo{{ end }}">
+      <span class="journal-feature-text">
+        <span class="journal-kicker"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>Latest</span>
+        <a href="{{ .Permalink }}" class="journal-feature-title journal-stretch p-name u-url">{{ .Title }}</a>
+        <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
+        <span class="journal-meta"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ if .ReadingTime }}<span class="journal-meta-dot" aria-hidden="true"></span><span>{{ .ReadingTime }} min read</span>{{ end }}</span>
+      </span>
+      {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
+    </div>
+    {{ else }}
     <a href="{{ .Permalink }}" class="journal-feature u-url{{ if $thumb }} has-photo{{ end }}">
       <span class="journal-feature-text">
         <span class="journal-kicker">Latest</span>
@@ -306,6 +215,21 @@
       </span>
       {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
     </a>
+    {{ end }}
+    {{ else if $isSpot }}
+    <div class="journal-entry journal-entry--spot">
+      <span class="journal-date" aria-hidden="true">
+        <span class="journal-date-day">{{ .Date.Format "2" }}</span>
+        <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
+        <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
+      </span>
+      {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="168" height="112">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
+      <span class="journal-text">
+        <a href="{{ .Permalink }}" class="journal-title journal-stretch u-url">{{ .Title }}</a>
+        <span class="journal-sum">{{ partial "clean-summary.html" . }}</span>
+        <span class="journal-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>{{ if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}</span>
+      </span>
+    </div>
     {{ else }}
     <a href="{{ .Permalink }}" class="journal-entry u-url">
       <span class="journal-date" aria-hidden="true">
@@ -323,345 +247,94 @@
     {{ end }}
   {{ end }}
   </div>
-  {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,
-       300 chars or less, category "Micro". FULL content shown (they're
-       short by definition), Lora reading text, date links to the post.
-       Hidden until the category has posts — appears on its own with
-       the first one, like every other section built today. */}}
-  {{ $microPool := slice }}
-  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-    {{ $isMicro := false }}
-    {{ range .Params.categories }}
-      {{ if eq . "Micro" }}{{ $isMicro = true }}{{ end }}
-    {{ end }}
-    {{ if $isMicro }}{{ $microPool = $microPool | append . }}{{ end }}
-  {{ end }}
-  {{/* Aug 29, 2026 (Toby): ONE micro, not three. Three full-width
-       Lora paragraphs were eating a lot of page for 300-character
-       statuses. The newest shows in full with the ledger's day
-       numeral beside it; "More micros" carries the rest. */}}
-  {{ $micros := first 1 $microPool }}
-  {{ if $micros }}
-  <div class="micro-section">
-    <div class="feed-head">
-      <h2 class="feed-label">💬 Micros</h2>
-      <a class="feed-more" href="{{ "/categories/micro/" | absURL }}">More micros →</a>
-    </div>
-    {{ range $micros }}
-    <div class="micro-entry h-entry">
-      <span class="journal-date" aria-hidden="true">
-        <span class="journal-date-day">{{ .Date.Format "2" }}</span>
-        <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
-        <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
-      </span>
-      <div class="micro-entry-main">
-        <div class="micro-entry-text e-content">{{ .Content }}</div>
-        <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "January 2, 2006" }} ∞</a>
-      </div>
-    </div>
-    {{ end }}
-  </div>
-  {{ end }}
-  {{/* THE BOOKSHELF (July 22, 2026, Toby's design) — three self-managing
-       pieces, each rendering ONLY when its posts exist (Hugo rebuilds on
-       every publish, so new sections appear on their own):
-       1. Currently Reading — posts in that category; "Currently Reading:"
-          stripped from the title, progress bar + page count pulled from
-          the post's own book-card markup (findRE). EMPTY today.
-       2. Book Reviews — rated rows, stars via findRE. EMPTY today.
-       3. Bookshelf rows — 3 newest Bookshelf posts, excluding anything
-          also categorized Currently Reading or Book Reviews. LIVE today.
-       Reuses the reel-entry row styles; CR rows are .book-entry (CSS 56). */}}
-  {{ $crPool := slice }}
-  {{ $brPool := slice }}
-  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-    {{ $isCR := false }}{{ $isBR := false }}
-    {{ range .Params.categories }}
-      {{ if eq . "Currently Reading" }}{{ $isCR = true }}{{ end }}
-      {{ if eq . "Book Reviews" }}{{ $isBR = true }}{{ end }}
-    {{ end }}
-    {{ if and $isCR .Title }}{{ $crPool = $crPool | append . }}{{ end }}
-    {{ if and $isBR .Title }}{{ $brPool = $brPool | append . }}{{ end }}
-  {{ end }}
-  {{ $cr := first 3 $crPool }}
-  {{ $br := first 3 $brPool }}
-  {{/* THE TBR PILE IS GONE FROM THE HOME PAGE (Toby, July 27).
-       He has stopped posting want-to-read entries - such a post carried
-       a title, a cover and a date meaning "the day Toby clicked add",
-       with no progress, no rating and no opinion, and the Micro.blog
-       shelf already held all of them (62 against the 3 that had posts).
-       A shelf-data version of this grid was built and working, reading
-       .Site.Data.bookshelves.wanttoread, before Toby chose to drop the
-       section entirely and let the link below carry it - the home page
-       has been getting simpler on purpose. Currently Reading stays
-       POST-driven above: progress bars and dates are real content.
-       If the section ever reads bare, the shelf-data grid is in the
-       July 27 Theme Work Logs entry and drops straight back in. */}}
-  {{ if or $cr $br }}
-  <div class="books-section">
-    <div class="feed-head">
-      <h2 class="feed-label">📚 The Bookshelf</h2>
-      <a class="feed-more" href="{{ "/reading/" | absURL }}">The whole shelf →</a>
-    </div>
-    {{/* Dedupe by book title (Toby has 4 books going + will post
-         progress updates per book over time — each book shows ONCE,
-         always its newest post). Cap 4 active books. */}}
-    {{ if $crPool }}<div class="books-group books-group--shelf">
-    <p class="books-subhead">📖 Currently Reading</p>
-    <div class="books-grid">{{ end }}
-    {{ $seenBooks := slice }}
-    {{ $crShown := 0 }}
-    {{ range $crPool }}
-    {{ $bookTitle := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
-    {{ $bookKey := lower $bookTitle }}
-    {{ if and (lt $crShown 4) (not (in $seenBooks $bookKey)) }}
-    {{ $seenBooks = $seenBooks | append $bookKey }}
-    {{ $crShown = add $crShown 1 }}
-    {{/* Plainify FIRST — scanning raw HTML matched width:100% from the
-         card's own styles and filled the bar to 100% (Toby's catch,
-         live). Visible text only, so the real reading % wins. */}}
-    {{ $crPlain := .Content | plainify }}
-    {{ $pages := findRE `Page \d+ of \d+` $crPlain 1 }}
-    {{ $pct := findRE `\d{1,3}%` $crPlain 1 }}
-    {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
-         the card's own poster cell (book-card-poster / movie-card-poster).
-         That is host-agnostic, so a cover Toby uploaded himself works the
-         same as a Google Books or TMDB one, and it can never pick up a
-         YouTube trailer thumbnail or an avatar - neither lives in a poster
-         cell. Priority 2: a known poster host anywhere in the post, for
-         older posts written before the card markup. Google Books covers
-         arrive at 128px with a page-curl artifact; both fixed on the way out. */}}
-    {{ $cover := "" }}
-    {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
-      {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
-    {{ end }}
-    {{ if not $cover }}
-      {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
-        {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
-        {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
-      {{ end }}
-    {{ end }}
-    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
-    {{/* Eyebrow removed July 25 (Toby): the label repeated on every row;
-         it lives once in the group subhead above now. */}}
-    {{/* The "+ Add to your shelf" link was removed July 27 (Toby).
-         It pointed at the book's Micro.blog page, which only helps a
-         reader who already has a Micro.blog account, and it repeated
-         under every book in Currently Reading - a section whose job
-         is showing progress. It was never put here on purpose: it
-         belonged to the TBR Pile and inherited the group class when
-         that block came out earlier today.
-         The .shelf-slot wrapper STAYS. It is display:contents on
-         phones, but on desktop it is the flex column that stands each
-         book on the plank (section 71 after the July 27 renumber,
-         was 67) - removing it collapses the 3-D bookshelf. */}}
-    <span class="shelf-slot">
-    <a href="{{ .Permalink }}" class="book-entry{{ if $cover }} book-entry--cover{{ end }} u-url">
-      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
-      <span class="book-entry-body">
-        <span class="book-entry-title">{{ $bookTitle }}</span>
-        {{/* Bar and its percent share a line (Toby, July 26) - the %
-             moved out of the metaline to sit beside the bar it labels;
-             the metaline keeps pages + date. */}}
-        {{ with $pct }}
-        <span class="book-progress-row">
-          <span class="book-progress" aria-label="Reading progress {{ index . 0 }}">
-            <span class="book-progress-fill" style="width: {{ index . 0 }};"></span>
-          </span>
-          <span class="book-progress-pct">{{ index . 0 }}</span>
-        </span>
-        {{ end }}
-        <span class="book-entry-metaline">
-          {{ with $pages }}<span>{{ index . 0 }}</span>{{ end }}
-          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </span>
-      </span>
-    </a>
-    </span>
-    {{ end }}
-    {{ end }}
-    {{ if $crPool }}</div></div>{{ end }}
-    {{/* Book Reviews = TILES (Toby's call, July 22) — rated books get
-         the same trophy treatment as the movie tiles; reuses the
-         reel-tile styles. Hidden until rated book posts exist. */}}
-    {{ if $br }}
-    <div class="books-group">
-    <p class="books-subhead">⭐ Book Reviews</p>
-    <div class="reel-tiles">
-      {{ range $br }}
-      {{ $sm := findRE `[★☆½]{3,}` .Content 1 }}
-      {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
-           the card's own poster cell (book-card-poster / movie-card-poster).
-           That is host-agnostic, so a cover Toby uploaded himself works the
-           same as a Google Books or TMDB one, and it can never pick up a
-           YouTube trailer thumbnail or an avatar - neither lives in a poster
-           cell. Priority 2: a known poster host anywhere in the post, for
-           older posts written before the card markup. Google Books covers
-           arrive at 128px with a page-curl artifact; both fixed on the way out. */}}
-      {{ $cover := "" }}
-      {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
-        {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
-      {{ end }}
-      {{ if not $cover }}
-        {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
-          {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
-          {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
-        {{ end }}
-      {{ end }}
-      {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
-      <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
-        {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
-        <span class="reel-tile-body">
-          {{/* Leading emoji comes off home page display (Toby, July 26) -
-               the section subhead already carries one, so per-title emoji
-               repeated it. Posts keep their titles. */}}
-          <span class="reel-tile-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
-          {{ with $sm }}<span class="reel-stars">{{ index . 0 }}</span>{{ end }}
-          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </span>
-      </a>
-      {{ end }}
-    </div>
-    </div>
-    {{ end }}
 
-    {{/* Points at /the-bookmark/ now (Toby, July 31) - the reading
-         calendar is the richer front door and its goal strip links
-         onward to /reading/, so the shelves stay one tap away. */}}
-    <div class="reel-cta reel-cta--quiet">
-      All the books: <a href="{{ "/the-bookmark/" | absURL }}">The Bookmark →</a>
+  {{/* ============================================================
+       FROM THE ARCHIVE (Sept 30, 2026, Toby)
+       Three random OLDER posts with a Shuffle button, at the foot of
+       Recent Geekouts. Same pool as Recent Geekouts (same exclusions,
+       titled posts only) minus the six already showing above - so no
+       reading, bookshelf, watchlist or rating posts, ever. One of the
+       three is always a Spotlight post (its "★ Spotlight" tag links to
+       the Spotlight archive); if none are left in the pool, all three
+       are regular posts.
+       Hugo renders a first three so the panel works with JS off; the
+       script then deals a fresh random three on every visit and on
+       every Shuffle. The pool rides along as JSON, capped at the 250
+       most recent older posts to keep the page light.
+       No "Surprise me" here on purpose: it lives in the rail (desktop)
+       and the welcome line (phones) - one per screen.
+       ============================================================ */}}
+  {{- $archAll := after 6 $recentPool -}}
+  {{- $archData := slice -}}
+  {{- $archSpot := slice -}}
+  {{- $archReg := slice -}}
+  {{- range first 250 $archAll -}}
+    {{- $s := in .Params.categories "Spotlight" -}}
+    {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" $s) -}}
+    {{- if $s -}}{{- $archSpot = $archSpot | append . -}}{{- else -}}{{- $archReg = $archReg | append . -}}{{- end -}}
+  {{- end -}}
+  {{ if $archData }}
+  {{ $archFirst := slice }}
+  {{ with $archSpot }}{{ $archFirst = $archFirst | append (index . 0) }}{{ end }}
+  {{ range first (sub 3 (len $archFirst)) $archReg }}{{ $archFirst = $archFirst | append . }}{{ end }}
+  <section class="arch" aria-labelledby="arch-heading">
+    <div class="arch-head">
+      <h3 class="arch-title" id="arch-heading">From the archive</h3>
+      <button type="button" class="arch-shuffle" id="arch-shuffle" hidden>↻ Shuffle</button>
     </div>
-  </div>
-  {{ end }}
-  {{/* Reel and Remote (July 22, 2026, Toby's design) — mixed WATCHING
-       activity, not just reviews: rated watches, watchlist entries,
-       currently-watching notes. Tiles = 3 newest RATED posts (star run
-       found in the post's own movie-card markup via findRE). Rows =
-       next 3 newest posts from the categories, any type, stars shown
-       when present — titles self-describe the rest ("Watchlist: ...").
-       No duplicates. Tiles collapse to rows on phones (CSS 54). */}}
-  {{ $reelCats := slice "Movie Reviews" "TV Reviews" "Reel and Remote" }}
-  {{ $reelPool := slice }}
-  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
-    {{ $match := false }}
-    {{ range .Params.categories }}
-      {{ if in $reelCats . }}{{ $match = true }}{{ end }}
-    {{ end }}
-    {{ if and $match .Title }}{{ $reelPool = $reelPool | append . }}{{ end }}
-  {{ end }}
-  {{ $tiles := slice }}
-  {{ range $reelPool }}
-    {{ if lt (len $tiles) 3 }}
-      {{ if findRE `[★☆½]{3,}` .Content 1 }}{{ $tiles = $tiles | append . }}{{ end }}
-    {{ end }}
-  {{ end }}
-  {{/* Rows carry NO rated posts at all (Toby, July 26): ratings live
-       in the tiles and behind the More-ratings links. Before this, a
-       4th-newest rated post slid into the rows minus its stars, which
-       looked like an unrated post - Hunger Games caught it live. */}}
-  {{ $rows := slice }}
-  {{ range $reelPool }}
-    {{ if and (lt (len $rows) 3) (not (findRE `[★☆½]{3,}` .Content 1)) }}
-      {{ $rows = $rows | append . }}
-    {{ end }}
-  {{ end }}
-  {{ if or $tiles $rows }}
-  <div class="reel-section">
-    <div class="feed-head">
-      <h2 class="feed-label">🎬 Reel and Remote</h2>
-      <a class="feed-more" href="{{ "/watched/" | absURL }}">Everything watched →</a>
-    </div>
-    {{ if $tiles }}
-    <div class="reel-tiles">
-      {{ range $tiles }}
-      {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
-           the card's own poster cell (book-card-poster / movie-card-poster).
-           That is host-agnostic, so a cover Toby uploaded himself works the
-           same as a Google Books or TMDB one, and it can never pick up a
-           YouTube trailer thumbnail or an avatar - neither lives in a poster
-           cell. Priority 2: a known poster host anywhere in the post, for
-           older posts written before the card markup. Google Books covers
-           arrive at 128px with a page-curl artifact; both fixed on the way out. */}}
-      {{ $cover := "" }}
-      {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
-        {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+    <ol class="arch-list" id="arch-list" aria-live="polite">
+      {{ range $archFirst }}
+      <li class="arch-item">
+        <span class="arch-meta">{{ if in .Params.categories "Spotlight" }}<a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>{{ end }}<span class="arch-date">{{ .Date.Format "Jan 2, 2006" }}</span></span>
+        <a class="arch-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </li>
       {{ end }}
-      {{ if not $cover }}
-        {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
-          {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
-          {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
-        {{ end }}
-      {{ end }}
-      {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
-      <a href="{{ .Permalink }}" class="reel-tile{{ if $cover }} reel-tile--cover{{ end }} u-url">
-        {{ with $cover }}<img class="media-cover media-cover--rating" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ end }}
-        <span class="reel-tile-body">
-          {{/* Leading emoji comes off home page display (Toby, July 26) -
-               the section subhead already carries one, so per-title emoji
-               repeated it. Posts keep their titles. */}}
-          <span class="reel-tile-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
-          <span class="reel-stars">{{ index (findRE `[★☆½]{3,}` .Content 1) 0 }}</span>
-          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </span>
-      </a>
-      {{ end }}
-    </div>
-    {{/* Ratings links live HERE, tight under the rated tiles (Toby,
-         July 26) - they are the "more ratings" path, so they belong
-         next to the ratings, not after the unrated rows. Inside the
-         tiles condition on purpose: no rated tiles, no links. */}}
-    {{/* Points at Watched now instead of the two category archives
-         (Toby, July 27): Watched IS the ratings page, it carries all
-         56 with posters and stars, and the categories are still one
-         click further in from there. */}}
-    <p class="reel-ratings-links">
-      More ratings: <a href="{{ "/watched/" | absURL }}">Watched →</a>
-    </p>
-    {{ end }}
-    {{ range $rows }}
-    {{/* Cover art (July 25, 2026, Toby). Priority 1: the image sitting in
-         the card's own poster cell (book-card-poster / movie-card-poster).
-         That is host-agnostic, so a cover Toby uploaded himself works the
-         same as a Google Books or TMDB one, and it can never pick up a
-         YouTube trailer thumbnail or an avatar - neither lives in a poster
-         cell. Priority 2: a known poster host anywhere in the post, for
-         older posts written before the card markup. Google Books covers
-         arrive at 128px with a page-curl artifact; both fixed on the way out. */}}
-    {{ $cover := "" }}
-    {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
-      {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
-    {{ end }}
-    {{ if not $cover }}
-      {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
-        {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
-        {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
-      {{ end }}
-    {{ end }}
-    {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
-    <a href="{{ .Permalink }}" class="reel-entry{{ if $cover }} reel-entry--cover{{ end }} u-url">
-      {{ with $cover }}<img class="media-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="80" height="120">{{ end }}
-      <span class="reel-entry-body">
-        <span class="reel-entry-title">{{ replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}</span>
-        {{/* Stars removed July 26 (Toby): ratings live on the tiles
-             and the review category pages only - rows stay quiet. */}}
-        <span class="reel-entry-meta">
-          <span class="reel-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </span>
-      </span>
-    </a>
-    {{ end }}
-    {{/* The rows above are watchlist entries, so the link under them
-         is the watchlist page, not the category archive (Toby, July 27:
-         the footer already carries browse-all-archives). */}}
-    {{/* The label sits OUTSIDE the anchor, exactly like the ratings
-         line above it (Toby, July 27). With it inside, the whole line
-         went terracotta while "More ratings:" stayed grey - matching
-         the CSS was not enough, the markup had to match too. */}}
-    <div class="reel-cta reel-cta--quiet">
-      More of the watchlist: <a href="{{ "/the-queue/" | absURL }}">The Queue →</a>
-    </div>
-  </div>
+    </ol>
+    <script type="application/json" id="arch-data">{{ $archData | jsonify | safeJS }}</script>
+    <script>
+    (function () {
+      var list = document.getElementById('arch-list');
+      var btn = document.getElementById('arch-shuffle');
+      var src = document.getElementById('arch-data');
+      if (!list || !btn || !src) return;
+      var pool = [];
+      try { pool = JSON.parse(src.textContent) || []; } catch (e) { return; }
+      if (pool.length < 2) return;
+      var spot = pool.filter(function (p) { return p.s; });
+      var reg = pool.filter(function (p) { return !p.s; });
+      var spotURL = {{ $spotURL }};
+      function pick(arr, n) {
+        var a = arr.slice(), out = [];
+        while (a.length && out.length < n) out.push(a.splice(Math.floor(Math.random() * a.length), 1)[0]);
+        return out;
+      }
+      function esc(s) {
+        return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+      }
+      function deal() {
+        var picks = pick(spot, 1);
+        picks = picks.concat(pick(reg, 3 - picks.length));
+        picks = pick(picks, picks.length);
+        list.innerHTML = picks.map(function (p) {
+          return '<li class="arch-item"><span class="arch-meta">' +
+            (p.s ? '<a class="spot-tag" href="' + esc(spotURL) + '">★ Spotlight</a>' : '') +
+            '<span class="arch-date">' + esc(p.d) + '</span></span>' +
+            '<a class="arch-link" href="' + esc(p.u) + '">' + esc(p.t) + '</a></li>';
+        }).join('');
+      }
+      deal();
+      btn.hidden = false;
+      btn.addEventListener('click', function () {
+        list.classList.add('is-dealing');
+        setTimeout(function () { deal(); list.classList.remove('is-dealing'); }, 150);
+      });
+    })();
+    </script>
+  </section>
   {{ end }}
+  {{/* Sept 30, 2026 (Toby): moved up from the foot of the page to sit
+       right after From the archive - browsing by topic belongs with
+       the "dig into older posts" part of the page. */}}
   {{/* Browse by Category (July 23, 2026, Toby's pick: quiet text row,
        Option B over pills). Top 6 categories by post count, sorted
        biggest-first by Hugo on every publish. Plumbing categories that
@@ -689,11 +362,284 @@
     </div>
   </div>
   {{ end }}
-  {{/* Single archive door instead of numbered pagination — the full
-       chronological record lives on /archive/. */}}
-  <div class="feed-archive-cta">
-    <a href="{{ "/archive/" | absURL }}" class="btn-archive">View the full archive →</a>
+
+  {{/* MICROS (July 22, 2026, Toby's design) — quick untitled thoughts,
+       300 chars or less, category "Micro". FULL content shown (they're
+       short by definition), Lora reading text, date links to the post.
+       Hidden until the category has posts — appears on its own with
+       the first one, like every other section built today. */}}
+  {{ $microPool := slice }}
+  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+    {{ $isMicro := false }}
+    {{ range .Params.categories }}
+      {{ if eq . "Micro" }}{{ $isMicro = true }}{{ end }}
+    {{ end }}
+    {{ if $isMicro }}{{ $microPool = $microPool | append . }}{{ end }}
+  {{ end }}
+  {{/* Aug 29, 2026 (Toby): ONE micro, not three. Three full-width
+       Lora paragraphs were eating a lot of page for 300-character
+       statuses. The newest shows in full with the ledger's day
+       numeral beside it; "More micros" carries the rest. */}}
+  {{ $micros := first 1 $microPool }}
+  {{/* ============================================================
+       WORD NERD ALERT (Aug 19, 2026, Toby)
+       Renders the newest "Word of the Day" post IN FULL, exactly like
+       Micros does - these are short form, so there is nothing to click
+       through for. The TITLE is deliberately ignored: the card states
+       the word itself, and "Word Nerd Alert: Exigent" above a card
+       reading "exigent" is the same word twice. The only thing removed
+       is the trailing image row - the hiraeth artwork is identical on
+       every post in the series and repeats badly when it is the one
+       thing on screen.
+       ============================================================ */}}
+  {{ $wordPool := slice }}
+  {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
+    {{ if in .Params.categories "Word of the Day" }}
+      {{ $wordPool = $wordPool | append . }}
+    {{ end }}
+  {{ end }}
+  {{/* Sept 30, 2026 (Toby): Micro and Word Nerd Alert share one row
+       from 1024 up - the word card stretched across the full column
+       left a lot of empty space on its right. Below 1024 they stack,
+       micro first. The band used to sit ABOVE Recent Geekouts, outside
+       .feed-wrapper; it lives inside it now, so section 95 undoes the
+       gutter math section 86 gave it as a sibling. Band markup and
+       the pill-swap script (custom_footer.html) are unchanged. */}}
+  {{ if or $micros $wordPool }}
+  <div class="home-pair{{ if and $micros $wordPool }} home-pair--two{{ end }}">
+  {{ if $micros }}
+  <div class="micro-section">
+    <div class="feed-head">
+      <h2 class="feed-label">💬 Micros</h2>
+      <a class="feed-more" href="{{ "/categories/micro/" | absURL }}">More micros →</a>
+    </div>
+    {{ range $micros }}
+    <div class="micro-entry h-entry">
+      <span class="journal-date" aria-hidden="true">
+        <span class="journal-date-day">{{ .Date.Format "2" }}</span>
+        <span class="journal-date-month">{{ .Date.Format "Jan" }}</span>
+        <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
+      </span>
+      <div class="micro-entry-main">
+        <div class="micro-entry-text e-content">{{ .Content }}</div>
+        <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "January 2, 2006" }} ∞</a>
+      </div>
+    </div>
+    {{ end }}
   </div>
+  {{ end }}
+  {{ if $wordPool }}
+    {{ $words := first 7 $wordPool }}
+    {{ $now := index $words 0 }}
+    {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
+
+    <section class="wna" aria-labelledby="wna-heading">
+      <p class="wna-eyebrow">
+        <strong id="wna-heading">Word Nerd Alert</strong>
+        <a class="wna-permalink" href="{{ $now.RelPermalink }}">
+          <time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "2 Jan 2006" }}</time>
+        </a>
+        <button type="button" class="wna-older" hidden>← Back to today</button>
+      </p>
+
+      <div class="wna-body" aria-live="polite">
+        {{ replaceRE $stripImg "" $now.Content | safeHTML }}
+      </div>
+      {{/* Sept 30, 2026 (Toby: "what if the define gets too long?"):
+           side by side with the micro, a long entry is cut at 24rem
+           with a fade (section 95) and this button opens it. The
+           script below only shows it when the entry is actually cut,
+           and re-checks whenever a "Before this" pill swaps the word. */}}
+      <button type="button" class="wna-more">Show the whole entry ↓</button>
+
+      {{ if gt (len $words) 1 }}
+      <div class="wna-prev">
+        <span class="wna-prev-label">Before this</span>
+        {{ range $i, $p := $words }}
+          {{ if gt $i 0 }}
+            {{ $label := replaceRE `^.*?:\s*` "" $p.Title }}
+            {{ with index (findRE `(?s)class="define-word"[^>]*>.*?</p>` $p.Content 1) 0 }}
+              {{ $label = trim (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?>(.*?)</p>$` "$1" .)) " " }}
+            {{ end }}
+            <a class="wna-chip" href="{{ $p.RelPermalink }}" data-i="{{ $i }}">{{ $label }}</a>
+          {{ end }}
+        {{ end }}
+        <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
+      </div>
+      {{ end }}
+
+      {{/* Hidden store: every word's body, so a pill can swap the band
+           in place instead of navigating away. <template> content is
+           parsed but not rendered, so it costs layout nothing. */}}
+      {{ range $i, $p := $words }}
+        <template class="wna-store" data-i="{{ $i }}"
+                  data-url="{{ $p.RelPermalink }}"
+                  data-date="{{ $p.Date.Format "2 Jan 2006" }}"
+                  data-iso="{{ $p.Date.Format "2006-01-02" }}">{{ replaceRE $stripImg "" $p.Content | safeHTML }}</template>
+      {{ end }}
+    </section>
+    <script>
+    (function () {
+      var band = document.querySelector('.home-pair--two .wna');
+      if (!band) return;
+      var body = band.querySelector('.wna-body');
+      var btn = band.querySelector('.wna-more');
+      if (!body || !btn || !window.matchMedia) return;
+      var mq = window.matchMedia('(min-width: 1024px)');
+      var open = false;
+      function check() {
+        if (open || !mq.matches) {
+          body.classList.remove('is-clamped');
+          btn.classList.remove('is-needed');
+          return;
+        }
+        body.classList.add('is-clamped');
+        var cut = body.scrollHeight > body.clientHeight + 4;
+        body.classList.toggle('is-clamped', cut);
+        btn.classList.toggle('is-needed', cut);
+      }
+      btn.addEventListener('click', function () { open = true; check(); });
+      if (window.MutationObserver) {
+        new MutationObserver(function () { open = false; check(); }).observe(body, { childList: true });
+      }
+      if (mq.addEventListener) { mq.addEventListener('change', check); } else if (mq.addListener) { mq.addListener(check); }
+      window.addEventListener('load', check);
+      check();
+    })();
+    </script>
+  {{ end }}
+  </div>
+  {{ end }}
+
+  {{/* ============================================================
+       WATCHING & READING (Sept 30, 2026, Toby)
+       Replaces the home Bookshelf and Reel and Remote sections: those
+       pages carry the full lists now, so the home page shows ONE thing
+       from each, with its cover, and the whole card links to the page.
+         Reel and Remote -> newest RATED post (a star run + a Movie/TV
+           Reviews or Reel and Remote category) -> /watched/
+         The Bookshelf -> newest Currently Reading post, with the
+           progress bar, "Page X of Y" and % read out of its own book
+           card (the Micro.blog shelf has no progress) and "+ N more"
+           for the other books in progress -> /reading/
+         The Queue -> newest post whose movie card says "Want to Watch"
+           (the Queue page's own test) -> /the-queue/
+       A card never disappears: with nothing to show it says so and
+       still links to its page, so the three columns stay even.
+       Titles come from the card's <h3> first (the film/book name on
+       every card format), the post title as a fallback. Stars are the
+       LONGEST run in the tag-stripped content - same lesson as
+       watched.html: greyed-out stars split the run in raw HTML.
+       ============================================================ */}}
+  {{- $reelCats := slice "Movie Reviews" "TV Reviews" "Reel and Remote" -}}
+  {{- $wrReel := false -}}{{- $wrBook := false -}}{{- $wrQueue := false -}}
+  {{- $bookKeys := slice -}}
+  {{- range where .Site.Pages.ByDate.Reverse "Type" "post" -}}
+    {{- $isReel := false -}}{{- $isCR := false -}}
+    {{- range .Params.categories -}}
+      {{- if in $reelCats . -}}{{- $isReel = true -}}{{- end -}}
+      {{- if eq . "Currently Reading" -}}{{- $isCR = true -}}{{- end -}}
+    {{- end -}}
+    {{- if and $isReel (not $wrReel) (findRE `[★☆½]{2,}` (replaceRE `(?s)<[^>]*>` "" .Content) 1) -}}{{- $wrReel = . -}}{{- end -}}
+    {{- if and $isCR .Title -}}
+      {{- $k := lower (replaceRE `(?i)^.*?currently reading:\s*` "" .Title) -}}
+      {{- if not (in $bookKeys $k) -}}{{- $bookKeys = $bookKeys | append $k -}}{{- end -}}
+      {{- if not $wrBook -}}{{- $wrBook = . -}}{{- end -}}
+    {{- end -}}
+    {{- if and (not $wrQueue) (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $wrQueue = . -}}{{- end -}}
+  {{- end -}}
+  {{/* Cover art: same two-step rule as every home list since July 25 -
+       the image in the card's own poster cell first, a known poster
+       host anywhere in the post second; Google Books curl/zoom fixed. */}}
+  {{- $covers := dict -}}
+  {{- range $key, $p := dict "reel" $wrReel "book" $wrBook "queue" $wrQueue -}}
+    {{- if $p -}}
+      {{- $cover := "" -}}
+      {{- with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content 1 -}}
+        {{- $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}
+      {{- end -}}
+      {{- if not $cover -}}
+        {{- range findRE `<img[^>]+src="[^"]+"` $p.Content -}}
+          {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+          {{- if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) -}}{{- $cover = $u -}}{{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- $cover = replaceRE `zoom=\d` "zoom=2" $cover -}}{{- end -}}
+      {{- $covers = merge $covers (dict $key $cover) -}}
+    {{- end -}}
+  {{- end -}}
+  <section class="wr-section" aria-labelledby="wr-heading">
+    <div class="feed-head">
+      <h2 class="feed-label" id="wr-heading">Watching &amp; Reading</h2>
+    </div>
+    <div class="wr-grid">
+
+      <a class="wr-card" href="{{ "/watched/" | absURL }}">
+        {{ with index $covers "reel" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🎬</span>{{ end }}
+        <span class="wr-body">
+          <span class="wr-name">🎬 Reel and Remote</span>
+          {{ with $wrReel }}
+            {{ $t := "" }}
+            {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}{{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}{{ end }}
+            {{ if not $t }}{{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}{{ end }}
+            {{ $stars := "" }}
+            {{ range findRE `[★☆½]{2,}` (replaceRE `(?s)<[^>]*>` "" .Content) }}{{ if gt (len .) (len $stars) }}{{ $stars = . }}{{ end }}{{ end }}
+          <span class="wr-line">Just rated: <em>{{ $t }}</em></span>
+          {{ with $stars }}<span class="wr-stars" aria-label="Rating {{ . }}">{{ . }}</span>{{ end }}
+          {{ else }}
+          <span class="wr-line">No ratings yet</span>
+          {{ end }}
+          <span class="wr-see">See all ratings →</span>
+        </span>
+      </a>
+
+      <a class="wr-card" href="{{ "/reading/" | absURL }}">
+        {{ with index $covers "book" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}
+        <span class="wr-body">
+          <span class="wr-name">📚 The Bookshelf</span>
+          {{ with $wrBook }}
+            {{ $bt := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
+            {{/* Plainify FIRST (July 26 lesson): raw HTML matched the
+                 card's own width:100% and filled the bar. */}}
+            {{ $plain := .Content | plainify }}
+            {{ $pages := findRE `Page \d+ of \d+` $plain 1 }}
+            {{ $pct := findRE `\d{1,3}%` $plain 1 }}
+          <span class="wr-line">Reading now: <em>{{ $bt }}</em>{{ if gt (len $bookKeys) 1 }} <span class="wr-more">+ {{ sub (len $bookKeys) 1 }} more</span>{{ end }}</span>
+          {{ if or $pages $pct }}
+          <span class="wr-prog">
+            {{ with $pct }}<span class="wr-bar" aria-hidden="true"><span class="wr-bar-fill" style="width: {{ index . 0 }};"></span></span>{{ end }}
+            <span class="wr-prog-text">{{ with $pages }}{{ index . 0 }}{{ end }}{{ if and $pages $pct }} · {{ end }}{{ with $pct }}{{ index . 0 }}{{ end }}</span>
+          </span>
+          {{ end }}
+          {{ else }}
+          <span class="wr-line">Between books right now</span>
+          {{ end }}
+          <span class="wr-see">See the Bookshelf →</span>
+        </span>
+      </a>
+
+      <a class="wr-card" href="{{ "/the-queue/" | absURL }}">
+        {{ with index $covers "queue" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}
+        <span class="wr-body">
+          <span class="wr-name">The Queue</span>
+          {{ with $wrQueue }}
+            {{ $q := "" }}
+            {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}{{ $q = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}{{ end }}
+            {{ if not $q }}
+              {{ $q = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}
+              {{ $q = replaceRE `(?i)^\s*(?:watchlist|on my radar):\s*` "" $q }}
+              {{ $q = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $q }}
+            {{ end }}
+          <span class="wr-line">Want to watch: <em>{{ $q }}</em></span>
+          {{ else }}
+          <span class="wr-line">Nothing queued right now</span>
+          {{ end }}
+          <span class="wr-see">See the Queue →</span>
+        </span>
+      </a>
+
+    </div>
+  </section>
 {{/* Styling lives in custom.css section 31 (homepage-search) — the
      inline styles that used to sit here were duplicating it with
      hardcoded hex values, and overriding the tokened CSS.
@@ -706,5 +652,44 @@
     <button type="submit">Search</button>
   </form>
 </div>
+</div>
+{{/* Sept 30, 2026 (Toby): moved here from right under the welcome
+     strip - it closes the page on phones now (desktop still hides it:
+     the rail carries Follow along). id="follow" is the target of the
+     welcome line's "Follow along ↓". */}}
+<div class="subscribe-strip subscribe-strip--end" id="follow">
+  <div class="subscribe-inner">
+    {{/* Sept 29, 2026: heading was "Get it in your inbox", which only
+         fits email; RSS and JSON aren't an inbox. JSON button added so
+         the strip matches the rail and the post Connect card. Short
+         labels (Email / RSS / JSON) keep all three on one row on phones. */}}
+    <p class="subscribe-heading">Follow along</p>
+    <p class="subscribe-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
+    <div class="subscribe-actions">
+      <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">
+        {{ partial "icon.html" (dict "name" "mail") }} Email
+      </a>
+      <button type="button" class="btn-subscribe btn-subscribe-quiet" id="tgo-rss-copy"
+        data-feed-url="{{ with .Site.Home.OutputFormats.Get "rss" }}{{ .Permalink }}{{ else }}{{ .Site.BaseURL }}feed.xml{{ end }}">
+        {{ partial "icon.html" (dict "name" "rss" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">RSS</span>
+      </button>
+      <button type="button" class="btn-subscribe btn-subscribe-quiet tgo-rss-copy"
+        data-feed-url="{{ .Site.BaseURL }}feed.json">
+        {{ partial "icon.html" (dict "name" "json" "class" "tgo-rss-icon") }}
+        {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
+        <span class="tgo-rss-label">JSON</span>
+      </button>
+    </div>
+    {{/* The standalone /newsletters/ list route isn't controlled by
+         this theme (Micro.blog appears to handle it as a built-in
+         page), so this links into the reader itself instead —
+         landing on the latest issue with the full inbox list showing
+         (desktop: side-by-side, same as always; mobile: list-first,
+         via ?view=list, see newsletter/single.html). */}}
+    {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
+    <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="subscribe-archive-link">Browse past newsletters →</a>
+  </div>
 </div>
 {{ end }}

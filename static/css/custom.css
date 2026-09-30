@@ -8133,6 +8133,25 @@ body.tgo-night {
   .wna-body .define-word{font-size:2.25rem !important;}
 }
 
+/* Define card on single posts (Sep 30, 2026). Same email typesetting
+   problem as .wna-body above: the card's inline sizes (54/16/14/13/12px)
+   are for a 16px inbox, so against this site's 20px root and 1.2rem body
+   the definitions read small. !important beats the non-important inline
+   styles, so every define post (old and new) picks this up. Inline sizes
+   stay in the card for email. 1.2rem = 24px here. */
+.post-body .define-word{
+  font-size:clamp(2rem, 3.2vw, 3rem) !important;
+  margin-bottom:.4rem !important;
+}
+.post-body .define-def{ font-size:1.2rem !important; line-height:1.5 !important; }
+.post-body .define-num{ font-size:.85rem !important; }
+.post-body .define-example{ font-size:1rem !important; }
+.post-body .define-eyebrow{ font-size:.75rem !important; }
+
+@media (max-width:640px){
+  .post-body .define-word{ font-size:2.25rem !important; }
+}
+
 /* ---- previous words ---- */
 .wna-prev{
   display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;

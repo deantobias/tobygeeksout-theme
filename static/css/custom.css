@@ -12034,3 +12034,36 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 @media print {
   .post-title-mosaic { display: none !important; }
 }
+
+
+/* ============================================================
+   99 · SINGLE-POST PHOTOS FIT THE SCREEN   (Oct 3, 2026, Toby)
+   ============================================================
+   A lone photo on a single post (desktop, tablet, unfolded
+   foldable) never grows taller than ~80% of the window, so the
+   whole picture is visible at once. Wide photos still fill the
+   column; tall ones shrink to fit and sit centered. Aspect ratio
+   is always kept (width/height auto + max-width/max-height).
+   "Lone photo" = the two shapes Micro.blog writes:
+     a) a bare <img> child of .post-body (posted from the app; it
+        carries width="600", which width:auto overrides so every
+        photo sizes the same way), when it's the only one, and
+     b) a <p><img></p> that is the only photo paragraph (the
+        uploader / Markdown shape; section 18 sets width:100%).
+   Two or more photos keep the section 18 two-column mosaic.
+   Phones are untouched: full width already reads well there.
+   ------------------------------------------------------------ */
+@media (min-width: 600px) {
+  .post-body:not(:has(> img:nth-of-type(2))) > img,
+  .post-body > p:nth-child(1 of p:has(> img:only-child)):nth-last-child(1 of p:has(> img:only-child)) > img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 80vh;
+    max-height: 80svh;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 6px;
+  }
+}

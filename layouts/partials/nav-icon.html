@@ -31,6 +31,6 @@
 {{- else if or (eq $name "newsletter") (in $url "/newsletter") -}}
   {{- $icon = "mail" -}}
 {{- else if in $url "/surprise" -}}
-  {{- $icon = "star" -}}
+  {{- $icon = "shuffle" -}}
 {{- end -}}
 {{- $icon -}}

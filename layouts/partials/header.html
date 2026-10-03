@@ -70,12 +70,6 @@
   </a>
   <p class="rail-greeting">Thanks for stopping by.</p>
   <p class="rail-tagline tgo-tagline-cycle" aria-live="polite">Technogeek.</p>
-  <div class="rail-about">
-    {{/* About + Now trimmed July 30, 2026 (Toby): both already live
-         in the nav below — the greeting row keeps only the one link
-         the nav doesn't have. */}}<a href="https://tobygeeksout.micro.blog/surprise-me/">Surprise me</a>
-  </div>
-
   <nav class="rail-nav" aria-label="Primary navigation">
     <a href="{{ .Site.BaseURL }}" {{ if .IsHome }}class="active" aria-current="page"{{ end }}>
       {{ partial "icon.html" (dict "name" "home") }}
@@ -91,6 +85,16 @@
     {{ end }}
     {{ end }}
   </nav>
+
+  {{/* Surprise me (Oct 3, 2026, Toby): moved down from under the
+       tagline to sit right after the nav list, with a shuffle icon.
+       Lives OUTSIDE .rail-nav on purpose: it's a random jump, not a
+       place, so it never gets the active pill and the nav sync script
+       below leaves it alone. Styled in custom.css next to .rail-nav. */}}
+  <a href="https://tobygeeksout.micro.blog/surprise-me/" class="rail-surprise">
+    {{ partial "icon.html" (dict "name" "shuffle") }}
+    <span>Surprise me</span>
+  </a>
 
   <div class="rail-subscribe">
     <p class="rail-sub-heading">Follow along</p>

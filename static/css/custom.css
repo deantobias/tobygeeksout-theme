@@ -11902,7 +11902,9 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 }
 
 /* Poster header (Toby, Oct 3, 2026, from his reference screenshot).
-   Mosaic posts only; micros and card posts keep sections 15 / 90.
+   .post-header--poster = standard titled posts (single.html $poster).
+   Card posts (Word Nerd Alert, reviews) get the tiles and the end
+   mark but keep the section 15 / 90 title, pill and meta.
    - Kicker: up to two categories as spaced terracotta capitals with
      a light slash between, in place of the pill.
    - Title: scales with the window (~8% of its width, up to ~150px),
@@ -11915,11 +11917,11 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
      case with wide gaps; Print stays, as a plain word, no pill.
    - The 64px terracotta rule under the meta is dropped here; the
      terracotta end mark carries the accent instead. */
-.post-header:has(> .post-title-mosaic) .post-header-eyebrow {
+.post-header--poster .post-header-eyebrow {
   gap: 0 0.9em;
   margin-bottom: clamp(1.25rem, 3vw, 2.4rem);
 }
-.post-header:has(> .post-title-mosaic) .post-category {
+.post-header--poster .post-category {
   background: none;
   border: 0;
   padding: 0;
@@ -11931,7 +11933,7 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   text-transform: uppercase;
   color: var(--color-terra-text);
 }
-.post-header:has(> .post-title-mosaic) .post-category:hover {
+.post-header--poster .post-category:hover {
   background: none;
   color: var(--color-terra-dark);
   text-decoration: underline;
@@ -11946,7 +11948,7 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   opacity: .7;
 }
 
-.post-header:has(> .post-title-mosaic) .post-header-title {
+.post-header--poster .post-header-title {
   font-size: clamp(2.4rem, 8vw, 7rem);
   line-height: 0.98;
   letter-spacing: -0.05em;
@@ -11974,21 +11976,21 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   -webkit-text-fill-color: var(--color-terra);
 }
 
-.post-header:has(> .post-title-mosaic) .post-header-meta {
+.post-header--poster .post-header-meta {
   font-size: 0.8125rem;
   gap: 0.4em 1.6em;
   color: var(--color-text-muted);
 }
-.post-header:has(> .post-title-mosaic) .post-header-meta time { font-weight: 400; }
+.post-header--poster .post-header-meta time { font-weight: 400; }
 .post-byline { color: var(--color-navy); font-weight: 600; }
-.post-header:has(> .post-title-mosaic) .read-time-pill {
+.post-header--poster .read-time-pill {
   font-size: inherit;
   font-weight: 400;
   letter-spacing: normal;
   text-transform: none;
   color: var(--color-text-muted);
 }
-.post-header:has(> .post-title-mosaic) .post-print {
+.post-header--poster .post-print {
   border: 0;
   padding: 0;
   font-size: inherit;
@@ -11997,12 +11999,12 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   text-transform: none;
   color: var(--color-text-muted);
 }
-.post-header:has(> .post-title-mosaic) .post-print:hover {
+.post-header--poster .post-print:hover {
   background: none;
   color: var(--color-terra-text);
 }
-.post-header:has(> .post-title-mosaic) .post-header-inner::after { display: none; }
-.post-header:has(> .post-title-mosaic) .post-header-inner { padding-bottom: var(--space-md); }
+.post-header--poster .post-header-inner::after { display: none; }
+.post-header--poster .post-header-inner { padding-bottom: var(--space-md); }
 
 /* The ripple: each tile rises a little past its resting strength and
    settles. Delay (--d) is set per tile from its distance to the

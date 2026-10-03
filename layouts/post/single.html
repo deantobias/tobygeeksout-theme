@@ -21,20 +21,29 @@
   <a class="p-author h-card" href="{{ .Site.BaseURL }}" hidden>
     <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
   {{/* Title mosaic gate (Oct 3, 2026, Toby) — custom.css section 98.
-       Standard titled posts get the tile mosaic behind the title area
-       and the poster header (kicker, big title, byline). Everything
-       with its own layout keeps today's header: untitled micros, card
-       posts (define / movie / TV / book cards, incl. reading progress),
-       and photo-led posts whose body opens with an image. */}}
-  {{ $mosaic := false }}
-  {{ if .Title }}
-    {{ $mosaic = true }}
-    {{ $cardCats := slice "word of the day" "movie reviews" "tv reviews" "book reviews" "reel and remote" "bookshelf" "currently reading" }}
-    {{ range .Params.categories }}{{ if in $cardCats (lower .) }}{{ $mosaic = false }}{{ end }}{{ end }}
-    {{ if findRE `class="[^"]*\b(movie-card|book-card|define-card)\b` .Content 1 }}{{ $mosaic = false }}{{ end }}
-    {{ if findRE `^\s*(<p>\s*)?(<a [^>]*>\s*)?<img` .Content 1 }}{{ $mosaic = false }}{{ end }}
-  {{ end }}
-  <header class="post-header">
+       Two flags:
+       $mosaic = tile mosaic + ripple (+ terracotta end mark on titles).
+       $poster = the poster header on top of that (two-category kicker,
+                 big stacked title, byline, quiet meta).
+       - Standard titled posts: both.
+       - Card posts (Word Nerd Alert / define cards, movie / TV / book
+         reviews, Reel and Remote, Bookshelf): mosaic + end mark, but
+         their normal title, pill and meta, so the card stays the star.
+       - Untitled micros: mosaic only, a short strip behind the pills
+         and date (Toby, Oct 3). No title, so no end mark.
+       - Photo posts (an image and under 100 words, no card): neither.
+       History: the first photo rule skipped any post whose body merely
+       OPENED with an image, which caught essays with a header photo
+       ("The Planet Is Still Worth Showing Up For"); fixed same day. */}}
+  {{ $cardRE := `class="[^"]*\b(movie-card|book-card|define-card)\b` }}
+  {{ $isCard := false }}
+  {{ $cardCats := slice "word of the day" "movie reviews" "tv reviews" "book reviews" "reel and remote" "bookshelf" "currently reading" }}
+  {{ range .Params.categories }}{{ if in $cardCats (lower .) }}{{ $isCard = true }}{{ end }}{{ end }}
+  {{ if findRE $cardRE .Content 1 }}{{ $isCard = true }}{{ end }}
+  {{ $isPhoto := and (findRE `<img[\s>]` .Content 1) (lt .WordCount 100) (not $isCard) }}
+  {{ $mosaic := not $isPhoto }}
+  {{ $poster := and $mosaic (ne .Title "") (not $isCard) }}
+  <header class="post-header{{ if $poster }} post-header--poster{{ end }}">
     {{ if $mosaic }}<div class="post-title-mosaic" aria-hidden="true" data-seed="{{ .RelPermalink }}"></div>{{ end }}
     {{/* Surprise me again (Oct 3, 2026, Toby) — mockup v2, option A.
          Only shows when the reader got here through a Surprise me
@@ -86,7 +95,7 @@
           {{ $kick := slice }}
           {{ range $ordered }}{{ $l := lower . }}{{ if not (or (hasPrefix $l "blaugust") (hasPrefix $l "100days")) }}{{ $kick = $kick | append . }}{{ end }}{{ end }}
           {{ if not $kick }}{{ $kick = $ordered }}{{ end }}
-          {{ if and $mosaic (gt (len $kick) 0) }}
+          {{ if and $poster (gt (len $kick) 0) }}
             {{ range $i, $c := first 2 $kick }}{{ if $i }}<span class="post-kicker-sep" aria-hidden="true">/</span>{{ end }}<a href="{{ "/categories/" | absURL }}{{ $c | urlize }}" class="post-category">{{ $c }}</a>{{ end }}
           {{ else if gt (len $ordered) 0 }}
             {{ $top := index $ordered 0 }}
@@ -135,7 +144,7 @@
         {{/* u-url + dt-published: the visible date doubles as the
              post's microformats permalink; styled to look unchanged
              (custom.css section 29). */}}
-        {{ if $mosaic }}<span class="post-byline">By Toby Overstreet</span>{{ end }}
+        {{ if $poster }}<span class="post-byline">By Toby Overstreet</span>{{ end }}
         <a class="u-url" href="{{ .Permalink }}">
           <time class="dt-published" datetime="{{ .Date.Format `2006-01-02T15:04:05Z07:00` }}">
             {{ .Date.Format "January 2, 2006" }}

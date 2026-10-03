@@ -20,7 +20,22 @@
        attribute is fine, mf2 parsers read the DOM regardless. */}}
   <a class="p-author h-card" href="{{ .Site.BaseURL }}" hidden>
     <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
+  {{/* Title mosaic gate (Oct 3, 2026, Toby) — custom.css section 98.
+       Standard titled posts get the tile mosaic behind the title area
+       and the poster header (kicker, big title, byline). Everything
+       with its own layout keeps today's header: untitled micros, card
+       posts (define / movie / TV / book cards, incl. reading progress),
+       and photo-led posts whose body opens with an image. */}}
+  {{ $mosaic := false }}
+  {{ if .Title }}
+    {{ $mosaic = true }}
+    {{ $cardCats := slice "word of the day" "movie reviews" "tv reviews" "book reviews" "reel and remote" "bookshelf" "currently reading" }}
+    {{ range .Params.categories }}{{ if in $cardCats (lower .) }}{{ $mosaic = false }}{{ end }}{{ end }}
+    {{ if findRE `class="[^"]*\b(movie-card|book-card|define-card)\b` .Content 1 }}{{ $mosaic = false }}{{ end }}
+    {{ if findRE `^\s*(<p>\s*)?(<a [^>]*>\s*)?<img` .Content 1 }}{{ $mosaic = false }}{{ end }}
+  {{ end }}
   <header class="post-header">
+    {{ if $mosaic }}<div class="post-title-mosaic" aria-hidden="true" data-seed="{{ .RelPermalink }}"></div>{{ end }}
     {{/* Surprise me again (Oct 3, 2026, Toby) — mockup v2, option A.
          Only shows when the reader got here through a Surprise me
          button: custom_footer.html stamps sessionStorage
@@ -61,9 +76,19 @@
              the post's categories appear at the bottom in "Keep
              reading", each as a previous/next row. Untitled micros keep
              the full pill row exactly as before. */}}
+        {{/* Oct 3, 2026: mosaic posts show the top TWO as a spaced-caps
+             kicker ("SPOTLIGHT / BLOGGING"), styled in section 98.
+             Challenge categories (Blaugust, 100DaysToOffload) are left
+             out of the kicker: the stamp/ticket and the count in the
+             meta line already say it. */}}
         {{ if .Title }}
           {{ $ordered := partial "cat-priority.html" . }}
-          {{ if gt (len $ordered) 0 }}
+          {{ $kick := slice }}
+          {{ range $ordered }}{{ $l := lower . }}{{ if not (or (hasPrefix $l "blaugust") (hasPrefix $l "100days")) }}{{ $kick = $kick | append . }}{{ end }}{{ end }}
+          {{ if not $kick }}{{ $kick = $ordered }}{{ end }}
+          {{ if and $mosaic (gt (len $kick) 0) }}
+            {{ range $i, $c := first 2 $kick }}{{ if $i }}<span class="post-kicker-sep" aria-hidden="true">/</span>{{ end }}<a href="{{ "/categories/" | absURL }}{{ $c | urlize }}" class="post-category">{{ $c }}</a>{{ end }}
+          {{ else if gt (len $ordered) 0 }}
             {{ $top := index $ordered 0 }}
             <a href="{{ "/categories/" | absURL }}{{ $top | urlize }}" class="post-category">{{ $top }}</a>
           {{ end }}
@@ -84,7 +109,20 @@
           {{ $emoji = index . 0 }}
           {{ $rest = strings.TrimPrefix $emoji $.Title }}
         {{ end }}
-        <h1 class="post-header-title p-name">{{ with $emoji }}<span class="title-emoji">{{ . }}</span>{{ end }}{{ $rest }}</h1>
+        {{/* Terracotta end mark (Oct 3, 2026, Toby), mosaic posts only:
+             - title ends in . ! ? or an ellipsis -> that mark is painted
+               terracotta (.title-end); nothing is added.
+             - title ends in a letter or number -> the theme adds a
+               terracotta full stop (.title-dot, CSS ::after, hidden
+               from screen readers). The title text itself never
+               changes, so feeds, shares, the tab and email are clean.
+             - anything else (emoji, bracket, quote mark) -> no mark.
+             Styled in section 98. */}}
+        {{ $end := "" }}{{ $dot := false }}
+        {{ if $mosaic }}
+          {{ with findRE `[.!?\x{2026}]$` $rest 1 }}{{ $end = index . 0 }}{{ $rest = strings.TrimSuffix $end $rest }}{{ else }}{{ if findRE `[\p{L}\p{N}]$` $rest 1 }}{{ $dot = true }}{{ end }}{{ end }}
+        {{ end }}
+        <h1 class="post-header-title p-name{{ if $dot }} title-dot{{ end }}">{{ with $emoji }}<span class="title-emoji">{{ . }}</span>{{ end }}{{ $rest }}{{ with $end }}<span class="title-end">{{ . }}</span>{{ end }}</h1>
       {{ else }}
         {{/* WCAG 1.3.1 / 2.4.6 (Aug 18, 2026): untitled micro posts rendered
              with no h1 at all, so the page had no top-level heading for a
@@ -97,6 +135,7 @@
         {{/* u-url + dt-published: the visible date doubles as the
              post's microformats permalink; styled to look unchanged
              (custom.css section 29). */}}
+        {{ if $mosaic }}<span class="post-byline">By Toby Overstreet</span>{{ end }}
         <a class="u-url" href="{{ .Permalink }}">
           <time class="dt-published" datetime="{{ .Date.Format `2006-01-02T15:04:05Z07:00` }}">
             {{ .Date.Format "January 2, 2006" }}
@@ -622,4 +661,193 @@
   place();
 })();
 </script>
+{{ if $mosaic }}
+<script>
+/* Title mosaic (Oct 3, 2026) - custom.css section 98.
+   Fills .post-title-mosaic with an SVG of square tiles, right-heavy,
+   thinning toward the left. Pattern is seeded from the post's path,
+   so a post always gets the same mosaic. Colors live in CSS (sky
+   tokens), so nothing here watches the sky. Plays one ripple from
+   the top-right on load, then removes the animation for good.
+   Resize only re-checks which tiles sit under text (and extends the
+   field if the box grew); it never replays the ripple. */
+(function () {
+  var host = document.querySelector('.post-title-mosaic');
+  if (!host || !document.createElementNS) return;
+  var header = host.parentNode;
+  var inner = header.querySelector('.post-header-inner') || header;
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* seeded random: FNV-1a hash of the path -> mulberry32 */
+  var key = host.getAttribute('data-seed') || location.pathname;
+  function makeRnd() {
+    var h = 2166136261;
+    for (var i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+    var a = h >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  var svg = null, tiles = [], builtW = 0, builtH = 0, pitch = 0, tile = 0;
+  var rippleStart = 0, rippleEnd = 0, endTimer = 0;
+
+  function num(name, fb) {
+    var v = parseFloat(getComputedStyle(host).getPropertyValue(name));
+    return isNaN(v) ? fb : v;
+  }
+
+  /* elapsed: ms already played of the ripple. 0 = fresh ripple;
+     a rebuild mid-ripple (the title reflowed when fonts landed)
+     passes the time so far and every tile picks up where it was. */
+  function build(animate, elapsed) {
+    elapsed = elapsed || 0;
+    var W = host.clientWidth, H = host.clientHeight;
+    if (!W || !H) return;
+    tile = num('--tm-tile', 14);
+    var gap = num('--tm-gap', 4);
+    pitch = tile + gap;
+    /* only the right ~75% can show through the fade; skip the rest */
+    var cols = Math.ceil((W * 0.72) / pitch) + 2;
+    var rows = Math.ceil(H / pitch) + 4;   /* headroom for a taller title */
+    var rnd = makeRnd();
+    var maxDist = Math.sqrt(cols * cols + rows * rows * 1.3);
+    var radius = Math.max(2, Math.min(5, tile * 0.1));
+
+    var s = document.createElementNS(NS, 'svg');
+    s.setAttribute('width', cols * pitch);
+    s.setAttribute('height', rows * pitch);
+    s.setAttribute('aria-hidden', 'true');
+    s.setAttribute('focusable', 'false');
+    var list = [];
+    var lastDelay = 0;
+
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {        /* c = 0 is the right edge */
+        var fx = c / Math.max(1, cols - 1);  /* 0 right .. 1 left */
+        var fy = r / Math.max(1, rows - 1);  /* 0 top .. 1 bottom */
+        var keep = 1.02 - fx * 1.15 - fy * 0.08;
+        if (rnd() > keep) continue;
+
+        var near = 1 - fx;
+        var u = rnd(), tone;
+        /* warm tones lead up top, cool grays settle lower down */
+        var pCopper = 0.04 + 0.12 * near * (1 - fy);
+        var pPeach = 0.10 + 0.14 * (1 - fy);
+        var pCool = 0.16 + 0.22 * fy;
+        if (u < pCopper) tone = 'copper';
+        else if (u < pCopper + pPeach) tone = 'peach';
+        else if (u < pCopper + pPeach + pCool * 0.5) tone = 'blue';
+        else if (u < pCopper + pPeach + pCool) tone = 'gray';
+        else if (u < pCopper + pPeach + pCool + 0.25) tone = 'sand';
+        else tone = 'cream';
+
+        var o = 0.6 + rnd() * 0.4;
+
+        var x = (cols - 1 - c) * pitch + gap / 2;
+        var y = r * pitch + gap / 2;
+        var el = document.createElementNS(NS, 'rect');
+        el.setAttribute('x', x);
+        el.setAttribute('y', y);
+        el.setAttribute('width', tile);
+        el.setAttribute('height', tile);
+        el.setAttribute('rx', radius);
+        el.setAttribute('class', 'tm-' + tone);
+        var d = Math.round((Math.sqrt(c * c + r * r * 1.3) / maxDist) * 2400 + rnd() * 160);
+        if (d > lastDelay) lastDelay = d;
+        el.style.setProperty('--d', (d - elapsed) + 'ms');
+        s.appendChild(el);
+        list.push({ el: el, o: o, x: x, y: y });
+      }
+    }
+
+    if (svg) host.removeChild(svg);
+    svg = s; tiles = list; builtW = W; builtH = H;
+    shade();
+    host.appendChild(svg);
+
+    if (animate && !reduce) {
+      if (!elapsed) { rippleStart = Date.now(); rippleEnd = rippleStart + lastDelay + 1250; }
+      host.classList.add('is-rippling');
+      clearTimeout(endTimer);
+      /* once the last tile has settled, drop the animation for good */
+      endTimer = setTimeout(function () { host.classList.remove('is-rippling'); }, Math.max(0, rippleEnd - Date.now()));
+    }
+  }
+
+  /* Dim tiles that sit under text: line boxes of the pill, the title,
+     and each meta item, padded a little. Tiles right under ink drop
+     to a whisper; tiles just outside get a soft halo. */
+  function textBoxes() {
+    var out = [];
+    var hr = host.getBoundingClientRect();
+    var ox = hr.left + (hr.width - (svg ? svg.width.baseVal.value : 0));
+    var oy = hr.top;
+    function add(rect) {
+      if (!rect.width || !rect.height) return;
+      out.push({ l: rect.left - ox, t: rect.top - oy, r: rect.right - ox, b: rect.bottom - oy });
+    }
+    var title = inner.querySelector('.post-header-title');
+    if (title) {
+      var range = document.createRange();
+      range.selectNodeContents(title);
+      var rs = range.getClientRects();
+      for (var i = 0; i < rs.length; i++) add(rs[i]);
+    }
+    inner.querySelectorAll('.post-header-eyebrow > *, .post-header-meta > *').forEach(function (n) {
+      add(n.getBoundingClientRect());
+    });
+    return out;
+  }
+
+  function shade() {
+    if (!svg) return;
+    var boxes = textBoxes();
+    var PAD = 4, HALO = 14;
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i], f = 1;
+      var l = t.x, tp = t.y, r = t.x + tile, b = t.y + tile;
+      for (var j = 0; j < boxes.length; j++) {
+        var bx = boxes[j];
+        if (r > bx.l - PAD && l < bx.r + PAD && b > bx.t - PAD && tp < bx.b + PAD) { f = 0.14; break; }
+        if (r > bx.l - HALO && l < bx.r + HALO && b > bx.t - HALO && tp < bx.b + HALO) f = Math.min(f, 0.55);
+      }
+      t.el.style.setProperty('--o', (t.o * f).toFixed(3));
+    }
+  }
+
+  var pending = 0;
+  function onResize() {
+    if (pending) return;
+    pending = requestAnimationFrame(function () {
+      pending = 0;
+      var W = host.clientWidth, H = host.clientHeight;
+      var needH = Math.ceil(H / pitch) + 1;
+      var haveH = svg ? Math.floor(svg.height.baseVal.value / pitch) : 0;
+      if (W > builtW + 1 || needH > haveH || Math.abs(num('--tm-tile', 14) + num('--tm-gap', 4) - pitch) > 0.5) {
+        var mid = host.classList.contains('is-rippling');
+        build(mid, mid ? Date.now() - rippleStart : 0);
+      } else {
+        shade();
+      }
+    });
+  }
+
+  function start() {
+    build(true);
+    if (window.ResizeObserver) new ResizeObserver(onResize).observe(header);
+    else window.addEventListener('resize', onResize);
+    /* the title reflows when Bricolage arrives; re-shade then */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(onResize);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
+{{ end }}
 {{ end }}

@@ -11787,3 +11787,248 @@ html.tgo-pin-live .journal-list--nopin { display: none !important; }
 @media print {
   .sa-wrap { display: none !important; }
 }
+
+
+/* ============================================================
+   98 · TITLE MOSAIC + POSTER HEADER — single-post title area   (Oct 3, 2026)
+   ============================================================
+   A field of soft-cornered square tiles (28px phones, 44px up) behind the category
+   pill, title and meta line of standard titled posts. Heaviest at
+   the right edge, thinning and fading toward the left so the
+   headline sits on a calm background. Ends with the header; the
+   post body never gets it.
+
+   Markup: <div class="post-title-mosaic" aria-hidden="true"> as the
+   first child of .post-header (NOT -inner: the header is full-bleed,
+   so the tiles run out to the screen's right edge instead of stopping
+   at the 1120px column, and -inner's overflow-x: clip can't cut
+   them), only when the gate in
+   layouts/post/single.html says this is a standard titled post
+   (no micros, photo-led posts, book/movie/define cards). The tiles
+   are an inline SVG built by the script at the end of that file.
+
+   COLOR: every tone is a mix of the live sky tokens, nothing pinned.
+   The sky script rewrites the tokens on :root and the @property
+   easing (section 49) carries the tiles through every change: day,
+   dawn, sunset, dusk, night, and the Sky/Day/Night toggle.
+
+   CONTRAST: the script dims any tile that sits under a line of text
+   (pill, title lines, meta items), so the ink always lands on
+   near-page-color. Phones get a lighter field and a wider fade.
+
+   MOTION: one ripple on page load from the top-right corner, opacity
+   only, about 3.5s, then static. Never loops; scroll and resize
+   never restart it. prefers-reduced-motion shows the settled field.
+   ------------------------------------------------------------ */
+
+.post-header:has(> .post-title-mosaic) { isolation: isolate; }
+
+.post-title-mosaic {
+  /* knobs */
+  --tm-tile: 28px;           /* tile edge (phones; bigger above 640) */
+  --tm-gap: 4px;             /* gap between tiles */
+  --tm-strength: 1;          /* overall field intensity */
+
+  /* tones, all from the sky tokens */
+  --tm-cream:  color-mix(in oklab, var(--color-border) 55%, var(--color-bg-card));
+  --tm-sand:   color-mix(in oklab, var(--color-border) 85%, var(--color-text-light));
+  --tm-peach:  color-mix(in oklab, var(--color-terra) 24%, var(--color-bg));
+  --tm-copper: color-mix(in oklab, var(--color-terra) 38%, var(--color-bg));
+  --tm-blue:   color-mix(in oklab, var(--color-navy-mid) 16%, var(--color-bg));
+  --tm-gray:   color-mix(in oklab, var(--color-text-light) 26%, var(--color-bg));
+
+  position: absolute;
+  z-index: -1;
+  /* from the bottom of the fixed header bar to the end of the header
+     block (past the terracotta rule); the post body starts below */
+  top: var(--header-actual-h, var(--header-h));
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  contain: strict;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: var(--tm-strength);
+
+  /* right-heavy, left-calm + soft top and bottom edges */
+  -webkit-mask-image:
+    linear-gradient(to left, #000 0%, rgba(0,0,0,.92) 16%, rgba(0,0,0,.55) 36%, rgba(0,0,0,.2) 54%, transparent 70%),
+    linear-gradient(to bottom, transparent 0, #000 32px, #000 calc(100% - 40px), transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to left, #000 0%, rgba(0,0,0,.92) 16%, rgba(0,0,0,.55) 36%, rgba(0,0,0,.2) 54%, transparent 70%),
+    linear-gradient(to bottom, transparent 0, #000 32px, #000 calc(100% - 40px), transparent 100%);
+  mask-composite: intersect;
+}
+
+@media (min-width: 640px) {
+  .post-title-mosaic { --tm-tile: 44px; --tm-gap: 5px; }
+}
+
+.post-title-mosaic svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+}
+
+.post-title-mosaic rect { opacity: var(--o, .6); }
+.post-title-mosaic .tm-cream  { fill: var(--color-border); fill: var(--tm-cream); }
+.post-title-mosaic .tm-sand   { fill: var(--color-border); fill: var(--tm-sand); }
+.post-title-mosaic .tm-peach  { fill: var(--color-terra-light); fill: var(--tm-peach); }
+.post-title-mosaic .tm-copper { fill: var(--color-terra); fill: var(--tm-copper); }
+.post-title-mosaic .tm-blue   { fill: var(--color-border); fill: var(--tm-blue); }
+.post-title-mosaic .tm-gray   { fill: var(--color-border); fill: var(--tm-gray); }
+
+/* Dark skies (dusk + night): the page is navy, so the same mixes read
+   brighter against it. Pull the field back a touch. */
+body.tgo-night .post-title-mosaic { --tm-strength: .85; }
+
+/* Phones: lighter field, smaller tiles, the fade reaches further right
+   so long titles that fill the width stay on calm ground. */
+@media (max-width: 639px) {
+  .post-title-mosaic {
+    --tm-strength: .7;
+    -webkit-mask-image:
+      linear-gradient(to left, #000 0%, rgba(0,0,0,.75) 14%, rgba(0,0,0,.3) 34%, rgba(0,0,0,.08) 50%, transparent 62%),
+      linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 32px), transparent 100%);
+    mask-image:
+      linear-gradient(to left, #000 0%, rgba(0,0,0,.75) 14%, rgba(0,0,0,.3) 34%, rgba(0,0,0,.08) 50%, transparent 62%),
+      linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 32px), transparent 100%);
+  }
+  body.tgo-night .post-title-mosaic { --tm-strength: .6; }
+}
+
+/* Poster header (Toby, Oct 3, 2026, from his reference screenshot).
+   Mosaic posts only; micros and card posts keep sections 15 / 90.
+   - Kicker: up to two categories as spaced terracotta capitals with
+     a light slash between, in place of the pill.
+   - Title: scales with the window (~8% of its width, up to ~150px),
+     stacked into short lines, tight tracking and leading. Same font,
+     weight and navy ink as before. Every title ends on one
+     terracotta mark: its own . ! ? or ellipsis (span.title-end), or
+     a theme-drawn full stop (.title-dot) when it ends in a letter or
+     number. Emoji, bracket or quote endings get none.
+   - Meta: "By Toby Overstreet", date, read time in quiet sentence
+     case with wide gaps; Print stays, as a plain word, no pill.
+   - The 64px terracotta rule under the meta is dropped here; the
+     terracotta end mark carries the accent instead. */
+.post-header:has(> .post-title-mosaic) .post-header-eyebrow {
+  gap: 0 0.9em;
+  margin-bottom: clamp(1.25rem, 3vw, 2.4rem);
+}
+.post-header:has(> .post-title-mosaic) .post-category {
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.post-header:has(> .post-title-mosaic) .post-category:hover {
+  background: none;
+  color: var(--color-terra-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+.post-kicker-sep {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-terra);
+  opacity: .7;
+}
+
+.post-header:has(> .post-title-mosaic) .post-header-title {
+  font-size: clamp(2.4rem, 8vw, 7rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  max-width: 14.5ch;
+  text-wrap: wrap;     /* fill each line like a poster, not balanced... */
+  text-wrap: pretty;   /* ...but never leave one short word alone at the end */
+  margin-bottom: clamp(1.4rem, 3.4vw, 2.6rem);
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+.post-header-title .title-end {
+  color: var(--color-terra);
+  -webkit-text-fill-color: var(--color-terra);
+}
+/* Titles that end in a letter or number get the theme's own terracotta
+   full stop (class added in single.html). Generated text, so the title
+   never changes in feeds or shares; "/ ''" keeps screen readers from
+   announcing it (browsers without that syntax use the first line).
+   A period can't start a line, so it never wraps away from the word. */
+.post-header-title.title-dot::after {
+  content: ".";
+  content: "." / "";
+  color: var(--color-terra);
+  -webkit-text-fill-color: var(--color-terra);
+}
+
+.post-header:has(> .post-title-mosaic) .post-header-meta {
+  font-size: 0.8125rem;
+  gap: 0.4em 1.6em;
+  color: var(--color-text-muted);
+}
+.post-header:has(> .post-title-mosaic) .post-header-meta time { font-weight: 400; }
+.post-byline { color: var(--color-navy); font-weight: 600; }
+.post-header:has(> .post-title-mosaic) .read-time-pill {
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text-muted);
+}
+.post-header:has(> .post-title-mosaic) .post-print {
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text-muted);
+}
+.post-header:has(> .post-title-mosaic) .post-print:hover {
+  background: none;
+  color: var(--color-terra-text);
+}
+.post-header:has(> .post-title-mosaic) .post-header-inner::after { display: none; }
+.post-header:has(> .post-title-mosaic) .post-header-inner { padding-bottom: var(--space-md); }
+
+/* The ripple: each tile rises a little past its resting strength and
+   settles. Delay (--d) is set per tile from its distance to the
+   top-right corner. Opacity only. */
+@keyframes tm-ripple {
+  0%   { opacity: 0; }
+  45%  { opacity: min(1, calc(var(--o, .6) * 1.7 + .12)); }
+  100% { opacity: var(--o, .6); }
+}
+.post-title-mosaic.is-rippling rect {
+  animation: tm-ripple 1100ms cubic-bezier(.33, 0, .2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-title-mosaic.is-rippling rect { animation: none; }
+}
+
+/* High-contrast readers get the plain page (the sky script already
+   steps aside for them), and print never carries decoration. */
+@media (prefers-contrast: more) {
+  .post-title-mosaic { display: none; }
+}
+@media (forced-colors: active) {
+  .post-title-mosaic { display: none; }
+}
+@media print {
+  .post-title-mosaic { display: none !important; }
+}

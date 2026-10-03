@@ -11911,8 +11911,8 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
      stacked into short lines, tight tracking and leading. Same font,
      weight and navy ink as before. Every title ends on one
      terracotta mark: its own . ! ? or ellipsis (span.title-end), or
-     a theme-drawn full stop (.title-dot) when it ends in a letter or
-     number. Emoji, bracket or quote endings get none.
+     a theme-drawn full stop (.title-dot) after any other ending,
+     brackets, quote marks and emoji included.
    - Meta: "By Toby Overstreet", date, read time in quiet sentence
      case with wide gaps; Print stays, as a plain word, no pill.
    - The 64px terracotta rule under the meta is dropped here; the
@@ -11964,7 +11964,7 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   color: var(--color-terra);
   -webkit-text-fill-color: var(--color-terra);
 }
-/* Titles that end in a letter or number get the theme's own terracotta
+/* Titles that don't already end in . ! ? or … get the theme's own terracotta
    full stop (class added in single.html). Generated text, so the title
    never changes in feeds or shares; "/ ''" keeps screen readers from
    announcing it (browsers without that syntax use the first line).

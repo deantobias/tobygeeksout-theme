@@ -21,28 +21,16 @@
   <a class="p-author h-card" href="{{ .Site.BaseURL }}" hidden>
     <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
   {{/* Title mosaic gate (Oct 3, 2026, Toby) — custom.css section 98.
-       Two flags:
-       $mosaic = tile mosaic + ripple (+ terracotta end mark on titles).
-       $poster = the poster header on top of that (two-category kicker,
-                 big stacked title, byline, quiet meta).
-       - Standard titled posts: both.
-       - Card posts (Word Nerd Alert / define cards, movie / TV / book
-         reviews, Reel and Remote, Bookshelf): mosaic + end mark, but
-         their normal title, pill and meta, so the card stays the star.
-       - Untitled micros: mosaic only, a short strip behind the pills
-         and date (Toby, Oct 3). No title, so no end mark.
-       - Photo posts (an image and under 100 words, no card): neither.
-       History: the first photo rule skipped any post whose body merely
-       OPENED with an image, which caught essays with a header photo
-       ("The Planet Is Still Worth Showing Up For"); fixed same day. */}}
-  {{ $cardRE := `class="[^"]*\b(movie-card|book-card|define-card)\b` }}
-  {{ $isCard := false }}
-  {{ $cardCats := slice "word of the day" "movie reviews" "tv reviews" "book reviews" "reel and remote" "bookshelf" "currently reading" }}
-  {{ range .Params.categories }}{{ if in $cardCats (lower .) }}{{ $isCard = true }}{{ end }}{{ end }}
-  {{ if findRE $cardRE .Content 1 }}{{ $isCard = true }}{{ end }}
-  {{ $isPhoto := and (findRE `<img[\s>]` .Content 1) (lt .WordCount 100) (not $isCard) }}
-  {{ $mosaic := not $isPhoto }}
-  {{ $poster := and $mosaic (ne .Title "") (not $isCard) }}
+       ONE RULE FOR EVERY POST (Toby, Oct 3 evening: "everything the
+       same"). Every single post gets the tile mosaic + ripple; every
+       titled post also gets the poster header (kicker, big stacked
+       title, terracotta end mark, byline). Micros differ only because
+       they have no title: tiles behind the pills and date.
+       History, same day: card posts, photo posts and micros were
+       first left out, then given lighter versions; Toby asked why
+       posts didn't all match, so the tiers were dropped. */}}
+  {{ $mosaic := true }}
+  {{ $poster := ne (strings.TrimSpace .Title) "" }}
   <header class="post-header{{ if $poster }} post-header--poster{{ end }}">
     {{ if $mosaic }}<div class="post-title-mosaic" aria-hidden="true" data-seed="{{ .RelPermalink }}"></div>{{ end }}
     {{/* Surprise me again (Oct 3, 2026, Toby) — mockup v2, option A.
@@ -121,15 +109,17 @@
         {{/* Terracotta end mark (Oct 3, 2026, Toby), mosaic posts only:
              - title ends in . ! ? or an ellipsis -> that mark is painted
                terracotta (.title-end); nothing is added.
-             - title ends in a letter or number -> the theme adds a
-               terracotta full stop (.title-dot, CSS ::after, hidden
-               from screen readers). The title text itself never
-               changes, so feeds, shares, the tab and email are clean.
-             - anything else (emoji, bracket, quote mark) -> no mark.
+             - any other ending (letter, number, bracket, quote mark,
+               emoji) -> the theme adds a terracotta full stop
+               (.title-dot, CSS ::after, hidden from screen readers).
+               Toby, Oct 3: dots on every title, brackets and emoji
+               included. The title text itself never changes, so feeds,
+               shares, the tab and email are clean.
              Styled in section 98. */}}
         {{ $end := "" }}{{ $dot := false }}
+        {{ $rest = strings.TrimSpace $rest }}{{/* "Lexington, KY " had a trailing space */}}
         {{ if $mosaic }}
-          {{ with findRE `[.!?\x{2026}]$` $rest 1 }}{{ $end = index . 0 }}{{ $rest = strings.TrimSuffix $end $rest }}{{ else }}{{ if findRE `[\p{L}\p{N}]$` $rest 1 }}{{ $dot = true }}{{ end }}{{ end }}
+          {{ with findRE `[.!?\x{2026}]$` $rest 1 }}{{ $end = index . 0 }}{{ $rest = strings.TrimSuffix $end $rest }}{{ else }}{{ $dot = true }}{{ end }}
         {{ end }}
         <h1 class="post-header-title p-name{{ if $dot }} title-dot{{ end }}">{{ with $emoji }}<span class="title-emoji">{{ . }}</span>{{ end }}{{ $rest }}{{ with $end }}<span class="title-end">{{ . }}</span>{{ end }}</h1>
       {{ else }}

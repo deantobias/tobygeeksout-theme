@@ -12049,13 +12049,18 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
         carries width="600", which width:auto overrides so every
         photo sizes the same way), when it's the only one, and
      b) a <p><img></p> that is the only photo paragraph (the
-        uploader / Markdown shape; section 18 sets width:100%).
+        uploader / Markdown shape; section 18 sets width:100%), and
+     c) a hand-written <figure><img><figcaption></figure> with one
+        photo (section 15 sets width:100%); the caption is already
+        centered, so it stays under the photo (added Oct 3 for
+        "October Already?").
    Two or more photos keep the section 18 two-column mosaic.
    Phones are untouched: full width already reads well there.
    ------------------------------------------------------------ */
 @media (min-width: 600px) {
   .post-body:not(:has(> img:nth-of-type(2))) > img,
-  .post-body > p:nth-child(1 of p:has(> img:only-child)):nth-last-child(1 of p:has(> img:only-child)) > img {
+  .post-body > p:nth-child(1 of p:has(> img:only-child)):nth-last-child(1 of p:has(> img:only-child)) > img,
+  .post-body > figure:not(:has(> img:nth-of-type(2))) > img {
     display: block;
     width: auto;
     height: auto;

@@ -11911,10 +11911,13 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
      stacked into short lines, tight tracking and leading. Same font,
      weight and navy ink as before. Every title ends on one
      terracotta mark: its own . ! ? or ellipsis (span.title-end), or
-     a theme-drawn full stop (.title-dot) after any other ending,
-     brackets, quote marks and emoji included.
-   - Meta: "By Toby Overstreet", date, read time in quiet sentence
-     case with wide gaps; Print stays, as a plain word, no pill.
+     a theme-drawn full stop (.title-dot) after any other ending.
+     Exception: a short closing bracket like "(2025)" (10 characters
+     or fewer inside) is painted terracotta itself (.title-tag) and
+     gets no dot. Longer bracketed asides keep the dot.
+   - Meta: date, read time in quiet sentence case with wide gaps;
+     Print stays, as a plain word, no pill. (A "By Toby Overstreet"
+     byline was here until Oct 3; Toby dropped it.)
    - The 64px terracotta rule under the meta is dropped here; the
      terracotta end mark carries the accent instead. */
 .post-header--poster .post-header-eyebrow {
@@ -11960,7 +11963,8 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   hyphens: auto;
   overflow-wrap: break-word;
 }
-.post-header-title .title-end {
+.post-header-title .title-end,
+.post-header-title .title-tag {
   color: var(--color-terra);
   -webkit-text-fill-color: var(--color-terra);
 }
@@ -11982,7 +11986,6 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   color: var(--color-text-muted);
 }
 .post-header--poster .post-header-meta time { font-weight: 400; }
-.post-byline { color: var(--color-navy); font-weight: 600; }
 .post-header--poster .read-time-pill {
   font-size: inherit;
   font-weight: 400;

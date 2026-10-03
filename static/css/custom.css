@@ -7113,6 +7113,33 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([st
   font-family: Arial, Helvetica, sans-serif !important;
 }
 
+/* Footnote divider + small print, like the inbox (Oct 3, 2026).
+   The global hr is `all: unset` with an empty ::after, so a post's
+   <hr> vanished on newsletter pages while Gmail drew its default
+   gray rule. Bring the rule back here only. Inline rem sizes also
+   ran big: the site root is 20px, so the AI disclosure's
+   font-size:0.875rem came out 17.5px here vs 14px in Gmail.
+   Pin 0.875rem (both spellings) to 14px so footnotes read small,
+   same as the email. */
+body.type-newsletter .newsletter-preview-panel .page-body hr {
+  all: revert;
+  display: block;
+  height: 0;
+  margin: 24px 0 16px;
+  border: 0;
+  border-top: 1px solid #9C9489;
+  border-bottom: 1px solid #FFFFFF;
+  opacity: 1;
+}
+body.type-newsletter .newsletter-preview-panel .page-body hr::after {
+  content: none;
+}
+body.type-newsletter .newsletter-preview-panel .page-body :is(p, div, span)[style*="font-size:0.875rem"],
+body.type-newsletter .newsletter-preview-panel .page-body :is(p, div, span)[style*="font-size: 0.875rem"] {
+  font-size: 14px !important;
+  line-height: 1.75;
+}
+
 
 /* ==========================================================================
    77. THE BOOKMARK — /the-bookmark/ (July 31, 2026, Toby's design)

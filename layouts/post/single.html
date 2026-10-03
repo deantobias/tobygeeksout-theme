@@ -21,6 +21,37 @@
   <a class="p-author h-card" href="{{ .Site.BaseURL }}" hidden>
     <img class="u-photo" src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="">Toby Overstreet</a>
   <header class="post-header">
+    {{/* Surprise me again (Oct 3, 2026, Toby) — mockup v2, option A.
+         Only shows when the reader got here through a Surprise me
+         button: custom_footer.html stamps sessionStorage
+         "tgo-surprise" with the click time on any /surprise-me/ link,
+         and the referrer check is the backup. A post opened any other
+         way (home, archive, search, a shared link) never sees it.
+         Sits OUTSIDE .post-header-inner on purpose: the challenge mark
+         is absolutely positioned at the top of that column and would
+         land on the strip. Styled in custom.css section 97. */}}
+    <div class="sa-wrap" id="sa-wrap" hidden>
+      <div class="sa-strip">
+        <span class="sa-label"><span class="sa-long">You landed here at random.</span><span class="sa-short">Random pick!</span></span>
+        <a href="https://tobygeeksout.micro.blog/surprise-me/" class="sa-btn">{{ partial "icon.html" (dict "name" "shuffle") }}<span>Surprise me again</span></a>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var hit = false;
+      try {
+        var t = Number(sessionStorage.getItem('tgo-surprise'));
+        sessionStorage.removeItem('tgo-surprise');
+        /* 30s window: a stale stamp (surprise page failed, reader
+           wandered off) can't light up an unrelated post later. */
+        if (t && Date.now() - t < 30000) hit = true;
+      } catch (e) {}
+      if (!hit && document.referrer) {
+        try { hit = /\/surprise-me\/?$/.test(new URL(document.referrer).pathname); } catch (e) {}
+      }
+      if (hit) document.getElementById('sa-wrap').hidden = false;
+    })();
+    </script>
     <div class="post-header-inner">
        {{ partial "challenge-mark.html" . }}
       <div class="post-header-eyebrow">

@@ -11691,3 +11691,72 @@ html.tgo-pin-live .journal-list--nopin { display: none !important; }
 .cat-feature-summary .blurb-sense { display: block; margin-left: 0; }
 .cat-feature-summary .blurb-sense + .blurb-sense { margin-top: 0.2rem; }
 .cat-feature-summary .blurb-num { margin-right: 0.35em; }
+
+/* ------------------------------------------------------------
+   97. SURPRISE ME AGAIN STRIP (Oct 3, 2026)
+   A slim strip above the post header, shown only when the reader
+   arrived through a Surprise me button (logic in post/single.html
+   + custom_footer.html). Same column as .post-header-inner. One
+   shuffle icon, on the button. Phones (<480px) swap the label for
+   the shorter "Random pick!" so it stays on one line. Tokens only,
+   so it follows every timed sky; --color-terra-text rides the sky
+   script's contrast guard.
+   ------------------------------------------------------------ */
+.sa-wrap {
+  max-width: var(--max-width);
+  margin: 0 auto var(--space-lg);
+  padding: 0 var(--page-pad);
+}
+.sa-wrap[hidden] { display: none; }
+.sa-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.8rem;
+  max-width: 46rem;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-terra);
+  border-radius: 0 10px 10px 0;
+  padding: 0.5rem 0.55rem 0.5rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+.sa-short { display: none; }
+.sa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-terra-text);
+  text-decoration: none;
+  border: 1.5px solid var(--color-terra-text);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem 0.45rem 0.7rem;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s;
+}
+.sa-btn .tgo-icon { width: 14px; height: 14px; flex-shrink: 0; transition: transform 0.35s; }
+.sa-btn:hover { background: var(--color-terra-text); color: var(--color-bg); }
+.sa-btn:hover .tgo-icon { transform: rotate(180deg); }
+.sa-btn:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+@media (max-width: 479px) {
+  .sa-long { display: none; }
+  .sa-short { display: inline; }
+  /* Keep label + button on one row: first test at 390px wrapped the
+     button under the label by a few pixels. */
+  .sa-strip { flex-wrap: nowrap; gap: 0.6rem; padding-left: 0.75rem; font-size: 0.8rem; line-height: 1.3; }
+  .sa-label { white-space: nowrap; }
+  .sa-btn { font-size: 0.8rem; padding: 0.42rem 0.7rem 0.42rem 0.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sa-btn .tgo-icon { transition: none; }
+}
+@media print {
+  .sa-wrap { display: none !important; }
+}

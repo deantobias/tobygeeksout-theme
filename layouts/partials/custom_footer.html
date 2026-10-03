@@ -904,3 +904,16 @@
   });
 }());
 </script>
+
+{{/* Surprise me stamp (Oct 3, 2026) — any click on a /surprise-me/
+     link (rail, home, post bottom, the "Surprise me again" strip)
+     records the time in sessionStorage. post/single.html reads it to
+     show the "Surprise me again" strip on the random post it lands on,
+     then clears it. Capture phase so it runs before navigation. */}}
+<script>
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="/surprise-me"]');
+  if (!a) return;
+  try { sessionStorage.setItem('tgo-surprise', String(Date.now())); } catch (err) {}
+}, true);
+</script>

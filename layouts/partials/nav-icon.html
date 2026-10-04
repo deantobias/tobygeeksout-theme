@@ -32,5 +32,9 @@
   {{- $icon = "mail" -}}
 {{- else if in $url "/surprise" -}}
   {{- $icon = "shuffle" -}}
+{{- else if or (eq $name "geek gear") (eq $name "uses") (in $url "/uses") (in $url "/use/") -}}
+  {{- /* Oct 4, 2026 (Toby): Geek Gear was falling through to "link".
+         A laptop says "gear and tools"; a cog would read as Settings. */ -}}
+  {{- $icon = "laptop" -}}
 {{- end -}}
 {{- $icon -}}

@@ -12205,3 +12205,26 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 }
 .queue-stream-credit[hidden] { display: none; }
 .queue-stream-credit a { color: inherit; text-decoration: underline; }
+
+
+/* ============================================================
+   102 · QUEUE: "JUST ADDED" LABEL   (Oct 4, 2026, Toby)
+   ============================================================
+   Small terracotta label above the title of the newest Queue
+   entry, so readers arriving from the home page's "Want to
+   watch" card can spot it. The Queue's date order is unchanged.
+   ============================================================ */
+.queue-new {
+  display: inline-block;
+  margin-bottom: 2px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--color-terra);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  line-height: 1.4;
+}

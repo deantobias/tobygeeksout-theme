@@ -12119,8 +12119,14 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   text-decoration: none;
 }
 .watched-recent-cover {
+  /* Oct 4 fix (Toby: "the picture is cut off"): a flex item stretches
+     to the card's height by default, so the poster grew taller than
+     2:3 and object-fit cropped its sides. Pin it to the top at its own
+     2:3 height so the whole poster shows. */
   flex: none;
+  align-self: flex-start;
   width: 100px;
+  height: auto;
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: var(--radius);

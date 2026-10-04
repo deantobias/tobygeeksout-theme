@@ -12344,3 +12344,21 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   line-height: 1.65;
   margin: 0.75rem 0 0;
 }
+
+/* ------------------------------------------------------------
+   Touch screens: no sticky hover on Recent Geekouts (Oct 4, 2026)
+   Phones keep :hover on the last thing tapped. These rows change
+   on hover (date color, title color, photo zoom/lift), so Safari
+   treated the first tap as the hover and only followed the link on
+   the second tap. On touch screens the hover looks are switched
+   off, so one tap opens the post. Mouse users keep every hover.
+   Placed last so it wins over the earlier hover rules.
+   ------------------------------------------------------------ */
+@media (hover: none) {
+  .journal-list .journal-entry:hover .journal-date-day,
+  .journal-entry--spot:hover .journal-date-day { color: var(--color-navy); }
+  .journal-list .journal-entry:hover .journal-thumb { transform: none; }
+  .journal-entry:hover .journal-title { color: var(--color-navy); }
+  .journal-feature:hover .journal-feature-title { color: var(--color-navy); }
+  .journal-feature:hover .journal-feature-img { transform: none; }
+}

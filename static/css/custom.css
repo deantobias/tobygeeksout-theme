@@ -12182,8 +12182,8 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
    One line under each "Out now" poster on /the-queue/, written by
    the script in the queue shortcode from Perch's public
    /where-to-watch lookup (TMDB watch providers, data by JustWatch).
-   Streaming gets the terracotta; "Rent or buy" and "Not streaming
-   yet" stay quiet. Hidden until there's an answer.
+   Terracotta only when one of Toby's own services has it; everything
+   else stays quiet. Hidden until there's an answer.
    ============================================================ */
 .queue-stream {
   margin-top: 4px;
@@ -12194,7 +12194,10 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   color: var(--color-text-muted);
 }
 .queue-stream[hidden] { display: none; }
-.queue-stream--stream { color: var(--color-terra-text); }
+/* Orange only when one of Toby's services has it (Netflix, Prime
+   Video, Hulu, Paramount+ - the MINE list in the queue shortcode).
+   Any other streaming service stays in the quiet grey. */
+.queue-stream--mine { color: var(--color-terra-text); }
 .queue-stream-credit {
   margin: var(--space-md) 0 0;
   font-size: 0.7rem;

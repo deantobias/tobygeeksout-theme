@@ -390,6 +390,9 @@
     var cards = document.querySelectorAll('.queue-card[data-wtw-title]');
     if (!cards.length || !window.fetch) return;
     var API = 'https://perch-app.pages.dev/where-to-watch';
+    // Toby's own services (Oct 4): listed first and the line turns orange
+    // when one of these has it. Any other service shows in plain grey.
+    var MINE = ['Netflix', 'Prime Video', 'Hulu', 'Paramount+'];
     var credit = document.querySelector('.queue-stream-credit');
     var i = 0;
     function next() {
@@ -404,12 +407,18 @@
           var el = a.querySelector('.queue-stream');
           if (!d || !el) return;
           var t = '';
-          if (d.status === 'stream' && d.providers && d.providers.length) t = 'Streaming on ' + d.providers.slice(0, 2).join(', ');
+          var mine = false;
+          if (d.status === 'stream' && d.providers && d.providers.length) {
+            var p = d.providers.filter(function (n) { return MINE.indexOf(n) > -1; });
+            mine = p.length > 0;
+            p = p.concat(d.providers.filter(function (n) { return MINE.indexOf(n) < 0; }));
+            t = 'Streaming on ' + p.slice(0, 2).join(', ');
+          }
           else if (d.status === 'rent') t = 'Rent or buy';
           else if (d.status === 'none') t = 'Not streaming yet';
           if (!t) return;
           el.textContent = t;
-          el.className = 'queue-stream queue-stream--' + d.status;
+          el.className = 'queue-stream queue-stream--' + d.status + (mine ? ' queue-stream--mine' : '');
           el.hidden = false;
           if (credit) credit.hidden = false;
         })

@@ -231,9 +231,20 @@
   {{ end }}
   {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
 
+  {{/* ---- KIND + SEASON for the Recently watched cards (Oct 4, 2026).
+       TV when the post is filed under TV Reviews, or its card has an
+       episode/season tag, or the card leads with the TV emoji;
+       otherwise Movie. Season is the card's own eptag text, if any. */}}
+  {{ $kind := "Movie" }}
+  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") }}{{ $kind = "TV" }}{{ end }}
+  {{ $season := "" }}
+  {{ with findRE `movie-card-eptag[^>]*>[^<]+<` .Content 1 }}
+    {{ $season = trim (replaceRE `^.*>([^<]+)<$` "$1" (index . 0)) " \n\t" }}
+  {{ end }}
+
   {{ $items = $items | append (dict
       "url" .Permalink "title" $t "cover" $cover "stars" $stars
-      "dir" $dir "ry" $ry
+      "dir" $dir "ry" $ry "kind" $kind "season" $season
       "year" (.Date.Format "2006")
       "reviewed" (.Date.Format "Jan 2, 2006")
       "sortKey" (.Date.Format "2006-01-02")) }}
@@ -256,9 +267,48 @@
 
   <p class="queue-count">{{ len $items }} review{{ if ne (len $items) 1 }}s{{ end }}</p>
 
+  {{/* ---- RECENTLY WATCHED (Oct 4, 2026, Toby). The three newest
+       reviews as bigger cards: poster, Movie/TV (+ season), title,
+       stars, year and director, review date. Those three are LEFT OUT
+       of the year grid below, so nothing shows twice; when a new
+       review lands, the oldest of the three drops into its year.
+       $items is already newest first (built from ByDate.Reverse).
+       Styles: custom.css section 100. */}}
+  {{ $recent := first 3 $items }}
+  {{ $recentURLs := slice }}
+  {{ range $recent }}{{ $recentURLs = $recentURLs | append .url }}{{ end }}
+  <section class="queue-group watched-recent">
+    <h2 class="queue-heading">Recently watched</h2>
+    <div class="watched-recent-grid">
+      {{ range $recent }}
+      <a href="{{ .url }}" class="watched-recent-card u-url">
+        {{ if .cover }}
+        <img class="watched-recent-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
+        {{ else }}
+        <span class="watched-recent-cover queue-cover--empty" aria-hidden="true">{{ substr .title 0 1 }}</span>
+        {{ end }}
+        <span class="watched-recent-body">
+          <span class="watched-recent-kind">{{ .kind }}{{ with .season }} · {{ . }}{{ end }}</span>
+          <span class="watched-recent-title">{{ .title }}</span>
+          <span class="watched-recent-stars">{{ .stars }}</span>
+          {{ if or .ry .dir }}
+          <span class="watched-recent-byline">
+            {{- with .ry }}{{ . }}{{ end -}}
+            {{- if and .ry .dir }} · {{ end -}}
+            {{- with .dir }}{{ . }}{{ end -}}
+          </span>
+          {{ end }}
+          <span class="watched-recent-date">Reviewed {{ .reviewed }}</span>
+        </span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+
   {{ range $i, $_ := $years }}
   {{ $y := index $years (sub (sub $n 1) $i) }}
-  {{ $group := sort (where $items "year" $y) "sortKey" "desc" }}
+  {{ $group := where (sort (where $items "year" $y) "sortKey" "desc") "url" "not in" $recentURLs }}
+  {{ if $group }}
   <section class="queue-group">
     {{/* No per-year count (Toby, July 27): the total sits right above
          in .queue-count, so "2026 56" said it twice. */}}
@@ -290,6 +340,7 @@
       {{ end }}
     </div>
   </section>
+  {{ end }}
   {{ end }}
 
   {{/* Honest footnote (Toby, July 27): the older reviews were plain

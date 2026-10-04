@@ -12079,3 +12079,90 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
     border-radius: 6px;
   }
 }
+
+
+/* ============================================================
+   100 · WATCHED: RECENTLY WATCHED   (Oct 4, 2026, Toby)
+   ============================================================
+   The three newest reviews sit above the year grid on /watched/
+   as bigger cards: poster left, then Movie/TV (+ season), title,
+   stars, year · director, and the review date pinned to the
+   bottom. Those three are left out of the year grid (see the
+   watched shortcode), so nothing shows twice. Same heading style
+   as the year headings; no extra border around the section.
+   Three across from 900px up, stacked below that.
+   ============================================================ */
+.watched-recent-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+@media (min-width: 900px) {
+  .watched-recent-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+}
+.watched-recent-card {
+  display: flex;
+  gap: 1rem;
+  padding: 0.9rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 24px -18px rgba(30, 45, 74, 0.45);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.watched-recent-card:hover,
+.watched-recent-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -18px rgba(30, 45, 74, 0.55);
+  text-decoration: none;
+}
+.watched-recent-cover {
+  flex: none;
+  width: 100px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 18%);
+}
+.watched-recent-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.watched-recent-kind {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+  margin-bottom: 0.35rem;
+}
+.watched-recent-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.12rem;
+  line-height: 1.18;
+  color: var(--color-navy);
+  margin-bottom: 0.45rem;
+}
+.watched-recent-stars {
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  color: var(--color-terra-text);
+  margin-bottom: 0.45rem;
+}
+.watched-recent-byline {
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+.watched-recent-date {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+}

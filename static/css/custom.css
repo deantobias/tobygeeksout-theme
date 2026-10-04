@@ -12228,3 +12228,77 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   text-transform: uppercase;
   line-height: 1.4;
 }
+
+
+/* ============================================================
+   103 · GEEK GEAR — /uses/   (Oct 4, 2026, Toby)
+   ============================================================
+   Body of the Uses page, from the "uses" shortcode. Plain grouped
+   lists: section head in the same quiet uppercase as the Queue and
+   Watched year heads, then one row per item (name, optional small
+   terracotta tag, one line on how Toby uses it). No cards, on
+   purpose: Toby wanted it very easy and simple.
+   ============================================================ */
+.uses { max-width: 44rem; }
+.uses-intro {
+  font-family: var(--font-reading);
+  font-size: 1.12rem;
+  line-height: 1.6;
+  margin: 0 0 0.3rem;
+}
+.uses-updated {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin: 0 0 2.2rem;
+}
+.uses-group { margin: 0 0 2.1rem; }
+.uses .uses-head {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.uses-list { list-style: none; margin: 0; padding: 0; }
+.uses-list li {
+  margin: 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+.uses-list li::before { content: none; }
+.uses-list li:last-child { border-bottom: 0; }
+.uses-name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.12rem;
+  color: var(--color-navy);
+}
+.uses-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+  vertical-align: 2px;
+}
+.uses-why {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+.uses-note {
+  font-family: var(--font-reading);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0.75rem 0 0;
+}

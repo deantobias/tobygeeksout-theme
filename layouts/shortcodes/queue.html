@@ -325,7 +325,10 @@
        now" is a go-check-availability flag, not a go-watch-it-tonight
        one - worth saying on the page rather than letting a card that
        came out weeks ago read as a bug. */}}
-  <p class="queue-datenote">Dates are theatrical release dates, not streaming. “Out now” means it has hit theaters, so it may not be streaming yet.</p>
+  {{/* Oct 4, 2026 (Toby): reworded now that Out now cards show a live
+       where-to-watch line - the old note said they "may not be
+       streaming yet" with no way to tell. */}}
+  <p class="queue-datenote">Dates are theatrical release dates. Under each “Out now” title, you’ll see if it’s streaming yet and where.</p>
 
   {{ range $keys }}
   {{ $group := where $items "groupKey" . }}

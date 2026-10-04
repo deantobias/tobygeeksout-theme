@@ -12353,7 +12353,13 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
    the second tap. On touch screens the hover looks are switched
    off, so one tap opens the post. Mouse users keep every hover.
    Placed last so it wins over the earlier hover rules.
+   Also drops the default grey tap flash that iOS paints over a whole
+   row/link, which read as "highlighted and selected" on tap. The
+   :active title color still gives press feedback.
    ------------------------------------------------------------ */
+.journal-entry,
+.journal-feature,
+.journal-stretch { -webkit-tap-highlight-color: transparent; }
 @media (hover: none) {
   .journal-list .journal-entry:hover .journal-date-day,
   .journal-entry--spot:hover .journal-date-day { color: var(--color-navy); }

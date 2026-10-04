@@ -6,15 +6,18 @@
     <p class="footer-challenges">Challenges: <a href="/blaugust/">Blaugust 2026</a></p>
     <p class="footer-tagline">Kentucky-made. Internet-brained.</p>
     <p class="footer-text">
-      <span class="footer-bit">Published on <a href="https://micro.blog/{{ .Site.Author.username }}" rel="me noopener" target="_blank">Micro.blog</a></span>
+      <span class="footer-bit footer-bit--mb"><span class="footer-long">Published on </span><a href="https://micro.blog/{{ .Site.Author.username }}" rel="me noopener" target="_blank">Micro.blog</a></span>
       <span class="footer-sep">·</span>
-      <span class="footer-bit">Designed by Toby & Claude</span>
+      <span class="footer-bit footer-bit--design">Designed by Toby & Claude</span>
       <span class="footer-sep">·</span>
-      <span class="footer-bit"><a href="/changelog/">The Tinkering Log</a></span>
+      <span class="footer-bit footer-bit--log"><a href="/changelog/">The Tinkering Log</a></span>
       <span class="footer-sep">·</span>
-      <span class="footer-bit"><a href="/uses/">Geek Gear</a></span>
-      <span class="footer-sep">·</span>
-      <span class="footer-bit">© 2022–2026 Toby Overstreet</span>
+      <span class="footer-bit footer-bit--gear"><a href="/uses/">Geek Gear</a></span>
+      {{/* Phone-only copy of the Challenges link (Oct 4, 2026): on phones
+           it joins the Tinkering Log / Geek Gear line and the separate
+           Challenges line is hidden. Hidden everywhere else. The copyright
+           line was removed Oct 4, 2026 (Toby's call). */}}
+      <span class="footer-bit footer-bit--challenge"><a href="/blaugust/">Blaugust 2026</a></span>
     </p>
   </div>
 

@@ -12156,10 +12156,14 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   margin-bottom: 0.45rem;
 }
 .watched-recent-stars {
+  /* Pinned to the bottom with the date so every card's rating sits
+     at the same height, whatever the title length (Oct 4, Toby). */
+  margin-top: auto;
+  padding-top: 0.6rem;
+  margin-bottom: 0.2rem;
   font-size: 1.05rem;
   letter-spacing: 2px;
   color: var(--color-terra-text);
-  margin-bottom: 0.45rem;
 }
 .watched-recent-byline {
   font-size: 0.76rem;
@@ -12167,8 +12171,6 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   color: var(--color-text-muted);
 }
 .watched-recent-date {
-  margin-top: auto;
-  padding-top: 0.6rem;
   font-size: 0.7rem;
   color: var(--color-text-light);
 }

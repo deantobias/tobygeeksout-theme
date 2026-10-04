@@ -261,25 +261,32 @@
          (.journal-stretch::after, section 95) - the row still clicks
          through anywhere, and the tag sits above that layer. Every
          other post keeps the exact markup it had. */}}
+    {{/* Oct 4, 2026 (Toby): "Latest" kicker dropped - it sits under
+         Recent Geekouts, so being newest is already clear. The kicker
+         now shows the post date ("OCT 4", uppercased by .journal-kicker)
+         with the same orange rule, matching the "3 OCT" rows below. The
+         full date line under the title is gone; read time stays when
+         there is one. The <time class="dt-published"> moved into the
+         kicker so the microformat is kept. */}}
     {{ $isSpot := in .Params.categories "Spotlight" }}
     {{ if eq $i 0 }}
     {{ if $isSpot }}
     <div class="journal-feature journal-feature--spot{{ if $thumb }} has-photo{{ end }}">
       <span class="journal-feature-text">
-        <span class="journal-kicker"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>Latest</span>
+        <span class="journal-kicker"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "Jan 2" }}</time></span>
         <a href="{{ .Permalink }}" class="journal-feature-title journal-stretch p-name u-url">{{ .Title }}</a>
         <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
-        <span class="journal-meta"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ if .ReadingTime }}<span class="journal-meta-dot" aria-hidden="true"></span><span>{{ .ReadingTime }} min read</span>{{ end }}</span>
+        {{ if .ReadingTime }}<span class="journal-meta"><span>{{ .ReadingTime }} min read</span></span>{{ end }}
       </span>
       {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
     </div>
     {{ else }}
     <a href="{{ .Permalink }}" class="journal-feature u-url{{ if $thumb }} has-photo{{ end }}">
       <span class="journal-feature-text">
-        <span class="journal-kicker">Latest</span>
+        <span class="journal-kicker"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "Jan 2" }}</time></span>
         <span class="journal-feature-title p-name">{{ .Title }}</span>
         <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
-        <span class="journal-meta"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ if .ReadingTime }}<span class="journal-meta-dot" aria-hidden="true"></span><span>{{ .ReadingTime }} min read</span>{{ end }}</span>
+        {{ if .ReadingTime }}<span class="journal-meta"><span>{{ .ReadingTime }} min read</span></span>{{ end }}
       </span>
       {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
     </a>

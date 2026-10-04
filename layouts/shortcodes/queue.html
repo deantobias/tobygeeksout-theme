@@ -355,11 +355,13 @@
         <span class="queue-cover queue-cover--empty" aria-hidden="true">{{ substr .title 0 1 }}</span>
         {{ end }}
         <span class="queue-card-body">
-          {{ if eq .url $newestURL }}<span class="queue-new">Just added</span>{{ end }}
           <span class="queue-title">{{ .title }}</span>
           {{ with .rel }}<span class="queue-rel">{{ . }}</span>{{ end }}
           {{ with .byline }}<span class="queue-byline">{{ . }}</span>{{ end }}
           {{ with .status }}<span class="queue-status">{{ . }}</span>{{ end }}
+          {{/* Below the director/status, not above the title, so every
+               card's title stays on the same line (Toby, Oct 4). */}}
+          {{ if eq .url $newestURL }}<span class="queue-new">Just added</span>{{ end }}
           {{ with .stars }}<span class="queue-stars">{{ . }}</span>{{ end }}
           {{/* Filled in by the where-to-watch script below; stays hidden
                if the lookup has no answer. Out now cards only. */}}

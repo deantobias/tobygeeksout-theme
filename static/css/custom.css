@@ -2561,55 +2561,48 @@ body.tgo-search-empty .site-footer {
 /* (Oct 4, 2026) The 600-1023px rule that dropped the copyright to
    its own line is gone with the copyright itself. */
 
-@media (max-width: 599px) {
-  .footer-text .footer-sep { display: none; }
-  .footer-text .footer-bit { display: block; }
-}
-
-/* Phone footer, compact (Oct 4, 2026, Toby: "too long and too tall",
-   then "make it three lines"). Was seven stacked lines; now three:
+/* Footer, three lines everywhere (Oct 4, 2026, Toby). Was seven
+   stacked lines on phones and a separate Challenges line on desktop;
+   now every screen gets the same three:
      Kentucky-made. Internet-brained.
      The Tinkering Log · Geek Gear · Blaugust 2026
      Published on Micro.blog · Designed by Toby & Claude
    Flex order regroups the footer bits, ::before forces the line
-   break, the separate Challenges line is hidden in favor of the
-   phone-only .footer-bit--challenge. The copyright line was removed
-   everywhere (Toby's call: the notice isn't needed). Three lines
-   from 375px up;
-   on a 360px phone the last line wraps once.
-   Desktop and the 600-1023px layout are unchanged. */
-.footer-text .footer-bit.footer-bit--challenge { display: none; }
+   break, and the separate Challenges line is hidden in favor of
+   .footer-bit--challenge. The copyright line was removed (Toby's
+   call: the notice isn't needed). Phones only get smaller text and
+   tighter padding; three lines from 375px up, and on a 360px phone
+   the last line wraps once. */
+.footer-challenges { display: none; }
+.footer-text {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.4em;
+  row-gap: 0.2em;
+}
+.footer-text .footer-bit,
+.footer-text .footer-bit:last-of-type,
+.footer-text .footer-bit.footer-bit--challenge { display: inline; }
+.footer-text .footer-sep,
+.footer-text .footer-sep:last-of-type { display: none; }
+.footer-text::before { content: ""; flex-basis: 100%; height: 0; order: 4; }
+.footer-bit--log { order: 1; }
+.footer-bit--gear { order: 2; }
+.footer-bit--challenge { order: 3; }
+.footer-bit--mb { order: 5; }
+.footer-bit--design { order: 6; }
+.footer-bit--gear::before,
+.footer-bit--challenge::before,
+.footer-bit--design::before { content: "·"; margin-right: 0.4em; color: var(--color-text-light); }
+.footer-bit--log a,
+.footer-bit--gear a,
+.footer-bit--challenge a { font-weight: 600; }
 @media (max-width: 599px) {
   .site-footer { margin-top: 1rem; padding: 0.75rem 12px; }
   .footer-inner { gap: 0.4rem; }
-  .footer-challenges { display: none; }
   .footer-tagline { font-size: 0.9rem; }
-  .footer-text {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    column-gap: 0.4em;
-    row-gap: 0.2em;
-    font-size: 0.66rem;
-    line-height: 1.6;
-  }
-  .footer-text .footer-bit,
-  .footer-text .footer-bit:last-of-type { display: inline; }
-  .footer-text .footer-sep,
-  .footer-text .footer-sep:last-of-type,
-  .footer-text .footer-bit.footer-bit--challenge { display: inline; }
-  .footer-text::before { content: ""; flex-basis: 100%; height: 0; order: 4; }
-  .footer-bit--log { order: 1; }
-  .footer-bit--gear { order: 2; }
-  .footer-bit--challenge { order: 3; }
-  .footer-bit--mb { order: 5; }
-  .footer-bit--design { order: 6; }
-  .footer-bit--gear::before,
-  .footer-bit--challenge::before,
-  .footer-bit--design::before { content: "·"; margin-right: 0.4em; color: var(--color-text-light); }
-  .footer-bit--log a,
-  .footer-bit--gear a,
-  .footer-bit--challenge a { font-weight: 600; }
+  .footer-text { font-size: 0.66rem; line-height: 1.6; }
 }
 
 

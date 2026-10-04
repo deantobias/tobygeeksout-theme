@@ -339,7 +339,7 @@
     <h2 class="queue-heading">{{ (index $group 0).groupLabel }}</h2>
     <div class="queue-grid">
       {{ range $group }}
-      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url"{{ if eq .groupKey "0" }} data-wtw-title="{{ .title }}" data-wtw-year="{{ .relYr }}" data-wtw-type="{{ .kind }}"{{ end }}>
+      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url"{{ if or (eq .groupKey "0") .status }} data-wtw-title="{{ .title }}" data-wtw-year="{{ .relYr }}" data-wtw-type="{{ .kind }}"{{ if .status }} data-wtw-prod="1"{{ end }}{{ end }}>
         {{ if .cover }}
         <img class="queue-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
         {{ else }}
@@ -384,6 +384,8 @@
        (perch-app.pages.dev/where-to-watch, functions/where-to-watch.js in
        the microblog-client repo) and writes one line under the poster:
        "Streaming on Netflix", "Rent or buy", or "Not streaming yet".
+       Cards showing a production status ("In Production") also ask for
+       TMDB's current status and swap it in, so it doesn't go stale.
        Nothing is stored in the posts, so it covers old and new entries
        and stays current on its own. Four lookups run at a time; any
        failure just leaves that card's line hidden.
@@ -406,12 +408,19 @@
         '&type=' + (a.getAttribute('data-wtw-type') === 'tv' ? 'tv' : 'movie') +
         // Bump v when Perch's answers change shape, so readers' browsers
         // don't keep showing an old saved answer (Oct 4: double Peacock).
+        (a.getAttribute('data-wtw-prod') ? '&prod=1' : '') +
         '&v=2';
       return fetch(API + q)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
+          if (!d) return;
+          // Live production status (Oct 4, Toby): replaces the line saved
+          // in the post ("In Production") with TMDB's current one. The
+          // release date is left alone - it comes from the post.
+          var ps = a.querySelector('.queue-status');
+          if (ps && d.prodStatus) ps.textContent = d.prodStatus;
           var el = a.querySelector('.queue-stream');
-          if (!d || !el) return;
+          if (!el) return;
           var t = '';
           var mine = false;
           if (d.status === 'stream' && d.providers && d.providers.length) {

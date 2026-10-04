@@ -400,7 +400,10 @@
       if (!a) return;
       var q = '?title=' + encodeURIComponent(a.getAttribute('data-wtw-title')) +
         (a.getAttribute('data-wtw-year') ? '&year=' + a.getAttribute('data-wtw-year') : '') +
-        '&type=' + (a.getAttribute('data-wtw-type') === 'tv' ? 'tv' : 'movie');
+        '&type=' + (a.getAttribute('data-wtw-type') === 'tv' ? 'tv' : 'movie') +
+        // Bump v when Perch's answers change shape, so readers' browsers
+        // don't keep showing an old saved answer (Oct 4: double Peacock).
+        '&v=2';
       return fetch(API + q)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {

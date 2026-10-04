@@ -10553,7 +10553,11 @@ h2.feed-label {
   text-decoration: none;
   color: inherit;
 }
-.journal-feature.has-photo { grid-template-columns: 1.25fr 1fr; }
+/* Oct 4, 2026 (Toby): photo on the LEFT, title on the right, to match
+   the rows below (date | photo | title) and the phone layout, where
+   the photo already comes first. Text keeps the wider column. */
+.journal-feature.has-photo { grid-template-columns: 1fr 1.25fr; }
+.journal-feature.has-photo .journal-feature-img { order: -1; }
 .journal-feature-text { display: block; min-width: 0; }
 .journal-kicker {
   display: flex;

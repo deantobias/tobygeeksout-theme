@@ -55,6 +55,33 @@
   "May" "05" "June" "06" "July" "07" "August" "08"
   "September" "09" "October" "10" "November" "11" "December" "12" }}
 
+{{/* ---- ALREADY WATCHED (Oct 4, 2026, Toby: "don't let it show up in
+     the queue because I already saw it"). Collect the title of every
+     review - same test as the Watched page: a star run plus a Movie
+     Reviews / TV Reviews / Reel and Remote category, never a
+     "Want to Watch" card. A queue entry whose title matches one is
+     skipped below. Nothing is deleted; the watchlist post itself is
+     untouched and still lives on the blog. Titles are compared
+     lower-case with everything but letters and digits stripped, so
+     "The Devil's Mouth" matches "the devils mouth". */}}
+{{ $reviewed := slice }}
+{{ range (where .Site.Pages "Type" "post") }}
+  {{ if and (findRE `★` .Content 1) (not (findRE `(?i)want to watch` .Content 1)) }}
+    {{ $isRev := false }}
+    {{ range .Params.categories }}
+      {{ if in (slice "Movie Reviews" "TV Reviews" "Reel and Remote") . }}{{ $isRev = true }}{{ end }}
+    {{ end }}
+    {{ if $isRev }}
+      {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+        {{ $reviewed = $reviewed | append (replaceRE `[^\pL\pN]+` "" (lower (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))))) }}
+      {{ end }}
+      {{ $pt := replaceRE `(?i)^\s*(?:finally\s+)?watched:?\s*` "" .Title }}
+      {{ $pt = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $pt }}
+      {{ with replaceRE `[^\pL\pN]+` "" (lower $pt) }}{{ $reviewed = $reviewed | append . }}{{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
 {{ $items := slice }}
 {{ range (where .Site.Pages "Type" "post").ByDate.Reverse }}
 {{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}
@@ -263,12 +290,14 @@
   {{ $relYr := "" }}
   {{ with findRE `^(?:19|20)\d{2}` $dateKey 1 }}{{ $relYr = index . 0 }}{{ end }}
 
+  {{ if not (in $reviewed (replaceRE `[^\pL\pN]+` "" (lower $t))) }}
   {{ $items = $items | append (dict
       "kind" $kind "relYr" $relYr
       "url" .Permalink "title" $t "cover" $cover "byline" $byline
       "stars" $stars "status" $status "added" (.Date.Format "Jan 2, 2006")
       "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
       "dateKey" $dateKey) }}
+  {{ end }}
 {{ end }}
 {{ end }}
 

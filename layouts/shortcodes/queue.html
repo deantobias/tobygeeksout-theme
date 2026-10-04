@@ -254,7 +254,17 @@
   {{ $stars := "" }}
   {{ with findRE `[★☆½]{3,}` .Content 1 }}{{ $stars = index . 0 }}{{ end }}
 
+  {{/* ---- Where-to-watch inputs (Oct 4, 2026, Toby). Movie or TV, and
+       the release year, so Perch's /where-to-watch lookup can find the
+       right title on TMDB. TV = filed under TV Reviews, or the card has
+       a season tag or leads with the TV emoji. */}}
+  {{ $kind := "movie" }}
+  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") }}{{ $kind = "tv" }}{{ end }}
+  {{ $relYr := "" }}
+  {{ with findRE `^(?:19|20)\d{2}` $dateKey 1 }}{{ $relYr = index . 0 }}{{ end }}
+
   {{ $items = $items | append (dict
+      "kind" $kind "relYr" $relYr
       "url" .Permalink "title" $t "cover" $cover "byline" $byline
       "stars" $stars "status" $status "added" (.Date.Format "Jan 2, 2006")
       "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
@@ -297,7 +307,7 @@
     <h2 class="queue-heading">{{ (index $group 0).groupLabel }}</h2>
     <div class="queue-grid">
       {{ range $group }}
-      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url">
+      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url"{{ if eq .groupKey "0" }} data-wtw-title="{{ .title }}" data-wtw-year="{{ .relYr }}" data-wtw-type="{{ .kind }}"{{ end }}>
         {{ if .cover }}
         <img class="queue-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
         {{ else }}
@@ -311,6 +321,9 @@
           {{ with .byline }}<span class="queue-byline">{{ . }}</span>{{ end }}
           {{ with .status }}<span class="queue-status">{{ . }}</span>{{ end }}
           {{ with .stars }}<span class="queue-stars">{{ . }}</span>{{ end }}
+          {{/* Filled in by the where-to-watch script below; stays hidden
+               if the lookup has no answer. Out now cards only. */}}
+          {{ if eq .groupKey "0" }}<span class="queue-stream" hidden></span>{{ end }}
           {{/* "Added {{ .added }}" line removed (Toby, July 29) -
                every entry now carries a release date, so the added-on
                date was clutter. The .added field is still built above;
@@ -319,6 +332,9 @@
       </a>
       {{ end }}
     </div>
+    {{ if eq . "0" }}
+    <p class="queue-stream-credit" hidden>Where to watch (US) from <a href="https://www.justwatch.com/">JustWatch</a> via <a href="https://www.themoviedb.org/">TMDB</a>. Checked twice a day.</p>
+    {{ end }}
   </section>
   {{ end }}
 
@@ -330,6 +346,50 @@
     <span>·</span>
     <a href="{{ "/watched/" | absURL }}">Watched →</a>
   </div>
+
+  {{/* ---- WHERE TO WATCH (Oct 4, 2026, Toby). For each Out now card, the
+       reader's browser asks Perch's public lookup
+       (perch-app.pages.dev/where-to-watch, functions/where-to-watch.js in
+       the microblog-client repo) and writes one line under the poster:
+       "Streaming on Netflix", "Rent or buy", or "Not streaming yet".
+       Nothing is stored in the posts, so it covers old and new entries
+       and stays current on its own. Four lookups run at a time; any
+       failure just leaves that card's line hidden.
+       Styles: custom.css section 101. */}}
+  <script>
+  (function () {
+    var cards = document.querySelectorAll('.queue-card[data-wtw-title]');
+    if (!cards.length || !window.fetch) return;
+    var API = 'https://perch-app.pages.dev/where-to-watch';
+    var credit = document.querySelector('.queue-stream-credit');
+    var i = 0;
+    function next() {
+      var a = cards[i++];
+      if (!a) return;
+      var q = '?title=' + encodeURIComponent(a.getAttribute('data-wtw-title')) +
+        (a.getAttribute('data-wtw-year') ? '&year=' + a.getAttribute('data-wtw-year') : '') +
+        '&type=' + (a.getAttribute('data-wtw-type') === 'tv' ? 'tv' : 'movie');
+      return fetch(API + q)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          var el = a.querySelector('.queue-stream');
+          if (!d || !el) return;
+          var t = '';
+          if (d.status === 'stream' && d.providers && d.providers.length) t = 'Streaming on ' + d.providers.slice(0, 2).join(', ');
+          else if (d.status === 'rent') t = 'Rent or buy';
+          else if (d.status === 'none') t = 'Not streaming yet';
+          if (!t) return;
+          el.textContent = t;
+          el.className = 'queue-stream queue-stream--' + d.status;
+          el.hidden = false;
+          if (credit) credit.hidden = false;
+        })
+        .catch(function () {})
+        .then(next);
+    }
+    for (var k = 0; k < 4; k++) next();
+  })();
+  </script>
 
 </div>
 

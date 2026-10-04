@@ -12174,3 +12174,31 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   font-size: 0.7rem;
   color: var(--color-text-light);
 }
+
+
+/* ============================================================
+   101 · QUEUE: WHERE TO WATCH   (Oct 4, 2026, Toby)
+   ============================================================
+   One line under each "Out now" poster on /the-queue/, written by
+   the script in the queue shortcode from Perch's public
+   /where-to-watch lookup (TMDB watch providers, data by JustWatch).
+   Streaming gets the terracotta; "Rent or buy" and "Not streaming
+   yet" stay quiet. Hidden until there's an answer.
+   ============================================================ */
+.queue-stream {
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+}
+.queue-stream[hidden] { display: none; }
+.queue-stream--stream { color: var(--color-terra-text); }
+.queue-stream-credit {
+  margin: var(--space-md) 0 0;
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+}
+.queue-stream-credit[hidden] { display: none; }
+.queue-stream-credit a { color: inherit; text-decoration: underline; }

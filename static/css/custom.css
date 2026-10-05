@@ -12763,3 +12763,154 @@ html.fonts-70s .nli-summary {
 }
 
 } /* end @media screen — section 104 */
+
+
+/* ============================================================
+   105 · REVIEW CARD — new movie/TV review look   (Oct 5, 2026, Toby)
+
+   For NEW reviews only. Every class starts with .review- so the old
+   .movie-card / .book-card styles keep past posts looking the same.
+
+   The card is all Inter (only the post title above it is Caprasimo),
+   and bold text inside it uses the display face (Caprasimo in the 70s
+   look). The synopsis and review are 16px, line height 1.7, inline.
+   The card is a table with its FONTS, SIZES, PADDING and MARGINS written
+   inline, so it looks the same in email (email apps ignore this CSS).
+   The post title (e.g. "🎬 Obsession (2026)") is the card's title, so
+   the card itself has none.
+
+   This section carries only:
+     1. colors, read straight from the theme's sky tokens so the card
+        follows every sky (day, dawn, sunset, dusk, night) and the
+        Day / Night / Sky toggle. The card has no background of its own.
+     2. a few image and border rules
+     3. phone and wide-screen overrides, which need !important to beat
+        the inline values
+     4. fonts: paragraphs + quotes in Inter, bold in the display face
+
+   Sky notes (checked Oct 5 against head.html + custom_footer.html):
+   - The sky script writes the tokens as inline styles on <html>, and
+     the footer script runs every ink through the contrast guard
+     (INK_MIN). Reading var(--color-*) right where it's used picks all
+     of that up. The hex after each var is only a fallback (stock day).
+   - Small terracotta TEXT (labels, the scale link, footer links) uses
+     --color-terra-text: #A65326 by day = 5.1:1 on the cream page, and
+     the guard holds it at 4.5+ in every sky. Plain --color-terra
+     (#C4622D) is only 3.8:1 by day, so it's kept for the stars, which
+     are big glyphs (3:1 is enough).
+   - Text colors are NOT inline in the card HTML, so these rules work
+     without !important. Borders ARE inline, so they carry !important.
+     If a text color ever goes inline, its rule here needs !important
+     too or the card will stay day-colored at night.
+   ============================================================ */
+
+/* ---------- Colors and image rules ---------- */
+.review-card {
+  background: transparent;
+  border-color: var(--color-border, #E5DDD5) !important;
+  color: var(--color-text, #1A1A18);
+}
+.review-backdrop-cell { background: var(--color-bg-warm, #F2EDE8); }
+.review-backdrop { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.review-byline { color: var(--color-text-muted, #69635C); }
+.review-stars { color: var(--color-terra, #C4622D); }
+.review-scale {
+  color: var(--color-terra-text, #A65326);
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+.review-fact-label { color: var(--color-text-muted, #69635C); }
+.review-fact-value { color: var(--color-navy, #1E2D4A); }
+.review-tagline { color: var(--color-navy, #1E2D4A); }
+.review-synopsis,
+.review-thoughts { color: var(--color-text, #1A1A18); }
+.review-label { color: var(--color-terra-text, #A65326); }
+.review-body,
+.review-foot { border-top-color: var(--color-border, #E5DDD5) !important; }
+.review-foot a {
+  color: var(--color-terra-text, #A65326);
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+.review-top-poster img { background: var(--color-bg-warm, #F2EDE8); }
+
+/* ---------- Phones ---------- */
+@media (max-width: 599px) {
+  .review-stars { font-size: 26px !important; }
+  .review-head,
+  .review-facts,
+  .review-about,
+  .review-body,
+  .review-foot { padding-left: 16px !important; padding-right: 16px !important; }
+  .review-top-poster { width: 116px !important; padding: 16px 0 0 16px !important; }
+  .review-top-poster img { width: 100px !important; height: 150px !important; }
+  .review-top-info { padding: 16px 16px 4px 12px !important; }
+  .review-top-info .review-stars { font-size: 22px !important; letter-spacing: 1px !important; }
+}
+
+/* ---------- Wide screens: lift the 600px cap, blog only ---------- */
+@media (min-width: 760px) {
+  .review-card { max-width: none !important; }
+  .review-backdrop { aspect-ratio: 21 / 9; }
+  .review-head { padding: 24px 32px 6px !important; }
+  .review-facts { padding: 14px 32px 0 !important; }
+  .review-about { padding: 14px 32px 24px !important; }
+  .review-synopsis { max-width: 68ch; }
+  .review-body { padding: 22px 32px 26px !important; }
+  .review-thoughts { max-width: 68ch; }
+  .review-foot { padding: 14px 32px 18px !important; }
+
+  /* Two-column poster layout (used only when TMDB has no backdrop) */
+  .review-card--poster { display: grid !important; grid-template-columns: 272px 1fr; }
+  .review-card--poster tbody,
+  .review-card--poster tr { display: contents; }
+  .review-card--poster .review-top-poster {
+    grid-column: 1; grid-row: 1 / span 2;
+    width: auto !important; padding: 28px 0 28px 32px !important;
+  }
+  .review-card--poster .review-top-poster img { width: 220px !important; height: 330px !important; }
+  .review-card--poster .review-top-info { grid-column: 2; grid-row: 1; padding: 28px 32px 4px 8px !important; }
+  .review-card--poster .review-top-info .review-stars { font-size: 30px !important; }
+  .review-card--poster .review-top-info .review-scale { display: inline !important; margin-left: 10px !important; }
+  .review-card--poster .review-about { grid-column: 2; grid-row: 2; padding: 14px 32px 28px 8px !important; }
+  .review-card--poster .review-body { grid-column: 1 / -1; grid-row: 3; }
+  .review-card--poster .review-foot { grid-column: 1 / -1; grid-row: 4; }
+}
+
+/* ---------- Fonts: Inter text, display-face bold ----------
+   The theme dresses post text in the reading font (Fraunces in the 70s
+   look, Lora in Modern), every blockquote p in Georgia !important, and
+   70s quotes in Shrikhand !important. Inside a review card, paragraphs,
+   list items and quotes are Inter instead. The selector is
+   (0,2,4) so it outranks the 70s Shrikhand rule (0,2,3).
+   Bold: the 70s look sets strong/b to inherit the surrounding font, so
+   review bold is pointed back at --font-display (Caprasimo in 70s,
+   Bricolage in Modern). Caprasimo ships one weight, so 70s bold is set
+   to 400; a 700 there would be a fake, smeared bold. */
+html body .review-card.review-card :is(p, li, blockquote, blockquote p) {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif) !important;
+}
+html body .review-card.review-card :is(strong, b) {
+  font-family: var(--font-display, 'Caprasimo', Georgia, serif) !important;
+}
+html.fonts-70s body .review-card.review-card :is(strong, b) {
+  font-weight: 400 !important;
+}
+
+/* ---------- Print: always print in day colors ----------
+   The sky tokens live on <html>, so a review printed at night would
+   come out white-on-white. Resetting the tokens on the card itself
+   gives everything inside it the stock day values on paper. */
+@media print {
+  .review-card {
+    --color-text: #1A1A18;
+    --color-text-muted: #69635C;
+    --color-navy: #1E2D4A;
+    --color-terra: #C4622D;
+    --color-terra-text: #A65326;
+    --color-border: #999999;
+    --color-bg-warm: transparent;
+  }
+  .review-head,
+  .review-facts,
+  .review-about { break-inside: avoid; page-break-inside: avoid; }
+}
+/* end section 105 */

@@ -12651,21 +12651,26 @@ html.fonts-70s .rail-avatar { width: 72px; height: 72px; }   /* was 48px */
    there. 40px on tablet/desktop, 36px on phones where the row also
    holds the avatar and the sky toggle. Width follows the 4:1 box;
    the existing 200px max-width and scroll fade still apply. */
-html.fonts-70s body.type-post .site-logo-wordmark { height: 40px !important; }
+html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 40px !important; }
 @media (max-width: 767px) {
-  html.fonts-70s body.type-post .site-logo-wordmark { height: 36px !important; }
+  html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 36px !important; }
 }
 /* Head and wordmark even (Toby, Oct 5): the avatar was 32px next to a
    40px logo, and the logo's lettering sits low in its box ("Out!"
    rises above it), so the words read below the face. Avatar matches
    the logo height, and the logo lifts a few px so the lettering is
    centered on the face. transform only, so nothing else moves. */
-html.fonts-70s body.type-post .site-logo-avatar { width: 40px; height: 40px; }
-html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-4px); }
+html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 40px; height: 40px; }
+html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { transform: translateY(-4px); }
 @media (max-width: 767px) {
-  html.fonts-70s body.type-post .site-logo-avatar { width: 36px; height: 36px; }
-  html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-3px); }
+  html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 36px; height: 36px; }
+  html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { transform: translateY(-3px); }
 }
+/* Newsletter pages (Perch Mail reader + /newsletters/) share the same
+   compact header as single posts, so they get the same logo + face
+   (Toby, Oct 5: the reader header looked different). The reader's
+   locked panels re-measure the header, checked: 61px header, toolbar
+   right under it, no page scroll. */
 
 /* Phones: "Hi, I'm Toby" vs the rabbit (Toby, Oct 5). The phone strip
    centers the greeting at 2.5rem and the rabbit peeks in at the right

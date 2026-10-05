@@ -68,7 +68,7 @@
           <td style="background-color:#FAF8F5;border-bottom:1px solid #E5DDD5;padding:10px 28px;text-align:right;" class="mobile-pad">
             {{ if eq (len .Pages) 1 }}
               {{ with index .Pages 0 }}
-                <a href="{{ .Permalink }}" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#C4622D;text-decoration:none;letter-spacing:0.5px;">Read online →</a>
+                <a href="{{ .Permalink }}" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#A65326;text-decoration:none;letter-spacing:0.5px;">Read online →</a>
               {{ end }}
             {{ end }}
           </td>
@@ -79,7 +79,7 @@
              ===================== -->
         {{ if gt (len .Intro) 0 }}
         <tr>
-          <td style="background-color: #F2EDE8; border-bottom: 1px solid #E5DDD5; padding: 18px 28px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #6B645D; font-style: italic;" class="mobile-pad">
+          <td style="background-color: #F2EDE8; border-bottom: 1px solid #E5DDD5; padding: 18px 28px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #69635C; font-style: italic;" class="mobile-pad">
             {{ .Intro }}
           </td>
         </tr>
@@ -99,7 +99,7 @@
             {{ end }}
 
             <!-- Date only -->
-            <p class="cat-date" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #9C9489; margin: 0 0 22px 0;">
+            <p class="cat-date" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #787169; margin: 0 0 22px 0;">
               {{ .Date.Format "January 2, 2006" }}
             </p>
 
@@ -110,12 +110,12 @@
 
             {{ if gt (len .Params.audio) 0 }}
             <p style="margin: 16px 0 0 0;">
-              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #C4622D; text-decoration: none;">View post →</a>
+              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #A65326; text-decoration: none;">View post →</a>
             </p>
             {{ end }}
             {{ if gt (len .Params.video) 0 }}
             <p style="margin: 16px 0 0 0;">
-              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #C4622D; text-decoration: none;">View post →</a>
+              <a href="{{ .Permalink }}" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #A65326; text-decoration: none;">View post →</a>
             </p>
             {{ end }}
 
@@ -127,7 +127,7 @@
           <td style="padding: 0;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="border-top: 2px solid #C4622D; opacity: 0.3; font-size: 0; line-height: 0;"> </td>
+                <td style="border-top: 2px solid #EACBB9; font-size: 0; line-height: 0;"> </td>
               </tr>
             </table>
           </td>
@@ -144,9 +144,9 @@
               <tr>
                 <td width="4" style="background-color: #C4622D; font-size: 0; line-height: 0;"> </td>
                 <td style="background-color: #ffffff; padding: 24px; border-radius: 0 4px 4px 0;">
-                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #C4622D; margin: 0 0 8px 0;">Enjoying this?</p>
+                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #A65326; margin: 0 0 8px 0;">Enjoying this?</p>
                   <h2 class="sub-heading" style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: bold; color: #1E2D4A; line-height: 1.3; margin: 0 0 10px 0;">Get Toby Geeks Out! in your inbox.</h2>
-                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.65; color: #6B645D; margin: 0 0 20px 0;">New posts on tech, neurodivergence, tiny house living, and whatever else has my attention — delivered straight to you. No algorithm, no noise.</p>
+                  <p style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.65; color: #69635C; margin: 0 0 20px 0;">New posts on tech, neurodivergence, tiny house living, and whatever else has my attention — delivered straight to you. No algorithm, no noise.</p>
                   <a href="https://tobygeeksout.micro.blog/subscribe/" class="sub-btn" style="display: inline-block; background-color: #1E2D4A; color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; padding: 12px 22px; border-radius: 4px;">Subscribe for free →</a>
                 </td>
               </tr>
@@ -159,15 +159,15 @@
              ===================== -->
         <tr>
           <td style="background-color: #1E2D4A; padding: 22px 28px;" class="mobile-pad">
-            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,0.55); margin: 0 0 8px 0; line-height: 1.6;">
-              <strong style="color: rgba(255,255,255,0.85);">Toby Geeks Out!</strong> — Writing from a tiny house in Elkhorn City, Kentucky.
+            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #9AA0AE; margin: 0 0 8px 0; line-height: 1.6;">
+              <strong style="color: #DDE0E4;">Toby Geeks Out!</strong> — Writing from a tiny house in Elkhorn City, Kentucky.
             </p>
-            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: rgba(255,255,255,0.35); margin: 0; line-height: 1.8;">
-              <a href="{{ .Footer.UnsubscribeURL }}" style="color: #C4622D; text-decoration: none;">Unsubscribe</a>
-              <span style="color: rgba(255,255,255,0.2); margin: 0 6px;">|</span>
-              <a href="{{ .Site.BaseURL }}" style="color: rgba(255,255,255,0.4); text-decoration: none;">{{ .Site.Hostname }}</a>
+            <p style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #9AA0AE; margin: 0; line-height: 1.8;">
+              <a href="{{ .Footer.UnsubscribeURL }}" style="color: #E6A688; text-decoration: none;">Unsubscribe</a>
+              <span style="color: #4B576E; margin: 0 6px;">|</span>
+              <a href="{{ .Site.BaseURL }}" style="color: #9AA0AE; text-decoration: none;">{{ .Site.Hostname }}</a>
               {{ if gt (len .Footer.MailingAddress) 0 }}
-                <span style="color: rgba(255,255,255,0.2); margin: 0 6px;">|</span> {{ .Footer.MailingAddress }}
+                <span style="color: #4B576E; margin: 0 6px;">|</span> {{ .Footer.MailingAddress }}
               {{ end }}
             </p>
           </td>

@@ -46,26 +46,29 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <!-- Site look (Oct 5, 2026). The 70s look is the default: <html> ships
      with class="fonts-70s" (baseof.html) and its fonts load with the other
-     Google Fonts below. A reader who picks "Classic" (the Look toggle in the
-     rail and footer, or ?fonts=off) gets tgo-look=classic in localStorage,
-     and this removes the class before first paint. ?fonts=70s goes back.
+     Google Fonts below. A reader who picks "Modern" (the Look toggle in the
+     rail and footer, or ?fonts=modern / ?fonts=off) gets tgo-look=modern in
+     localStorage, and this removes the class before first paint: Bricolage +
+     Lora and the old logos, same layout. ?fonts=70s goes back. ("classic"
+     was the first name, Oct 5; still honored.)
      No JS = 70s look. The rules live in custom.css section 104. -->
 <script>
 (function () {
-  var classic = false;
+  var modern = false;
   try {
     var m = location.search.match(/[?&]fonts=([^&#]*)/);
     if (m) {
       var v = m[1].toLowerCase();
-      if (v === 'off' || v === 'classic') localStorage.setItem('tgo-look', 'classic');
+      if (v === 'off' || v === 'modern' || v === 'classic') localStorage.setItem('tgo-look', 'modern');
       else if (v === '70s' || v === 'on') localStorage.removeItem('tgo-look');
     }
-    classic = localStorage.getItem('tgo-look') === 'classic';
+    var saved = localStorage.getItem('tgo-look');
+    modern = saved === 'modern' || saved === 'classic';
   } catch (e) {
     /* storage blocked: honor the address for this page only */
-    classic = /[?&]fonts=(off|classic)(?:[&#]|$)/.test(location.search);
+    modern = /[?&]fonts=(off|modern|classic)(?:[&#]|$)/.test(location.search);
   }
-  if (classic) document.documentElement.classList.remove('fonts-70s');
+  if (modern) document.documentElement.classList.remove('fonts-70s');
 })();
 </script>
 
@@ -131,7 +134,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 <!-- 70s look (default since Oct 5, 2026): Caprasimo (display), Fraunces
      (reading), Shrikhand (quotes). Bricolage + Lora above stay for the
-     Classic look and the newsletter preview pane. -->
+     Modern look and the newsletter preview pane. -->
 <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Shrikhand&display=swap" rel="stylesheet">
 
 

@@ -12371,13 +12371,13 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 
 
 /* ============================================================
-   104 · 70s LOOK — default site look + Classic toggle   (Oct 5, 2026, Toby)
+   104 · 70s LOOK — default site look + Modern toggle   (Oct 5, 2026, Toby)
    ============================================================
    Went live Oct 5, 2026 as the DEFAULT look. Everything below hangs
    off html.fonts-70s, which baseof.html puts on <html> for everyone.
-   Readers can flip to the Classic look (Bricolage + Lora, the old
+   Readers can flip to the Modern look (Bricolage + Lora, the old
    logos) with the Look toggle in the rail and the footer; head.html
-   removes the class before first paint for them (tgo-look=classic in
+   removes the class before first paint for them (tgo-look=modern in
    localStorage), and ?fonts=off / ?fonts=70s do the same from the
    address bar. Started the same day as a private preview switch.
 
@@ -12431,7 +12431,7 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 .tgo-look-btn:hover { border-color: var(--color-terra); }
 .tgo-look-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
 .tgo-look-k { color: var(--color-terra-text); }
-.tgo-look-word { min-width: 3.3em; text-align: left; }   /* "Classic" is the widest; no jump */
+.tgo-look-word { min-width: 3.3em; text-align: left; }   /* "Modern" is the widest; no jump */
 .tgo-look-btn--rail { margin-left: 8px; }
 .footer-look { margin: 12px 0 0; }
 
@@ -12479,6 +12479,9 @@ html.fonts-70s :where(
 ) {
   font-family: var(--font-body) !important;
 }
+
+/* Both looks (Toby, Oct 5): the rail tagline is Inter in Modern too. */
+html .rail-tagline { font-family: var(--font-body) !important; }
 
 /* C. Smaller titles (roughly 0.8–1.15rem) get Fraunces in its display
    dress instead of Caprasimo: header title-in-nav, prev/next, related
@@ -12619,13 +12622,20 @@ html.fonts-70s .define-word { overflow-wrap: anywhere; hyphens: auto; }
   }
 }
 
+/* SHARED DESIGN (Toby, Oct 5): from K down, the header/rail/masthead
+   layout rules are written as `html ...`, not `html.fonts-70s ...`, so
+   the Modern look (old fonts, old logos) gets the same sizes, the home
+   masthead and the folding rail logo. Only fonts, logos, the poster
+   title size, the define word and the post-header logo lift stay 70s.
+   The old logos are 2000x500 (4:1), so the 4:1 box shows them whole. */
+
 /* K. New logo pair (Oct 5, 2026): the 70s logos are 1500x600 (2.5:1)
    with the lettering in the middle band; the live logos are 2000x500
    (4:1). Header and rail keep the live 4:1 box so nothing moves, and
    the new art is cropped to its lettering (it sits at about 18-67% of
    the height, so 30% centers it). Swapped in by header.html and the
    sky script in custom_footer.html. */
-html.fonts-70s :is(.site-logo-wordmark, .rail-logo) {
+html :is(.site-logo-wordmark, .rail-logo) {
   aspect-ratio: 4 / 1;
   object-fit: cover;
   object-position: 50% 30%;
@@ -12634,15 +12644,15 @@ html.fonts-70s :is(.site-logo-wordmark, .rail-logo) {
    new lettering reads smaller than the old wordmark at the same box.
    The rail's inner width is 240px (280 minus 2 x 20px padding), so
    210px still leaves air. Compact rail and short windows step down. */
-html.fonts-70s .rail-logo { width: 210px; }
-html.fonts-70s .rail-avatar { width: 72px; height: 72px; }   /* was 48px */
+html .rail-logo { width: 210px; }
+html .rail-avatar { width: 72px; height: 72px; }   /* was 48px */
 @media (min-width: 768px) and (max-width: 1023px) {
-  html.fonts-70s .rail-logo { width: 180px; }   /* inner width 192px */
-  html.fonts-70s .rail-avatar { width: 60px; height: 60px; }
+  html .rail-logo { width: 180px; }   /* inner width 192px */
+  html .rail-avatar { width: 60px; height: 60px; }
 }
 @media (min-width: 768px) and (max-height: 720px) {
-  html.fonts-70s .rail-logo { width: 170px; }   /* keeps the rail on one screen */
-  html.fonts-70s .rail-avatar { width: 52px; height: 52px; }
+  html .rail-logo { width: 170px; }   /* keeps the rail on one screen */
+  html .rail-avatar { width: 52px; height: 52px; }
 }
 
 /* Single-post header logo bigger in the preview (Toby, Oct 5): the
@@ -12651,19 +12661,19 @@ html.fonts-70s .rail-avatar { width: 72px; height: 72px; }   /* was 48px */
    there. 40px on tablet/desktop, 36px on phones where the row also
    holds the avatar and the sky toggle. Width follows the 4:1 box;
    the existing 200px max-width and scroll fade still apply. */
-html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 40px !important; }
+html :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 40px !important; }
 @media (max-width: 767px) {
-  html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 36px !important; }
+  html :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { height: 36px !important; }
 }
 /* Head and wordmark even (Toby, Oct 5): the avatar was 32px next to a
    40px logo, and the logo's lettering sits low in its box ("Out!"
    rises above it), so the words read below the face. Avatar matches
    the logo height, and the logo lifts a few px so the lettering is
    centered on the face. transform only, so nothing else moves. */
-html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 40px; height: 40px; }
+html :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 40px; height: 40px; }
 html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { transform: translateY(-4px); }
 @media (max-width: 767px) {
-  html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 36px; height: 36px; }
+  html :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-avatar { width: 36px; height: 36px; }
   html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark { transform: translateY(-3px); }
 }
 /* Newsletter pages (Perch Mail reader + /newsletters/) share the same
@@ -12679,7 +12689,7 @@ html.fonts-70s :is(body.type-post, body.type-newsletter, body.type-newsletters) 
    happens on live too). The greeting now scales with the screen and
    stays on one line, clear of the rabbit: checked at 320/360/390/414. */
 @media (max-width: 767px) {
-  html.fonts-70s .about-strip .about-text strong {
+  html .about-strip .about-text strong {
     font-size: min(2.5rem, 10.5vw) !important;
   }
 }
@@ -12717,13 +12727,13 @@ html.fonts-70s .nli-summary {
    target. The masthead box lines up with .feed-wrapper's content box
    and the logo is centered in it, like a magazine nameplate. */
 @media (min-width: 768px) {
-  html.fonts-70s .tgo-mast {
+  html .tgo-mast {
     display: block;
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 0.25rem var(--space-xl) 0;
   }
-  html.fonts-70s .tgo-mast-logo {
+  html .tgo-mast-logo {
     display: block;
     width: min(520px, 100%);
     height: auto;
@@ -12737,11 +12747,11 @@ html.fonts-70s .nli-summary {
      slides open as the masthead scrolls away, so the rail reads avatar,
      greeting, nav with no hole. 64px open covers every rail logo size
      (210px wide = 52.5px tall at 4:1). */
-  html.fonts-70s body.tgo-mast-on .rail-logo {
+  html body.tgo-mast-on .rail-logo {
     max-height: 64px;
     transition: opacity 0.35s ease, max-height 0.35s ease, margin 0.35s ease;
   }
-  html.fonts-70s body.tgo-mast-on:not(.tgo-mast-gone) .rail-logo {
+  html body.tgo-mast-on:not(.tgo-mast-gone) .rail-logo {
     opacity: 0;
     max-height: 0;
     margin-top: 0;
@@ -12749,7 +12759,7 @@ html.fonts-70s .nli-summary {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  html.fonts-70s body.tgo-mast-on .rail-logo { transition: none; }
+  html body.tgo-mast-on .rail-logo { transition: none; }
 }
 
 } /* end @media screen — section 104 */

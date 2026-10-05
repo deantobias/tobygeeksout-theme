@@ -788,8 +788,8 @@
 </script>
 
 <script>
-/* Home masthead (Oct 5, 2026, Toby), part of the 70s look. Home page,
-   rail layout (768+) only; CSS hides it in the Classic look. A big "Toby Geeks Out!"
+/* Home masthead (Oct 5, 2026, Toby). Home page, rail layout (768+)
+   only, in both looks (70s and Modern logos). A big "Toby Geeks Out!"
    stands above Recent Geekouts; while it is on screen the rail logo
    steps aside, and once you scroll past it the rail logo fades back
    in, centered like a magazine nameplate. The masthead is decorative (aria-hidden, not focusable): the
@@ -797,7 +797,7 @@
    Styles: custom.css section 104 L. */
 (function () {
   var de = document.documentElement;
-  if (!document.body.classList.contains('home')) return;   /* built always; CSS shows it in the 70s look only */
+  if (!document.body.classList.contains('home')) return;
   var anchor = document.querySelector('.rg-rabbit-anchor') || document.querySelector('.feed-wrapper');
   var railLogo = document.querySelector('.rail-logo');
   if (!anchor || !railLogo) return;
@@ -808,8 +808,7 @@
   img.className = 'tgo-mast-logo';
   img.alt = '';
   img.width = 1500; img.height = 600;
-  img.loading = 'lazy';   /* hidden in the Classic look, so it never downloads there */
-  img.src = 'https://tobygeeksout.micro.blog/uploads/2026/' + (document.body.classList.contains('tgo-night') ? 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png');
+  img.src = railLogo.getAttribute('src');   /* same logo as the rail: 70s or Modern, day or night */
   mast.appendChild(img);
   anchor.parentNode.insertBefore(mast, anchor);
   document.body.classList.add('tgo-mast-on');   /* CSS hides the rail logo only when this is set */
@@ -831,7 +830,8 @@
 
 <script>
 /* Look toggle (Oct 5, 2026, Toby): readers flip between the 70s look
-   (default) and the Classic look. A pill next to Sky at the bottom of
+   (default) and the Modern look (Bricolage + Lora, the old logos, same
+   layout; first called "Classic"). A pill next to Sky at the bottom of
    the desktop rail, and one in the footer of every page (so phones,
    tablets and single posts have it too). The choice is saved as
    tgo-look in localStorage; head.html applies it before first paint on
@@ -850,25 +850,21 @@
   function is70() { return de.classList.contains('fonts-70s'); }
   function label(b) {
     var on = is70();
-    b.querySelector('.tgo-look-word').textContent = on ? '70s' : 'Classic';
-    var l = on ? 'Look: 70s. Tap for the classic look' : 'Look: Classic. Tap for the 70s look';
+    b.querySelector('.tgo-look-word').textContent = on ? '70s' : 'Modern';
+    var l = on ? 'Look: 70s. Tap for the modern look' : 'Look: Modern. Tap for the 70s look';
     b.setAttribute('aria-label', l);
     b.title = l;
   }
   function swapLogos() {
     var want = LOGOS[is70() ? 'on' : 'off'][document.body.classList.contains('tgo-night') ? 1 : 0];
-    document.querySelectorAll('.site-logo-wordmark, .rail-logo').forEach(function (l) {
+    document.querySelectorAll('.site-logo-wordmark, .rail-logo, .tgo-mast-logo').forEach(function (l) {
       if (l.getAttribute('src') !== want) l.src = want;
-    });
-    var m = LOGOS.on[document.body.classList.contains('tgo-night') ? 1 : 0];
-    document.querySelectorAll('.tgo-mast-logo').forEach(function (l) {
-      if (l.getAttribute('src') !== m) l.src = m;
     });
   }
   /* Newsletter banner (Oct 5, 2026, Toby): every sent issue carries the
      banner image baked into its content, so the Perch Mail reader shows
      whichever banner was current at send time. Show the Caprasimo
-     banner in the 70s look and the original in Classic, whichever one
+     banner in the 70s look and the original in Modern, whichever one
      the issue was sent with. The reader swaps issues in place, so new
      content is watched too. */
   var BANNER_OLD = 'https://iili.io/CukEGI9.png';
@@ -889,7 +885,7 @@
       de.classList.toggle('fonts-70s', next);
       try {
         if (next) localStorage.removeItem('tgo-look');
-        else localStorage.setItem('tgo-look', 'classic');
+        else localStorage.setItem('tgo-look', 'modern');
       } catch (e) {}
       swapLogos();
       swapBanners();

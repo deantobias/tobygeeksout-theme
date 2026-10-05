@@ -12679,6 +12679,31 @@ html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-4px);
   }
 }
 
+/* Newsletter list page banner (Toby, Oct 5): /newsletters/ draws its
+   banner as a background on #main-content::before (section 38). The 70s
+   look uses the Caprasimo banner, sized to its own 1198x400 shape so
+   the lettering is never cropped on phones (the old box cropped to a
+   fixed 400px / 200px height). The Perch Mail reader's banner is an
+   <img> inside each issue and is swapped by the Look script. */
+html.fonts-70s .section.section-newsletters #main-content::before {
+  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v1-newsletter-banner-caprasimo-1198x400.png');
+  height: auto;
+  aspect-ratio: 1198 / 400;
+}
+
+/* Perch Mail reader issue list (sidebar and ?view=list): issue titles
+   in Fraunces's display dress, the one-line summaries in Fraunces
+   reading text. Dates and the "All newsletters" label stay Inter.
+   The email-true preview pane on the right is untouched. */
+html.fonts-70s .nli-title {
+  font-family: var(--font-display-soft);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+html.fonts-70s .nli-summary {
+  font-family: var(--font-reading);
+  line-height: 1.5;
+}
+
 /* L. Masthead test (Toby, Oct 5): on the home page, rail layout only,
    a big "Toby Geeks Out!" stands above Recent Geekouts, and the rail
    logo stays hidden until you scroll past it (body.tgo-mast-gone, set
@@ -12702,8 +12727,21 @@ html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-4px);
     object-fit: cover;
     object-position: 50% 30%;
   }
-  html.fonts-70s body.tgo-mast-on .rail-logo { transition: opacity 0.35s ease; }
-  html.fonts-70s body.tgo-mast-on:not(.tgo-mast-gone) .rail-logo { opacity: 0; }
+  /* No gap (Toby, Oct 5): while the masthead is on screen the rail
+     logo's slot folds shut (height 0) instead of sitting empty, and it
+     slides open as the masthead scrolls away, so the rail reads avatar,
+     greeting, nav with no hole. 64px open covers every rail logo size
+     (210px wide = 52.5px tall at 4:1). */
+  html.fonts-70s body.tgo-mast-on .rail-logo {
+    max-height: 64px;
+    transition: opacity 0.35s ease, max-height 0.35s ease, margin 0.35s ease;
+  }
+  html.fonts-70s body.tgo-mast-on:not(.tgo-mast-gone) .rail-logo {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html.fonts-70s body.tgo-mast-on .rail-logo { transition: none; }

@@ -865,6 +865,20 @@
       if (l.getAttribute('src') !== m) l.src = m;
     });
   }
+  /* Newsletter banner (Oct 5, 2026, Toby): every sent issue carries the
+     banner image baked into its content, so the Perch Mail reader shows
+     whichever banner was current at send time. Show the Caprasimo
+     banner in the 70s look and the original in Classic, whichever one
+     the issue was sent with. The reader swaps issues in place, so new
+     content is watched too. */
+  var BANNER_OLD = 'https://iili.io/CukEGI9.png';
+  var BANNER_70  = B + 'v1-newsletter-banner-caprasimo-1198x400.png';
+  function swapBanners() {
+    var want = is70() ? BANNER_70 : BANNER_OLD;
+    document.querySelectorAll('img[src="' + BANNER_OLD + '"], img[src="' + BANNER_70 + '"]').forEach(function (i) {
+      if (i.getAttribute('src') !== want) i.setAttribute('src', want);
+    });
+  }
   function make(extra) {
     var b = document.createElement('button');
     b.type = 'button';
@@ -878,6 +892,7 @@
         else localStorage.setItem('tgo-look', 'classic');
       } catch (e) {}
       swapLogos();
+      swapBanners();
       btns.forEach(label);
       /* masthead visibility + rabbit placement re-measure */
       window.dispatchEvent(new Event('resize'));
@@ -888,6 +903,15 @@
     return b;
   }
   function init() {
+    swapBanners();
+    if (document.body.classList.contains('type-newsletter') && window.MutationObserver) {
+      var queued = false;
+      new MutationObserver(function () {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; swapBanners(); });
+      }).observe(document.body, { childList: true, subtree: true });
+    }
     var slot = document.querySelector('.rail-sky-slot');
     if (slot) slot.appendChild(make('tgo-look-btn--rail'));
     var fi = document.querySelector('.site-footer .footer-inner');

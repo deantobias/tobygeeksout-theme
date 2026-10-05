@@ -12437,7 +12437,8 @@ html.fonts-70s :where(
   .rail-sub-heading, .newsletter-toolbar-brand, .newsletter-nav-link,
   .tgo-cal-month-name, .tgo-cal-panel-date, .tgo-cal-total,
   .mo-n, .cat-n, .hdr-post-pct, .bstats .bstats-topic-count,
-  .bh-year-label, .queue-heading, .uses .uses-head, .bm-tl-date
+  .bh-year-label, .queue-heading, .uses .uses-head, .bm-tl-date,
+  .rail-tagline   /* cycling rail tagline: Inter reads better (Toby, Oct 5) */
 ) {
   font-family: var(--font-body) !important;
 }
@@ -12457,7 +12458,7 @@ html.fonts-70s :where(
   .uses-name, .watched-recent-title, .bh-wrap .bh-name,
   .archive-item .archive-item-titled, .blurb-word,
   .page-body ul.postlist li a, .page-body ul.now-list li a,
-  .rail-tagline, .footer-tagline
+  .footer-tagline
 ) {
   font-family: var(--font-display-soft) !important;
   font-variation-settings: "SOFT" 100, "WONK" 1;
@@ -12479,6 +12480,10 @@ html.fonts-70s blockquote.card-quote strong { font-family: inherit; }
 html.fonts-70s .post-header--poster .post-header-title {
   letter-spacing: -0.015em;   /* was -0.05em for Bricolage */
   font-weight: 400;           /* was 800; Caprasimo's only weight */
+  /* Caprasimo is heavier and wider than Bricolage 800 at -0.05em, so a
+     long title grew from 3 to 4 lines on desktop (115px type at 1440).
+     Top size trimmed about 15%; phones keep the same 2.4rem floor. */
+  font-size: clamp(2.4rem, 6.8vw, 5.75rem);
 }
 html.fonts-70s :where(
   .pulse-h1, .pulse-head h2, .fact-value, .split span,
@@ -12566,6 +12571,16 @@ html.fonts-70s :where(.define-word, [style*="Bricolage"]) {
   font-family: var(--font-display) !important;
   letter-spacing: -0.01em;
 }
+/* Reflow (WCAG 1.4.10): Caprasimo is wider, and at 320px a long word
+   pushed the define card 13px past the screen edge, where it got
+   clipped. The word may now break if it truly can't fit, and phones
+   get a size that scales with the screen. */
+html.fonts-70s .define-word { overflow-wrap: anywhere; hyphens: auto; }
+@media (max-width: 480px) {
+  html.fonts-70s :is(.post-body, .wna-body) .define-word {
+    font-size: clamp(1.75rem, 10vw, 2.25rem) !important;
+  }
+}
 
 /* K. New logo pair (Oct 5, 2026): the 70s logos are 1500x600 (2.5:1)
    with the lettering in the middle band; the live logos are 2000x500
@@ -12577,6 +12592,51 @@ html.fonts-70s :is(.site-logo-wordmark, .rail-logo) {
   aspect-ratio: 4 / 1;
   object-fit: cover;
   object-position: 50% 30%;
+}
+/* Desktop rail logo a bit bigger in the preview (Toby, Oct 5): the
+   new lettering reads smaller than the old wordmark at the same box.
+   The rail's inner width is 240px (280 minus 2 x 20px padding), so
+   210px still leaves air. Compact rail and short windows step down. */
+html.fonts-70s .rail-logo { width: 210px; }
+html.fonts-70s .rail-avatar { width: 72px; height: 72px; }   /* was 48px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  html.fonts-70s .rail-logo { width: 180px; }   /* inner width 192px */
+  html.fonts-70s .rail-avatar { width: 60px; height: 60px; }
+}
+@media (min-width: 768px) and (max-height: 720px) {
+  html.fonts-70s .rail-logo { width: 170px; }   /* keeps the rail on one screen */
+  html.fonts-70s .rail-avatar { width: 52px; height: 52px; }
+}
+
+/* L. Masthead test (Toby, Oct 5): on the home page, rail layout only,
+   a big "Toby Geeks Out!" stands above Recent Geekouts, and the rail
+   logo stays hidden until you scroll past it (body.tgo-mast-gone, set
+   by the script in custom_footer.html). Only the logo image fades; the
+   rail link and avatar stay, so keyboard focus still has a visible
+   target. The masthead box lines up with .feed-wrapper's content box
+   and the logo is centered in it, like a magazine nameplate. */
+html.fonts-70s .tgo-mast { display: none; }
+@media (min-width: 768px) {
+  html.fonts-70s .tgo-mast {
+    display: block;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0.25rem var(--space-xl) 0;
+  }
+  html.fonts-70s .tgo-mast-logo {
+    display: block;
+    width: min(520px, 100%);
+    height: auto;
+    margin: 0 auto;            /* centered nameplate (Toby, Oct 5) */
+    aspect-ratio: 4 / 1;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+  html.fonts-70s body.tgo-mast-on .rail-logo { transition: opacity 0.35s ease; }
+  html.fonts-70s body.tgo-mast-on:not(.tgo-mast-gone) .rail-logo { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.fonts-70s body.tgo-mast-on .rail-logo { transition: none; }
 }
 
 } /* end @media screen — section 104 */

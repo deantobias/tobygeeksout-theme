@@ -621,7 +621,7 @@
     function setLogo(mode) {
       /* Header wordmark AND the desktop rail logo (July 22, 2026) —
          both swap together through the skies. */
-      var logos = document.querySelectorAll('.site-logo-wordmark, .rail-logo');
+      var logos = document.querySelectorAll('.site-logo-wordmark, .rail-logo, .tgo-mast-logo');
       if (!logos.length) return;
       var want = mode === 'night' ? NIGHT_LOGO : DAY_LOGO;
       logos.forEach(function (logo) {
@@ -785,6 +785,47 @@
       setTimeout(function () { root.classList.add('tgo-anim'); }, 80);
     });
   } catch (err) {}
+})();
+</script>
+
+<script>
+/* 70s preview masthead (Oct 5, 2026, Toby). Home page, rail layout
+   (768+) only, and only with ?fonts=70s on. A big "Toby Geeks Out!"
+   stands above Recent Geekouts; while it is on screen the rail logo
+   steps aside, and once you scroll past it the rail logo fades back
+   in, centered like a magazine nameplate. The masthead is decorative (aria-hidden, not focusable): the
+   rail link keeps the name for screen readers and keyboards. Live
+   never runs this. Styles: custom.css section 104 L. */
+(function () {
+  var de = document.documentElement;
+  if (!de.classList.contains('fonts-70s') || !document.body.classList.contains('home')) return;
+  var anchor = document.querySelector('.rg-rabbit-anchor') || document.querySelector('.feed-wrapper');
+  var railLogo = document.querySelector('.rail-logo');
+  if (!anchor || !railLogo) return;
+  var mast = document.createElement('div');
+  mast.className = 'tgo-mast';
+  mast.setAttribute('aria-hidden', 'true');
+  var img = document.createElement('img');
+  img.className = 'tgo-mast-logo';
+  img.alt = '';
+  img.width = 1500; img.height = 600;
+  img.src = railLogo.getAttribute('src');
+  mast.appendChild(img);
+  anchor.parentNode.insertBefore(mast, anchor);
+  document.body.classList.add('tgo-mast-on');   /* CSS hides the rail logo only when this is set */
+  /* the rabbit measures the Recent Geekouts rule on resize; it moved */
+  window.dispatchEvent(new Event('resize'));
+  /* Plain scroll check (cheap, one rect per frame) rather than an
+     IntersectionObserver, so it also works in throttled/background tabs. */
+  var queued = false;
+  function check() {
+    queued = false;
+    document.body.classList.toggle('tgo-mast-gone', img.getBoundingClientRect().bottom <= 8);
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(check); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  check();
 })();
 </script>
 

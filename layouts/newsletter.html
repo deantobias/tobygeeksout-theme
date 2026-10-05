@@ -55,6 +55,66 @@
     text-underline-offset: 4px;
   }
   .post-content a { text-decoration-style: wavy; }
+  /* Card links follow the blog's Day look (custom.css sections 7, 8):
+     movie and book titles navy; movie card links no underline; book card
+     underlines solid, not wavy. */
+  .post-content .movie-card a { text-decoration: none; }
+  .post-content .book-card a { text-decoration-style: solid; }
+  .post-content .movie-card-title a, .post-content .book-card-title a { color: #1E2D4A; }
+  /* Card colors, day-lit, same as the blog's newsletter pages
+     (custom.css section 53). Perch leaves most card colors to CSS, so
+     without these the email showed black borders and black text.
+     !important only where Perch's inline border shorthand would win. */
+  .post-content .movie-card, .post-content .book-card { border-color: #D4CFC8 !important; }
+  .post-content .movie-card-footer { border-top-color: #D4CFC8 !important; }
+  .post-content .movie-card h3, .post-content .book-card h3 { color: #1E2D4A; }
+  .post-content .movie-card-byline { color: #6B6560; }
+  .post-content .movie-card-stars, .post-content .movie-card-scale,
+  .post-content .movie-card-label, .post-content .movie-card-trailer-caption { color: #C4622D; }
+  .post-content .movie-card-thoughts { background-color: #FAF8F5; color: #5A5048; }
+  .post-content .card-quote { background-color: #FAF8F5; border-left-color: #C4622D !important; }
+  .post-content .link-card { background-color: #FAF8F5; border-color: #E5DDD5 !important; }
+  /* Word Nerd Alert define card (blog section 4704 tokens, Day) */
+  .post-content .define-eyebrow { color: #A65326; }
+  .post-content .define-word { color: #1E2D4A; }
+  .post-content .define-rule { background-color: #C4622D; }
+  .post-content .define-def { color: #1E2D4A; }
+  .post-content .define-num { color: #A65326; }
+  .post-content .define-example { color: #2E4470; }
+  .post-content .define-note-bar { background-color: #F0DDD3; }
+  .post-content .define-note { color: #2E4470; }
+  /* Echo card link: the blog's WCAG blue */
+  .post-content .reblog-v3-go { color: #446799 !important; }
+  /* Photos and captions, like the blog */
+  .post-content img { border-radius: 6px; }
+  .post-content figcaption { color: #6F6961; font-style: italic; font-size: 14px; margin-top: 8px; }
+  .post-content hr { border: 0; border-top: 1px solid #E5DDD5; margin: 32px 0; }
+  /* NEW review card (custom.css section 105), Day colors. Section 105
+     reads sky tokens; email has none, so these are the stock Day values.
+     Borders are inline in the card, so they carry !important. Fonts and
+     the wide-screen block are left out on purpose (email is Georgia +
+     Arial; the wide-screen grid would cramp a 600px email). */
+  .post-content .review-card { border-color: #E5DDD5 !important; color: #1A1A18; }
+  .post-content .review-backdrop-cell { background-color: #F2EDE8; }
+  .post-content .review-byline { color: #69635C; }
+  .post-content .review-stars { color: #C4622D; }
+  .post-content .review-fact-label { color: #69635C; }
+  .post-content .review-fact-value, .post-content .review-tagline { color: #1E2D4A; }
+  .post-content .review-synopsis, .post-content .review-thoughts { color: #1A1A18; }
+  .post-content .review-label { color: #A65326; }
+  .post-content .review-body, .post-content .review-foot { border-top-color: #E5DDD5 !important; }
+  .post-content .review-card a { text-decoration-style: solid; }
+  .post-content .review-scale, .post-content .review-foot a { color: #A65326; text-decoration-color: #D8B6A2; }
+  .post-content .review-top-poster img { background-color: #F2EDE8; }
+  @media only screen and (max-width: 599px) {
+    .post-content .review-stars { font-size: 26px !important; }
+    .post-content .review-head, .post-content .review-facts, .post-content .review-about,
+    .post-content .review-body, .post-content .review-foot { padding-left: 16px !important; padding-right: 16px !important; }
+    .post-content .review-top-poster { width: 116px !important; padding: 16px 0 0 16px !important; }
+    .post-content .review-top-poster img { width: 100px !important; height: 150px !important; }
+    .post-content .review-top-info { padding: 16px 16px 4px 12px !important; }
+    .post-content .review-top-info .review-stars { font-size: 22px !important; letter-spacing: 1px !important; }
+  }
 </style>
 
 <!-- Outer wrapper -->
@@ -114,7 +174,7 @@
             {{ end }}
 
             <!-- Date only -->
-            <p class="cat-date" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #787169; margin: 0 0 22px 0;">
+            <p class="cat-date" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #6F6961; margin: 0 0 22px 0;">
               {{ .Date.Format "January 2, 2006" }}
             </p>
 

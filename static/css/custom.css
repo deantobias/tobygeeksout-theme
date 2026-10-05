@@ -4866,6 +4866,10 @@ body.tgo-night .newsletter-list-panel { border-right-color: #2E3A58; }
 body.tgo-night .newsletter-list-panel-header { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a { border-bottom-color: #2E3A58; }
 body.tgo-night .newsletter-list-item a:hover { background: #232C48; }
+/* Issue titles stayed --color-navy on the navy night list, unreadable
+   (found Oct 5, 2026). Light ink after dark; the active item keeps its
+   light terracotta background, so it keeps navy. */
+body.tgo-night .newsletter-list-item:not(.is-active) .nli-title { color: #F2EDE8; }
 
 /* ── Email base ink: the email pane is white paper, but loose email
    content (text without inline colors, e.g. the colorless define
@@ -7051,10 +7055,11 @@ main > .page-header,
 /* White paper, day and night — email has no dark mode here */
 .newsletter-preview-panel { background: #FFFFFF; }
 
-/* Body copy: Arial, Gmail's default for unstyled text */
+/* Body copy: Georgia, the email template's reading font since Oct 5,
+   2026 (Gmail-first: Georgia text, Arial labels). Was Arial. */
 body.type-newsletter .newsletter-preview-panel .page-body,
 body.type-newsletter .newsletter-preview-panel .page-body :is(p, li, blockquote p) {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 /* Headings: Georgia, matching the template's inline font stack.
@@ -7076,15 +7081,18 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(h1, h2, h3, h4, h5
    none !important }" (section 52), but skipped for links with an
    inline text-decoration:none (both spellings), so template
    buttons keep their button look exactly as Gmail honors them. */
+/* Oct 5, 2026: the email template now colors post links like the blog
+   (terracotta #A65326, terracotta underline), so the preview follows.
+   Gmail draws a straight underline, so no wave here. */
 body.type-newsletter .newsletter-preview-panel .page-body a {
-  color: #1155CC;
-  text-underline-offset: auto;
+  color: #A65326;
+  text-underline-offset: 4px;
 }
 body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="color"]) {
-  color: #1155CC !important;
+  color: #A65326 !important;
 }
 body.type-newsletter .newsletter-preview-panel .page-body a:not([style*="text-decoration:none"]):not([style*="text-decoration: none"]) {
-  text-decoration: underline solid currentColor !important;
+  text-decoration: underline solid #C4622D !important;
 }
 
 /* Bold: Gmail bolds the surrounding email font (Arial), not the
@@ -7102,6 +7110,11 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(strong, b) {
 body.type-newsletter .newsletter-preview-panel .page-body [style*="Bricolage"],
 body.type-newsletter .newsletter-preview-panel .page-body .define-word {
   font-family: Georgia, 'Times New Roman', serif !important;
+}
+/* Same for Inter (Oct 5, 2026): cards inline 'Inter', Helvetica, Arial
+   and Gmail never has Inter, so the inbox shows Helvetica/Arial. */
+body.type-newsletter .newsletter-preview-panel .page-body [style*="Inter"] {
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 /* The site's blockquote dress (terracotta bar, italics, section 5)
@@ -7147,7 +7160,7 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([st
 }
 body.type-newsletter .newsletter-preview-panel .page-body :is(blockquote:not([style*="border"]), blockquote[style*="border:none"], blockquote[style*="border: none"]) p {
   font-style: normal !important;
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
 }
 
 /* Footnote divider + small print, like the inbox (Oct 3, 2026).
@@ -7162,10 +7175,9 @@ body.type-newsletter .newsletter-preview-panel .page-body hr {
   all: revert;
   display: block;
   height: 0;
-  margin: 24px 0 16px;
+  margin: 32px 0;
   border: 0;
-  border-top: 1px solid #9C9489;
-  border-bottom: 1px solid #FFFFFF;
+  border-top: 1px solid #E5DDD5;   /* email template, Oct 5, 2026 */
   opacity: 1;
 }
 body.type-newsletter .newsletter-preview-panel .page-body hr::after {
@@ -7175,6 +7187,44 @@ body.type-newsletter .newsletter-preview-panel .page-body :is(p, div, span)[styl
 body.type-newsletter .newsletter-preview-panel .page-body :is(p, div, span)[style*="font-size: 0.875rem"] {
   font-size: 14px !important;
   line-height: 1.75;
+}
+
+/* Cards in the preview, matching the email template (Oct 5, 2026).
+   The email styles card links by class: movie/book titles navy, movie
+   card links no underline, book card underline solid. The terracotta
+   colorless-link pin above is (0,4,2), so these go (0,5,2) and up. */
+body.type-newsletter .newsletter-preview-panel .page-body.newsletter-body :is(.movie-card, .book-card) :is(h3, h3 a),
+body.type-newsletter .newsletter-preview-panel .page-body.newsletter-body :is(.movie-card-title, .book-card-title) a {
+  color: #1E2D4A !important;
+}
+body.type-newsletter .newsletter-preview-panel .page-body.newsletter-body .movie-card.movie-card a {
+  text-decoration: none !important;
+}
+
+/* NEW review card (section 105) in the preview, matching the email:
+   Day colors always (the pane is paper; section 105 reads sky tokens,
+   which go light at night), Arial text like Gmail shows it, plain bold,
+   solid link underlines. The wide-screen grid is kept off newsletter
+   pages in section 105 itself. */
+body.type-newsletter .newsletter-preview-panel .review-card { border-color: #E5DDD5 !important; color: #1A1A18 !important; }
+body.type-newsletter .newsletter-preview-panel .review-backdrop-cell,
+body.type-newsletter .newsletter-preview-panel .review-top-poster img { background-color: #F2EDE8 !important; }
+body.type-newsletter .newsletter-preview-panel :is(.review-byline, .review-fact-label) { color: #69635C !important; }
+body.type-newsletter .newsletter-preview-panel .review-stars { color: #C4622D !important; }
+body.type-newsletter .newsletter-preview-panel :is(.review-fact-value, .review-tagline) { color: #1E2D4A !important; }
+body.type-newsletter .newsletter-preview-panel :is(.review-synopsis, .review-thoughts) { color: #1A1A18 !important; }
+body.type-newsletter .newsletter-preview-panel .review-label { color: #A65326 !important; }
+body.type-newsletter .newsletter-preview-panel :is(.review-body, .review-foot) { border-top-color: #E5DDD5 !important; }
+body.type-newsletter .newsletter-preview-panel .page-body.newsletter-body .review-card.review-card a {
+  color: #A65326 !important;
+  text-decoration: underline solid #D8B6A2 !important;
+}
+html body.type-newsletter .newsletter-preview-panel .review-card.review-card :is(p, li, blockquote, blockquote p) {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+html body.type-newsletter .newsletter-preview-panel .review-card.review-card :is(strong, b) {
+  font-family: inherit !important;
+  font-weight: 700 !important;
 }
 
 
@@ -12846,33 +12896,36 @@ html.fonts-70s .nli-summary {
   .review-top-info .review-stars { font-size: 22px !important; letter-spacing: 1px !important; }
 }
 
-/* ---------- Wide screens: lift the 600px cap, blog only ---------- */
+/* ---------- Wide screens: lift the 600px cap, blog only ----------
+   body:not(.type-newsletter) keeps this off the newsletter pages, so the
+   Perch Mail preview shows the card at email width like the inbox
+   does (Oct 5, 2026). */
 @media (min-width: 760px) {
-  .review-card { max-width: none !important; }
-  .review-backdrop { aspect-ratio: 21 / 9; }
-  .review-head { padding: 24px 32px 6px !important; }
-  .review-facts { padding: 14px 32px 0 !important; }
-  .review-about { padding: 14px 32px 24px !important; }
-  .review-synopsis { max-width: 68ch; }
-  .review-body { padding: 22px 32px 26px !important; }
-  .review-thoughts { max-width: 68ch; }
-  .review-foot { padding: 14px 32px 18px !important; }
+  body:not(.type-newsletter) .review-card { max-width: none !important; }
+  body:not(.type-newsletter) .review-backdrop { aspect-ratio: 21 / 9; }
+  body:not(.type-newsletter) .review-head { padding: 24px 32px 6px !important; }
+  body:not(.type-newsletter) .review-facts { padding: 14px 32px 0 !important; }
+  body:not(.type-newsletter) .review-about { padding: 14px 32px 24px !important; }
+  body:not(.type-newsletter) .review-synopsis { max-width: 68ch; }
+  body:not(.type-newsletter) .review-body { padding: 22px 32px 26px !important; }
+  body:not(.type-newsletter) .review-thoughts { max-width: 68ch; }
+  body:not(.type-newsletter) .review-foot { padding: 14px 32px 18px !important; }
 
   /* Two-column poster layout (used only when TMDB has no backdrop) */
-  .review-card--poster { display: grid !important; grid-template-columns: 272px 1fr; }
-  .review-card--poster tbody,
-  .review-card--poster tr { display: contents; }
-  .review-card--poster .review-top-poster {
+  body:not(.type-newsletter) .review-card--poster { display: grid !important; grid-template-columns: 272px 1fr; }
+  body:not(.type-newsletter) .review-card--poster tbody,
+  body:not(.type-newsletter) .review-card--poster tr { display: contents; }
+  body:not(.type-newsletter) .review-card--poster .review-top-poster {
     grid-column: 1; grid-row: 1 / span 2;
     width: auto !important; padding: 28px 0 28px 32px !important;
   }
-  .review-card--poster .review-top-poster img { width: 220px !important; height: 330px !important; }
-  .review-card--poster .review-top-info { grid-column: 2; grid-row: 1; padding: 28px 32px 4px 8px !important; }
-  .review-card--poster .review-top-info .review-stars { font-size: 30px !important; }
-  .review-card--poster .review-top-info .review-scale { display: inline !important; margin-left: 10px !important; }
-  .review-card--poster .review-about { grid-column: 2; grid-row: 2; padding: 14px 32px 28px 8px !important; }
-  .review-card--poster .review-body { grid-column: 1 / -1; grid-row: 3; }
-  .review-card--poster .review-foot { grid-column: 1 / -1; grid-row: 4; }
+  body:not(.type-newsletter) .review-card--poster .review-top-poster img { width: 220px !important; height: 330px !important; }
+  body:not(.type-newsletter) .review-card--poster .review-top-info { grid-column: 2; grid-row: 1; padding: 28px 32px 4px 8px !important; }
+  body:not(.type-newsletter) .review-card--poster .review-top-info .review-stars { font-size: 30px !important; }
+  body:not(.type-newsletter) .review-card--poster .review-top-info .review-scale { display: inline !important; margin-left: 10px !important; }
+  body:not(.type-newsletter) .review-card--poster .review-about { grid-column: 2; grid-row: 2; padding: 14px 32px 28px 8px !important; }
+  body:not(.type-newsletter) .review-card--poster .review-body { grid-column: 1 / -1; grid-row: 3; }
+  body:not(.type-newsletter) .review-card--poster .review-foot { grid-column: 1 / -1; grid-row: 4; }
 }
 
 /* ---------- Fonts: Inter text, display-face bold ----------

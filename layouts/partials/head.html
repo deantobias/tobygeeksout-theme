@@ -44,33 +44,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<!-- Private font preview switch (Oct 5, 2026). ?fonts=70s turns on the
-     70s font set for this tab session, ?fonts=off turns it off. When it is
-     off this does nothing: no class, no extra font download, live looks
-     exactly as before. The rules live in custom.css section 104, scoped to
-     html.fonts-70s. The class goes on <html> because <body> does not exist
-     yet while the head is parsing. -->
+<!-- Site look (Oct 5, 2026). The 70s look is the default: <html> ships
+     with class="fonts-70s" (baseof.html) and its fonts load with the other
+     Google Fonts below. A reader who picks "Classic" (the Look toggle in the
+     rail and footer, or ?fonts=off) gets tgo-look=classic in localStorage,
+     and this removes the class before first paint. ?fonts=70s goes back.
+     No JS = 70s look. The rules live in custom.css section 104. -->
 <script>
 (function () {
-  var on = false;
+  var classic = false;
   try {
     var m = location.search.match(/[?&]fonts=([^&#]*)/);
     if (m) {
       var v = m[1].toLowerCase();
-      if (v === '70s') sessionStorage.setItem('tgo-fonts', '70s');
-      else if (v === 'off') sessionStorage.removeItem('tgo-fonts');
+      if (v === 'off' || v === 'classic') localStorage.setItem('tgo-look', 'classic');
+      else if (v === '70s' || v === 'on') localStorage.removeItem('tgo-look');
     }
-    on = sessionStorage.getItem('tgo-fonts') === '70s';
+    classic = localStorage.getItem('tgo-look') === 'classic';
   } catch (e) {
-    /* storage blocked (private mode etc.): honor the address for this page only */
-    on = /[?&]fonts=70s(?:[&#]|$)/.test(location.search);
+    /* storage blocked: honor the address for this page only */
+    classic = /[?&]fonts=(off|classic)(?:[&#]|$)/.test(location.search);
   }
-  if (!on) return;
-  document.documentElement.classList.add('fonts-70s');
-  var l = document.createElement('link');
-  l.rel = 'stylesheet';
-  l.href = 'https://fonts.googleapis.com/css2?family=Caprasimo&family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Shrikhand&display=swap';
-  document.head.appendChild(l);
+  if (classic) document.documentElement.classList.remove('fonts-70s');
 })();
 </script>
 
@@ -134,6 +129,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<!-- 70s look (default since Oct 5, 2026): Caprasimo (display), Fraunces
+     (reading), Shrikhand (quotes). Bricolage + Lora above stay for the
+     Classic look and the newsletter preview pane. -->
+<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Shrikhand&display=swap" rel="stylesheet">
 
 
 <!-- Critical CSS: Inlined for Performance -->

@@ -4,7 +4,7 @@
   <div class="header-top-row">
     <a href="{{ .Site.BaseURL }}" class="site-identity" aria-label="{{ .Site.Title }} home">
       <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="site-logo-avatar">
-      <img src="https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png" alt="Toby Geeks Out!" class="site-logo-wordmark" width="2000" height="500">
+      <img src="https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png" alt="Toby Geeks Out!" class="site-logo-wordmark" width="2000" height="500">
     </a>
   </div>
 
@@ -66,7 +66,7 @@
 <aside class="site-rail" aria-label="Sidebar">
   <a href="{{ .Site.BaseURL }}" class="rail-identity" aria-label="{{ .Site.Title }} home">
     <img src="https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" alt="" class="rail-avatar">
-    <img src="https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png" alt="Toby Geeks Out!" class="rail-logo" width="2000" height="500">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png" alt="Toby Geeks Out!" class="rail-logo" width="2000" height="500">
   </a>
   <p class="rail-greeting">Thanks for stopping by.</p>
   <p class="rail-tagline tgo-tagline-cycle" aria-live="polite">Technogeek.</p>
@@ -173,19 +173,22 @@
 })();
 </script>
 
-<!-- 70s font preview logos (Oct 5, 2026). Only when <html> has .fonts-70s
-     (the ?fonts=70s switch in head.html). Swaps both logos right after
-     they are parsed so the old one barely shows; the sky script in
-     custom_footer.html then keeps them on the right day/night version.
-     Without the switch this does nothing. -->
+<!-- Logos for the site look (Oct 5, 2026). The markup carries the 70s day
+     logo (the default look). Right after parsing, this picks the night
+     version on dark skies and the old logo pair for Classic readers, so
+     the wrong one barely shows. The sky script in custom_footer.html keeps
+     it right from then on, and the Look toggle swaps it live. -->
 <script>
 (function () {
-  if (!document.documentElement.classList.contains('fonts-70s')) return;
   var base = 'https://tobygeeksout.micro.blog/uploads/2026/';
+  var on = document.documentElement.classList.contains('fonts-70s');
   var ink = document.documentElement.style.getPropertyValue('--color-text').replace(/\s/g, '').toUpperCase();
   var dark = ink === '#FFFFFF' || ink === 'RGB(255,255,255)';
-  var src = base + (dark ? 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png'
-                         : 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png');
-  document.querySelectorAll('.site-logo-wordmark, .rail-logo').forEach(function (l) { l.src = src; });
+  var src = base + (on
+    ? (dark ? 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png')
+    : (dark ? 'sunset-toby-geeks-out-new-logo.png' : 'tobygeeksoutlogonew.png'));
+  document.querySelectorAll('.site-logo-wordmark, .rail-logo').forEach(function (l) {
+    if (l.getAttribute('src') !== src) l.src = src;
+  });
 })();
 </script>

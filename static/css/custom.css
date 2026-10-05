@@ -12371,14 +12371,15 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 
 
 /* ============================================================
-   104 · 70s FONT PREVIEW — private test switch   (Oct 5, 2026, Toby)
+   104 · 70s LOOK — default site look + Classic toggle   (Oct 5, 2026, Toby)
    ============================================================
-   Nothing here matches unless <html> has .fonts-70s. The inline
-   script near the top of head.html adds that class (and loads the
-   extra Google Fonts) only after a visit with ?fonts=70s; it sticks
-   for the tab session, and ?fonts=off clears it. Readers who never
-   use the switch never get the class, so live is unchanged and the
-   70s fonts never download.
+   Went live Oct 5, 2026 as the DEFAULT look. Everything below hangs
+   off html.fonts-70s, which baseof.html puts on <html> for everyone.
+   Readers can flip to the Classic look (Bricolage + Lora, the old
+   logos) with the Look toggle in the rail and the footer; head.html
+   removes the class before first paint for them (tgo-look=classic in
+   localStorage), and ?fonts=off / ?fonts=70s do the same from the
+   address bar. Started the same day as a private preview switch.
 
    Pairing A:
      Caprasimo  big display only (titles, section heads, home row
@@ -12396,7 +12397,43 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
    contrast. Wrapped in @media screen so the print stylesheet
    (section 87) never sees any of it.
    ============================================================ */
+/* Look toggle + masthead never print (outside the screen block). */
+@media print {
+  .tgo-look-btn, .footer-look, .tgo-mast { display: none !important; }
+}
+.tgo-mast { display: none; }   /* shown only in the 70s look, subsection L */
+
 @media screen {
+
+/* Look toggle pill (both looks). Same pill as Sky: Inter, muted ink,
+   terracotta key word, border goes terracotta on hover. 28px tall
+   clears the WCAG 2.2 24px target size. */
+.tgo-look-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  min-height: 28px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s;
+}
+.tgo-look-btn:hover { border-color: var(--color-terra); }
+.tgo-look-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.tgo-look-k { color: var(--color-terra-text); }
+.tgo-look-word { min-width: 3.3em; text-align: left; }   /* "Classic" is the widest; no jump */
+.tgo-look-btn--rail { margin-left: 8px; }
+.footer-look { margin: 12px 0 0; }
 
 /* A. Tokens. The theme's own names: --font-display, --font-reading,
    --font-body (Inter, left alone). Two helpers for this preview only. */
@@ -12649,7 +12686,6 @@ html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-4px);
    rail link and avatar stay, so keyboard focus still has a visible
    target. The masthead box lines up with .feed-wrapper's content box
    and the logo is centered in it, like a magazine nameplate. */
-html.fonts-70s .tgo-mast { display: none; }
 @media (min-width: 768px) {
   html.fonts-70s .tgo-mast {
     display: block;

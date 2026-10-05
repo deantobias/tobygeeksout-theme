@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"{{ if and (eq .Type "newsletter") (eq .Kind "page") }} class="is-newsletter-reader"{{ end }}>
+<html lang="en" class="fonts-70s{{ if and (eq .Type "newsletter") (eq .Kind "page") }} is-newsletter-reader{{ end }}">
 <head>
   {{ partial "head.html" . }}
 </head>

@@ -612,18 +612,17 @@
        if Toby ever wants a third slot back. */
     var DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png';
     var NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/sunset-toby-geeks-out-new-logo.png';
-    /* 70s font preview (Oct 5, 2026): with ?fonts=70s on, the sky swaps
-       between the new 1500x600 logo pair instead. Live is unchanged. */
-    if (root.classList.contains('fonts-70s')) {
-      DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png';
-      NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/night-v2-toby-geeks-out-new-logo-1500-x-600-px.png';
-    }
+    /* 70s look (default since Oct 5, 2026): the new 1500x600 pair. Picked
+       per call, so the Look toggle can flip it without a reload. */
+    var LOOK70_DAY   = 'https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png';
+    var LOOK70_NIGHT = 'https://tobygeeksout.micro.blog/uploads/2026/night-v2-toby-geeks-out-new-logo-1500-x-600-px.png';
     function setLogo(mode) {
       /* Header wordmark AND the desktop rail logo (July 22, 2026) —
          both swap together through the skies. */
       var logos = document.querySelectorAll('.site-logo-wordmark, .rail-logo, .tgo-mast-logo');
       if (!logos.length) return;
-      var want = mode === 'night' ? NIGHT_LOGO : DAY_LOGO;
+      var is70 = root.classList.contains('fonts-70s');
+      var want = mode === 'night' ? (is70 ? LOOK70_NIGHT : NIGHT_LOGO) : (is70 ? LOOK70_DAY : DAY_LOGO);
       logos.forEach(function (logo) {
         if (logo.src !== want) logo.src = want;
       });
@@ -789,16 +788,16 @@
 </script>
 
 <script>
-/* 70s preview masthead (Oct 5, 2026, Toby). Home page, rail layout
-   (768+) only, and only with ?fonts=70s on. A big "Toby Geeks Out!"
+/* Home masthead (Oct 5, 2026, Toby), part of the 70s look. Home page,
+   rail layout (768+) only; CSS hides it in the Classic look. A big "Toby Geeks Out!"
    stands above Recent Geekouts; while it is on screen the rail logo
    steps aside, and once you scroll past it the rail logo fades back
    in, centered like a magazine nameplate. The masthead is decorative (aria-hidden, not focusable): the
-   rail link keeps the name for screen readers and keyboards. Live
-   never runs this. Styles: custom.css section 104 L. */
+   rail link keeps the name for screen readers and keyboards.
+   Styles: custom.css section 104 L. */
 (function () {
   var de = document.documentElement;
-  if (!de.classList.contains('fonts-70s') || !document.body.classList.contains('home')) return;
+  if (!document.body.classList.contains('home')) return;   /* built always; CSS shows it in the 70s look only */
   var anchor = document.querySelector('.rg-rabbit-anchor') || document.querySelector('.feed-wrapper');
   var railLogo = document.querySelector('.rail-logo');
   if (!anchor || !railLogo) return;
@@ -809,7 +808,8 @@
   img.className = 'tgo-mast-logo';
   img.alt = '';
   img.width = 1500; img.height = 600;
-  img.src = railLogo.getAttribute('src');
+  img.loading = 'lazy';   /* hidden in the Classic look, so it never downloads there */
+  img.src = 'https://tobygeeksout.micro.blog/uploads/2026/' + (document.body.classList.contains('tgo-night') ? 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png');
   mast.appendChild(img);
   anchor.parentNode.insertBefore(mast, anchor);
   document.body.classList.add('tgo-mast-on');   /* CSS hides the rail logo only when this is set */
@@ -826,6 +826,80 @@
   window.addEventListener('scroll', queue, { passive: true });
   window.addEventListener('resize', queue);
   check();
+})();
+</script>
+
+<script>
+/* Look toggle (Oct 5, 2026, Toby): readers flip between the 70s look
+   (default) and the Classic look. A pill next to Sky at the bottom of
+   the desktop rail, and one in the footer of every page (so phones,
+   tablets and single posts have it too). The choice is saved as
+   tgo-look in localStorage; head.html applies it before first paint on
+   the next page. Flipping here is instant: the class on <html> drives
+   all of custom.css section 104, and the logos swap to the right pair.
+   Runs after the sky script's DOMContentLoaded hook so the rail order
+   is Sky, then Look. */
+(function () {
+  var de = document.documentElement;
+  var B = 'https://tobygeeksout.micro.blog/uploads/2026/';
+  var LOGOS = {
+    on:  [B + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png', B + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png'],
+    off: [B + 'tobygeeksoutlogonew.png', B + 'sunset-toby-geeks-out-new-logo.png']
+  };
+  var btns = [];
+  function is70() { return de.classList.contains('fonts-70s'); }
+  function label(b) {
+    var on = is70();
+    b.querySelector('.tgo-look-word').textContent = on ? '70s' : 'Classic';
+    var l = on ? 'Look: 70s. Tap for the classic look' : 'Look: Classic. Tap for the 70s look';
+    b.setAttribute('aria-label', l);
+    b.title = l;
+  }
+  function swapLogos() {
+    var want = LOGOS[is70() ? 'on' : 'off'][document.body.classList.contains('tgo-night') ? 1 : 0];
+    document.querySelectorAll('.site-logo-wordmark, .rail-logo').forEach(function (l) {
+      if (l.getAttribute('src') !== want) l.src = want;
+    });
+    var m = LOGOS.on[document.body.classList.contains('tgo-night') ? 1 : 0];
+    document.querySelectorAll('.tgo-mast-logo').forEach(function (l) {
+      if (l.getAttribute('src') !== m) l.src = m;
+    });
+  }
+  function make(extra) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tgo-look-btn ' + extra;
+    b.innerHTML = '<span class="tgo-look-k" aria-hidden="true">Look</span><span class="tgo-look-word" aria-hidden="true"></span>';
+    b.addEventListener('click', function () {
+      var next = !is70();
+      de.classList.toggle('fonts-70s', next);
+      try {
+        if (next) localStorage.removeItem('tgo-look');
+        else localStorage.setItem('tgo-look', 'classic');
+      } catch (e) {}
+      swapLogos();
+      btns.forEach(label);
+      /* masthead visibility + rabbit placement re-measure */
+      window.dispatchEvent(new Event('resize'));
+      window.dispatchEvent(new Event('scroll'));
+    });
+    btns.push(b);
+    label(b);
+    return b;
+  }
+  function init() {
+    var slot = document.querySelector('.rail-sky-slot');
+    if (slot) slot.appendChild(make('tgo-look-btn--rail'));
+    var fi = document.querySelector('.site-footer .footer-inner');
+    if (fi) {
+      var p = document.createElement('p');
+      p.className = 'footer-look';
+      p.appendChild(make('tgo-look-btn--footer'));
+      fi.appendChild(p);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 

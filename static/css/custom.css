@@ -12848,8 +12848,9 @@ html.fonts-70s .nli-summary {
      the guard holds it at 4.5+ in every sky. Plain --color-terra
      (#C4622D) is only 3.8:1 by day, so it's kept for the stars, which
      are big glyphs (3:1 is enough).
-   - Text colors are NOT inline in the card HTML, so these rules work
-     without !important. Borders ARE inline, so they carry !important.
+   - Most text colors are NOT inline in the card HTML, so those rules
+     work without !important. Borders, the stars and the section labels
+     carry !important (Toby, Oct 5) so they win over any inline color.
      If a text color ever goes inline, its rule here needs !important
      too or the card will stay day-colored at night.
    ============================================================ */
@@ -12862,18 +12863,18 @@ html.fonts-70s .nli-summary {
 }
 .review-backdrop-cell { background: var(--color-bg-warm, #F2EDE8); }
 .review-backdrop { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-.review-byline { color: var(--color-text-muted, #69635C); }
-.review-stars { color: var(--color-terra, #C4622D); }
+.review-card .review-byline { color: var(--color-text-muted, #69635C); }
+.review-card .review-stars { color: var(--color-terra, #C4622D) !important; }
 .review-scale {
   color: var(--color-terra-text, #A65326);
   text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
 }
 .review-fact-label { color: var(--color-text-muted, #69635C); }
 .review-fact-value { color: var(--color-navy, #1E2D4A); }
-.review-tagline { color: var(--color-navy, #1E2D4A); }
+.review-card .review-tagline { color: var(--color-navy, #1E2D4A); }
 .review-synopsis,
 .review-thoughts { color: var(--color-text, #1A1A18); }
-.review-label { color: var(--color-terra-text, #A65326); }
+.review-card .review-label { color: var(--color-terra-text, #A65326) !important; }
 .review-body,
 .review-foot { border-top-color: var(--color-border, #E5DDD5) !important; }
 .review-foot a {
@@ -12967,3 +12968,22 @@ html.fonts-70s body .review-card.review-card :is(strong, b) {
   .review-about { break-inside: avoid; page-break-inside: avoid; }
 }
 /* end section 105 */
+
+
+/* ============================================================
+   106 · MOVIE CARD STARS STAY TERRACOTTA   (Oct 5, 2026, Toby)
+   ============================================================
+   The old .movie-card puts its stars in a <p class="movie-card-stars">,
+   and the post text rule `.post-body p { color: var(--color-text) }`
+   (0,1,1) out-ranked `.movie-card-stars` (0,1,0), so on single posts
+   the stars came out near-black instead of the terracotta orange the
+   card was designed with. This puts them back. The token follows the
+   sky, so dusk/night get the brighter terracotta. Both looks (70s and
+   Modern). Newsletter pages already pin #C4622D with their own
+   body.type-newsletter rule. New review cards: section 105.
+   ============================================================ */
+.post-body p.movie-card-stars,
+.page-body p.movie-card-stars {
+  color: var(--color-terra);
+}
+/* end section 106 */

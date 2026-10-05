@@ -12630,6 +12630,18 @@ html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-4px);
   html.fonts-70s body.type-post .site-logo-wordmark { transform: translateY(-3px); }
 }
 
+/* Phones: "Hi, I'm Toby" vs the rabbit (Toby, Oct 5). The phone strip
+   centers the greeting at 2.5rem and the rabbit peeks in at the right
+   edge. Caprasimo fits on one line at 360px (Bricolage wrapped), so the
+   rabbit landed on the "y"; it also brushed it at 375-414px (that part
+   happens on live too). The greeting now scales with the screen and
+   stays on one line, clear of the rabbit: checked at 320/360/390/414. */
+@media (max-width: 767px) {
+  html.fonts-70s .about-strip .about-text strong {
+    font-size: min(2.5rem, 10.5vw) !important;
+  }
+}
+
 /* L. Masthead test (Toby, Oct 5): on the home page, rail layout only,
    a big "Toby Geeks Out!" stands above Recent Geekouts, and the rail
    logo stays hidden until you scroll past it (body.tgo-mast-gone, set

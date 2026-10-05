@@ -44,6 +44,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- Private font preview switch (Oct 5, 2026). ?fonts=70s turns on the
+     70s font set for this tab session, ?fonts=off turns it off. When it is
+     off this does nothing: no class, no extra font download, live looks
+     exactly as before. The rules live in custom.css section 104, scoped to
+     html.fonts-70s. The class goes on <html> because <body> does not exist
+     yet while the head is parsing. -->
+<script>
+(function () {
+  var on = false;
+  try {
+    var m = location.search.match(/[?&]fonts=([^&#]*)/);
+    if (m) {
+      var v = m[1].toLowerCase();
+      if (v === '70s') sessionStorage.setItem('tgo-fonts', '70s');
+      else if (v === 'off') sessionStorage.removeItem('tgo-fonts');
+    }
+    on = sessionStorage.getItem('tgo-fonts') === '70s';
+  } catch (e) {
+    /* storage blocked (private mode etc.): honor the address for this page only */
+    on = /[?&]fonts=70s(?:[&#]|$)/.test(location.search);
+  }
+  if (!on) return;
+  document.documentElement.classList.add('fonts-70s');
+  var l = document.createElement('link');
+  l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=Caprasimo&family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Shrikhand&display=swap';
+  document.head.appendChild(l);
+})();
+</script>
+
 <!-- Browser tab/address bar tint. NOT the page bg #FAF8F5 — Brave/
      Chromium on Android silently discard near-white values and paint
      default white instead (verified on Toby's phone, July 19, 2026:

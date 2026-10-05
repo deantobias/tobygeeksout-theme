@@ -12368,3 +12368,190 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   .journal-feature:hover .journal-feature-title { color: var(--color-navy); }
   .journal-feature:hover .journal-feature-img { transform: none; }
 }
+
+
+/* ============================================================
+   104 · 70s FONT PREVIEW — private test switch   (Oct 5, 2026, Toby)
+   ============================================================
+   Nothing here matches unless <html> has .fonts-70s. The inline
+   script near the top of head.html adds that class (and loads the
+   extra Google Fonts) only after a visit with ?fonts=70s; it sticks
+   for the tab session, and ?fonts=off clears it. Readers who never
+   use the switch never get the class, so live is unchanged and the
+   70s fonts never download.
+
+   Pairing A:
+     Caprasimo  big display only (titles, section heads, home row
+                titles, date numerals). One weight, 400.
+     Fraunces   reading text (SOFT 50, WONK 0, weight 400) and the
+                smaller titles that are too small for Caprasimo
+                (SOFT 100, WONK 1).
+     Shrikhand  blockquotes and pull quotes.
+     Inter      UI, labels, nav, buttons, pills, dates, meta. Untouched.
+
+   Colors and ink tokens are NOT touched, so every sky keeps its
+   contrast. Wrapped in @media screen so the print stylesheet
+   (section 87) never sees any of it.
+   ============================================================ */
+@media screen {
+
+/* A. Tokens. The theme's own names: --font-display, --font-reading,
+   --font-body (Inter, left alone). Two helpers for this preview only. */
+html.fonts-70s {
+  --font-display:      'Caprasimo', Georgia, 'Times New Roman', serif;
+  --font-reading:      'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-display-soft: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-quote:        'Shrikhand', Georgia, 'Times New Roman', serif;
+  /* Inherited everywhere; only Fraunces has these axes, so Caprasimo,
+     Shrikhand and Inter ignore them. */
+  font-variation-settings: "SOFT" 50, "WONK" 0;
+  /* Caprasimo and Shrikhand ship one weight. The theme asks for 700/800
+     on titles; without this the browser would smear a fake bold. Real
+     weights (Fraunces, Inter) are unaffected. Fake italic still allowed. */
+  font-synthesis: style;
+  font-synthesis-weight: none;
+}
+
+/* The newsletter reader's email-true preview pane stays exactly as it
+   is today (email template is a separate task). */
+html.fonts-70s .newsletter-preview-panel {
+  --font-display:      'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
+  --font-reading:      'Lora', Georgia, 'Times New Roman', serif;
+  --font-display-soft: 'Bricolage Grotesque', Georgia, 'Times New Roman', serif;
+  --font-quote:        Georgia, 'Times New Roman', serif;
+  font-variation-settings: normal;
+  font-synthesis: weight style small-caps;
+}
+
+/* B. Small things never get Caprasimo: labels, pills, buttons, nav,
+   dates, counts. They used --font-display (or a hardcoded Bricolage
+   stack) and go to Inter in the preview. :where() keeps specificity
+   low (0,1,1) so the newsletter preview's own pins still win there. */
+html.fonts-70s :where(
+  .btn-featured, .btn-subscribe, .reply-by-email, .cs-pill, .wna-chip,
+  .catrow-label, .featured-eyebrow, .wna-eyebrow strong,
+  .home-pair .micro-section .feed-label,
+  .rail-sub-heading, .newsletter-toolbar-brand, .newsletter-nav-link,
+  .tgo-cal-month-name, .tgo-cal-panel-date, .tgo-cal-total,
+  .mo-n, .cat-n, .hdr-post-pct, .bstats .bstats-topic-count,
+  .bh-year-label, .queue-heading, .uses .uses-head, .bm-tl-date
+) {
+  font-family: var(--font-body) !important;
+}
+
+/* C. Smaller titles (roughly 0.8–1.15rem) get Fraunces in its display
+   dress instead of Caprasimo: header title-in-nav, prev/next, related
+   cards, Keep reading tiles, list titles, taglines, h4–h6. */
+html.fonts-70s :where(
+  h4, h5, h6,
+  .hdr-post-title, .post-nav-title, .related-card-title, .kr-tile-v,
+  .featured-more-title, .subscribe-heading,
+  .reel-tile-title, .reel-entry-title, .book-entry-title, .queue-title,
+  .bm-goal-line, .bm-entry h3, .bm-tl-card h3,
+  .fact .fact-value--title, .a-first .fact-value--title,
+  .a-recent .fact-value--title, .a-short .fact-value--title,
+  .a-long .fact-value--title,
+  .uses-name, .watched-recent-title, .bh-wrap .bh-name,
+  .archive-item .archive-item-titled, .blurb-word,
+  .page-body ul.postlist li a, .page-body ul.now-list li a,
+  .rail-tagline, .footer-tagline
+) {
+  font-family: var(--font-display-soft) !important;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+/* Drop cap was already a display use of the reading font */
+html.fonts-70s .post-body p.drop-cap::first-letter {
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+
+/* D. Bold. Live, strong/b switch to the display face; Caprasimo bold
+   inside a paragraph would shout. Bold now stays in the surrounding
+   face (Fraunces 700 in reading text, Inter 700 in UI). :where() so
+   class rules like the big .about-text strong keep Caprasimo. */
+:where(html.fonts-70s) :is(strong, b) { font-family: inherit; }
+html.fonts-70s blockquote.card-quote strong { font-family: inherit; }
+
+/* E. Caprasimo tracking. It is wide and already heavy, so the tight
+   negative tracking tuned for Bricolage 800 crowds it. */
+html.fonts-70s .post-header--poster .post-header-title {
+  letter-spacing: -0.015em;   /* was -0.05em for Bricolage */
+  font-weight: 400;           /* was 800; Caprasimo's only weight */
+}
+html.fonts-70s :where(
+  .pulse-h1, .pulse-head h2, .fact-value, .split span,
+  .cat-title, .cat-year-mark, .page-title,
+  .feed-head .feed-label, h2.feed-label,
+  .journal-feature-title, .journal-list .journal-date-day,
+  .micro-section .journal-date-day, .bstats .bstat-value, .arch .arch-title
+) {
+  letter-spacing: -0.015em !important;
+}
+
+/* F. Reading text: Fraunces 400 by day (live Lora sits at 500 by day).
+   Line-height stays at the theme's 1.65–1.7. */
+html.fonts-70s :is(
+  .post-body, .post-body p, .post-body li,
+  .post-card-excerpt, .post-card-excerpt p, .post-card-excerpt li,
+  .featured-excerpt
+) {
+  font-weight: 400;
+}
+/* Dusk + night (body.tgo-night is on for both dark skies): light-on-dark
+   Fraunces at 400 reads thin, so nudge it to 450. */
+html.fonts-70s body.tgo-night :is(
+  .post-body, .post-body p, .post-body li,
+  .post-card-excerpt, .post-card-excerpt p, .post-card-excerpt li,
+  .featured-excerpt, .about-greeting,
+  .page-body p, .page-body li,
+  .micro-entry-text, .micro-entry-text p,
+  .journal-sum, .journal-feature-sum, .cat-feature-summary, .cat-row-blurb,
+  .longview p, .pulse-sub, .wr-line, .uses-intro, .uses-note,
+  .tg-changelog .clog-note, .tg-changelog .clog-list li,
+  .tg-changelog .clog-fineprint,
+  .bm-tagline, .bm-empty-msg, .bm-empty
+) {
+  font-weight: 450;
+}
+/* ...but not in the newsletter preview pane: it is white paper in every
+   sky, so it keeps today's 400. */
+html.fonts-70s body.tgo-night .newsletter-preview-panel .page-body :is(p, li) {
+  font-weight: 400;
+}
+
+/* G. Quotes: Shrikhand. Plain blockquotes only; the card quotes
+   (card-quote, reblog, reblog-v3, card-wrap) are UI cards and keep
+   Inter. Shrikhand has no italic, so the theme's italics are turned
+   off rather than faked. */
+html.fonts-70s :where(blockquote:not(.reblog, .reblog-new, .reblog-v3, .card-wrap, .card-quote)) p:not(.newsletter-preview-panel p),
+html.fonts-70s :where(.post-mentions .post-mention-quote) {
+  font-family: var(--font-quote) !important;
+  font-style: normal !important;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
+/* Pages pin quote italics with !important at (0,5,2); out-specify it
+   (newsletter preview pane excluded, it keeps its own quote dress). */
+html.fonts-70s .page-body blockquote:not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap) p:not(.newsletter-preview-panel p) {
+  font-style: normal !important;
+}
+
+/* H. Hardcoded stack that bypassed the tokens: the tiny Now Reading
+   grid titles were Georgia. Fraunces (reading dress) at that size.
+   Left alone on purpose: reblog-v3 + card quotes (Inter UI cards),
+   .bh-wrap (Inter), code (mono), the handwritten Caveat note, the
+   blockquote quote-mark ornament (positioned for Georgia), and the
+   newsletter preview's Arial/Georgia (email-true). */
+html.fonts-70s #now-reading .bookshelf--variant-grid h3.bookshelf__title {
+  font-family: var(--font-display-soft) !important;
+}
+
+/* I. Phones: Caprasimo runs wider than Bricolage, so a long word in a
+   big title breaks inside the column instead of pushing past it. */
+html.fonts-70s :where(
+  .post-header-title, .cat-title, .page-title, .pulse-h1,
+  .journal-feature-title, .define-word, .featured-title
+) {
+  overflow-wrap: break-word;
+}
+
+} /* end @media screen — section 104 */

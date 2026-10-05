@@ -172,3 +172,20 @@
   });
 })();
 </script>
+
+<!-- 70s font preview logos (Oct 5, 2026). Only when <html> has .fonts-70s
+     (the ?fonts=70s switch in head.html). Swaps both logos right after
+     they are parsed so the old one barely shows; the sky script in
+     custom_footer.html then keeps them on the right day/night version.
+     Without the switch this does nothing. -->
+<script>
+(function () {
+  if (!document.documentElement.classList.contains('fonts-70s')) return;
+  var base = 'https://tobygeeksout.micro.blog/uploads/2026/';
+  var ink = document.documentElement.style.getPropertyValue('--color-text').replace(/\s/g, '').toUpperCase();
+  var dark = ink === '#FFFFFF' || ink === 'RGB(255,255,255)';
+  var src = base + (dark ? 'night-toby-geeks-out-new-logo-1500-x-600-px.png'
+                         : 'toby-geeks-out-newest-logo-1500-x-600-px.png');
+  document.querySelectorAll('.site-logo-wordmark, .rail-logo').forEach(function (l) { l.src = src; });
+})();
+</script>

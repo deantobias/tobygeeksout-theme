@@ -612,6 +612,12 @@
        if Toby ever wants a third slot back. */
     var DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/tobygeeksoutlogonew.png';
     var NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/sunset-toby-geeks-out-new-logo.png';
+    /* 70s font preview (Oct 5, 2026): with ?fonts=70s on, the sky swaps
+       between the new 1500x600 logo pair instead. Live is unchanged. */
+    if (root.classList.contains('fonts-70s')) {
+      DAY_LOGO   = 'https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-logo-1500-x-600-px.png';
+      NIGHT_LOGO = 'https://tobygeeksout.micro.blog/uploads/2026/night-toby-geeks-out-new-logo-1500-x-600-px.png';
+    }
     function setLogo(mode) {
       /* Header wordmark AND the desktop rail logo (July 22, 2026) —
          both swap together through the skies. */

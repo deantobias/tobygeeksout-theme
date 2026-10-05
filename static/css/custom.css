@@ -12389,6 +12389,9 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
      Shrikhand  blockquotes and pull quotes.
      Inter      UI, labels, nav, buttons, pills, dates, meta. Untouched.
 
+   With the switch on, the header + rail logos also swap to the new
+   1500x600 pair (subsection K + header.html + custom_footer.html).
+
    Colors and ink tokens are NOT touched, so every sky keeps its
    contrast. Wrapped in @media screen so the print stylesheet
    (section 87) never sees any of it.
@@ -12552,6 +12555,28 @@ html.fonts-70s :where(
   .journal-feature-title, .define-word, .featured-title
 ) {
   overflow-wrap: break-word;
+}
+
+/* J. Define word. Every Word Nerd Alert card carries an inline
+   font-family:'Bricolage Grotesque' on .define-word (and older cards
+   on whatever holds the word), and inline styles beat the theme unless
+   the theme uses !important. :where() keeps this at (0,1,1), so the
+   newsletter preview pane's own Georgia pin still wins in there. */
+html.fonts-70s :where(.define-word, [style*="Bricolage"]) {
+  font-family: var(--font-display) !important;
+  letter-spacing: -0.01em;
+}
+
+/* K. New logo pair (Oct 5, 2026): the 70s logos are 1500x600 (2.5:1)
+   with the lettering in the middle band; the live logos are 2000x500
+   (4:1). Header and rail keep the live 4:1 box so nothing moves, and
+   the new art is cropped to its lettering (it sits at about 18-67% of
+   the height, so 30% centers it). Swapped in by header.html and the
+   sky script in custom_footer.html. */
+html.fonts-70s :is(.site-logo-wordmark, .rail-logo) {
+  aspect-ratio: 4 / 1;
+  object-fit: cover;
+  object-position: 50% 30%;
 }
 
 } /* end @media screen — section 104 */

@@ -739,7 +739,7 @@
         {{ $bookCover := index $covers "book" | default $shelfCover }}
         {{ with $bookCover }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}
         <span class="wr-body">
-          <span class="wr-name">📚 The Bookshelf</span>
+          <span class="wr-name">The Bookshelf</span>
           {{ with $wrBook }}
             {{ $bt := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
             {{/* Plainify FIRST (July 26 lesson): raw HTML matched the

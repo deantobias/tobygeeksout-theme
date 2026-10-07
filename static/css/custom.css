@@ -13332,4 +13332,11 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
 .wr-card--split .wr-see:hover,
 .wr-card--split .wr-see:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 .wr-card--split .wr-see:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; border-radius: 2px; }
+/* Even headings (Toby, Oct 7): the cards used to center their text
+   next to the cover, so a card with an extra line (Watched has the
+   stars) sat its heading higher than its neighbors. Everything now
+   starts at the top of the cover, so Watched / The Bookshelf / The
+   Queue line up across the row. */
+.wr-card { align-items: start; }
+.wr-body { padding-top: 0.15rem; }
 /* end section 113 */

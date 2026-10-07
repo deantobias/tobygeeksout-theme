@@ -701,7 +701,10 @@
   {{- $shelfCover := index $shelfBook "image" | default (index $shelfBook "cover_url") | default "" -}}
   <section class="wr-section" aria-labelledby="wr-heading">
     <div class="feed-head">
-      <h2 class="feed-label" id="wr-heading">Watching &amp; Reading</h2>
+      {{/* Oct 7, 2026 (Toby): was "Watching & Reading", which read as
+           "in the middle of"; the cards are a past rating, a book and a
+           watchlist. */}}
+      <h2 class="feed-label" id="wr-heading">Screen &amp; Shelf</h2>
     </div>
     <div class="wr-grid">
 

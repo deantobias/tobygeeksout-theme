@@ -13093,3 +13093,30 @@ html:not(.fonts-70s) .wna-word { font-weight: 800; letter-spacing: -0.02em; }
   }
 }
 /* end section 107 */
+
+
+/* ============================================================
+   108 · HOME LIST: NO PHOTO = NO IMAGE BLOCK   (Oct 7, 2026, Toby)
+   ============================================================
+   Toby: "if it does not have a photo just keep title as it is, no
+   image block." Rows in Recent Geekouts with no photo used to show the
+   empty .journal-slot (a quiet box with a terracotta dash) so the image
+   rail stayed straight. Now those rows drop the box and the title and
+   blurb move left into its space. Photo rows are unchanged.
+   CSS only: index.html still prints the .journal-slot span (its markup
+   is untouched), this just hides it, so it's easy to bring back for
+   the rabbit art. Phones already hid the slot; this also removes the
+   empty photo row they kept above the title.
+   ============================================================ */
+.journal-list .journal-slot { display: none; }
+.journal-list .journal-entry:has(> .journal-slot) {
+  grid-template-columns: 4.6rem 1fr;
+}
+@media (max-width: 1023px) {
+  .journal-list .journal-entry:has(> .journal-slot) {
+    grid-template-columns: 3.2rem 1fr;
+    grid-template-areas: "date text";
+    row-gap: 0;
+  }
+}
+/* end section 108 */

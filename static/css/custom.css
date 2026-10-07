@@ -13340,3 +13340,17 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
 .wr-card { align-items: start; }
 .wr-body { padding-top: 0.15rem; }
 /* end section 113 */
+
+
+/* ============================================================
+   114 · REVIEW CARD: NO "VIEW ON TRAKT" ON THE BLOG
+         (Oct 7, 2026, Toby)
+   ============================================================
+   "Where to watch" (TMDB) and "View on Trakt" both answered "where can
+   I stream this?". Toby kept Where to watch. Perch stops writing the
+   Trakt link on new cards; this hides it on review cards already
+   published (East of Eden etc.). Blog only: the email copies already
+   sent can't change. Old .movie-card posts are left alone.
+   ============================================================ */
+.review-card .review-foot a[href*="trakt.tv"] { display: none !important; }
+/* end section 114 */

@@ -13011,10 +13011,14 @@ html.fonts-70s body .review-card.review-card :is(strong, b) {
    pages: the email pane there is always white paper and stays in the
    inline day colors (see "The EMAIL IS PAPER", section 53).
 
-   Sizes: the shared card scale, 16px text / 14px numbers / 12px label,
-   the same as the review card (section 105) and the email (Toby's call,
-   Oct 7). Old define posts keep the bigger rem sizes from Sep 30
-   (def 1.2rem on posts) since those rules still match them.
+   Sizes: the SAME as old define posts on the blog (Toby, Oct 7, after
+   comparing Germane with Cavil): the Sep 30 rules already size these
+   classes with !important, so nothing here overrides them:
+     post page  def 1.2rem (24px) · example 1rem · number .85rem · label .75rem
+     home box   def 1rem · example .9rem · number .8rem · label .7rem
+   Email keeps Perch's inline 16/14/12px (the theme never reaches email).
+   (Earlier the same day this section forced 16/14/12px on the blog too;
+   removed so define posts read at post-text size.)
    ============================================================ */
 
 /* 1. Sky colors win over the inline day colors (new cards, blog only) */
@@ -13041,18 +13045,8 @@ html body:not(.type-newsletter) .define-card.define-card--plain :is(p, li, span,
   font-family: var(--font-body, 'Inter', system-ui, sans-serif) !important;
 }
 
-/* 3. Card scale on the blog: 16px text, 14px numbers, 12px label, so the
-   new card matches the review card and the email. The Sep 30 rules
-   (.post-body .define-def 1.2rem etc.) and the .wna-body / .home-pair
-   rules are !important too; these out-rank or tie them and come later,
-   so they win for new cards only, on posts and in the home box. The
-   pronunciation sits in the label, so it takes the label's 12px. */
-body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain :is(.define-def, .define-example) {
-  font-size: 16px !important;
-  line-height: 1.7 !important;
-}
-body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain .define-num { font-size: 14px !important; }
-body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain .define-eyebrow { font-size: 12px !important; }
+/* 3. Sizes come from the Sep 30 define rules (see the note above). The
+   pronunciation sits in the label, so it takes the label's size. */
 body:not(.type-newsletter) .define-card--plain .define-pron { font-size: inherit !important; }
 
 /* 4. Home page box: the word. New cards have no .define-word, so
@@ -13120,3 +13114,75 @@ html:not(.fonts-70s) .wna-word { font-weight: 800; letter-spacing: -0.02em; }
   }
 }
 /* end section 108 */
+
+
+/* ============================================================
+   109 · REVIEW CARD, PLAIN DESIGN — extends section 105
+         (Oct 7, 2026, Toby + Perch)
+   ============================================================
+   Every movie/TV status now uses the review card (Watchlist, Watching,
+   Watched, Did Not Finish). New cards carry
+   class="review-card review-card--plain" (+ review-card--poster for the
+   poster layout, which Watchlist uses). Review cards already published
+   (no --plain) keep their border and section 105 look; nothing in 105
+   was changed. New classes: .review-tag (small terracotta label on top)
+   and .review-trailer (trailer row).
+
+   No frame: no border, no rounded box, no side padding. Fonts, sizes and
+   DAY colors are inline so email matches, so every color rule needs
+   !important to follow the sky.
+
+   Theme notes (checked against 105):
+   - Every rule starts with body:not(.type-newsletter). That keeps them
+     off newsletter pages (the email pane is always white paper and the
+     inline day colors are already right there), AND it's needed to win:
+     section 105's wide-screen rules carry the same prefix, so Perch's
+     bare `.review-card--plain .review-head` (0,2,0) would have lost to
+     105's `body:not(.type-newsletter) .review-head` (0,2,1).
+   - Sky: terra-text, text-muted, navy and text are contrast-guarded in
+     every sky; terra (stars) is for big glyphs. Fonts (Inter + display
+     bold) and day-color printing come from section 105 (the card still
+     carries .review-card).
+   - Wide poster layout: section 105 pins .review-body to grid row 3 and
+     .review-foot to row 4, so the new trailer row would have landed
+     AFTER the footer. Here body, trailer and foot go back to grid-row
+     auto, so they stack in the order Perch writes them, under the
+     poster + info rows.
+   ============================================================ */
+
+/* 1. Sky colors win over the inline day colors (new cards, blog only) */
+body:not(.type-newsletter) .review-card--plain :is(.review-tag, .review-label, .review-scale, .review-foot a, .review-trailer a) {
+  color: var(--color-terra-text, #A65326) !important;
+}
+body:not(.type-newsletter) .review-card--plain .review-stars { color: var(--color-terra, #C4622D) !important; }
+body:not(.type-newsletter) .review-card--plain :is(.review-byline, .review-fact-label) { color: var(--color-text-muted, #69635C) !important; }
+body:not(.type-newsletter) .review-card--plain :is(.review-fact-value, .review-tagline) { color: var(--color-navy, #1E2D4A) !important; }
+body:not(.type-newsletter) .review-card--plain :is(.review-synopsis, .review-thoughts) { color: var(--color-text, #1A1A18) !important; }
+body:not(.type-newsletter) .review-card--plain :is(.review-body, .review-trailer, .review-foot) {
+  border-top-color: var(--color-border, #E5DDD5) !important;
+}
+/* The backdrop cell had a fill for the boxed card; the image now has its
+   own rounded corners, so the cell stays clear. */
+body:not(.type-newsletter) .review-card--plain .review-backdrop-cell { background: transparent !important; }
+
+/* 2. No frame, so no side padding (beats 105's phone + wide padding). */
+body:not(.type-newsletter) .review-card--plain :is(.review-head, .review-facts, .review-about, .review-body, .review-trailer, .review-foot) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+body:not(.type-newsletter) .review-card--plain .review-top-poster { padding: 0 12px 0 0 !important; }
+body:not(.type-newsletter) .review-card--plain .review-top-info   { padding: 2px 0 0 !important; }
+
+/* 3. Wide screens: compact poster card (a Watchlist post is a quick
+   note, not a full review) and the trailer row in its place. */
+@media (min-width: 760px) {
+  body:not(.type-newsletter) .review-card--plain.review-card--poster { grid-template-columns: 160px 1fr; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster { padding: 0 20px 0 0 !important; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster img { width: 140px !important; height: 210px !important; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-about { padding: 12px 0 16px !important; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster :is(.review-body, .review-trailer, .review-foot) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+/* end section 109 */

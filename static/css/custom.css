@@ -13263,3 +13263,70 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
   padding-right: 0.9em !important;
 }
 /* end section 111 */
+
+
+/* ============================================================
+   112 · REVIEW CARD IMAGES FULL WIDTH ON FOLDABLES + DESKTOP
+         (Oct 7, 2026, Toby)
+   ============================================================
+   From 760px up, section 105 lets the review card run the full width of
+   the post body, but Perch writes max-width:600px inline on the
+   backdrop and trailer images (for email), so the picture stopped at
+   600px while the text ran past it. Here both images fill the card,
+   which is the post body's width. The backdrop keeps 105's 21:9 crop.
+   Phones are already full width. Email and the newsletter pages keep
+   the 600px images.
+   ============================================================ */
+@media (min-width: 760px) {
+  body:not(.type-newsletter) .post-body .review-card :is(.review-backdrop, .review-trailer img) {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  body:not(.type-newsletter) .post-body .review-card .review-backdrop-cell { width: 100%; }
+}
+/* end section 112 */
+
+
+/* ============================================================
+   113 · HOME "WATCHING & READING": DATE = PERMALINK
+         (Oct 7, 2026, Toby)
+   ============================================================
+   Each card still opens its list page (Watched / Reading / The Queue)
+   when clicked anywhere: "See all ... ->" is stretched over the whole
+   card. When the card shows a post, it adds that post's date, written
+   and linked like the micro's date ("October 7, 2026 ∞"); the date is
+   the permalink to the single post and sits above the stretched link.
+   The cover is not a link of its own. Cards with nothing to show stay
+   one plain link to their page (index.html).
+   ============================================================ */
+.wr-card--split { position: relative; }
+.wr-card--split .wr-stretch { text-decoration: none; }
+.wr-card--split .wr-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.wr-card--split .wr-stretch:hover,
+.wr-card--split .wr-stretch:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.wr-card--split .wr-stretch:focus-visible { outline: none; }
+.wr-card--split .wr-stretch:focus-visible::after {
+  outline: 2px solid var(--color-terra);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
+}
+.wr-date {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.wr-date:hover { color: var(--color-terra-text); text-decoration: underline; text-underline-offset: 3px; }
+.wr-date:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; border-radius: 2px; }
+.wr-card--split .wr-stretch { -webkit-tap-highlight-color: transparent; }
+/* end section 113 */

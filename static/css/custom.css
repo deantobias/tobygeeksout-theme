@@ -11493,8 +11493,10 @@ html.tgo-pin-live .journal-list--nopin { display: none !important; }
 .home-pair .wna-body .define-card tr:has(.define-note) { display: none; }
 .home-pair .wna-body blockquote { display: none; }
 .home-pair .wna-body .define-card { margin: 0.9rem 0 0 !important; }
-.home-pair .wna-body .define-card td { padding: 0 !important; }
-.home-pair .wna-body .define-card td > table { margin: 0.55rem 0 0.9rem; }
+/* :not(.define-card--plain) added Oct 7, 2026: the new plain card spaces
+   itself with cell padding, so these two skip it (old cards unchanged). */
+.home-pair .wna-body .define-card:not(.define-card--plain) td { padding: 0 !important; }
+.home-pair .wna-body .define-card:not(.define-card--plain) td > table { margin: 0.55rem 0 0.9rem; }
 /* Sizes stepped down (Toby: "reduce the font sizes ... to make sure
    it fits for most defines"). */
 .home-pair .wna-body .define-eyebrow { font-size: 0.7rem !important; margin: 0 0 0.3rem !important; }
@@ -12849,8 +12851,8 @@ html.fonts-70s .nli-summary {
      (#C4622D) is only 3.8:1 by day, so it's kept for the stars, which
      are big glyphs (3:1 is enough).
    - Most text colors are NOT inline in the card HTML, so those rules
-     work without !important. Borders, the stars and the section labels
-     carry !important (Toby, Oct 5) so they win over any inline color.
+     work without !important. Borders, the stars, the section labels,
+     the scale link and the footer links carry !important (Toby, Oct 5) so they win over any inline color.
      If a text color ever goes inline, its rule here needs !important
      too or the card will stay day-colored at night.
    ============================================================ */
@@ -12866,7 +12868,6 @@ html.fonts-70s .nli-summary {
 .review-card .review-byline { color: var(--color-text-muted, #69635C); }
 .review-card .review-stars { color: var(--color-terra, #C4622D) !important; }
 .review-scale {
-  color: var(--color-terra-text, #A65326);
   text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
 }
 .review-fact-label { color: var(--color-text-muted, #69635C); }
@@ -12875,10 +12876,11 @@ html.fonts-70s .nli-summary {
 .review-synopsis,
 .review-thoughts { color: var(--color-text, #1A1A18); }
 .review-card .review-label { color: var(--color-terra-text, #A65326) !important; }
+.review-card .review-scale,
+.review-card .review-foot a { color: var(--color-terra-text, #A65326) !important; }
 .review-body,
 .review-foot { border-top-color: var(--color-border, #E5DDD5) !important; }
 .review-foot a {
-  color: var(--color-terra-text, #A65326);
   text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
 }
 .review-top-poster img { background: var(--color-bg-warm, #F2EDE8); }
@@ -12987,3 +12989,107 @@ html.fonts-70s body .review-card.review-card :is(strong, b) {
   color: var(--color-terra);
 }
 /* end section 106 */
+
+
+/* ============================================================
+   107 · DEFINE CARD, PLAIN DESIGN — new Word Nerd Alert posts
+         (Oct 7, 2026, Toby + Perch)
+   ============================================================
+   New define posts from Perch carry class="define-card define-card--plain".
+   Everything here is scoped to .define-card--plain, so OLD define posts
+   (and every earlier .define-card rule) look exactly the same.
+
+   What's different in the new card: no .define-word (the word is in the
+   post title, "Word Nerd Alert: Hiraeth"), no border, no default image,
+   and a new .define-pron (pronunciation) inside the eyebrow. Fonts (Inter),
+   sizes (12/14/16px) and DAY colors are written inline so email matches.
+
+   Sky: the inline day colors would win at night, so every color rule
+   here carries !important and reads a sky token (set on <html> by the
+   sky script; terra-text, navy and navy-mid are contrast-guarded in
+   every sky). body:not(.type-newsletter) keeps them off newsletter
+   pages: the email pane there is always white paper and stays in the
+   inline day colors (see "The EMAIL IS PAPER", section 53).
+
+   Sizes: the shared card scale, 16px text / 14px numbers / 12px label,
+   the same as the review card (section 105) and the email (Toby's call,
+   Oct 7). Old define posts keep the bigger rem sizes from Sep 30
+   (def 1.2rem on posts) since those rules still match them.
+   ============================================================ */
+
+/* 1. Sky colors win over the inline day colors (new cards, blog only) */
+body:not(.type-newsletter) .define-card--plain .define-eyebrow  { color: var(--color-terra-text, #A65326) !important; }
+body:not(.type-newsletter) .define-card--plain .define-rule     { background-color: var(--color-terra, #C4622D) !important; }
+body:not(.type-newsletter) .define-card--plain .define-def      { color: var(--color-navy, #1E2D4A) !important; }
+body:not(.type-newsletter) .define-card--plain .define-num      { color: var(--color-terra-text, #A65326) !important; }
+body:not(.type-newsletter) .define-card--plain .define-example  { color: var(--color-navy-mid, #2E4470) !important; }
+body:not(.type-newsletter) .define-card--plain .define-note-bar { background-color: var(--color-terra-light, #F0DDD3) !important; }
+body:not(.type-newsletter) .define-card--plain .define-note     { color: var(--color-navy-mid, #2E4470) !important; }
+
+/* Pronunciation: Perch gave it no rule. With no inline color it already
+   follows the eyebrow. If Perch writes a day hex inline, map that hex
+   to its sky token so it doesn't stay day-dark at night. */
+body:not(.type-newsletter) .define-card--plain .define-pron:is([style*="#C4622D" i], [style*="#A65326" i]) { color: var(--color-terra-text, #A65326) !important; }
+body:not(.type-newsletter) .define-card--plain .define-pron:is([style*="#6B6560" i], [style*="#69635C" i], [style*="#6B645D" i], [style*="#888" i]) { color: var(--color-text-muted, #69635C) !important; }
+body:not(.type-newsletter) .define-card--plain .define-pron:is([style*="#1E2D4A" i]) { color: var(--color-navy, #1E2D4A) !important; }
+body:not(.type-newsletter) .define-card--plain .define-pron:is([style*="#2E4470" i]) { color: var(--color-navy-mid, #2E4470) !important; }
+
+/* 2. Universal fonts: Inter (--font-body) for all card text, both looks.
+   Outranks the reading font on post text, the Georgia !important on
+   blockquote p, and the 70s Shrikhand quote rule (0,2,3); this is (0,3,4). */
+html body:not(.type-newsletter) .define-card.define-card--plain :is(p, li, span, div, blockquote, blockquote p) {
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif) !important;
+}
+
+/* 3. Card scale on the blog: 16px text, 14px numbers, 12px label, so the
+   new card matches the review card and the email. The Sep 30 rules
+   (.post-body .define-def 1.2rem etc.) and the .wna-body / .home-pair
+   rules are !important too; these out-rank or tie them and come later,
+   so they win for new cards only, on posts and in the home box. The
+   pronunciation sits in the label, so it takes the label's 12px. */
+body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain :is(.define-def, .define-example) {
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain .define-num { font-size: 14px !important; }
+body:not(.type-newsletter) :is(.post-body, .wna-body) .define-card--plain .define-eyebrow { font-size: 12px !important; }
+body:not(.type-newsletter) .define-card--plain .define-pron { font-size: inherit !important; }
+
+/* 4. Home page box: the word. New cards have no .define-word, so
+   index.html prints it from the post title as <p class="wna-word">, just
+   above .wna-body. Same look as the old card's word in this box
+   (.home-pair .wna-body .define-word): display face (Caprasimo in 70s,
+   Bricolage in Modern), navy, follows the sky. The card under it gets a
+   smaller top gap since the word now sits above it. */
+.wna-word {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 2.3vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--color-navy, #1E2D4A);
+  margin: 0.9rem 0 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+html:not(.fonts-70s) .wna-word { font-weight: 800; letter-spacing: -0.02em; }
+@media (max-width: 480px) {
+  .wna-word { font-size: clamp(1.75rem, 10vw, 2.25rem); }
+}
+@media (min-width: 1024px) {
+  .home-pair--two .wna-word { order: 1; flex: none; }
+}
+.home-pair .wna-body .define-card.define-card--plain { margin-top: 0.35rem !important; }
+
+/* 5. Print: always day colors on paper (the sky tokens live on <html>,
+   so a define printed at night would come out pale on white). */
+@media print {
+  .define-card--plain {
+    --color-terra-text: #A65326;
+    --color-terra: #C4622D;
+    --color-terra-light: #F0DDD3;
+    --color-navy: #1E2D4A;
+    --color-navy-mid: #2E4470;
+    --color-text-muted: #69635C;
+  }
+}
+/* end section 107 */

@@ -521,6 +521,14 @@
         <strong id="wna-heading">Word Nerd Alert</strong>
         <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
       </p>
+      {{/* Oct 7, 2026 (Toby + Perch): new plain define cards
+           (define-card--plain) carry no .define-word - the word is in the
+           post title, "Word Nerd Alert: Hiraeth". Old cards still have it,
+           so this only prints when the content has none. Styled in
+           custom.css section 107 (.wna-word). */}}
+      {{ if and $now.Title (not (in $now.Content "define-word")) }}
+      <p class="wna-word">{{ replaceRE `(?i)^\s*word nerd alert:\s*` "" $now.Title }}</p>
+      {{ end }}
 
       <div class="wna-body" aria-live="polite">
         {{ replaceRE $stripImg "" $now.Content | safeHTML }}

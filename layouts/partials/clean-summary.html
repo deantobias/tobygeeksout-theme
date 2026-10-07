@@ -58,7 +58,9 @@
 {{- if and (not $cut) $p.Description -}}
   {{- $out = $p.Description -}}
 
-{{- else if findRE `class="define-card"` $content -}}
+{{- /* Oct 7, 2026: match class="define-card" AND class="define-card define-card--plain"
+       (new plain cards carry two classes). */ -}}
+{{- else if findRE `class="define-card(?:\s[^"]*)?"` $content -}}
   {{- /* marker pairs for the parts of the define blurb; clean-summary
          swaps them for <span class="blurb-*"> at the bottom */ -}}
   {{- $pO := printf "%spos%s" $O $C -}}{{- $pC := printf "%s/pos%s" $O $C -}}
@@ -68,7 +70,13 @@
 
   {{- $pos := "" -}}
   {{- if findRE `class="define-eyebrow"` $content -}}
-    {{- $pos = partial "marked.html" (replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $content) -}}
+    {{- $eb := replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $content -}}
+    {{- /* Oct 7, 2026: new cards put the pronunciation (.define-pron) in
+           the eyebrow; the blurb keeps just the part of speech, like old
+           cards, and drops a separator left dangling at the end. */ -}}
+    {{- $eb = replaceRE `(?s)<span class="define-pron"[^>]*>.*?</span>` "" $eb -}}
+    {{- $eb = replaceRE `(?:\s|&nbsp;|&middot;|&#183;|&bull;|·|•|\|)+$` "" $eb -}}
+    {{- $pos = partial "marked.html" $eb -}}
   {{- end -}}
   {{- $word := "" -}}
   {{- if findRE `class="define-word"` $content -}}

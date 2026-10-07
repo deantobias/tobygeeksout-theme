@@ -705,16 +705,18 @@
     </div>
     <div class="wr-grid">
 
-    {{/* Oct 7, 2026 (Toby): each card still opens its list page as a
-         whole ("See all ... ->" is stretched over the card), and when it
-         shows a post it adds that post's date, written and linked like
-         the micro's date: the date is the permalink to the single post.
-         The cover is not a link of its own. A card with no post stays
-         one plain link to its page. CSS: section 113. */}}
+    {{/* Oct 7, 2026 (Toby): when a card shows a post, the whole box
+         (cover, title, stars) opens that single post - the post's date,
+         written and linked like the micro's date, is the permalink and
+         is stretched over the card. "See all ... ->" sits on top and
+         opens the list page. A card with no post stays one plain link
+         to its page. CSS: section 113. The first card is "Watched" (was
+         "🎬 Reel and Remote"): it opens the Watched page and sits next
+         to The Bookshelf and The Queue. */}}
       {{ if $wrReel }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/watched/" | absURL }}">{{ end }}
         {{ with index $covers "reel" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🎬</span>{{ end }}
         <span class="wr-body">
-          <span class="wr-name">🎬 Reel and Remote</span>
+          <span class="wr-name">Watched</span>
           {{ with $wrReel }}
             {{ $t := "" }}
             {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}{{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}{{ end }}
@@ -725,11 +727,11 @@
             {{ range findRE `[★☆½]{2,}` (replaceRE `(?s)<[^>]*>` "" .Content) }}{{ if gt (len .) (len $stars) }}{{ $stars = . }}{{ end }}{{ end }}
           <span class="wr-line">Just rated: <em>{{ $t }}</em></span>
           {{ with $stars }}<span class="wr-stars" aria-label="Rating {{ . }}">{{ . }}</span>{{ end }}
-          <a class="wr-date u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
+          <a class="wr-date wr-stretch u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
           {{ else }}
           <span class="wr-line">No ratings yet</span>
           {{ end }}
-          {{ if $wrReel }}<a class="wr-see wr-stretch" href="{{ "/watched/" | absURL }}">See all ratings →</a>{{ else }}<span class="wr-see">See all ratings →</span>{{ end }}
+          {{ if $wrReel }}<a class="wr-see" href="{{ "/watched/" | absURL }}">See all ratings →</a>{{ else }}<span class="wr-see">See all ratings →</span>{{ end }}
         </span>
       {{ if $wrReel }}</div>{{ else }}</a>{{ end }}
 
@@ -755,7 +757,7 @@
             <span class="wr-prog-text">{{ with $pages }}{{ index . 0 }}{{ end }}{{ if and $pages $pct }} · {{ end }}{{ with $pct }}{{ index . 0 }}{{ end }}</span>
           </span>
           {{ end }}
-          <a class="wr-date u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
+          <a class="wr-date wr-stretch u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
           {{ else }}
           {{ with $shelfTitle }}
           <span class="wr-line">Reading now: <em>{{ . }}</em>{{ if gt $shelfCount 1 }} <span class="wr-more">+ {{ sub $shelfCount 1 }} more</span>{{ end }}</span>
@@ -763,7 +765,7 @@
           <span class="wr-line">See what's on my shelf</span>
           {{ end }}
           {{ end }}
-          {{ if $wrBook }}<a class="wr-see wr-stretch" href="{{ "/reading/" | absURL }}">See the Bookshelf →</a>{{ else }}<span class="wr-see">See the Bookshelf →</span>{{ end }}
+          {{ if $wrBook }}<a class="wr-see" href="{{ "/reading/" | absURL }}">See the Bookshelf →</a>{{ else }}<span class="wr-see">See the Bookshelf →</span>{{ end }}
         </span>
       {{ if $wrBook }}</div>{{ else }}</a>{{ end }}
 
@@ -780,11 +782,11 @@
               {{ $q = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $q }}
             {{ end }}
           <span class="wr-line">Want to watch: <em>{{ $q }}</em></span>
-          <a class="wr-date u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
+          <a class="wr-date wr-stretch u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
           {{ else }}
           <span class="wr-line">Nothing queued right now</span>
           {{ end }}
-          {{ if $wrQueue }}<a class="wr-see wr-stretch" href="{{ "/the-queue/" | absURL }}">See the Queue →</a>{{ else }}<span class="wr-see">See the Queue →</span>{{ end }}
+          {{ if $wrQueue }}<a class="wr-see" href="{{ "/the-queue/" | absURL }}">See the Queue →</a>{{ else }}<span class="wr-see">See the Queue →</span>{{ end }}
         </span>
       {{ if $wrQueue }}</div>{{ else }}</a>{{ end }}
 

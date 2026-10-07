@@ -13186,3 +13186,35 @@ body:not(.type-newsletter) .review-card--plain .review-top-info   { padding: 2px
   }
 }
 /* end section 109 */
+
+
+/* ============================================================
+   110 · BOOK CARD, PLAIN DESIGN — rides on section 109
+         (Oct 7, 2026, Toby + Perch)
+   ============================================================
+   Every book status (Want to Read, Currently Reading, Finished, DNF) now
+   uses the plain review card, cover on the left:
+     class="review-card review-card--plain review-card--poster review-card--book"
+   so sections 105 + 109 already style it (sky colors, no side padding,
+   160px cover column on wide screens, Inter, day-color printing). It
+   does NOT carry .book-card, so the old boxed book-card rules never touch
+   new posts; old posts keep their .book-card look (nothing changed there).
+
+   The only new parts: the Currently Reading progress ("Page 141 of 496",
+   "28%", and a two-cell bar: fill + track). Day colors are inline for
+   email, so the sky colors need !important, and like 107/109 every rule
+   is kept off newsletter pages (the email pane stays day-colored).
+   Sky: text-muted and terra-text are contrast-guarded in every sky; the
+   bar is terra on the border color (light track by day, navy at night).
+   ============================================================ */
+
+/* 1. Currently Reading progress */
+body:not(.type-newsletter) .review-card--plain .review-progress-page  { color: var(--color-text-muted, #69635C) !important; }
+body:not(.type-newsletter) .review-card--plain .review-progress-pct   { color: var(--color-terra-text, #A65326) !important; }
+body:not(.type-newsletter) .review-card--plain .review-progress-fill  { background-color: var(--color-terra, #C4622D) !important; }
+body:not(.type-newsletter) .review-card--plain .review-progress-track { background-color: var(--color-border, #E5DDD5) !important; }
+
+/* 2. Rounded bar ends on the blog (email keeps square ends) */
+body:not(.type-newsletter) .review-card--plain .review-progress-fill  { border-radius: 3px 0 0 3px; }
+body:not(.type-newsletter) .review-card--plain .review-progress-track { border-radius: 0 3px 3px 0; }
+/* end section 110 */

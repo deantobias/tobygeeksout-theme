@@ -76,6 +76,10 @@
   {{ end }}
   {{ if not .Title }}{{ $skip = true }}{{ end }}
   {{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}{{ $skip = true }}{{ end }}
+  {{/* Oct 7, 2026: new plain review cards carry no "Want to Watch" text;
+       a Watchlist post is a review-card--plain whose title starts
+       "🎥 Watchlist:" / "📺 Watchlist:" (Perch's auto title). */}}
+  {{ if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent
@@ -231,7 +235,7 @@
          cover as its thumbnail. Posts with no photo of their own get
          no thumb at all - the row is simply shorter. */}}
     {{ $posters := slice }}
-    {{ range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
+    {{ range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
       {{ $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) }}
     {{ end }}
     {{ $thumb := "" }}
@@ -646,7 +650,7 @@
       {{- if not (in $bookKeys $k) -}}{{- $bookKeys = $bookKeys | append $k -}}{{- end -}}
       {{- if not $wrBook -}}{{- $wrBook = . -}}{{- end -}}
     {{- end -}}
-    {{- if and (not $wrQueue) (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $wrQueue = . -}}{{- end -}}
+    {{- if and (not $wrQueue) (or (and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1)) (and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1))) -}}{{- $wrQueue = . -}}{{- end -}}
   {{- end -}}
   {{/* Cover art: same two-step rule as every home list since July 25 -
        the image in the card's own poster cell first, a known poster
@@ -655,7 +659,7 @@
   {{- range $key, $p := dict "reel" $wrReel "book" $wrBook "queue" $wrQueue -}}
     {{- if $p -}}
       {{- $cover := "" -}}
-      {{- with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content 1 -}}
+      {{- with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content 1 -}}
         {{- $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}
       {{- end -}}
       {{- if not $cover -}}
@@ -729,7 +733,10 @@
             {{ $bt := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
             {{/* Plainify FIRST (July 26 lesson): raw HTML matched the
                  card's own width:100% and filled the bar. */}}
-            {{ $plain := .Content | plainify }}
+            {{/* Oct 7, 2026: tags become spaces before plainify. The new
+                 plain card puts "Page 141 of 496" and "28%" in two table
+                 cells, and a bare plainify glued them into "49628%". */}}
+            {{ $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify }}
             {{ $pages := findRE `Page \d+ of \d+` $plain 1 }}
             {{ $pct := findRE `\d{1,3}%` $plain 1 }}
           <span class="wr-line">Reading now: <em>{{ $bt }}</em>{{ if gt (len $bookKeys) 1 }} <span class="wr-more">+ {{ sub (len $bookKeys) 1 }} more</span>{{ end }}</span>

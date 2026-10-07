@@ -52,6 +52,8 @@
     {{ $c = replaceRE `(?s)<blockquote[^>]*class="[^"]*card-quote[^"]*"[^>]*>.*?</blockquote>` "" $c }}
     {{ $c = replaceRE `(?s)<p[^>]*class="[^"]*link-desc[^"]*"[^>]*>.*?</p>` "" $c }}
     {{ $c = replaceRE `(?s)<table[^>]*class="[^"]*(movie-card|book-card|link-card)[^"]*"[^>]*>.*?</table>` "" $c }}
+    {{/* Oct 7, 2026: new plain review cards hold nested tables (facts, progress), so a lazy match would stop at the first inner </table>. Perch ends every card with "</table>" + newline, which marks the real end. */}}
+    {{ $c = replaceRE `(?s)<table[^>]*class="[^"]*review-card[^"]*"[^>]*>.*?</table>(?:\r?\n|\s*$)` "" $c }}
     {{ $plain := $c | htmlUnescape | plainify }}
     {{ $w := len (split (trim $plain " \n\t") " ") }}
     {{ if gt (len (trim $plain " \n\t")) 0 }}

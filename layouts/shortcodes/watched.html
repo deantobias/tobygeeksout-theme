@@ -91,6 +91,15 @@
     {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
   {{ end }}
 
+  {{/* 1b (Oct 7, 2026). New plain review cards have no <h3>: the name is
+       the post title, "🎬 Title (Year)" / "📺 Show (Year)". Taken here,
+       before the prose rules, because a TV card's "Season 1" line sits
+       in front of the stars and rule 2 would grab it as the title. */}}
+  {{ if and (not $t) (in .Content "review-card--plain") .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" .Title }}
+    {{ $t = replaceRE `(?i)^\s*(?:now watching|watched|finished):\s*` "" $t }}
+    {{ $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $t }}
+  {{ end }}
   {{ if not $t }}
     {{/* Plain text of the post, tags out, whitespace collapsed. */}}
     {{ $plain := trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content))) " " }}
@@ -174,6 +183,11 @@
        matters because on several of them the element right after the
        h3 IS the rating. Priority 3: the name half of "2026 • Name". */}}
   {{ $dir := "" }}
+  {{/* Priority 0 (Oct 7, 2026): the plain card's facts row,
+       "Director" / "Created by" | name. */}}
+  {{ with findRE `(?s)review-fact-label[^>]*>\s*(?:Director|Created by)\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 }}
+    {{ $dir = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" }}
+  {{ end }}
   {{ with findRE `(?s)<[^>]*movie-card-byline[^>]*>\s*[^<>0-9★☆½]{2,45}?\s*</` .Content 1 }}
     {{ $dir = trim (htmlUnescape (replaceRE `(?s)<[^>]*>|>|</` "" (index . 0))) " \n\t" }}
   {{ end }}
@@ -220,7 +234,7 @@
        legitimate third source here (it is NOT in The Queue, where a
        watchlist post's only image is always the fetched poster). */}}
   {{ $cover := "" }}
-  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+  {{ with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
     {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
   {{ end }}
   {{ if not $cover }}
@@ -236,10 +250,16 @@
        episode/season tag, or the card leads with the TV emoji;
        otherwise Movie. Season is the card's own eptag text, if any. */}}
   {{ $kind := "Movie" }}
-  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") }}{{ $kind = "TV" }}{{ end }}
+  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") (in .Title "📺") (findRE `review-fact-label[^>]*>\s*Created by` .Content 1) }}{{ $kind = "TV" }}{{ end }}
   {{ $season := "" }}
   {{ with findRE `movie-card-eptag[^>]*>[^<]+<` .Content 1 }}
     {{ $season = trim (replaceRE `^.*>([^<]+)<$` "$1" (index . 0)) " \n\t" }}
+  {{ end }}
+  {{/* Plain cards (Oct 7, 2026): "Season 1" / "S2E4" in .review-byline. */}}
+  {{ if not $season }}
+    {{ with findRE `(?s)<p[^>]*review-byline[^>]*>[^<]*</p>` .Content 1 }}
+      {{ with findRE `Season \d+|S\d+E\d+` (index . 0) 1 }}{{ $season = index . 0 }}{{ end }}
+    {{ end }}
   {{ end }}
 
   {{ $items = $items | append (dict

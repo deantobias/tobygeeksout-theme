@@ -84,7 +84,10 @@
 
 {{ $items := slice }}
 {{ range (where .Site.Pages "Type" "post").ByDate.Reverse }}
-{{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}
+{{/* Oct 7, 2026: OR a new plain review card whose post title is a
+     Watchlist title ("🎥 Watchlist: Title (Year)", "📺 Watchlist: ...");
+     the plain card itself never says "Want to Watch". */}}
+{{ if or (and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1)) (and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1)) }}
 
   {{/* ---- Title. The card's own <h3> is the film name and it is
        present on every card format, titled post or not. The post
@@ -110,6 +113,14 @@
        holding nothing but a year. Priority 3: the "(2026)" in the
        post title. */}}
   {{ $relFull := "" }}{{ $relYear := "" }}{{ $relMY := "" }}{{ $altByline := "" }}
+  {{/* Priority 0 (Oct 7, 2026): the plain card's small top label,
+       <p class="review-tag">Out June 15, 2026</p> (or "Premieres ..."),
+       or "Out now" when TMDB has a date that has already passed. */}}
+  {{ $outNow := false }}
+  {{ with findRE `(?s)<p[^>]*review-tag[^>]*>\s*(?:Out|Premieres)\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</p>` .Content 1 }}
+    {{ $relFull = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}` (index . 0) 1) 0 }}
+  {{ end }}
+  {{ if findRE `(?s)<p[^>]*review-tag[^>]*>\s*Out now\s*</p>` .Content 1 }}{{ $outNow = true }}{{ end }}
   {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
     {{ $relFull = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
   {{ end }}
@@ -226,6 +237,8 @@
     {{ $groupLabel = $relYear }}
   {{ end }}
 
+  {{/* "Out now" on a plain card with only a year: it IS out. */}}
+  {{ if and $outNow (ne $groupKey "0") }}{{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}{{ end }}
   {{/* ---- Cover art. Logic lifted verbatim from layouts/index.html
        (July 25). Priority 1: the image sitting in the card's own
        poster cell - host-agnostic, and it can never grab a YouTube
@@ -235,7 +248,7 @@
        plain <td>. Google Books covers arrive at 128px with a
        page-curl artifact; both fixed on the way out. */}}
   {{ $cover := "" }}
-  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+  {{ with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
     {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
   {{ end }}
   {{ if not $cover }}
@@ -263,6 +276,13 @@
   {{/* The "2026 · Director" cards have no .movie-card-byline at all,
        so the director recovered above is used when nothing else set one. */}}
   {{ if not $byline }}{{ $byline = $altByline }}{{ end }}
+  {{/* Oct 7, 2026: plain cards keep the director in a facts row,
+       "Director" (or "Created by" for TV) | name. */}}
+  {{ if not $byline }}
+    {{ with findRE `(?s)review-fact-label[^>]*>\s*(?:Director|Created by)\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 }}
+      {{ $byline = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" }}
+    {{ end }}
+  {{ end }}
 
   {{/* ---- Production status (Toby, July 29). Going forward a card
        carries either a full release date OR a year plus a status
@@ -286,7 +306,7 @@
        right title on TMDB. TV = filed under TV Reviews, or the card has
        a season tag or leads with the TV emoji. */}}
   {{ $kind := "movie" }}
-  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") }}{{ $kind = "tv" }}{{ end }}
+  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") (in .Title "📺") (findRE `review-fact-label[^>]*>\s*Created by` .Content 1) }}{{ $kind = "tv" }}{{ end }}
   {{ $relYr := "" }}
   {{ with findRE `^(?:19|20)\d{2}` $dateKey 1 }}{{ $relYr = index . 0 }}{{ end }}
 

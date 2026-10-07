@@ -69,10 +69,26 @@
     {{ $author = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
   {{ end }}
   {{ if findRE `\d` $author 1 }}{{ $author = "" }}{{ end }}
+  {{/* Oct 7, 2026: new plain cards (review-card--book) keep the author
+       in a facts row, "Author" | name, and the post title carries the
+       book: "📚 Currently Reading: Name", "📚 Want to Read: Name",
+       "📚 Name by Author" (Finished / DNF). */}}
+  {{ if not $author }}
+    {{ with findRE `(?s)review-fact-label[^>]*>\s*Author\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 }}
+      {{ $author = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if in .Content "review-card--plain" }}
+    {{ $t = replaceRE `(?i)^.*?want to read:\s*` "" $t }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+    {{ with $author }}{{ $t = strings.TrimSuffix (printf " by %s" .) $t }}{{ end }}
+  {{ end }}
 
   {{/* ---- Progress. Plainify FIRST (the home page's hard-won lesson:
        raw HTML matches width:100% from the card's own styles). */}}
-  {{ $plain := .Content | plainify }}
+  {{/* Oct 7, 2026: tags become spaces first, so the new card's
+       "Page 141 of 496" and "28%" cells don't glue together. */}}
+  {{ $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify }}
   {{ $page := 0 }}{{ $total := 0 }}{{ $pct := -1 }}
   {{ with findRE `Page \d+ of \d+` $plain 1 }}
     {{ $bits := findRE `\d+` (index . 0) }}
@@ -90,7 +106,7 @@
   {{/* ---- Cover: poster cell first, known hosts second, curl/zoom
        fixed on the way out. Verbatim from index.html / queue.html. */}}
   {{ $cover := "" }}
-  {{ with findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+  {{ with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
     {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
   {{ end }}
   {{ if not $cover }}

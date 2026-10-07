@@ -13218,3 +13218,48 @@ body:not(.type-newsletter) .review-card--plain .review-progress-track { backgrou
 body:not(.type-newsletter) .review-card--plain .review-progress-fill  { border-radius: 3px 0 0 3px; }
 body:not(.type-newsletter) .review-card--plain .review-progress-track { border-radius: 0 3px 3px 0; }
 /* end section 110 */
+
+
+/* ============================================================
+   111 · REVIEW + BOOK CARDS: SAME BLOG SIZES AS DEFINE CARDS
+         (Oct 7, 2026, Toby)
+   ============================================================
+   Toby: "make same rules as define for all other review and book ...
+   keep email as it is ... like 24px." Define cards read at post-text
+   size on the blog (definition 1.2rem = 24px, example 1rem, number
+   .85rem, label .75rem; Sep 30 + section 107). Review cards (boxed 105,
+   plain 109, books 110) now use the same scale on the blog:
+     1.2rem  synopsis, my review / thoughts       (like the definition)
+     1rem    tagline, facts, byline, progress, links  (like the example)
+     .85rem  section labels ("My review", "Trailer")  (like the number)
+     .75rem  the small top tag ("Out June 15, 2027")  (like the label)
+   Stars keep their own sizes (105). EMAIL IS UNCHANGED: Perch's inline
+   px sizes still go out in the newsletter, and body:not(.type-newsletter)
+   keeps the newsletter pages showing the email sizes too.
+   Scoped to .post-body (single posts), like the define rules. Old
+   .movie-card / .book-card posts are not touched.
+   ============================================================ */
+body:not(.type-newsletter) .post-body .review-card :is(.review-synopsis, .review-thoughts) {
+  font-size: 1.2rem !important;
+  line-height: 1.7 !important;
+}
+/* Paragraphs typed inside the review inherit that size instead of the
+   theme's own post-text size. */
+body:not(.type-newsletter) .post-body .review-card :is(.review-synopsis, .review-thoughts) :is(p, li) {
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+body:not(.type-newsletter) .post-body .review-card :is(.review-tagline, .review-byline, .review-fact-label, .review-fact-value, .review-progress-page, .review-progress-pct, .review-scale, .review-trailer-link, .review-foot, .review-foot a) {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+body:not(.type-newsletter) .post-body .review-card .review-label { font-size: 0.85rem !important; }
+body:not(.type-newsletter) .post-body .review-card .review-tag   { font-size: 0.75rem !important; }
+/* The facts label column is a fixed 92px for email; at 1rem "Created by"
+   would wrap, so on the blog it sizes to its longest label. */
+body:not(.type-newsletter) .post-body .review-card .review-fact-label {
+  width: auto !important;
+  white-space: nowrap;
+  padding-right: 0.9em !important;
+}
+/* end section 111 */

@@ -118,6 +118,9 @@
              Styled in section 98. */}}
         {{ $end := "" }}{{ $dot := false }}
         {{ $rest = strings.TrimSpace $rest }}{{/* "Lexington, KY " had a trailing space */}}
+        {{/* Oct 7, 2026 (Toby): TrimSpace also ate the space between a
+             leading emoji and the title ("📺East of Eden"), so the h1 puts
+             one real space back after the .title-emoji span. */}}
         {{/* Short bracket at the end (Toby, Oct 3): "Weapons (2025)" ->
              the whole "(2025)" is painted terracotta (.title-tag) and no
              dot is added; a dot after a year looked like a typo. Short =
@@ -128,7 +131,7 @@
         {{ if $mosaic }}
           {{ with findRE `[.!?\x{2026}]$` $rest 1 }}{{ $end = index . 0 }}{{ $rest = strings.TrimSuffix $end $rest }}{{ else }}{{ with findRE `[(\[][^()\[\]]{1,10}[)\]]$` $rest 1 }}{{ $tag = index . 0 }}{{ $rest = strings.TrimSuffix $tag $rest }}{{ else }}{{ $dot = true }}{{ end }}{{ end }}
         {{ end }}
-        <h1 class="post-header-title p-name{{ if $dot }} title-dot{{ end }}">{{ with $emoji }}<span class="title-emoji">{{ . }}</span>{{ end }}{{ $rest }}{{ with $tag }}<span class="title-tag">{{ . }}</span>{{ end }}{{ with $end }}<span class="title-end">{{ . }}</span>{{ end }}</h1>
+        <h1 class="post-header-title p-name{{ if $dot }} title-dot{{ end }}">{{ with $emoji }}<span class="title-emoji">{{ . }}</span> {{ end }}{{ $rest }}{{ with $tag }}<span class="title-tag">{{ . }}</span>{{ end }}{{ with $end }}<span class="title-end">{{ . }}</span>{{ end }}</h1>
       {{ else }}
         {{/* WCAG 1.3.1 / 2.4.6 (Aug 18, 2026): untitled micro posts rendered
              with no h1 at all, so the page had no top-level heading for a

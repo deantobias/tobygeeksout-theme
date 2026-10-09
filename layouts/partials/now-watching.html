@@ -58,7 +58,19 @@
     {{- with findRE `,\s*Season\s+(\d+)\s*$` $raw 1 -}}
       {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*Season\s+(\d+)\s*$` "$1" (index . 0)) -}}
     {{- end -}}
-    {{- $title := replaceRE `,\s*(?:S\d+E\d+|Season\s+\d+)\s*$` "" $raw -}}
+    {{/* Oct 9: no ", Season N" at the end of the title does not make it a
+         movie. A "(2026)" is also a TV show's first-air year, so the year
+         proves nothing. Season N / SxEy in the title or the post, or a
+         TMDB /tv/ link, means a show (e.g. "Carrie Season 1 (2026)"). */}}
+    {{- if eq $kind "movie" -}}
+      {{- $body := printf "%s %s" $raw (replaceRE `(?s)<[^>]*>` " " .Content) -}}
+      {{- if or (findRE `(?i)\bSeason\s+\d+` $body 1) (findRE `\bS\d+E\d+\b` $body 1) (findRE `/tv/\d+` .Content 1) -}}
+        {{- $kind = "tv" -}}
+        {{- with findRE `(?i)\bSeason\s+(\d+)` $body 1 -}}{{- $season = int (replaceRE `(?is)^.*Season\s+(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
+        {{- with findRE `\bS(\d+)E\d+\b` $body 1 -}}{{- $season = int (replaceRE `(?s)^.*?S(\d+)E\d+.*$` "$1" (index . 0)) -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $title := replaceRE `\s*,?\s*(?:S\d+E\d+|Season\s+\d+)\s*(\((?:19|20)\d{2}\))?\s*$` "$1" $raw -}}
     {{- $title = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $title -}}
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $title) -}}
     {{- if and $norm (not (in $reviewed $norm)) (not (in $seen $norm)) -}}

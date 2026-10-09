@@ -13399,3 +13399,90 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
 .watching-foot a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 .watching .wr-name { text-decoration: none; }
 /* end section 115 */
+
+
+/* ============================================================
+   116 · HOME: BOOKSHELF & DEFINE, EMPTY BOOK COVER   (Oct 9, 2026, Toby)
+   ============================================================
+   "Bookshelf & Define" is ONE home section with two columns from 1024
+   up (stacked below): the Bookshelf card (it used to be the middle
+   Screen & Shelf card) and Word Nerd Alert. Both are warm cards (.wna,
+   section 95) so they match; .home-pair keeps the Define card trimmed
+   to its definitions exactly as before. Micro no longer shares this
+   row, so section 95's pair-only rules for the micro, the fit script
+   and "Keep reading" are no longer used (left in place, harmless).
+
+   The empty book cover is for a Currently Reading book with no cover
+   image: a cream "cloth" cover with the title on it, built in CSS. It
+   uses fixed colors on purpose (like a real book, it should not flip
+   with the sky). A real cover image always wins - index.html only
+   prints this when the book has none. To switch colors, change --cv,
+   --ink and --frame below (navy: #24375C / #F6EFE3; terracotta:
+   #B85C2A / #FFF6EC).
+   ============================================================ */
+.bd-section { margin-top: 30px; }
+.home-duo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 30px;
+  margin-top: 0;
+  padding-top: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .home-duo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: stretch;
+  }
+}
+.home-duo > .wna:only-child { grid-column: 1 / -1; }
+.home-duo .wna { display: flex; flex-direction: column; }
+.home-duo .wna .wr-card { margin-top: 1rem; }
+.home-duo .wna--shelf .wr-name { font-size: 1.3rem; }
+
+.wr-cover.bcover {
+  --cv: #F0E7D6;
+  --ink: #1E2D4A;
+  --frame: rgba(30, 45, 74, 0.4);
+  --spine: rgba(30, 45, 74, 0.16);
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12% 0 22%;
+  background: var(--cv);
+  color: var(--ink);
+  text-align: center;
+  border-radius: 3px 6px 6px 3px;
+  box-shadow: 0 1px 0 var(--color-border), 0 10px 22px -14px rgba(30, 45, 74, 0.4), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.bcover::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 11%;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(90deg, var(--spine), transparent 85%);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+.bcover::after {
+  content: "";
+  position: absolute;
+  inset: 7% 7% 7% 17%;
+  border: 1.5px solid var(--frame);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.bcover b {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 11cqw;
+  font-weight: 800;
+  line-height: 1.1;
+}
+/* end section 116 */

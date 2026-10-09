@@ -1,0 +1,82 @@
+{{/* ------------------------------------------------------------
+     NOW WATCHING POSTS (Oct 9, 2026, Toby)
+     Finds Perch's "🍿 Now Watching" posts and returns them as data:
+       {{ $nw := partial "now-watching.html" (dict "days" 90) }}
+       $nw.items    newest first, one per title
+       $nw.reviewed titles Toby has reviewed (letters + digits, lower-case)
+     Used by the home page's "Now Watching" card and by the /watching/
+     page (layouts/shortcodes/watching.html).
+
+     Perch writes the post TITLE as
+       🍿 Now Watching: Show, S2E4        (TV, with an episode)
+       🍿 Now Watching: Show, Season 2    (TV, season only)
+       🍿 Now Watching: Movie (Year)      (movie)
+     so a ", S2E4" / ", Season 2" ending means TV, anything else is a
+     movie. The poster is the card's own image.
+
+     An entry is skipped when
+       - the post is older than "days" (default 90): a show or movie
+         Toby stopped watching ages off on its own;
+       - Toby has a review of the same title (a star run plus a Movie
+         Reviews / TV Reviews / Reel and Remote category, never a "Want
+         to Watch" card) - same test as The Queue's "already watched";
+       - a newer Now Watching post for the same title exists.
+     Posts themselves are never modified.
+     ------------------------------------------------------------ */}}
+{{- $days := 90 -}}
+{{- with .days -}}{{- $days = int . -}}{{- end -}}
+{{- $cutoff := now.AddDate 0 0 (int (sub 0 $days)) -}}
+
+{{- $reviewed := slice -}}
+{{- range (where site.Pages "Type" "post") -}}
+  {{- if and (findRE `★` .Content 1) (not (findRE `(?i)want to watch` .Content 1)) -}}
+    {{- $isRev := false -}}
+    {{- range .Params.categories -}}
+      {{- if in (slice "Movie Reviews" "TV Reviews" "Reel and Remote") . -}}{{- $isRev = true -}}{{- end -}}
+    {{- end -}}
+    {{- if $isRev -}}
+      {{- with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 -}}
+        {{- $reviewed = $reviewed | append (replaceRE `[^\pL\pN]+` "" (lower (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))))) -}}
+      {{- end -}}
+      {{- $pt := replaceRE `(?i)^\s*(?:finally\s+)?watched:?\s*` "" .Title -}}
+      {{- $pt = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $pt -}}
+      {{- with replaceRE `[^\pL\pN]+` "" (lower $pt) -}}{{- $reviewed = $reviewed | append . -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $items := slice -}}
+{{- $seen := slice -}}
+{{- range (where site.Pages "Type" "post").ByDate.Reverse -}}
+  {{- if and (findRE `(?i)^\W*now watching:` .Title 1) (not (.Date.Before $cutoff)) -}}
+    {{- $raw := trim (replaceRE `(?i)^\W*now watching:\s*` "" .Title) " " -}}
+    {{- $kind := "movie" -}}
+    {{- $season := 0 -}}
+    {{- with findRE `,\s*S(\d+)E\d+\s*$` $raw 1 -}}
+      {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*S(\d+)E\d+\s*$` "$1" (index . 0)) -}}
+    {{- end -}}
+    {{- with findRE `,\s*Season\s+(\d+)\s*$` $raw 1 -}}
+      {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*Season\s+(\d+)\s*$` "$1" (index . 0)) -}}
+    {{- end -}}
+    {{- $title := replaceRE `,\s*(?:S\d+E\d+|Season\s+\d+)\s*$` "" $raw -}}
+    {{- $title = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $title -}}
+    {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $title) -}}
+    {{- if and $norm (not (in $reviewed $norm)) (not (in $seen $norm)) -}}
+      {{- $seen = $seen | append $norm -}}
+      {{/* Poster: the image in the card's own poster cell first, a TMDB
+           image anywhere in the post second (same rule as the home lists). */}}
+      {{- $poster := "" -}}
+      {{- with findRE `(?s)(?:review-top-poster|movie-card-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 -}}
+        {{- $poster = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}
+      {{- end -}}
+      {{- if not $poster -}}
+        {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+          {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+          {{- if and (not $poster) (in $u "image.tmdb.org") -}}{{- $poster = $u -}}{{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $items = $items | append (dict "title" $title "norm" $norm "kind" $kind "season" $season "poster" $poster "url" .Permalink "date" (mul .Date.Unix 1000) "dateText" (.Date.Format "January 2, 2006") "dateISO" (.Date.Format "2006-01-02")) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (dict "items" $items "reviewed" $reviewed) -}}

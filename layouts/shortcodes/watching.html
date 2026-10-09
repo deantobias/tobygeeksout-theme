@@ -1,34 +1,43 @@
 {{/* ------------------------------------------------------------
      WATCHING (Oct 9, 2026, Toby's design)
-     Shortcode for a /watching/ page: the TV shows Toby is partway
-     through, newest first - poster, title, season, last watched.
+     Shortcode for a /watching/ page: what Toby is partway through,
+     newest first - poster, title, season (or "Movie"), last watched.
 
-     WHERE THE LIST COMES FROM: Toby's PUBLIC Trakt history, read in the
-     visitor's browser (Hugo builds the site ahead of time, so it can't
-     ask Trakt itself). Only the history needs to be public. The client
-     ID below is Trakt's public API key (Perch serves it openly too);
-     the client SECRET is never used and must never be added here.
+     TWO SOURCES, merged by title:
+       1. TV shows from Toby's PUBLIC Trakt history, read in the
+          visitor's browser (Hugo builds the site ahead of time, so it
+          can't ask Trakt itself). Only the history needs to be public.
+          The client ID below is Trakt's public API key (Perch serves it
+          openly too); the client SECRET is never used and must never be
+          added here.
+       2. His "🍿 Now Watching" posts (TV or movie), found at build time
+          by partials/now-watching.html. A post shows up the moment it
+          is published, so a show that Hulu hasn't synced to Trakt yet
+          still appears. When Trakt has the same title the two merge into
+          ONE card: the newer date, the higher season, and it opens the
+          post (a post never adds a second card for the same show). A movie only ever
+          comes from a post.
 
-     WHAT COUNTS AS "WATCHING" (agreed Oct 9, deliberately simple -
-     Trakt's public data misses some episodes, so no episode counts and
-     no "finished" guessing):
-       1. last watched within the look-back window (default 90 days).
-          A show Toby stops watching ages off on its own.
-       2. not rated on Trakt, and not a show with a review post on the
-          blog (same title test as The Queue's "already watched").
-       3. not in the hide list. Page usage:
+     WHAT COUNTS AS "WATCHING" (agreed Oct 9 - deliberately simple,
+     because Trakt's public data misses some episodes, so no episode
+     counts and no "finished" guessing):
+       - last watched (or posted) within the look-back window (default
+         90 days). Something Toby stops watching ages off on its own.
+       - not rated on Trakt, and not a title with a review post on the
+         blog (same title test as The Queue's "already watched").
+       - not in the hide list. Page usage:
             {{< watching >}}
             {{< watching days="60" hide="Show One|Show Two" >}}
-          Titles are matched ignoring case and punctuation.
+         Titles are matched ignoring case and punctuation.
      The season shown is the highest season with a watched episode.
 
-     POSTERS come from Perch's public /poster lookup (Trakt has no
-     images). A show with no poster gets a plain popcorn block.
+     POSTERS: a post's own poster first, else Perch's public /poster
+     lookup (Trakt has no images). No poster = a plain popcorn block.
 
-     SAFETY: the list is cached in the browser for 30 minutes. If Trakt
-     or Perch can't be reached, the last good list shows (or a short
-     message) - the page never breaks. Styles: custom.css section 115;
-     the cards reuse the home page's .wr-* cards (section 113).
+     SAFETY: the Trakt list is cached in the browser for 30 minutes. If
+     Trakt or Perch can't be reached, posts still show, plus the last
+     good Trakt list - the page never breaks. Styles: custom.css
+     section 115; the cards reuse the home page's .wr-* cards (113).
      ------------------------------------------------------------ */}}
 {{ $user := "technogeek75" }}
 {{ with .Get "user" }}{{ $user = . }}{{ end }}
@@ -36,28 +45,7 @@
 {{ with .Get "days" }}{{ $days = int . }}{{ end }}
 {{ $hide := slice }}
 {{ with .Get "hide" }}{{ range split . "|" }}{{ with trim . " " }}{{ $hide = $hide | append (replaceRE `[^\pL\pN]+` "" (lower .)) }}{{ end }}{{ end }}{{ end }}
-
-{{/* ---- ALREADY WATCHED: same test as queue.html. A show with a
-     review post (stars + Movie Reviews / TV Reviews / Reel and Remote
-     category, never a "Want to Watch" card) is finished, so it is
-     skipped. Compared lower-case with only letters and digits kept. */}}
-{{ $reviewed := slice }}
-{{ range (where .Site.Pages "Type" "post") }}
-  {{ if and (findRE `★` .Content 1) (not (findRE `(?i)want to watch` .Content 1)) }}
-    {{ $isRev := false }}
-    {{ range .Params.categories }}
-      {{ if in (slice "Movie Reviews" "TV Reviews" "Reel and Remote") . }}{{ $isRev = true }}{{ end }}
-    {{ end }}
-    {{ if $isRev }}
-      {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
-        {{ $reviewed = $reviewed | append (replaceRE `[^\pL\pN]+` "" (lower (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))))) }}
-      {{ end }}
-      {{ $pt := replaceRE `(?i)^\s*(?:finally\s+)?watched:?\s*` "" .Title }}
-      {{ $pt = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $pt }}
-      {{ with replaceRE `[^\pL\pN]+` "" (lower $pt) }}{{ $reviewed = $reviewed | append . }}{{ end }}
-    {{ end }}
-  {{ end }}
-{{ end }}
+{{ $nw := partial "now-watching.html" (dict "days" $days) }}
 
 <div class="watching" id="watching">
   <p class="watching-count" id="watching-count" aria-live="polite">Loading…</p>
@@ -72,7 +60,8 @@
   var USER = {{ $user }};
   var DAYS = {{ $days }};
   var HIDE = {{ $hide | jsonify | safeJS }};
-  var REVIEWED = {{ $reviewed | jsonify | safeJS }};
+  var REVIEWED = {{ $nw.reviewed | jsonify | safeJS }};
+  var POSTS = {{ $nw.items | jsonify | safeJS }};
   var TRAKT = "https://api.trakt.tv";
   var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
   var POSTER = "https://perch-app.pages.dev/poster";
@@ -95,7 +84,8 @@
       .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
   }
 
-  function fetchList() {
+  // Trakt: TV shows in progress (rated, reviewed, hidden and stale ones removed)
+  function fetchTrakt() {
     return Promise.all([
       tget("/users/" + encodeURIComponent(USER) + "/watched/shows"),
       tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
@@ -112,9 +102,33 @@
         var season = (w.seasons || []).reduce(function (m, x) { return x.number > 0 ? Math.max(m, x.number) : m; }, 0);
         out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: season || 1, last: last });
       });
-      out.sort(function (a, b) { return b.last - a.last; });
       return out;
     });
+  }
+
+  // Merge: posts show at once; Trakt wins on season/date when it has the same title.
+  function merge(trakt) {
+    var posts = POSTS.filter(function (p) { return HIDE.indexOf(p.norm) < 0; });
+    var byNorm = {};
+    posts.forEach(function (p) { byNorm[p.norm] = p; });
+    var used = {};
+    var out = trakt.map(function (t) {
+      var n = norm(t.title), p = byNorm[n];
+      if (p) used[n] = 1;
+      return {
+        title: t.title, kind: "tv", season: p ? Math.max(t.season, p.season || 0) : t.season, tmdb: t.tmdb,
+        last: p ? Math.max(t.last, p.date) : t.last,
+        poster: p ? p.poster : "",
+        url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""),
+        external: !p
+      };
+    });
+    posts.forEach(function (p) {
+      if (used[p.norm]) return;
+      out.push({ title: p.title, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster, url: p.url, external: false });
+    });
+    out.sort(function (a, b) { return b.last - a.last; });
+    return out;
   }
 
   function getPoster(tmdb) {
@@ -128,9 +142,16 @@
     }).catch(function () { return ""; });
   }
 
+  function setPoster(card, cover, u) {
+    if (!u) return;
+    var img = document.createElement("img");
+    img.className = "wr-cover"; img.alt = ""; img.width = 150; img.height = 225; img.loading = "lazy"; img.decoding = "async"; img.src = u;
+    card.replaceChild(img, cover);
+  }
+
   function render(list) {
     gridEl.textContent = "";
-    countEl.textContent = list.length ? list.length + (list.length === 1 ? " show" : " shows") + " in progress" : "Nothing in progress right now.";
+    countEl.textContent = list.length ? list.length + " in progress" : "Nothing in progress right now.";
     list.forEach(function (it) {
       var card = el("div", "wr-card wr-card--split");
       var cover = el("span", "wr-cover wr-cover--blank", "🍿");
@@ -138,27 +159,26 @@
       card.appendChild(cover);
       var body = el("span", "wr-body");
       var name = el("a", "wr-name wr-stretch", it.title);
-      if (it.slug) { name.href = "https://trakt.tv/shows/" + encodeURIComponent(it.slug); name.rel = "noopener"; }
+      if (it.url) { name.href = it.url; if (it.external) name.rel = "noopener"; }
       body.appendChild(name);
-      body.appendChild(el("span", "wr-prog-text", "Season " + it.season));
-      body.appendChild(el("span", "wr-date", "Last watched " + fmt(it.last)));
+      body.appendChild(el("span", "wr-prog-text", it.kind === "movie" ? "Movie" : (it.season ? "Season " + it.season : "TV")));
+      body.appendChild(el("span", "wr-date", (it.kind === "movie" ? "Started " : "Last watched ") + fmt(it.last)));
       card.appendChild(body);
       gridEl.appendChild(card);
-      getPoster(it.tmdb).then(function (u) {
-        if (!u) return;
-        var img = document.createElement("img");
-        img.className = "wr-cover"; img.alt = ""; img.width = 150; img.height = 225; img.loading = "lazy"; img.decoding = "async"; img.src = u;
-        card.replaceChild(img, cover);
-      });
+      if (it.poster) setPoster(card, cover, it.poster);
+      else getPoster(it.tmdb).then(function (u) { setPoster(card, cover, u); });
     });
   }
 
   var cached = load(LIST_KEY);
-  if (cached && Date.now() - cached.t < LIST_TTL) { render(cached.list); return; }
-  fetchList().then(function (list) { store(LIST_KEY, { t: Date.now(), list: list }); render(list); })
+  if (cached && Date.now() - cached.t < LIST_TTL) { render(merge(cached.list)); return; }
+  fetchTrakt().then(function (list) { store(LIST_KEY, { t: Date.now(), list: list }); render(merge(list)); })
     .catch(function () {
-      if (cached) { render(cached.list); noteEl.textContent = "Couldn't reach Trakt just now, so this is my last saved list."; noteEl.hidden = false; }
-      else { countEl.textContent = "Couldn't load my list right now. Try again in a little while."; }
+      var fallback = cached ? cached.list : [];
+      render(merge(fallback));
+      noteEl.textContent = cached ? "Couldn't reach Trakt just now, so the TV shows here are from my last saved list."
+        : "Couldn't reach Trakt just now, so only the shows I've posted about are listed.";
+      noteEl.hidden = false;
     });
 })();
 </script>

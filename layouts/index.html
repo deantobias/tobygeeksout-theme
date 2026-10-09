@@ -46,11 +46,12 @@
        From the archive - inside Recent Geekouts: 3 random older posts
          with Shuffle.
          Replaces the Spotlight marquee and "More in the Spotlight".
-       Micro + Word Nerd Alert side by side (stacked below 1024)
-       Watching & Reading - three cover cards (latest rating, newest
-         Currently Reading post with progress, newest watchlist entry),
-         each linking to its page. Replaces the home Bookshelf and
-         Reel and Remote sections.
+       Micro - stands alone, full width (Oct 9, 2026)
+       Bookshelf & Define - ONE section, two columns: the Bookshelf card
+         (real cover, else an empty book cover) + Word Nerd Alert
+       Reel and Remotes - three cover cards: latest rating, Now Watching
+         (newest "🍿 Now Watching" post), newest watchlist entry; each
+         opens its own post, "See all" opens the page.
        Browse by Category - moved up, right after From the archive
        Search, unchanged
        Follow along (phones only; the rail has it on desktop) - moved
@@ -80,6 +81,9 @@
        a Watchlist post is a review-card--plain whose title starts
        "🎥 Watchlist:" / "📺 Watchlist:" (Perch's auto title). */}}
   {{ if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) }}{{ $skip = true }}{{ end }}
+  {{/* Oct 9, 2026: "🍿 Now Watching:" posts have their own card and the
+       /watching/ page, so they stay out of this feed like Watchlist ones. */}}
+  {{ if findRE `(?i)^\W*now watching:` .Title 1 }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent
@@ -481,8 +485,12 @@
        .feed-wrapper; it lives inside it now, so section 95 undoes the
        gutter math section 86 gave it as a sibling. Band markup and
        the pill-swap script (custom_footer.html) are unchanged. */}}
-  {{ if or $micros $wordPool }}
-  <div class="home-pair{{ if and $micros $wordPool }} home-pair--two{{ end }}">
+  {{/* Oct 9, 2026 (Toby): Micro stands ALONE again, full width, open
+       section with the ledger date (the Sept 30 pair with Word Nerd
+       Alert is gone - the word moved to "Bookshelf & Define" below).
+       No "Keep reading" link: nothing cuts the micro anymore, so it
+       shows in full like it did before the pair. The fit script and
+       the pair-only styles (section 95) are no longer used. */}}
   {{ if $micros }}
   <div class="micro-section">
     <div class="feed-head">
@@ -498,121 +506,11 @@
       </span>
       <div class="micro-entry-main">
         <div class="micro-entry-text e-content">{{ .Content }}</div>
-        {{/* Sept 30, 2026 (Toby: "micro.blog has no rules on how many
-             characters"): shown only when the fit script under the
-             pair cuts this micro to the word card's height. */}}
-        <a href="{{ .Permalink }}" class="micro-more">Keep reading →</a>
         <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "January 2, 2006" }} ∞</a>
       </div>
     </div>
     {{ end }}
   </div>
-  {{ end }}
-  {{ if $wordPool }}
-    {{ $now := index $wordPool 0 }}
-    {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
-
-    {{/* Sept 30, 2026 (Toby): the "Before this" pills are gone from the
-         home page - three rows of them ate the space the word itself
-         needs now that it shares a row with the micro. "All words →"
-         stays, moved up into the label row to mirror the micro card's
-         "More micros →". With no pills there is nothing to swap, so
-         the hidden word store and "Back to today" went too (the swap
-         script in custom_footer.html exits early when the store is
-         absent). The pills still live in git history (commit 80ec667). */}}
-    <section class="wna" aria-labelledby="wna-heading">
-      <p class="wna-eyebrow">
-        <strong id="wna-heading">Word Nerd Alert</strong>
-        <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
-      </p>
-      {{/* Oct 7, 2026 (Toby + Perch): new plain define cards
-           (define-card--plain) carry no .define-word - the word is in the
-           post title, "Word Nerd Alert: Hiraeth". Old cards still have it,
-           so this only prints when the content has none. Styled in
-           custom.css section 107 (.wna-word). */}}
-      {{ if and $now.Title (not (in $now.Content "define-word")) }}
-      <p class="wna-word">{{ replaceRE `(?i)^\s*word nerd alert:\s*` "" $now.Title }}</p>
-      {{ end }}
-
-      <div class="wna-body" aria-live="polite">
-        {{ replaceRE $stripImg "" $now.Content | safeHTML }}
-      </div>
-      {{/* Sept 30, 2026 (Toby): the date moved from the label row to the
-           bottom, written and linked exactly like the micro's date. */}}
-      <a class="wna-permalink wna-date u-url" href="{{ $now.RelPermalink }}"><time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "January 2, 2006" }}</time> ∞</a>
-      {{/* Sept 30, 2026 (Toby: "what if the define gets too long?"):
-           shown only when the fit script under the pair cuts this
-           word to the micro's height; opens the word's own post, same
-           tab. Follows whichever word a "Before this" pill swaps in. */}}
-      <a class="wna-more" href="{{ $now.RelPermalink }}">Keep reading →</a>
-    </section>
-  {{ end }}
-  </div>
-  {{ if and $micros $wordPool }}
-  {{/* Fit script (Sept 30, 2026, Toby): the SHORTER card sets the
-       pair's height; the longer one is cut to it and shows "Keep
-       reading" (CSS section 95 does the cut and the fade). Floor 16rem,
-       ceiling 36rem - except the word card is never cut above its last
-       definition. Re-fits on resize and after fonts/images load.
-       Desktop only. */}}
-  <script>
-  (function () {
-    var pair = document.querySelector('.home-pair--two');
-    if (!pair || !window.matchMedia) return;
-    var mCard = pair.querySelector('.micro-section');
-    var wCard = pair.querySelector('.wna');
-    if (!mCard || !wCard) return;
-    var mBody = mCard.querySelector('.micro-entry-text');
-    var wBody = wCard.querySelector('.wna-body');
-    var mMore = mCard.querySelector('.micro-more');
-    var wMore = wCard.querySelector('.wna-more');
-    var perma = wCard.querySelector('.wna-permalink');
-    if (!mBody || !wBody) return;
-    var mq = window.matchMedia('(min-width: 1024px)');
-    var cards = [[mCard, mBody, mMore], [wCard, wBody, wMore]];
-    function rem(n) { return n * parseFloat(getComputedStyle(document.documentElement).fontSize); }
-    function reset() {
-      cards.forEach(function (c) {
-        c[0].style.height = '';
-        c[1].classList.remove('is-cut');
-        if (c[2]) c[2].classList.remove('is-needed');
-      });
-    }
-    function fit() {
-      if (wMore && perma && perma.getAttribute('href')) wMore.setAttribute('href', perma.getAttribute('href'));
-      reset();
-      if (!mq.matches) return;
-      pair.classList.add('is-measuring');
-      var hm = mCard.offsetHeight, hw = wCard.offsetHeight;
-      pair.classList.remove('is-measuring');
-      var target = Math.min(Math.max(Math.min(hm, hw), rem(16)), rem(36));
-      /* Toby: "I want define shows defines". The word card is never cut
-         above its last definition - room is kept below it for the fade
-         and the link. If that is taller than the micro, the micro just
-         keeps some empty space at the bottom. */
-      var defs = wBody.querySelectorAll('.define-card .define-def');
-      if (defs.length) {
-        var need = defs[defs.length - 1].getBoundingClientRect().bottom - wCard.getBoundingClientRect().top + rem(9.5);
-        target = Math.max(target, Math.min(need, hw));
-      }
-      [[cards[0], hm], [cards[1], hw]].forEach(function (x) {
-        if (x[1] > target + 2) {
-          x[0][0].style.height = target + 'px';
-          x[0][1].classList.add('is-cut');
-          if (x[0][2]) x[0][2].classList.add('is-needed');
-        }
-      });
-    }
-    var t;
-    function later() { clearTimeout(t); t = setTimeout(fit, 120); }
-    window.addEventListener('resize', later);
-    window.addEventListener('load', fit);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-    if (window.MutationObserver) new MutationObserver(fit).observe(wBody, { childList: true });
-    fit();
-  })();
-  </script>
-  {{ end }}
   {{ end }}
 
   {{/* ============================================================
@@ -699,23 +597,134 @@
   {{- end -}}
   {{- $shelfTitle := index $shelfBook "title" | default "" -}}
   {{- $shelfCover := index $shelfBook "image" | default (index $shelfBook "cover_url") | default "" -}}
+  {{/* ============================================================
+       NOW WATCHING data (Oct 9, 2026, Toby): the newest "🍿 Now
+       Watching" post, TV or movie (partials/now-watching.html). It is
+       read from POSTS only - no Trakt on the home page - so it shows the
+       moment it is posted, and drops off once Toby reviews that title or
+       it is 90 days old. The /watching/ page adds Trakt's TV list.
+       ============================================================ */}}
+  {{- $nw := partial "now-watching.html" (dict "days" 90) -}}
+  {{- $nwTop := false -}}{{- with $nw.items -}}{{- $nwTop = index . 0 -}}{{- end -}}
+  {{- $bookTitle := "" -}}
+  {{- with $wrBook -}}{{- $bookTitle = replaceRE `(?i)^.*?currently reading:\s*` "" .Title -}}{{- else -}}{{- $bookTitle = $shelfTitle -}}{{- end -}}
+
+  {{/* ============================================================
+       BOOKSHELF & DEFINE (Oct 9, 2026, Toby): ONE section, two columns
+       from 1024 up (stacked below). Left: the Bookshelf card (what was
+       the middle Screen & Shelf card), right: today's Word Nerd Alert.
+       Both wear the warm card so they match (the Sept 30 "don't even
+       match" lesson). Styles: custom.css section 116.
+       ============================================================ */}}
+  <section class="bd-section" aria-labelledby="bd-heading">
+    <div class="feed-head">
+      <h2 class="feed-label" id="bd-heading">Bookshelf &amp; Define</h2>
+    </div>
+    <div class="home-pair home-duo">
+      <section class="wna wna--shelf" aria-label="The Bookshelf">
+        <p class="wna-eyebrow">
+          <strong>The Bookshelf</strong>
+          <a class="wna-all" href="{{ "/reading/" | absURL }}">See the Bookshelf →</a>
+        </p>
+        {{ if $wrBook }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/reading/" | absURL }}">{{ end }}
+        {{ $bookCover := index $covers "book" | default $shelfCover }}
+        {{/* Oct 9, 2026 (Toby): a real cover image when the book has one;
+             only when it has none, an empty book cover with the title
+             on it (custom.css section 116), not a plain emoji box. */}}
+        {{ with $bookCover }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}{{ if $bookTitle }}<span class="wr-cover bcover" aria-hidden="true"><b>{{ $bookTitle }}</b></span>{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}{{ end }}
+        <span class="wr-body">
+          {{ with $wrBook }}
+            {{/* Plainify FIRST (July 26 lesson): raw HTML matched the
+                 card's own width:100% and filled the bar. Tags become
+                 spaces first (Oct 7): the plain card's "Page 141 of 496"
+                 and "28%" sit in two cells and glued into "49628%". */}}
+            {{ $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify }}
+            {{ $pages := findRE `Page \d+ of \d+` $plain 1 }}
+            {{ $pct := findRE `\d{1,3}%` $plain 1 }}
+          <span class="wr-name">{{ $bookTitle }}</span>
+          <span class="wr-line">Reading now{{ if gt (len $bookKeys) 1 }} <span class="wr-more">+ {{ sub (len $bookKeys) 1 }} more</span>{{ end }}</span>
+          {{ if or $pages $pct }}
+          <span class="wr-prog">
+            {{ with $pct }}<span class="wr-bar" aria-hidden="true"><span class="wr-bar-fill" style="width: {{ index . 0 }};"></span></span>{{ end }}
+            <span class="wr-prog-text">{{ with $pages }}{{ index . 0 }}{{ end }}{{ if and $pages $pct }} · {{ end }}{{ with $pct }}{{ index . 0 }}{{ end }}</span>
+          </span>
+          {{ end }}
+          <a class="wr-date wr-stretch u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
+          {{ else }}
+          {{ with $shelfTitle }}
+          <span class="wr-name">{{ . }}</span>
+          <span class="wr-line">Reading now{{ if gt $shelfCount 1 }} <span class="wr-more">+ {{ sub $shelfCount 1 }} more</span>{{ end }}</span>
+          {{ else }}
+          <span class="wr-name">On my shelf</span>
+          <span class="wr-line">See what I'm reading</span>
+          {{ end }}
+          {{ end }}
+        </span>
+      {{ if $wrBook }}</div>{{ else }}</a>{{ end }}
+      </section>
+      {{ if $wordPool }}
+    {{ $now := index $wordPool 0 }}
+    {{ $stripImg := `(?s)<tr>\s*<td[^>]*>\s*<img[^>]*>\s*</td>\s*</tr>` }}
+
+    {{/* Sept 30, 2026 (Toby): the "Before this" pills are gone from the
+         home page - three rows of them ate the space the word itself
+         needs now that it shares a row with the micro. "All words →"
+         stays, moved up into the label row to mirror the micro card's
+         "More micros →". With no pills there is nothing to swap, so
+         the hidden word store and "Back to today" went too (the swap
+         script in custom_footer.html exits early when the store is
+         absent). The pills still live in git history (commit 80ec667). */}}
+    <section class="wna" aria-labelledby="wna-heading">
+      <p class="wna-eyebrow">
+        <strong id="wna-heading">Word Nerd Alert</strong>
+        <a class="wna-all" href="/categories/word-of-the-day/">All words →</a>
+      </p>
+      {{/* Oct 7, 2026 (Toby + Perch): new plain define cards
+           (define-card--plain) carry no .define-word - the word is in the
+           post title, "Word Nerd Alert: Hiraeth". Old cards still have it,
+           so this only prints when the content has none. Styled in
+           custom.css section 107 (.wna-word). */}}
+      {{ if and $now.Title (not (in $now.Content "define-word")) }}
+      <p class="wna-word">{{ replaceRE `(?i)^\s*word nerd alert:\s*` "" $now.Title }}</p>
+      {{ end }}
+
+      <div class="wna-body" aria-live="polite">
+        {{ replaceRE $stripImg "" $now.Content | safeHTML }}
+      </div>
+      {{/* Sept 30, 2026 (Toby): the date moved from the label row to the
+           bottom, written and linked exactly like the micro's date. */}}
+      <a class="wna-permalink wna-date u-url" href="{{ $now.RelPermalink }}"><time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "January 2, 2006" }}</time> ∞</a>
+    </section>
+  {{ end }}
+    </div>
+  </section>
+
   <section class="wr-section" aria-labelledby="wr-heading">
     <div class="feed-head">
-      {{/* Oct 7, 2026 (Toby): was "Watching & Reading", which read as
-           "in the middle of"; the cards are a past rating, a book and a
-           watchlist. */}}
-      <h2 class="feed-label" id="wr-heading">Screen &amp; Shelf</h2>
+      {{/* Oct 9, 2026 (Toby): "Reel and Remotes", screens only: the latest
+           rating, what's playing now, and the watch list. (Oct 7:
+           "Screen & Shelf", before that "Watching & Reading".) The book
+           moved up to Bookshelf & Define. Every card opens its own post
+           through its date; "See all" opens the list page. */}}
+      <h2 class="feed-label" id="wr-heading">Reel and Remotes</h2>
     </div>
     <div class="wr-grid">
 
-    {{/* Oct 7, 2026 (Toby): when a card shows a post, the whole box
-         (cover, title, stars) opens that single post - the post's date,
-         written and linked like the micro's date, is the permalink and
-         is stretched over the card. "See all ... ->" sits on top and
-         opens the list page. A card with no post stays one plain link
-         to its page. CSS: section 113. The first card is "Watched" (was
-         "🎬 Reel and Remote"): it opens the Watched page and sits next
-         to The Bookshelf and The Queue. */}}
+      {{ if $nwTop }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/watching/" | absURL }}">{{ end }}
+        {{ with $nwTop }}{{ if .poster }}<img class="wr-cover" src="{{ .poster | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}
+        <span class="wr-body">
+          <span class="wr-name">Now Watching</span>
+          {{ with $nwTop }}
+          <span class="wr-line">Watching: <em>{{ .title }}</em></span>
+          {{ if and (eq .kind "tv") .season }}<span class="wr-prog-text">Season {{ .season }}</span>{{ end }}
+          <a class="wr-date wr-stretch u-url" href="{{ .url }}"><time datetime="{{ .dateISO }}">{{ .dateText }}</time> ∞</a>
+          {{ else }}
+          <span class="wr-line">Nothing playing right now</span>
+          {{ end }}
+          {{ if $nwTop }}<a class="wr-see" href="{{ "/watching/" | absURL }}">See all watching →</a>{{ else }}<span class="wr-see">See all watching →</span>{{ end }}
+        </span>
+      {{ if $nwTop }}</div>{{ else }}</a>{{ end }}
+
       {{ if $wrReel }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/watched/" | absURL }}">{{ end }}
         {{ with index $covers "reel" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🎬</span>{{ end }}
         <span class="wr-body">
@@ -737,40 +746,6 @@
           {{ if $wrReel }}<a class="wr-see" href="{{ "/watched/" | absURL }}">See all ratings →</a>{{ else }}<span class="wr-see">See all ratings →</span>{{ end }}
         </span>
       {{ if $wrReel }}</div>{{ else }}</a>{{ end }}
-
-      {{ if $wrBook }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/reading/" | absURL }}">{{ end }}
-        {{ $bookCover := index $covers "book" | default $shelfCover }}
-        {{ with $bookCover }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">📚</span>{{ end }}
-        <span class="wr-body">
-          <span class="wr-name">The Bookshelf</span>
-          {{ with $wrBook }}
-            {{ $bt := replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
-            {{/* Plainify FIRST (July 26 lesson): raw HTML matched the
-                 card's own width:100% and filled the bar. */}}
-            {{/* Oct 7, 2026: tags become spaces before plainify. The new
-                 plain card puts "Page 141 of 496" and "28%" in two table
-                 cells, and a bare plainify glued them into "49628%". */}}
-            {{ $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify }}
-            {{ $pages := findRE `Page \d+ of \d+` $plain 1 }}
-            {{ $pct := findRE `\d{1,3}%` $plain 1 }}
-          <span class="wr-line">Reading now: <em>{{ $bt }}</em>{{ if gt (len $bookKeys) 1 }} <span class="wr-more">+ {{ sub (len $bookKeys) 1 }} more</span>{{ end }}</span>
-          {{ if or $pages $pct }}
-          <span class="wr-prog">
-            {{ with $pct }}<span class="wr-bar" aria-hidden="true"><span class="wr-bar-fill" style="width: {{ index . 0 }};"></span></span>{{ end }}
-            <span class="wr-prog-text">{{ with $pages }}{{ index . 0 }}{{ end }}{{ if and $pages $pct }} · {{ end }}{{ with $pct }}{{ index . 0 }}{{ end }}</span>
-          </span>
-          {{ end }}
-          <a class="wr-date wr-stretch u-url" href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> ∞</a>
-          {{ else }}
-          {{ with $shelfTitle }}
-          <span class="wr-line">Reading now: <em>{{ . }}</em>{{ if gt $shelfCount 1 }} <span class="wr-more">+ {{ sub $shelfCount 1 }} more</span>{{ end }}</span>
-          {{ else }}
-          <span class="wr-line">See what's on my shelf</span>
-          {{ end }}
-          {{ end }}
-          {{ if $wrBook }}<a class="wr-see" href="{{ "/reading/" | absURL }}">See the Bookshelf →</a>{{ else }}<span class="wr-see">See the Bookshelf →</span>{{ end }}
-        </span>
-      {{ if $wrBook }}</div>{{ else }}</a>{{ end }}
 
       {{ if $wrQueue }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/the-queue/" | absURL }}">{{ end }}
         {{ with index $covers "queue" }}<img class="wr-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}

@@ -13354,3 +13354,48 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
    ============================================================ */
 .review-card .review-foot a[href*="trakt.tv"] { display: none !important; }
 /* end section 114 */
+
+
+/* ============================================================
+   115 · WATCHING PAGE   (Oct 9, 2026, Toby)
+   ============================================================
+   The /watching/ page (layouts/shortcodes/watching.html): TV shows
+   in progress, read from Toby's public Trakt history. The cards are
+   the home page's .wr-* cards (section 113), so only the page's own
+   count line, note and footer links are styled here. The heading
+   comes from the Micro.blog page title, like The Queue.
+   ============================================================ */
+.watching-count {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.watching .wr-grid { padding-top: 1.5rem; }
+.watching-note {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-reading);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+.watching-foot {
+  display: flex;
+  gap: 1.5rem;
+  margin: 2.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.watching-foot a { color: var(--color-terra-text); text-decoration: none; }
+.watching-foot a:hover,
+.watching-foot a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.watching .wr-name { text-decoration: none; }
+/* end section 115 */

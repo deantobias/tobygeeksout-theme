@@ -1,0 +1,164 @@
+{{/* ------------------------------------------------------------
+     WATCHING (Oct 9, 2026, Toby's design)
+     Shortcode for a /watching/ page: the TV shows Toby is partway
+     through, newest first - poster, title, season, last watched.
+
+     WHERE THE LIST COMES FROM: Toby's PUBLIC Trakt history, read in the
+     visitor's browser (Hugo builds the site ahead of time, so it can't
+     ask Trakt itself). Only the history needs to be public. The client
+     ID below is Trakt's public API key (Perch serves it openly too);
+     the client SECRET is never used and must never be added here.
+
+     WHAT COUNTS AS "WATCHING" (agreed Oct 9, deliberately simple -
+     Trakt's public data misses some episodes, so no episode counts and
+     no "finished" guessing):
+       1. last watched within the look-back window (default 90 days).
+          A show Toby stops watching ages off on its own.
+       2. not rated on Trakt, and not a show with a review post on the
+          blog (same title test as The Queue's "already watched").
+       3. not in the hide list. Page usage:
+            {{< watching >}}
+            {{< watching days="60" hide="Show One|Show Two" >}}
+          Titles are matched ignoring case and punctuation.
+     The season shown is the highest season with a watched episode.
+
+     POSTERS come from Perch's public /poster lookup (Trakt has no
+     images). A show with no poster gets a plain popcorn block.
+
+     SAFETY: the list is cached in the browser for 30 minutes. If Trakt
+     or Perch can't be reached, the last good list shows (or a short
+     message) - the page never breaks. Styles: custom.css section 115;
+     the cards reuse the home page's .wr-* cards (section 113).
+     ------------------------------------------------------------ */}}
+{{ $user := "technogeek75" }}
+{{ with .Get "user" }}{{ $user = . }}{{ end }}
+{{ $days := 90 }}
+{{ with .Get "days" }}{{ $days = int . }}{{ end }}
+{{ $hide := slice }}
+{{ with .Get "hide" }}{{ range split . "|" }}{{ with trim . " " }}{{ $hide = $hide | append (replaceRE `[^\pL\pN]+` "" (lower .)) }}{{ end }}{{ end }}{{ end }}
+
+{{/* ---- ALREADY WATCHED: same test as queue.html. A show with a
+     review post (stars + Movie Reviews / TV Reviews / Reel and Remote
+     category, never a "Want to Watch" card) is finished, so it is
+     skipped. Compared lower-case with only letters and digits kept. */}}
+{{ $reviewed := slice }}
+{{ range (where .Site.Pages "Type" "post") }}
+  {{ if and (findRE `★` .Content 1) (not (findRE `(?i)want to watch` .Content 1)) }}
+    {{ $isRev := false }}
+    {{ range .Params.categories }}
+      {{ if in (slice "Movie Reviews" "TV Reviews" "Reel and Remote") . }}{{ $isRev = true }}{{ end }}
+    {{ end }}
+    {{ if $isRev }}
+      {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+        {{ $reviewed = $reviewed | append (replaceRE `[^\pL\pN]+` "" (lower (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))))) }}
+      {{ end }}
+      {{ $pt := replaceRE `(?i)^\s*(?:finally\s+)?watched:?\s*` "" .Title }}
+      {{ $pt = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $pt }}
+      {{ with replaceRE `[^\pL\pN]+` "" (lower $pt) }}{{ $reviewed = $reviewed | append . }}{{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+<div class="watching" id="watching">
+  <p class="watching-count" id="watching-count" aria-live="polite">Loading…</p>
+  <div class="wr-grid" id="watching-grid"></div>
+  <noscript><p class="watching-note">This page loads my list from Trakt, so it needs JavaScript turned on.</p></noscript>
+  <p class="watching-note" id="watching-note" hidden></p>
+  <p class="watching-foot"><a href="{{ "/watched/" | absURL }}">Watched →</a> <a href="{{ "/the-queue/" | absURL }}">The Queue →</a></p>
+</div>
+
+<script>
+(function () {
+  var USER = {{ $user }};
+  var DAYS = {{ $days }};
+  var HIDE = {{ $hide | jsonify | safeJS }};
+  var REVIEWED = {{ $reviewed | jsonify | safeJS }};
+  var TRAKT = "https://api.trakt.tv";
+  var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
+  var POSTER = "https://perch-app.pages.dev/poster";
+  var LIST_KEY = "tgo_watching_v1_" + USER + "_" + DAYS;
+  var LIST_TTL = 30 * 60 * 1000;
+  var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
+
+  var countEl = document.getElementById("watching-count");
+  var gridEl = document.getElementById("watching-grid");
+  var noteEl = document.getElementById("watching-note");
+
+  function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function load(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+  function fmt(t) { return new Date(t).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  function tget(path) {
+    return fetch(TRAKT + path, { headers: { "trakt-api-version": "2", "trakt-api-key": CLIENT_ID } })
+      .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
+  }
+
+  function fetchList() {
+    return Promise.all([
+      tget("/users/" + encodeURIComponent(USER) + "/watched/shows"),
+      tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
+    ]).then(function (res) {
+      var rated = {};
+      res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = 1; });
+      var since = Date.now() - DAYS * 86400000;
+      var out = [];
+      res[0].forEach(function (w) {
+        var s = w.show, last = new Date(w.last_watched_at).getTime();
+        if (!s || !s.ids || last < since || rated[s.ids.trakt]) return;
+        var n = norm(s.title);
+        if (!n || HIDE.indexOf(n) > -1 || REVIEWED.indexOf(n) > -1) return;
+        var season = (w.seasons || []).reduce(function (m, x) { return x.number > 0 ? Math.max(m, x.number) : m; }, 0);
+        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: season || 1, last: last });
+      });
+      out.sort(function (a, b) { return b.last - a.last; });
+      return out;
+    });
+  }
+
+  function getPoster(tmdb) {
+    if (!tmdb) return Promise.resolve("");
+    var k = "tgo_poster_v1_" + tmdb, c = load(k);
+    if (c && Date.now() - c.t < POSTER_TTL) return Promise.resolve(c.u);
+    return fetch(POSTER + "?tmdb=" + tmdb).then(function (r) { return r.json(); }).then(function (d) {
+      var u = (d && d.poster) || "";
+      if (u) store(k, { t: Date.now(), u: u });
+      return u;
+    }).catch(function () { return ""; });
+  }
+
+  function render(list) {
+    gridEl.textContent = "";
+    countEl.textContent = list.length ? list.length + (list.length === 1 ? " show" : " shows") + " in progress" : "Nothing in progress right now.";
+    list.forEach(function (it) {
+      var card = el("div", "wr-card wr-card--split");
+      var cover = el("span", "wr-cover wr-cover--blank", "🍿");
+      cover.setAttribute("aria-hidden", "true");
+      card.appendChild(cover);
+      var body = el("span", "wr-body");
+      var name = el("a", "wr-name wr-stretch", it.title);
+      if (it.slug) { name.href = "https://trakt.tv/shows/" + encodeURIComponent(it.slug); name.rel = "noopener"; }
+      body.appendChild(name);
+      body.appendChild(el("span", "wr-prog-text", "Season " + it.season));
+      body.appendChild(el("span", "wr-date", "Last watched " + fmt(it.last)));
+      card.appendChild(body);
+      gridEl.appendChild(card);
+      getPoster(it.tmdb).then(function (u) {
+        if (!u) return;
+        var img = document.createElement("img");
+        img.className = "wr-cover"; img.alt = ""; img.width = 150; img.height = 225; img.loading = "lazy"; img.decoding = "async"; img.src = u;
+        card.replaceChild(img, cover);
+      });
+    });
+  }
+
+  var cached = load(LIST_KEY);
+  if (cached && Date.now() - cached.t < LIST_TTL) { render(cached.list); return; }
+  fetchList().then(function (list) { store(LIST_KEY, { t: Date.now(), list: list }); render(list); })
+    .catch(function () {
+      if (cached) { render(cached.list); noteEl.textContent = "Couldn't reach Trakt just now, so this is my last saved list."; noteEl.hidden = false; }
+      else { countEl.textContent = "Couldn't load my list right now. Try again in a little while."; }
+    });
+})();
+</script>

@@ -13547,6 +13547,12 @@ html.season-hal .feed-label,
 html.season-hal .arch-title,
 html.season-hal .catrow-label { zoom: 1.1; }
 
+/* The Look pill (70s / Modern) steps aside while the Halloween skin is on;
+   it comes back when the season ends or a reader turns Season off. The
+   reader's saved Look choice is untouched. */
+html.season-hal .tgo-look-btn,
+html.season-hal .footer-look { display: none !important; }
+
 /* The spider replaces the rabbit for the season. */
 html.season-hal .tgo-rabbit--rule { display: none !important; }
 

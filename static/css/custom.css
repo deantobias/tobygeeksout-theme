@@ -13633,6 +13633,21 @@ html.season-hal body.tgo-night {
   .tgo-web--bot { width: 110px; height: 110px; }
 }
 
+/* Halloween logo window. The 4:1 logo boxes were cropped for the old
+   logo, whose lettering sits at about 18-67% of the height. The
+   Halloween logos run from about 13% (top of "Out!") to 80% (tail of the
+   y), so they got clipped. A 3.2:1 window with the crop nudged up shows
+   it all. Home nameplate and rail logo only, and only in season. */
+@media (min-width: 768px) {
+  html.season-hal .tgo-mast-logo,
+  html.season-hal .rail-logo {
+    aspect-ratio: 3.2 / 1;
+    object-position: 50% 35%;
+  }
+  /* the folded-open rail logo slot (64px) is 2px short for the taller window */
+  html.season-hal body.tgo-mast-on.tgo-mast-gone .rail-logo { max-height: 70px; }
+}
+
 /* Spider (home only): hangs from the top on the left, feet end just
    above Recent Geekouts. Position and thread length are set by script. */
 .tgo-spider {

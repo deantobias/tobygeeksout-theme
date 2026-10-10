@@ -52,8 +52,8 @@
     {{- $raw := trim (replaceRE `(?i)^\W*now watching:\s*` "" .Title) " " -}}
     {{- $kind := "movie" -}}
     {{- $season := 0 -}}
-    {{- with findRE `,\s*S(\d+)E\d+\s*$` $raw 1 -}}
-      {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*S(\d+)E\d+\s*$` "$1" (index . 0)) -}}
+    {{- with findRE `,\s*SE?(\d+)E\d+\s*$` $raw 1 -}}
+      {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*SE?(\d+)E\d+\s*$` "$1" (index . 0)) -}}
     {{- end -}}
     {{- with findRE `,\s*Season\s+(\d+)\s*$` $raw 1 -}}
       {{- $kind = "tv" -}}{{- $season = int (replaceRE `^.*Season\s+(\d+)\s*$` "$1" (index . 0)) -}}
@@ -64,13 +64,15 @@
          TMDB /tv/ link, means a show (e.g. "Carrie Season 1 (2026)"). */}}
     {{- if eq $kind "movie" -}}
       {{- $body := printf "%s %s" $raw (replaceRE `(?s)<[^>]*>` " " .Content) -}}
-      {{- if or (findRE `(?i)\bSeason\s+\d+` $body 1) (findRE `\bS\d+E\d+\b` $body 1) (findRE `/tv/\d+` .Content 1) -}}
+      {{- if or (findRE `(?i)\bSeason\s+\d+` $body 1) (findRE `\bSE?\d+E\d+\b` $body 1) (findRE `/tv/\d+` .Content 1) -}}
         {{- $kind = "tv" -}}
         {{- with findRE `(?i)\bSeason\s+(\d+)` $body 1 -}}{{- $season = int (replaceRE `(?is)^.*Season\s+(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
-        {{- with findRE `\bS(\d+)E\d+\b` $body 1 -}}{{- $season = int (replaceRE `(?s)^.*?S(\d+)E\d+.*$` "$1" (index . 0)) -}}{{- end -}}
+        {{- with findRE `\bSE?(\d+)E\d+\b` $body 1 -}}{{- $season = int (replaceRE `(?s)^.*?SE?(\d+)E\d+.*$` "$1" (index . 0)) -}}{{- end -}}
       {{- end -}}
     {{- end -}}
-    {{- $title := replaceRE `\s*,?\s*(?:S\d+E\d+|Season\s+\d+)\s*(\((?:19|20)\d{2}\))?\s*$` "$1" $raw -}}
+    {{/* Oct 10: also strips "Season 13, Episode 7" (and a typo like "Episoide"),
+         so the title is just the show's name and matches Trakt's. */}}
+    {{- $title := replaceRE `\s*,?\s*(?:SE?\d+E\d+|Season\s+\d+(?:\s*,?\s*(?:Epis\w*|Ep\.?)\s*\d+)?|Epis\w*\s*\d+)\s*(\((?:19|20)\d{2}\))?\s*$` "$1" $raw -}}
     {{- $title = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $title -}}
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $title) -}}
     {{- if and $norm (not (in $reviewed $norm)) (not (in $seen $norm)) -}}

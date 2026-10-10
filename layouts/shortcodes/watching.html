@@ -23,7 +23,8 @@
      counts and no "finished" guessing):
        - last watched (or posted) within the look-back window (default
          90 days). Something Toby stops watching ages off on its own.
-       - not rated on Trakt, and not a title with a review post on the
+       - not rated on Trakt AFTER the last episode watched (a rating from
+         before it, e.g. an old season, does not hide it), and not a title with a review post on the
          blog (same title test as The Queue's "already watched").
        - not in the hide list. Page usage:
             {{< watching >}}
@@ -65,7 +66,7 @@
   var TRAKT = "https://api.trakt.tv";
   var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
   var POSTER = "https://perch-app.pages.dev/poster";
-  var LIST_KEY = "tgo_watching_v1_" + USER + "_" + DAYS;
+  var LIST_KEY = "tgo_watching_v2_" + USER + "_" + DAYS;
   var LIST_TTL = 30 * 60 * 1000;
   var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
 
@@ -84,19 +85,20 @@
       .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
   }
 
-  // Trakt: TV shows in progress (rated, reviewed, hidden and stale ones removed)
+  // Trakt: TV shows in progress (rated, reviewed, hidden and stale ones removed).
+  // Oct 10: a show rated BEFORE its last watched episode stays (new season of an old favorite).
   function fetchTrakt() {
     return Promise.all([
       tget("/users/" + encodeURIComponent(USER) + "/watched/shows"),
       tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
     ]).then(function (res) {
       var rated = {};
-      res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = 1; });
+      res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
       var since = Date.now() - DAYS * 86400000;
       var out = [];
       res[0].forEach(function (w) {
         var s = w.show, last = new Date(w.last_watched_at).getTime();
-        if (!s || !s.ids || last < since || rated[s.ids.trakt]) return;
+        if (!s || !s.ids || last < since || (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last)) return;
         var n = norm(s.title);
         if (!n || HIDE.indexOf(n) > -1 || REVIEWED.indexOf(n) > -1) return;
         var season = (w.seasons || []).reduce(function (m, x) { return x.number > 0 ? Math.max(m, x.number) : m; }, 0);

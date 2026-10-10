@@ -710,7 +710,7 @@
     </div>
     <div class="wr-grid">
 
-      {{ if $nwTop }}<div class="wr-card wr-card--split">{{ else }}<a class="wr-card" href="{{ "/watching/" | absURL }}">{{ end }}
+      {{ if $nwTop }}<div class="wr-card wr-card--split" id="nw-card">{{ else }}<a class="wr-card" id="nw-card" href="{{ "/watching/" | absURL }}">{{ end }}
         {{ with $nwTop }}{{ if .poster }}<img class="wr-cover" src="{{ .poster | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}{{ else }}<span class="wr-cover wr-cover--blank" aria-hidden="true">🍿</span>{{ end }}
         <span class="wr-body">
           <span class="wr-name">Now Watching</span>
@@ -770,6 +770,120 @@
 
     </div>
   </section>
+
+  {{/* Oct 10, 2026 (Toby): the Now Watching card follows Trakt. This page is
+       built from posts (so it always has something, even with JS off); then,
+       in the browser, the public Trakt episode history is checked and the
+       card is swapped when a show was watched more recently than the newest
+       Now Watching post. A post still wins while it is newer (Trakt can lag,
+       and movies only exist as posts). Same rules as the Watching page:
+       90 days, not reviewed on the blog, not rated AFTER the last episode.
+       Several shows in one night: the newest one, plus "+ N more". */}}
+  <script>
+  (function () {
+    var card = document.getElementById("nw-card");
+    if (!card) return;
+    var DAYS = 90;
+    var REVIEWED = {{ $nw.reviewed | jsonify | safeJS }};
+    var TOP = {{ with $nwTop }}{{ . | jsonify | safeJS }}{{ else }}null{{ end }};
+    var WATCHING = "{{ "/watching/" | absURL }}";
+    var TRAKT = "https://api.trakt.tv";
+    var USER = "technogeek75";
+    var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
+    var POSTER = "https://perch-app.pages.dev/poster";
+    var KEY = "tgo_home_nw_v1", TTL = 30 * 60 * 1000, POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
+
+    function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
+    function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    function load(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+    function fmt(t) { return new Date(t).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
+    function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+    function tget(path) {
+      return fetch(TRAKT + path, { headers: { "trakt-api-version": "2", "trakt-api-key": CLIENT_ID } })
+        .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
+    }
+
+    function fetchTrakt() {
+      var since = Date.now() - DAYS * 86400000;
+      return Promise.all([
+        tget("/users/" + USER + "/history/episodes?limit=1000&start_at=" + encodeURIComponent(new Date(since).toISOString())),
+        tget("/users/" + USER + "/ratings/shows").catch(function () { return []; })
+      ]).then(function (res) {
+        var rated = {}, seen = {}, out = [];
+        res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
+        res[0].forEach(function (h) {
+          var s = h.show, e = h.episode;
+          if (!s || !s.ids || !e || seen[s.ids.trakt]) return;
+          seen[s.ids.trakt] = 1;
+          var last = new Date(h.watched_at).getTime(), n = norm(s.title);
+          if (last < since || !n || REVIEWED.indexOf(n) > -1) return;
+          if (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last) return;
+          out.push({ title: s.title, norm: n, kind: "tv", season: e.season > 0 ? e.season : 1, tmdb: s.ids.tmdb || 0, last: last });
+        });
+        return out;
+      });
+    }
+
+    function getPoster(tmdb) {
+      if (!tmdb) return Promise.resolve("");
+      var k = "tgo_poster_v1_" + tmdb, c = load(k);
+      if (c && Date.now() - c.t < POSTER_TTL) return Promise.resolve(c.u);
+      return fetch(POSTER + "?tmdb=" + tmdb).then(function (r) { return r.json(); }).then(function (d) {
+        var u = (d && d.poster) || "";
+        if (u) store(k, { t: Date.now(), u: u });
+        return u;
+      }).catch(function () { return ""; });
+    }
+
+    function show(list) {
+      var items = list.map(function (x) { return { title: x.title, norm: x.norm, kind: x.kind, season: x.season, tmdb: x.tmdb, last: x.last, poster: "", url: "" }; });
+      if (TOP) {
+        var tn = TOP.norm, hit = null;
+        items.forEach(function (i) { if (i.norm === tn) hit = i; });
+        if (hit) {
+          hit.last = Math.max(hit.last, TOP.date); hit.season = Math.max(hit.season, TOP.season || 0);
+          hit.poster = TOP.poster || ""; hit.url = TOP.url; hit.datePost = TOP.date >= hit.last;
+        } else {
+          items.push({ title: TOP.title, norm: tn, kind: TOP.kind, season: TOP.season, tmdb: 0, last: TOP.date, poster: TOP.poster || "", url: TOP.url, datePost: true });
+        }
+      }
+      if (!items.length) return;
+      items.sort(function (a, b) { return b.last - a.last; });
+      var top = items[0], more = items.length - 1;
+      if (TOP && top.norm === TOP.norm && !more && top.season === (TOP.season || 0)) return; // nothing new: leave the post card
+      var fresh = el("div", "wr-card wr-card--split"); fresh.id = "nw-card";
+      var cover = el("span", "wr-cover wr-cover--blank", "🍿"); cover.setAttribute("aria-hidden", "true");
+      fresh.appendChild(cover);
+      var body = el("span", "wr-body");
+      body.appendChild(el("span", "wr-name", "Now Watching"));
+      var line = el("span", "wr-line", "Watching: ");
+      line.appendChild(el("em", null, top.title));
+      if (more) { line.appendChild(document.createTextNode(" ")); line.appendChild(el("span", "wr-more", "+ " + more + " more")); }
+      body.appendChild(line);
+      if (top.kind === "tv" && top.season) body.appendChild(el("span", "wr-prog-text", "Season " + top.season));
+      var d = el("a", "wr-date wr-stretch u-url");
+      d.href = top.url || WATCHING;
+      var tm = el("time", null, (top.url ? "" : "Last watched ") + fmt(top.last)); tm.setAttribute("datetime", new Date(top.last).toISOString().slice(0, 10));
+      d.appendChild(tm); if (top.url) d.appendChild(document.createTextNode(" ∞"));
+      body.appendChild(d);
+      var see = el("a", "wr-see", "See all watching →"); see.href = WATCHING;
+      body.appendChild(see);
+      fresh.appendChild(body);
+      card.parentNode.replaceChild(fresh, card);
+      function put(u) {
+        if (!u) return;
+        var img = document.createElement("img");
+        img.className = "wr-cover"; img.alt = ""; img.width = 150; img.height = 225; img.loading = "lazy"; img.decoding = "async"; img.src = u;
+        fresh.replaceChild(img, cover);
+      }
+      if (top.poster) put(top.poster); else getPoster(top.tmdb).then(put);
+    }
+
+    var c = load(KEY);
+    if (c && Date.now() - c.t < TTL) { show(c.list); return; }
+    fetchTrakt().then(function (list) { store(KEY, { t: Date.now(), list: list }); show(list); }).catch(function () {});
+  })();
+  </script>
 {{/* Styling lives in custom.css section 31 (homepage-search) — the
      inline styles that used to sit here were duplicating it with
      hardcoded hex values, and overriding the tokened CSS.

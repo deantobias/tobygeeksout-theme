@@ -13648,6 +13648,36 @@ html.season-hal body.tgo-night {
   html.season-hal body.tgo-mast-on.tgo-mast-gone .rail-logo { max-height: 70px; }
 }
 
+/* Same fix for the top header logo (pages, posts, phones), but here the
+   whole picture is shown (2.5:1, nothing cropped). Width is unchanged
+   (4 x the old height) so the lettering is the same size, and negative
+   margins put the lettering exactly where the old logo's sat, so the
+   header does not grow or shift. Image height = 1.6 x the old box;
+   top margin = 0.18 x, bottom margin = 0.42 x (the old 30% crop). */
+html.season-hal .site-logo-wordmark {
+  aspect-ratio: 5 / 2;
+  object-fit: contain;
+  height: 89.6px;
+  margin-top: -10.1px;
+  margin-bottom: -23.5px;
+  max-height: calc(115.2px - 115.2px * var(--header-shrink, 0));
+}
+@media (min-width: 600px) { html.season-hal .site-logo-wordmark { height: 105.6px; margin-top: -11.9px; margin-bottom: -27.7px; } }
+@media (min-width: 1024px) { html.season-hal .site-logo-wordmark { height: 115.2px; margin-top: -13px; margin-bottom: -30.2px; } }
+html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark {
+  height: 64px !important;
+  margin-top: -7.2px;
+  margin-bottom: -16.8px;
+  max-height: none;
+}
+@media (max-width: 767px) {
+  html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters) .site-logo-wordmark {
+    height: 57.6px !important;
+    margin-top: -6.5px;
+    margin-bottom: -15.1px;
+  }
+}
+
 /* Spider (home only): hangs from the top on the left, feet end just
    above Recent Geekouts. Position and thread length are set by script. */
 .tgo-spider {
@@ -13681,7 +13711,11 @@ html.season-hal body.tgo-night {
   border-radius: 12px;
   padding: 5px 11px;
   font: 600 12px var(--font-body);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
 }
+.tgo-spider-bub.is-shown { opacity: 1; }
 .tgo-spider-bub::after {
   content: "";
   position: absolute;

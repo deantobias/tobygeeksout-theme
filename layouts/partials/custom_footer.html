@@ -575,6 +575,22 @@
        AA — Toby's call, low-vision readers first. */
     var INK_MIN = [7, 5, 4.5, 5, 5, 4.5, 4.5, 0, 4.5];
 
+    /* Halloween season (Oct 2026): when <html> has .season-hal (set in
+       head.html), the same four skies run on plum + bone + pumpkin
+       instead. Same steps, same contrast guard, same Sky/Day/Night
+       pill; only the colors differ. Nothing is cleared to "stock" while
+       the skin is on, because inline tokens would beat the stylesheet. */
+    function hal() { return document.documentElement.classList.contains('season-hal'); }
+    var PH = {
+      day:    ['#F6EFE2', '#EADFCB', '#FFFDF8', '#D9CBB3', '#E3D6BF'],
+      dawn:   ['#F3E6D0', '#EBDAC0', '#FFFAF0', '#DCC9AB', '#E5D4BA'],
+      sunset: ['#EDD8BA', '#E5CBA6', '#FBF1E0', '#D6BC98', '#DFC6A4'],
+      dusk:   ['#2A1D3B', '#33244A', '#382A50', '#4D3B68', '#433259'],
+      night:  ['#0D0814', '#1B1226', '#150E1F', '#2B2040', '#241A36']
+    };
+    var HAL_DAY_TEXT   = ['#241A2E', '#5E5368', '#675B73', '#3A2650', '#4F3A6B', '#A8400A', '#8A3207', '#F3DCC8', '#A8400A'];
+    var HAL_NIGHT_TEXT = ['#F3EAD7', '#C9BED6', '#A99DB8', '#F3EAD7', '#DCCFEA', '#F28A2E', '#F5A15A', '#3B2616', '#F28A2E'];
+
     /* Sun times, reader's clock. NOAA-style approximation. */
     function sunTimes() {
       var d = new Date();
@@ -595,12 +611,13 @@
        night → (R-60) navy dusk → (R) pale dawn cream → (R+100) day
        → (S-90) deeper sunset cream → (S) navy dusk → (S+60) night */
     function bgAt(mins, R, S) {
-      if (mins < R - 60 || mins >= S + 60) return P.night.map(hx);
-      if (mins < R) return P.dusk.map(hx);
-      if (mins < R + 100) return P.dawn.map(hx);
-      if (mins <= S - 90) return P.day.map(hx);
-      if (mins < S) return P.sunset.map(hx);
-      return P.dusk.map(hx);
+      var Q = hal() ? PH : P;
+      if (mins < R - 60 || mins >= S + 60) return Q.night.map(hx);
+      if (mins < R) return Q.dusk.map(hx);
+      if (mins < R + 100) return Q.dawn.map(hx);
+      if (mins <= S - 90) return Q.day.map(hx);
+      if (mins < S) return Q.sunset.map(hx);
+      return Q.dusk.map(hx);
     }
 
     var root = document.documentElement;
@@ -674,10 +691,14 @@
         b.classList.remove('tgo-sky-hidden');
       });
       /* Pinned day = stock colors; pinned night = render midnight. */
-      if (mode === 'day') { clearSky(); return; }
+      if (mode === 'day') {
+        if (!hal()) { clearSky(); return; }
+        mins = Math.round((sun.r + sun.s) / 2); isPureDay = false;   /* Halloween has its own day */
+      }
       if (mode === 'night') { mins = 0; isPureDay = false; }
-      /* Pure day: remove every override so midday is EXACTLY stock. */
-      if (isPureDay) { clearSky(); return; }
+      /* Pure day: remove every override so midday is EXACTLY stock
+         (Halloween paints its own day instead). */
+      if (isPureDay && !hal()) { clearSky(); return; }
       var bg = bgAt(mins, sun.r, sun.s);
       /* No dead-band logic needed anymore: the four fixed skies all
          sit safely outside the ~0.10–0.30 luminance band where no ink
@@ -688,7 +709,7 @@
          ink through the contrast guard against both the page bg and
          the card bg — whichever is worse for that ink wins. */
       var dark = lum(bg[0]) < 0.17;
-      var baseInks = dark ? NIGHT_TEXT : DAY_TEXT;
+      var baseInks = hal() ? (dark ? HAL_NIGHT_TEXT : HAL_DAY_TEXT) : (dark ? NIGHT_TEXT : DAY_TEXT);
       var bgsToCheck = [bg[0], bg[2]];
       TOKENS_TEXT.forEach(function (t, i) {
         var ink = hx(baseInks[i]);
@@ -705,6 +726,8 @@
       setLogo(dark ? 'night' : 'day');
       setBar(rgb(bg[0])); /* browser bar = current page bg */
     }
+
+    window.tgoSkyTick = tick;   /* the Season toggle re-runs the sky */
 
     /* Footer control: lets a reader freeze the sky to the stock look. */
     function addToggle() {
@@ -1057,4 +1080,186 @@ document.addEventListener('click', function (e) {
   if (!a) return;
   try { sessionStorage.setItem('tgo-surprise', String(Date.now())); } catch (err) {}
 }, true);
+</script>
+
+<script>
+/* ------------------------------------------------------------
+   Halloween season (Oct 2026): Season pill, cobwebs, spider.
+   ------------------------------------------------------------
+   head.html decides (before first paint) whether it is the season and
+   whether the skin is on: <html class="season-in season-hal">. Out of
+   season window.tgoSeason.inSeason is false and this does nothing, so
+   the pill never exists and nothing is drawn. Colors come from the sky
+   scripts, the heading font + layout-neutral touches from custom.css
+   section 118. This script adds only: the Season pill (rail, top nav,
+   footer), the two word swaps on the home page, the generated cobwebs,
+   and the spider on the home page. Nothing already on the page moves.
+   Webs: home = top right + bottom left + spider; rail list pages and
+   standalone pages = top right (below the header) + bottom left;
+   single posts = bottom left only. */
+(function () {
+  var S = window.tgoSeason || {};
+  if (!S.inSeason) return;
+  var de = document.documentElement, b = document.body;
+  var KEY = 'tgo-season';
+  function store() { return S.preview ? sessionStorage : localStorage; }
+  function isOn() { return de.classList.contains('season-hal'); }
+
+  /* ---- Season pill ---- */
+  var btns = [];
+  function labelBtn(x) {
+    x.querySelector('.tgo-season-word').textContent = isOn() ? 'Halloween' : 'Off';
+    var t = 'Season: Halloween is ' + (isOn() ? 'on, tap to turn it off' : 'off, tap to turn it on');
+    x.setAttribute('aria-label', t);
+    x.setAttribute('title', t);
+  }
+  function makeBtn(extra) {
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'tgo-season-btn ' + extra;
+    x.innerHTML = '<span class="tgo-season-k" aria-hidden="true">Season</span><span class="tgo-season-word" aria-hidden="true"></span>';
+    x.addEventListener('click', toggle);
+    btns.push(x);
+    labelBtn(x);
+    return x;
+  }
+
+  /* ---- word swaps (home) ---- */
+  var swaps = [
+    { el: document.getElementById('arch-heading'), on: 'From the crypt' },
+    { el: document.getElementById('arch-shuffle'), on: '↻ Dig up another' }
+  ];
+  swaps.forEach(function (w) { if (w.el) w.off = w.el.textContent; });
+  function applyWords() {
+    swaps.forEach(function (w) { if (w.el) w.el.textContent = isOn() ? w.on : w.off; });
+  }
+
+  /* ---- cobwebs (hand-drawn feel: seeded, sagging, gaps, dew) ---- */
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function webSVG(seed, cls) {
+    var R = rng(seed), hx = 200, hy = 0, n = 8, ang = [], len = [], d = '', dew = '', i, k;
+    for (i = 0; i < n; i++) { ang.push((92 + i * (86 / (n - 1)) + (R() - .5) * 9) * Math.PI / 180); len.push(135 + R() * 75); }
+    for (i = 0; i < n; i++) { var a = ang[i], L = len[i] * ((R() < .18) ? .62 : 1); d += 'M' + hx + ' ' + hy + ' L' + (hx + Math.cos(a) * L).toFixed(1) + ' ' + (hy + Math.sin(a) * L).toFixed(1) + ' '; }
+    var rings = [], r = 16; for (k = 0; k < 9; k++) { rings.push(r); r += 13 + R() * 10 + k * 2.2; }
+    var pts = [];
+    for (k = 0; k < rings.length; k++) { pts[k] = []; for (i = 0; i < n; i++) { var rr = rings[k] * (.94 + R() * .12), a2 = ang[i] + (R() - .5) * .03; pts[k][i] = [hx + Math.cos(a2) * rr, hy + Math.sin(a2) * rr, rr]; } }
+    for (k = 0; k < rings.length; k++) {
+      for (i = 0; i < n - 1; i++) {
+        var p = pts[k][i], q = pts[k][i + 1];
+        if (p[2] > len[i] || q[2] > len[i + 1]) continue;
+        if (k > 3 && R() < .14) continue;
+        var mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, pull = .1 + R() * .14 + k * .006;
+        var cx = mx + (hx - mx) * pull + (R() - .5) * 3, cy = my + (hy - my) * pull + (R() - .5) * 3;
+        d += 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' Q' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ' ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + ' ';
+        if (R() < .07) dew += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (.9 + R() * .9).toFixed(1) + '"/>';
+      }
+    }
+    var sa = ang[2] + .1;
+    d += 'M' + (hx + Math.cos(sa) * 40).toFixed(1) + ' ' + (hy + Math.sin(sa) * 40).toFixed(1) + ' q-14 10 -' + (8 + R() * 14).toFixed(1) + ' ' + (30 + R() * 20).toFixed(1);
+    var ns = 'http://www.w3.org/2000/svg', s = document.createElementNS(ns, 'svg');
+    s.setAttribute('viewBox', '0 0 200 200'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor');
+    s.setAttribute('stroke-linecap', 'round'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
+    s.setAttribute('class', 'tgo-web ' + cls);
+    s.innerHTML = '<path d="' + d + '" stroke-width=".75" opacity=".85"/>' + dew;
+    return s;
+  }
+
+  var SPIDER = '<span class="tgo-spider-thread"></span><span class="tgo-spider-bub">Hey!</span>' +
+    '<svg viewBox="0 0 40 40" focusable="false"><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none">' +
+    '<path d="M16 18 L7 11 L3 16 M16 21 L5 20 L2 27 M17 25 L8 31 L7 38 M18 27 L13 35 L14 39"/>' +
+    '<path d="M24 18 L33 11 L37 16 M24 21 L35 20 L38 27 M23 25 L32 31 L33 38 M22 27 L27 35 L26 39"/></g>' +
+    '<ellipse cx="20" cy="26" rx="7.5" ry="9" fill="currentColor"/><circle cx="20" cy="15.5" r="4.6" fill="currentColor"/>' +
+    '<path d="M20 21 L22.6 26 L20 31 L17.4 26 Z" class="tgo-spider-mark"/>' +
+    '<circle cx="18.4" cy="14.6" r="1.1" class="tgo-spider-eye"/><circle cx="21.6" cy="14.6" r="1.1" class="tgo-spider-eye"/></svg>';
+
+  function pageKind() {
+    var c = b.classList;
+    if (c.contains('is-oul') || c.contains('type-newsletter')) return null;
+    if (c.contains('type-post')) return (c.contains('type-page') || /^\/archive/.test(location.pathname)) ? 'page' : 'post';
+    return c.contains('home') ? 'home' : 'list';
+  }
+  var deco = [], wtop, wbot, spider;
+  function clearDeco() { deco.forEach(function (e) { if (e.parentNode) e.parentNode.removeChild(e); }); deco = []; wtop = wbot = spider = null; }
+  function buildDeco() {
+    clearDeco();
+    if (!isOn()) return;
+    var k = pageKind(); if (!k) return;
+    wbot = webSVG(7, 'tgo-web--bot'); deco.push(wbot);
+    if (k !== 'post') { wtop = webSVG(19, 'tgo-web--top'); deco.push(wtop); }
+    if (k === 'home') {
+      spider = document.createElement('div');
+      spider.className = 'tgo-spider';
+      spider.setAttribute('aria-hidden', 'true');
+      spider.innerHTML = SPIDER;
+      deco.push(spider);
+    }
+    deco.forEach(function (e) { b.appendChild(e); });
+    place();
+  }
+  function topY() {
+    var rail = document.querySelector('.site-rail');
+    if (rail && getComputedStyle(rail).display !== 'none') return 0;
+    var h = document.querySelector('.site-header');
+    return h && getComputedStyle(h).display !== 'none' ? h.offsetHeight : 0;
+  }
+  function place() {
+    if (!deco.length) return;
+    var y = topY(), sx = window.pageXOffset, sy = window.pageYOffset;
+    if (wtop) wtop.style.top = y + 'px';
+    if (wbot) {
+      var tb = document.querySelector('.mobile-tab-bar'), tbh = 0;
+      if (tb && getComputedStyle(tb).display !== 'none') tbh = tb.offsetHeight;
+      wbot.style.bottom = tbh + 'px';
+    }
+    if (spider) {
+      var head = document.querySelector('.feed-head--rabbit');
+      if (!head) { spider.style.display = 'none'; return; }
+      spider.style.display = '';
+      var hr = head.getBoundingClientRect(), desk = y === 0;
+      var rest = hr.top + sy - 10;
+      spider.style.left = (hr.left + sx + (desk ? 4 : 0)) + 'px';
+      spider.style.top = (desk ? 0 : y - 6) + 'px';
+      spider.style.setProperty('--tl', Math.max(16, rest - 46 - (desk ? 0 : y - 6)) + 'px');
+    }
+  }
+
+  function ensureFont() {
+    if (!document.querySelector('link[href*="Grenze"]')) {
+      var l = document.createElement('link'); l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&display=swap';
+      document.head.appendChild(l);
+    }
+  }
+  function apply() { applyWords(); btns.forEach(labelBtn); buildDeco(); }
+  function toggle() {
+    var on = !isOn();
+    de.classList.toggle('season-hal', on);
+    try { if (on) store().removeItem(KEY); else store().setItem(KEY, 'off-2026'); } catch (e) {}
+    if (on) ensureFont();
+    if (window.tgoSkyTick) window.tgoSkyTick();
+    apply();
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  function init() {
+    var slot = document.querySelector('.rail-sky-slot');
+    if (slot) slot.appendChild(makeBtn('tgo-season-btn--rail'));
+    var nav = document.querySelector('.site-nav-row');
+    if (nav) nav.appendChild(makeBtn('tgo-season-btn--nav'));
+    var fi = document.querySelector('.site-footer .footer-inner');
+    if (fi) {
+      var p = document.createElement('p'); p.className = 'footer-season';
+      p.appendChild(makeBtn('tgo-season-btn--footer'));
+      fi.appendChild(p);
+    }
+    apply();
+    window.addEventListener('resize', place);
+    window.addEventListener('load', place);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    if (window.ResizeObserver) new ResizeObserver(place).observe(b);
+    setTimeout(place, 700);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 </script>

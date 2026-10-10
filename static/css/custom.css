@@ -13515,3 +13515,170 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
   body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster img { width: 220px !important; height: 330px !important; }
 }
 /* end section 117 */
+
+/* ============================================================
+   118. HALLOWEEN SEASON  (Oct 2026, Toby)
+   ------------------------------------------------------------
+   Oct 13 - Oct 31, 2026, on by default, reader toggle "Season".
+   head.html puts <html class="season-in"> (it is the season, the
+   pill shows) and <html class="season-hal"> (the skin is on).
+   Out of season neither class exists and NONE of this applies.
+   Layout and design are untouched. This section only:
+     - swaps the display font to Grenze Gotisch (x1.1 on the section
+       headings, the font is smaller on the line than Caprasimo),
+     - hides the rabbit (the spider takes his spot),
+     - styles the Season pill and the cobwebs + spider that
+       custom_footer.html draws,
+     - adds a soft candle glow at night.
+   Colors are NOT set here: inline sky tokens beat the stylesheet, so
+   the Halloween palettes live in the sky scripts (head.html and
+   custom_footer.html).
+   ============================================================ */
+@media print {
+  .tgo-season-btn, .footer-season, .tgo-web, .tgo-spider { display: none !important; }
+}
+@media screen {
+
+/* Display font. Doubled class beats the Modern look's :not() rule. */
+html.season-hal.season-hal {
+  --font-display: 'Grenze Gotisch', 'Caprasimo', Georgia, 'Times New Roman', serif;
+}
+html.season-hal .feed-label,
+html.season-hal .arch-title,
+html.season-hal .catrow-label { zoom: 1.1; }
+
+/* The spider replaces the rabbit for the season. */
+html.season-hal .tgo-rabbit--rule { display: none !important; }
+
+/* Night: a faint candle glow from the bottom edge. */
+html.season-hal body.tgo-night {
+  background-image: radial-gradient(120% 70% at 50% 100%, rgba(242, 138, 46, .10), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Season pill: same pill as Look and Sky. */
+.tgo-season-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  min-height: 28px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s;
+}
+.tgo-season-btn:hover { border-color: var(--color-terra); }
+.tgo-season-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.tgo-season-k { color: var(--color-terra-text); }
+.tgo-season-word { min-width: 4.6em; text-align: left; }   /* "Halloween" is the widest; no jump */
+.tgo-season-btn--rail { margin-left: 0; }
+.tgo-season-btn--nav { display: none; margin-left: 8px; }
+.tgo-season-btn--footer { display: inline-flex; }
+.footer-season { margin: 8px 0 0; }
+@media (min-width: 768px) { .tgo-season-btn--nav { display: inline-flex; } }
+
+/* Rail: with three pills, stack them in one column on the right edge so
+   the corner cobweb never sits behind them. Solid backing keeps them
+   readable. Only while the season is on the calendar. */
+@media (min-width: 768px) {
+  html.season-in .rail-sky-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    padding-right: 16px;
+    text-align: right;
+  }
+  html.season-in .rail-sky-slot > * {
+    margin-left: 0;
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg);
+  }
+}
+@media (min-width: 768px) and (max-height: 760px) {
+  html.season-in body:not(.type-newsletter):not(.type-post) .site-rail { padding-bottom: 108px; }
+}
+
+/* Cobwebs. Drawn by custom_footer.html. Behind the rail (z 900), the
+   tab bar (1000) and every pill; they never take a click. */
+.tgo-web {
+  position: absolute;
+  pointer-events: none;
+  z-index: 800;
+  color: var(--color-text-muted);
+  overflow: visible;
+}
+.tgo-web circle { fill: var(--color-bg-card); stroke: var(--color-text-muted); stroke-width: .5; }
+.tgo-web--top { right: 0; top: 0; width: 240px; height: 240px; opacity: .8; }
+.tgo-web--bot {
+  position: fixed;
+  left: 0; bottom: 0;
+  width: 150px; height: 150px;
+  opacity: .7;
+  transform: scale(-1, -1);
+}
+@media (max-width: 767px) {
+  .tgo-web--top { width: 170px; height: 170px; }
+  .tgo-web--bot { width: 110px; height: 110px; }
+}
+
+/* Spider (home only): hangs from the top on the left, feet end just
+   above Recent Geekouts. Position and thread length are set by script. */
+.tgo-spider {
+  position: absolute;
+  left: 0; top: 0;
+  width: 46px;
+  z-index: 800;
+  pointer-events: none;
+  transform-origin: 50% 0;
+  animation: tgo-spider-swing 6s ease-in-out infinite alternate;
+}
+.tgo-spider-thread {
+  display: block;
+  width: 1px;
+  height: var(--tl, 84px);
+  margin: 0 auto;
+  background: var(--color-text-muted);
+  opacity: .8;
+}
+.tgo-spider svg { display: block; width: 46px; height: 46px; color: var(--color-text); overflow: visible; }
+.tgo-spider-mark { fill: var(--color-terra); }
+.tgo-spider-eye { fill: var(--color-bg); }
+.tgo-spider-bub {
+  position: absolute;
+  left: 52px;
+  top: calc(var(--tl, 84px) + 6px);
+  white-space: nowrap;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 5px 11px;
+  font: 600 12px var(--font-body);
+}
+.tgo-spider-bub::after {
+  content: "";
+  position: absolute;
+  left: -5px; top: 50%;
+  width: 9px; height: 9px;
+  background: var(--color-bg-card);
+  border-left: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  transform: translateY(-50%) rotate(45deg);
+}
+@keyframes tgo-spider-swing { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
+@media (prefers-reduced-motion: reduce) { .tgo-spider { animation: none; } }
+
+}
+/* end section 118 */

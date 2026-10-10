@@ -1,9 +1,52 @@
+<!-- Halloween season (Oct 2026). Decides, before first paint, whether the
+     Halloween skin is on: <html class="season-in"> = it is the season (the
+     Season pill shows), <html class="season-hal"> = the skin is on.
+     Window: Oct 13 through Oct 31, 2026, on the reader's own clock, and it
+     ends itself Nov 1 (the class is simply never set again).
+     Default is ON in season. A reader who turns it off gets
+     tgo-season=off-2026 in localStorage (tied to this year, so next
+     October starts fresh). ?season=halloween previews it out of season
+     (this tab only), ?season=off clears the preview.
+     The Look choice (70s / Modern) is never touched: Halloween only swaps
+     the heading font and colors. Rules live in custom.css section 118;
+     the colors are applied by the sky scripts (this file + custom_footer). -->
+<script>
+(function () {
+  var de = document.documentElement, inSeason = false, preview = false, off = false;
+  try {
+    var d = new Date();
+    inSeason = d.getFullYear() === 2026 && d.getMonth() === 9 && d.getDate() >= 13;
+    var q = location.search.match(/[?&]season=([^&#]*)/);
+    if (q) {
+      var v = q[1].toLowerCase();
+      if (v === 'halloween' || v === 'on') sessionStorage.setItem('tgo-season-test', '1');
+      else if (v === 'off') sessionStorage.removeItem('tgo-season-test');
+    }
+    preview = sessionStorage.getItem('tgo-season-test') === '1';
+    if (preview) inSeason = true;
+    var store = preview ? sessionStorage : localStorage;
+    off = store.getItem('tgo-season') === 'off-2026';
+  } catch (e) {}
+  window.tgoSeason = { inSeason: inSeason, preview: preview };
+  if (!inSeason) return;
+  de.classList.add('season-in');
+  if (!off) {
+    de.classList.add('season-hal');
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&display=swap';
+    document.head.appendChild(l);
+  }
+})();
+</script>
+
 <!-- tgo-sky boot: pre-applies night colors before first paint so pages don't flash light then go dark.
      Night palette + boundaries mirror custom_footer.html (night = sunset..sunrise) — keep in sync. -->
 <script>
 (function () {
   try {
     if (localStorage.getItem('tgo-sky') === 'off') return;
+    var HAL = document.documentElement.classList.contains('season-hal');
     var mins;
     var m = location.search.match(/[?&]sky=(\d{1,2}):(\d{2})/);
     if (m) { mins = (+m[1]) * 60 + (+m[2]); }
@@ -28,7 +71,7 @@
     }
     var T = sunTimes(new Date());
     if (mins >= T.s || mins <= T.r) {
-      var V = {"--color-bg":"rgb(23,30,48)","--color-bg-warm":"rgb(20,27,44)","--color-bg-card":"rgb(30,39,64)","--color-border":"rgb(46,58,88)","--color-border-light":"rgb(40,51,80)","--color-text":"rgb(255,255,255)","--color-text-muted":"rgb(216,222,234)","--color-text-light":"rgb(168,176,196)","--color-navy":"rgb(232,237,247)","--color-navy-mid":"rgb(201,212,234)","--color-terra":"rgb(217,122,69)","--color-terra-dark":"rgb(224,144,107)","--color-terra-light":"rgb(58,42,32)"};
+      var V = HAL ? {"--color-bg":"rgb(13,8,20)","--color-bg-warm":"rgb(27,18,38)","--color-bg-card":"rgb(21,14,31)","--color-border":"rgb(43,32,64)","--color-border-light":"rgb(36,26,54)","--color-text":"rgb(243,234,215)","--color-text-muted":"rgb(201,190,214)","--color-text-light":"rgb(169,157,184)","--color-navy":"rgb(243,234,215)","--color-navy-mid":"rgb(220,207,234)","--color-terra":"rgb(242,138,46)","--color-terra-dark":"rgb(245,161,90)","--color-terra-light":"rgb(59,38,22)"} : {"--color-bg":"rgb(23,30,48)","--color-bg-warm":"rgb(20,27,44)","--color-bg-card":"rgb(30,39,64)","--color-border":"rgb(46,58,88)","--color-border-light":"rgb(40,51,80)","--color-text":"rgb(255,255,255)","--color-text-muted":"rgb(216,222,234)","--color-text-light":"rgb(168,176,196)","--color-navy":"rgb(232,237,247)","--color-navy-mid":"rgb(201,212,234)","--color-terra":"rgb(217,122,69)","--color-terra-dark":"rgb(224,144,107)","--color-terra-light":"rgb(58,42,32)"};
       var st = document.documentElement.style;
       for (var k in V) st.setProperty(k, V[k]);
       var addCls = function () {
@@ -233,7 +276,8 @@
     var cosHa = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec);
     var R = 360, S = 1080;
     if (cosHa <= 1 && cosHa >= -1) { var ha = Math.acos(cosHa) / rad; R = 720 - 4 * (lon + ha) - eq + tz; S = 720 - 4 * (lon - ha) - eq + tz; }
-    if (mins >= R + 100 && mins <= S - 90) return; /* pure day = stock */
+    var HAL = document.documentElement.classList.contains('season-hal');
+    if (!HAL && mins >= R + 100 && mins <= S - 90) return; /* pure day = stock (Halloween has its own day) */
     var P = {
       day:    ['#FAF8F5', '#F2EDE8', '#FFFFFF', '#E5DDD5', '#EDE8E2'],
       golden: ['#F6E7D2', '#EFDCC0', '#FFFCF6', '#E0CDB2', '#EAD9C2'],
@@ -253,6 +297,21 @@
         break;
       }
     }
+    if (HAL) {
+      /* Halloween skies hold one color per phase, same steps as the footer
+         script. Sky/Day/Night pill choice is honored here too. */
+      var HP = {
+        day:    ['#F6EFE2', '#EADFCB', '#FFFDF8', '#D9CBB3', '#E3D6BF'],
+        dawn:   ['#F3E6D0', '#EBDAC0', '#FFFAF0', '#DCC9AB', '#E5D4BA'],
+        sunset: ['#EDD8BA', '#E5CBA6', '#FBF1E0', '#D6BC98', '#DFC6A4'],
+        dusk:   ['#2A1D3B', '#33244A', '#382A50', '#4D3B68', '#433259'],
+        night:  ['#0D0814', '#1B1226', '#150E1F', '#2B2040', '#241A36']
+      };
+      var sm = localStorage.getItem('tgo-sky'), hm = mins;
+      if (sm === 'day') hm = Math.round((R + S) / 2); else if (sm === 'night') hm = 0;
+      var ph = (hm < R - 60 || hm >= S + 60) ? HP.night : hm < R ? HP.dusk : hm < R + 100 ? HP.dawn : hm <= S - 90 ? HP.day : hm < S ? HP.sunset : HP.dusk;
+      bg = ph.map(hx);
+    }
     var TB = ['--color-bg', '--color-bg-warm', '--color-bg-card', '--color-border', '--color-border-light'];
     var rs = document.documentElement.style;
     TB.forEach(function (t, i) { rs.setProperty(t, 'rgb(' + bg[i].join(',') + ')'); });
@@ -262,6 +321,12 @@
     var TV = dark
       ? ['#FFFFFF', '#D8DEEA', '#A8B0C4', '#E8EDF7', '#C9D4EA', '#D97A45', '#E0906B', '#3A2A20']
       : ['#1A1A18', '#6B645D', '#9C9489', '#1E2D4A', '#2E4470', '#C4622D', '#8B3E18', '#F0DDD3'];
+    if (HAL) {
+      TT.push('--color-terra-text');
+      TV = dark
+        ? ['#F3EAD7', '#C9BED6', '#A99DB8', '#F3EAD7', '#DCCFEA', '#F28A2E', '#F5A15A', '#3B2616', '#F28A2E']
+        : ['#241A2E', '#5E5368', '#675B73', '#3A2650', '#4F3A6B', '#A8400A', '#8A3207', '#F3DCC8', '#A8400A'];
+    }
     TT.forEach(function (t, i) { rs.setProperty(t, TV[i]); });
   } catch (e) {}
 })();

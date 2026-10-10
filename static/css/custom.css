@@ -13489,3 +13489,29 @@ body:not(.type-newsletter) .post-body .review-card .review-fact-label {
   line-height: 1.1;
 }
 /* end section 116 */
+
+
+/* ============================================================
+   117 · BOOK/REVIEW CARD POSTER: FOLDABLE, DESKTOP, LARGE DESKTOP
+         (Oct 10, 2026, Toby)
+   ============================================================
+   Bigger cover on the plain poster card at three widths. Each rule is
+   prefixed with body:not(.type-newsletter) so it (a) outranks the
+   section 105 wide-screen poster rules, which carry the same prefix
+   and would otherwise win on specificity, and (b) stays off the
+   newsletter pages, so the email pane keeps its own sizes.
+   ============================================================ */
+@media (min-width: 600px) and (max-width: 759px) {
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster { width: 170px !important; padding: 0 20px 0 0 !important; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster img { width: 150px !important; height: 225px !important; }
+}
+@media (min-width: 760px) {
+  body:not(.type-newsletter) .review-card--plain.review-card--poster { grid-template-columns: 224px 1fr; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster { padding: 0 24px 0 0 !important; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster img { width: 200px !important; height: 300px !important; }
+}
+@media (min-width: 1100px) {
+  body:not(.type-newsletter) .review-card--plain.review-card--poster { grid-template-columns: 244px 1fr; }
+  body:not(.type-newsletter) .review-card--plain.review-card--poster .review-top-poster img { width: 220px !important; height: 330px !important; }
+}
+/* end section 117 */

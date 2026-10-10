@@ -846,10 +846,11 @@
         items.forEach(function (i) { if (i.norm === p.norm) hit = i; });
         if (hit) {
           hit.season = Math.max(hit.season, p.season || 0);
-          hit.url = p.url; hit.poster = p.poster || ""; hit.postDate = p.date;
-          hit.last = Math.max(hit.last, p.date);
+          hit.url = p.url; hit.poster = p.poster || "";
+          // Oct 10: the date and the order stay Trakt's (when he watched),
+          // so a post written the next morning does not move them.
         } else {
-          items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postDate: p.date });
+          items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postOnly: true });
         }
       });
       if (!items.length) return;
@@ -872,7 +873,7 @@
       if (top.kind === "tv" && top.season) body.appendChild(el("span", "wr-prog-text", "Season " + top.season));
       var d = el("a", "wr-date wr-stretch u-url");
       d.href = top.url || WATCHING;
-      var tm = el("time", null, (top.postDate && top.postDate >= top.last ? "" : "Last watched ") + fmt(top.last)); tm.setAttribute("datetime", new Date(top.last).toISOString().slice(0, 10));
+      var tm = el("time", null, (top.postOnly ? "" : "Last watched ") + fmt(top.last)); tm.setAttribute("datetime", new Date(top.last).toISOString().slice(0, 10));
       d.appendChild(tm); if (top.url) d.appendChild(document.createTextNode(" ∞"));
       body.appendChild(d);
       var see = el("a", "wr-see", "See all watching →"); see.href = WATCHING;

@@ -566,7 +566,8 @@
           {{- if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) -}}{{- $cover = $u -}}{{- end -}}
         {{- end -}}
       {{- end -}}
-      {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- $cover = replaceRE `zoom=\d` "zoom=2" $cover -}}{{- end -}}
+      {{/* Oct 10, 2026: the old zoom=2 bump is gone. Google Books has no zoom=2 image for some titles (The Ferryman's Daughter) and serves a grey "image not available" tile instead of an error, so the cover keeps the zoom the post already uses. */}}
+      {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- end -}}
       {{- $covers = merge $covers (dict $key $cover) -}}
     {{- end -}}
   {{- end -}}

@@ -66,7 +66,7 @@
   var TRAKT = "https://api.trakt.tv";
   var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
   var POSTER = "https://perch-app.pages.dev/poster";
-  var LIST_KEY = "tgo_watching_v2_" + USER + "_" + DAYS;
+  var LIST_KEY = "tgo_watching_v3_" + USER + "_" + DAYS;
   var LIST_TTL = 30 * 60 * 1000;
   var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
 
@@ -88,21 +88,27 @@
   // Trakt: TV shows in progress (rated, reviewed, hidden and stale ones removed).
   // Oct 10: a show rated BEFORE its last watched episode stays (new season of an old favorite).
   function fetchTrakt() {
+    // Oct 10: /watched/shows comes back with an EMPTY seasons list on a public
+    // profile, so every show looked like "Season 1". The public episode
+    // history does carry season numbers, newest first, so the first episode
+    // seen for a show is its latest watch and tells which season he is in.
+    var since = Date.now() - DAYS * 86400000;
     return Promise.all([
-      tget("/users/" + encodeURIComponent(USER) + "/watched/shows"),
+      tget("/users/" + encodeURIComponent(USER) + "/history/episodes?limit=1000&start_at=" + encodeURIComponent(new Date(since).toISOString())),
       tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
     ]).then(function (res) {
       var rated = {};
       res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
-      var since = Date.now() - DAYS * 86400000;
-      var out = [];
-      res[0].forEach(function (w) {
-        var s = w.show, last = new Date(w.last_watched_at).getTime();
-        if (!s || !s.ids || last < since || (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last)) return;
+      var seen = {}, out = [];
+      res[0].forEach(function (h) {
+        var s = h.show, e = h.episode;
+        if (!s || !s.ids || !e || seen[s.ids.trakt]) return;
+        seen[s.ids.trakt] = 1;
+        var last = new Date(h.watched_at).getTime();
+        if (last < since || (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last)) return;
         var n = norm(s.title);
         if (!n || HIDE.indexOf(n) > -1 || REVIEWED.indexOf(n) > -1) return;
-        var season = (w.seasons || []).reduce(function (m, x) { return x.number > 0 ? Math.max(m, x.number) : m; }, 0);
-        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: season || 1, last: last });
+        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, last: last });
       });
       return out;
     });

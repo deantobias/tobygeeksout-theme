@@ -786,6 +786,7 @@
     var DAYS = 90;
     var REVIEWED = {{ $nw.reviewed | jsonify | safeJS }};
     var TOP = {{ with $nwTop }}{{ . | jsonify | safeJS }}{{ else }}null{{ end }};
+    var POSTS = {{ $nw.items | jsonify | safeJS }};
     var WATCHING = "{{ "/watching/" | absURL }}";
     var TRAKT = "https://api.trakt.tv";
     var USER = "technogeek75";
@@ -837,20 +838,28 @@
 
     function show(list) {
       var items = list.map(function (x) { return { title: x.title, norm: x.norm, kind: x.kind, season: x.season, tmdb: x.tmdb, last: x.last, poster: "", url: "" }; });
-      if (TOP) {
-        var tn = TOP.norm, hit = null;
-        items.forEach(function (i) { if (i.norm === tn) hit = i; });
+      // Any Now Watching post for a show gives its card the post's link
+      // and poster; posts for titles Trakt does not have (movies, or Trakt
+      // lagging) are added as their own items.
+      POSTS.forEach(function (p) {
+        var hit = null;
+        items.forEach(function (i) { if (i.norm === p.norm) hit = i; });
         if (hit) {
-          hit.last = Math.max(hit.last, TOP.date); hit.season = Math.max(hit.season, TOP.season || 0);
-          hit.poster = TOP.poster || ""; hit.url = TOP.url; hit.datePost = TOP.date >= hit.last;
+          hit.season = Math.max(hit.season, p.season || 0);
+          hit.url = p.url; hit.poster = p.poster || ""; hit.postDate = p.date;
+          hit.last = Math.max(hit.last, p.date);
         } else {
-          items.push({ title: TOP.title, norm: tn, kind: TOP.kind, season: TOP.season, tmdb: 0, last: TOP.date, poster: TOP.poster || "", url: TOP.url, datePost: true });
+          items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postDate: p.date });
         }
-      }
+      });
       if (!items.length) return;
       items.sort(function (a, b) { return b.last - a.last; });
-      var top = items[0], more = items.length - 1;
-      if (TOP && top.norm === TOP.norm && !more && top.season === (TOP.season || 0)) return; // nothing new: leave the post card
+      var top = items[0];
+      // "+ N more" counts only what was watched the same day as the top one
+      // (Toby, Oct 10: shows from other days do not belong in that number).
+      var day = new Date(top.last).toDateString();
+      var more = items.filter(function (i) { return i !== top && new Date(i.last).toDateString() === day; }).length;
+      if (TOP && items.length === 1 && top.norm === TOP.norm && top.season === (TOP.season || 0)) return; // nothing new: leave the post card
       var fresh = el("div", "wr-card wr-card--split"); fresh.id = "nw-card";
       var cover = el("span", "wr-cover wr-cover--blank", "🍿"); cover.setAttribute("aria-hidden", "true");
       fresh.appendChild(cover);
@@ -863,7 +872,7 @@
       if (top.kind === "tv" && top.season) body.appendChild(el("span", "wr-prog-text", "Season " + top.season));
       var d = el("a", "wr-date wr-stretch u-url");
       d.href = top.url || WATCHING;
-      var tm = el("time", null, (top.url ? "" : "Last watched ") + fmt(top.last)); tm.setAttribute("datetime", new Date(top.last).toISOString().slice(0, 10));
+      var tm = el("time", null, (top.postDate && top.postDate >= top.last ? "" : "Last watched ") + fmt(top.last)); tm.setAttribute("datetime", new Date(top.last).toISOString().slice(0, 10));
       d.appendChild(tm); if (top.url) d.appendChild(document.createTextNode(" ∞"));
       body.appendChild(d);
       var see = el("a", "wr-see", "See all watching →"); see.href = WATCHING;

@@ -847,8 +847,10 @@
         if (hit) {
           hit.season = Math.max(hit.season, p.season || 0);
           hit.url = p.url; hit.poster = p.poster || "";
-          // Oct 10: the date and the order stay Trakt's (when he watched),
-          // so a post written the next morning does not move them.
+          // Oct 10: the date stays Trakt's (when he watched) UNLESS the post
+          // is newer: Trakt can take hours to log a new episode, so until it
+          // catches up the card follows the post's date (same as /watching/).
+          if (p.date > hit.last) hit.last = p.date;
         } else {
           items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postOnly: true });
         }

@@ -12916,8 +12916,11 @@ html.fonts-70s .nli-summary {
 
   /* Two-column poster layout (used only when TMDB has no backdrop) */
   body:not(.type-newsletter) .review-card--poster { display: grid !important; grid-template-columns: 272px 1fr; }
-  body:not(.type-newsletter) .review-card--poster tbody,
-  body:not(.type-newsletter) .review-card--poster tr { display: contents; }
+  /* Child combinators (Oct 10, 2026): only the card's own rows become grid
+     items. The old descendant selector also hit the tbody/tr inside the
+     Currently Reading progress bar and collapsed it to 0px wide. */
+  body:not(.type-newsletter) .review-card--poster > tbody,
+  body:not(.type-newsletter) .review-card--poster > tbody > tr { display: contents; }
   body:not(.type-newsletter) .review-card--poster .review-top-poster {
     grid-column: 1; grid-row: 1 / span 2;
     width: auto !important; padding: 28px 0 28px 32px !important;

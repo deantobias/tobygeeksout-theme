@@ -633,6 +633,8 @@
        per call, so the Look toggle can flip it without a reload. */
     var LOOK70_DAY   = 'https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png';
     var LOOK70_NIGHT = 'https://tobygeeksout.micro.blog/uploads/2026/night-v2-toby-geeks-out-new-logo-1500-x-600-px.png';
+    var HAL_LOGO_DAY   = 'https://tobygeeksout.micro.blog/uploads/2026/halloween-toby-geeks-out-new-logo-1500-x-600-px.png?v=2';
+    var HAL_LOGO_NIGHT = 'https://tobygeeksout.micro.blog/uploads/2026/halloween-night-v2-toby-geeks-out-new-logo-1500-x-600-px.png';
     function setLogo(mode) {
       /* Header wordmark AND the desktop rail logo (July 22, 2026) —
          both swap together through the skies. */
@@ -640,6 +642,8 @@
       if (!logos.length) return;
       var is70 = root.classList.contains('fonts-70s');
       var want = mode === 'night' ? (is70 ? LOOK70_NIGHT : NIGHT_LOGO) : (is70 ? LOOK70_DAY : DAY_LOGO);
+      /* Halloween season: its own logo pair, in either Look. */
+      if (hal()) want = mode === 'night' ? HAL_LOGO_NIGHT : HAL_LOGO_DAY;
       logos.forEach(function (logo) {
         if (logo.src !== want) logo.src = want;
       });
@@ -880,6 +884,9 @@
   }
   function swapLogos() {
     var want = LOGOS[is70() ? 'on' : 'off'][document.body.classList.contains('tgo-night') ? 1 : 0];
+    if (de.classList.contains('season-hal')) {   /* Halloween logo pair, either Look */
+      want = B + (document.body.classList.contains('tgo-night') ? 'halloween-night-v2-' : 'halloween-') + 'toby-geeks-out-new-logo-1500-x-600-px.png' + (document.body.classList.contains('tgo-night') ? '' : '?v=2');
+    }
     document.querySelectorAll('.site-logo-wordmark, .rail-logo, .tgo-mast-logo').forEach(function (l) {
       if (l.getAttribute('src') !== want) l.src = want;
     });

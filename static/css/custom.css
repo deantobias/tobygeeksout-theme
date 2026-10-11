@@ -13637,11 +13637,11 @@ html.season-hal body.tgo-night {
 }
 @media (max-width: 767px) {
   .tgo-web--bot { width: 110px; height: 110px; }
-  /* Phones: the web sits in the true top-right corner, over the fixed
-     header (z-index above it). Overlapping the logo is fine. The Sky
+  /* Phones: the web sits in the true top-right corner of the page, over the
+     header (z-index above it); it scrolls away with the page. Overlapping the logo is fine. The Sky
      pill steps left so the web is not on top of it. */
   .tgo-web--top {
-    position: fixed;
+    position: absolute;   /* scrolls away with the page, not stuck to the screen */
     top: 0 !important;
     right: 0;
     width: 120px;

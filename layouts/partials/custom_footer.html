@@ -1248,7 +1248,10 @@ document.addEventListener('click', function (e) {
       var rest = hr.top + sy - 10;
       spider.style.left = (hr.left + sx + (desk ? 4 : 0)) + 'px';
       spider.style.top = (desk ? 0 : y - 6) + 'px';
-      spider.style.setProperty('--tl', Math.max(16, rest - 46 - (desk ? 0 : y - 6)) + 'px');
+      /* Phones: the long drop to Recent Geekouts read as a thread from
+         nowhere (Toby, Oct 10). A short 48px thread from under the header
+         instead; desktop keeps the drop from the top of the page. */
+      spider.style.setProperty('--tl', (desk ? Math.max(16, rest - 46) : 48) + 'px');
     }
   }
 

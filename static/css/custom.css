@@ -13553,8 +13553,8 @@ html.season-hal .catrow-label { zoom: 1.1; }
 html.season-hal .tgo-look-btn,
 html.season-hal .footer-look { display: none !important; }
 
-/* The spider replaces the rabbit for the season. */
-html.season-hal .tgo-rabbit--rule { display: none !important; }
+/* The spider replaces the rabbit for the season, on desktop and phone. */
+html.season-hal .tgo-rabbit { display: none !important; }   /* every rabbit: rule, phone strip, banner */
 
 /* Night: a faint candle glow from the bottom edge. */
 html.season-hal body.tgo-night {

@@ -1220,6 +1220,10 @@ document.addEventListener('click', function (e) {
       greet(spider);
     }
     deco.forEach(function (e) { b.appendChild(e); });
+    /* Bottom web lives in the footer (Toby, Oct 10): bottom-left corner
+       of the footer, so it is simply there at the end of every page. */
+    var ft = document.querySelector('.site-footer');
+    if (wbot && ft) ft.appendChild(wbot);
     place();
   }
   function topY() {
@@ -1235,10 +1239,8 @@ document.addEventListener('click', function (e) {
     if (wbot) {
       var tb = document.querySelector('.mobile-tab-bar'), tbh = 0;
       if (tb && getComputedStyle(tb).display !== 'none') tbh = tb.offsetHeight;
-      /* Pinned to the END of the page (not the screen): it scrolls with the
-         page and you only see it when you reach the bottom. */
-      wbot.style.bottom = 'auto';
-      wbot.style.top = Math.max(0, Math.round(document.documentElement.scrollHeight - wbot.offsetHeight - tbh)) + 'px';
+      /* in the footer's bottom-left corner, lifted above the phone tab bar */
+      wbot.style.bottom = tbh + 'px';
     }
     if (spider) {
       var head = document.querySelector('.feed-head--rabbit');
@@ -1256,10 +1258,13 @@ document.addEventListener('click', function (e) {
         return;
       }
       if (spider.parentNode !== b) { b.appendChild(spider); spider.classList.remove('tgo-spider--hdr'); }
-      var rest = hr.top + sy - 10;
-      spider.style.left = (hr.left + sx + 4) + 'px';
+      /* Desktop (Toby, Oct 10): the spider is stuck to the screen and rides
+         along as you scroll ("staring at you"), hanging from the top edge
+         just left of the content column so it never covers anything. */
+      spider.style.position = 'fixed';
+      spider.style.left = Math.max(12, hr.left - 44) + 'px';
       spider.style.top = '0px';
-      spider.style.setProperty('--tl', Math.max(16, rest - 46) + 'px');
+      spider.style.setProperty('--tl', '170px');
     }
   }
 

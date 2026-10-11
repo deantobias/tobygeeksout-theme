@@ -1245,13 +1245,21 @@ document.addEventListener('click', function (e) {
       if (!head) { spider.style.display = 'none'; return; }
       spider.style.display = '';
       var hr = head.getBoundingClientRect(), desk = y === 0;
+      var hdr = document.querySelector('.site-header');
+      if (!desk && hdr) {
+        /* Phones (Toby, Oct 10): the spider lives IN the top header, on
+           the left, hanging from the top edge of the screen on a short
+           thread, level with the logo. Section 118 positions it there. */
+        if (spider.parentNode !== hdr) { hdr.appendChild(spider); spider.classList.add('tgo-spider--hdr'); }
+        spider.style.left = ''; spider.style.top = '';
+        spider.style.setProperty('--tl', '58px');
+        return;
+      }
+      if (spider.parentNode !== b) { b.appendChild(spider); spider.classList.remove('tgo-spider--hdr'); }
       var rest = hr.top + sy - 10;
-      spider.style.left = (hr.left + sx + (desk ? 4 : 0)) + 'px';
-      spider.style.top = (desk ? 0 : y - 6) + 'px';
-      /* Phones: the long drop to Recent Geekouts read as a thread from
-         nowhere (Toby, Oct 10). A short 48px thread from under the header
-         instead; desktop keeps the drop from the top of the page. */
-      spider.style.setProperty('--tl', (desk ? Math.max(16, rest - 46) : 48) + 'px');
+      spider.style.left = (hr.left + sx + 4) + 'px';
+      spider.style.top = '0px';
+      spider.style.setProperty('--tl', Math.max(16, rest - 46) + 'px');
     }
   }
 

@@ -13553,13 +13553,6 @@ html.season-hal .catrow-label { zoom: 1.1; }
 html.season-hal .tgo-look-btn,
 html.season-hal .footer-look { display: none !important; }
 
-/* "Hi, I'm Toby" at night: the stock night rule pins it to a pale blue
-   (#E8EDF7) that reads washed-out on the plum. Use the Halloween heading
-   ink instead, same as Recent Geekouts. */
-html.season-hal body.tgo-night .about-text strong { color: var(--color-navy); }
-html.season-hal body.tgo-night .about-text,
-html.season-hal body.tgo-night .about-greeting { color: var(--color-text-muted); }
-
 /* The spider replaces the rabbit for the season, on desktop and phone. */
 html.season-hal .tgo-rabbit { display: none !important; }   /* every rabbit: rule, phone strip, banner */
 
@@ -13751,6 +13744,23 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
   border-left: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
   transform: translateY(-50%) rotate(45deg);
+}
+/* Phones: spider inside the fixed top header (moved there by script),
+   hanging from the top edge of the screen, left of the logo. "Hey!" sits
+   above and to its right, in the avatar row, so it never covers the logo. */
+.site-header .tgo-spider.tgo-spider--hdr {
+  position: absolute;
+  left: 14px;
+  top: 0;
+  z-index: 2;
+}
+.tgo-spider--hdr .tgo-spider-bub {
+  left: 44px;
+  top: calc(var(--tl, 58px) - 30px);
+}
+.tgo-spider--hdr .tgo-spider-bub::after {
+  left: 8px; top: auto; bottom: -5px;
+  transform: rotate(-45deg);
 }
 @keyframes tgo-spider-swing { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
 @media (prefers-reduced-motion: reduce) { .tgo-spider { animation: none; } }

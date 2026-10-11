@@ -1185,9 +1185,14 @@ document.addEventListener('click', function (e) {
   function greet(sp) {
     var bub = sp.querySelector('.tgo-spider-bub');
     if (!bub) return;
-    var KEYG = 'tgo-spider-greet', last = 0;
+    var KEYG = 'tgo-spider-greet', last = 0, force = /[?&]hey=1/.test(location.search);
+    /* ?hey=1 shows it again right away, for testing. */
     try { last = Number(localStorage.getItem(KEYG) || 0); } catch (e) {}
-    if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+    /* Resets at 8 am (Toby): once seen, it stays quiet until the next 8 am
+       on the reader's clock, whatever time they come back. */
+    var nowD = new Date(), reset = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate(), 8, 0, 0);
+    if (nowD < reset) reset.setDate(reset.getDate() - 1);
+    if (!force && last >= reset.getTime()) return;
     try { localStorage.setItem(KEYG, String(Date.now())); } catch (e) {}
     setTimeout(function () { bub.classList.add('is-shown'); }, 1100);
     setTimeout(function () { bub.classList.remove('is-shown'); }, 5600);

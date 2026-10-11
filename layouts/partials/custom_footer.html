@@ -1235,7 +1235,10 @@ document.addEventListener('click', function (e) {
     if (wbot) {
       var tb = document.querySelector('.mobile-tab-bar'), tbh = 0;
       if (tb && getComputedStyle(tb).display !== 'none') tbh = tb.offsetHeight;
-      wbot.style.bottom = tbh + 'px';
+      /* Pinned to the END of the page (not the screen): it scrolls with the
+         page and you only see it when you reach the bottom. */
+      wbot.style.bottom = 'auto';
+      wbot.style.top = Math.max(0, Math.round(document.documentElement.scrollHeight - wbot.offsetHeight - tbh)) + 'px';
     }
     if (spider) {
       var head = document.querySelector('.feed-head--rabbit');

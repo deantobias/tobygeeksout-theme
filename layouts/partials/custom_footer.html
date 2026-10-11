@@ -1222,8 +1222,6 @@ document.addEventListener('click', function (e) {
     deco.forEach(function (e) { b.appendChild(e); });
     /* Bottom web lives in the footer (Toby, Oct 10): bottom-left corner
        of the footer, so it is simply there at the end of every page. */
-    var ft = document.querySelector('.site-footer');
-    if (wbot && ft) ft.appendChild(wbot);
     place();
   }
   function topY() {
@@ -1239,8 +1237,14 @@ document.addEventListener('click', function (e) {
     if (wbot) {
       var tb = document.querySelector('.mobile-tab-bar'), tbh = 0;
       if (tb && getComputedStyle(tb).display !== 'none') tbh = tb.offsetHeight;
-      /* in the footer's bottom-left corner, lifted above the phone tab bar */
-      wbot.style.bottom = tbh + 'px';
+      /* Desktop rail pages: the web sits in the rail's bottom-left corner,
+         behind the pills, like the mockup (the rail is fixed, so it stays
+         with the rail). Everywhere else: the footer's bottom-left corner,
+         lifted above the phone tab bar. */
+      var rail = document.querySelector('.site-rail'), ft = document.querySelector('.site-footer');
+      var host = (rail && getComputedStyle(rail).display !== 'none') ? rail : ft;
+      if (host && wbot.parentNode !== host) host.appendChild(wbot);
+      wbot.style.bottom = (host === rail ? 0 : tbh) + 'px';
     }
     if (spider) {
       var head = document.querySelector('.feed-head--rabbit');
@@ -1262,7 +1266,9 @@ document.addEventListener('click', function (e) {
          along as you scroll ("staring at you"), hanging from the top edge
          just left of the content column so it never covers anything. */
       spider.style.position = 'fixed';
-      spider.style.left = Math.max(12, hr.left - 44) + 'px';
+      var railEl = document.querySelector('.site-rail'), railW = (railEl && getComputedStyle(railEl).display !== 'none') ? railEl.getBoundingClientRect().right : 0;
+      spider.style.left = Math.max(railW + 8, hr.left - 76) + 'px';   /* clear of text and photos; never on the rail */
+      spider.classList.add('tgo-spider--fixed');
       spider.style.top = '0px';
       spider.style.setProperty('--tl', '170px');
     }
@@ -1295,7 +1301,7 @@ document.addEventListener('click', function (e) {
     if (fi) {
       var p = document.createElement('p'); p.className = 'footer-season';
       p.appendChild(makeBtn('tgo-season-btn--footer'));
-      fi.appendChild(p);
+      fi.insertBefore(p, fi.firstChild);   /* above the footer lines (Toby): the footer text stays the bottom edge */
     }
     apply();
     window.addEventListener('resize', place);

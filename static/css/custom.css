@@ -13597,7 +13597,7 @@ html.season-hal body.tgo-night {
 .tgo-season-btn--rail { margin-left: 0; }
 .tgo-season-btn--nav { display: none; margin-left: 8px; }
 .tgo-season-btn--footer { display: inline-flex; }
-.footer-season { margin: 8px 0 0; }
+.footer-season { margin: 0 0 10px; }
 @media (min-width: 768px) { .tgo-season-btn--nav { display: inline-flex; } }
 
 /* Rail: with three pills, stack them in one column on the right edge so
@@ -13634,9 +13634,10 @@ html.season-hal body.tgo-night {
 }
 .tgo-web circle { fill: var(--color-bg-card); stroke: var(--color-text-muted); stroke-width: .5; }
 .tgo-web--top { right: 0; top: 0; width: 240px; height: 240px; opacity: .8; }
-.site-footer { position: relative; }   /* holds the bottom web */
+.site-footer { position: relative; }   /* holds the bottom web on top-header pages */
+.site-rail .tgo-web--bot { z-index: 1; }   /* behind the rail's pills (z 2) */
 .tgo-web--bot {
-  /* in the footer's bottom-left corner (script moves it there) */
+  /* bottom-left corner of the rail (desktop) or the footer (script moves it) */
   left: 0; bottom: 0;
   width: 150px; height: 150px;
   opacity: .7;
@@ -13751,6 +13752,34 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
   border-left: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
   transform: translateY(-50%) rotate(45deg);
+}
+/* Phones: spider inside the fixed top header (moved there by script),
+   hanging from the top edge of the screen, left of the logo. "Hey!" sits
+   above and to its right, in the avatar row, so it never covers the logo. */
+.site-header .tgo-spider.tgo-spider--hdr {
+  position: absolute;
+  left: 14px;
+  top: 0;
+  z-index: 2;
+}
+.tgo-spider--hdr .tgo-spider-bub {
+  left: 44px;
+  top: calc(var(--tl, 58px) - 30px);
+}
+.tgo-spider--hdr .tgo-spider-bub::after {
+  left: 8px; top: auto; bottom: -5px;
+  transform: rotate(-45deg);
+}
+/* Desktop: stuck to the screen left of the content column; "Hey!" sits
+   centered above the spider so it never reaches into the column. */
+.tgo-spider--fixed .tgo-spider-bub {
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(var(--tl, 170px) - 32px);
+}
+.tgo-spider--fixed .tgo-spider-bub::after {
+  left: 50%; top: auto; bottom: -5px;
+  transform: translateX(-50%) rotate(-45deg);
 }
 @keyframes tgo-spider-swing { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
 @media (prefers-reduced-motion: reduce) { .tgo-spider { animation: none; } }

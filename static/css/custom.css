@@ -13811,14 +13811,17 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
    top of the PAGE instead: it scrolls off with the content. Absolute,
    not static, so --header-actual-h and every padding that clears the
    header keep working unchanged. The logo fade / shrink no longer has
-   a job, so it is pinned off. The newsletter reader keeps its fixed
-   header (its locked panels measure it). Tab bar unaffected.
+   a job, so it is pinned off. Single posts keep the pinned header, so
+   the post title can still slide in as you read (section 90); the
+   newsletter reader keeps it too (its locked panels measure it).
+   Standalone pages count as type-post and keep it as well. Tab bar
+   unaffected.
    ============================================================ */
 @media (max-width: 767px) {
-  body:not(.type-newsletter) .site-header {
+  body:not(.type-newsletter):not(.type-post) .site-header {
     position: absolute !important;
     --header-shrink: 0 !important;
   }
-  body:not(.type-newsletter) .site-header .site-logo-wordmark { opacity: 1 !important; }
+  body:not(.type-newsletter):not(.type-post) .site-header .site-logo-wordmark { opacity: 1 !important; }
 }
 /* end section 119 */

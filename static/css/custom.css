@@ -13775,6 +13775,8 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
    Header, tab bar and the top web are fixed to the screen, unaffected. */
 @media (max-width: 767px) {
   html.season-hal body.home { padding-left: 44px; }
+  /* the footer moved right with the page; its web goes back to the screen edge */
+  html.season-hal body.home .site-footer .tgo-web--bot { left: -44px; }
 }
 .tgo-spider--hdr .tgo-spider-bub {
   left: 44px;

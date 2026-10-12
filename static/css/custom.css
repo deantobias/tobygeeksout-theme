@@ -13760,14 +13760,14 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
   border-bottom: 1px solid var(--color-border);
   transform: translateY(-50%) rotate(45deg);
 }
-/* Phones: spider inside the fixed top header (moved there by script),
-   hanging from the top edge of the screen, left of the logo. "Hey!" sits
-   above and to its right, in the avatar row, so it never covers the logo. */
-.site-header .tgo-spider.tgo-spider--hdr {
-  position: absolute;
+/* Phones: spider stuck to the screen (section 119 made the header scroll
+   away, so he no longer lives in it), hanging from the top edge, left of
+   the logo, above the header. "Hey!" sits above and to his right. */
+.tgo-spider.tgo-spider--hdr {
+  position: fixed;
   left: 6px;
   top: 0;
-  z-index: 2;
+  z-index: 1001;
 }
 /* Phones get a spider lane (Toby, Oct 12): the page content steps right
    44px while the skin is on, so the spider (6-52px) hangs in empty
@@ -13802,3 +13802,23 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 
 }
 /* end section 118 */
+
+/* ============================================================
+   119. PHONE HEADER SCROLLS AWAY  (Oct 12, 2026, Toby)
+   ------------------------------------------------------------
+   On phones the top header was pinned to the screen and shrank to the
+   avatar as you scrolled (since July). Toby wants it to stay at the
+   top of the PAGE instead: it scrolls off with the content. Absolute,
+   not static, so --header-actual-h and every padding that clears the
+   header keep working unchanged. The logo fade / shrink no longer has
+   a job, so it is pinned off. The newsletter reader keeps its fixed
+   header (its locked panels measure it). Tab bar unaffected.
+   ============================================================ */
+@media (max-width: 767px) {
+  body:not(.type-newsletter) .site-header {
+    position: absolute !important;
+    --header-shrink: 0 !important;
+  }
+  body:not(.type-newsletter) .site-header .site-logo-wordmark { opacity: 1 !important; }
+}
+/* end section 119 */

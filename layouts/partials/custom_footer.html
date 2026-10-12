@@ -1259,12 +1259,14 @@ document.addEventListener('click', function (e) {
         /* Phones (Toby, Oct 10): the spider lives IN the top header, on
            the left, hanging from the top edge of the screen on a short
            thread, level with the logo. Section 118 positions it there. */
-        if (spider.parentNode !== hdr) { hdr.appendChild(spider); spider.classList.add('tgo-spider--hdr'); }
+        if (spider.parentNode !== b) b.appendChild(spider);
+        spider.classList.add('tgo-spider--hdr');   /* fixed to the screen, section 118 */
         spider.style.left = ''; spider.style.top = '';
         spider.style.setProperty('--tl', '58px');
         return;
       }
-      if (spider.parentNode !== b) { b.appendChild(spider); spider.classList.remove('tgo-spider--hdr'); }
+      if (spider.parentNode !== b) b.appendChild(spider);
+      spider.classList.remove('tgo-spider--hdr');
       /* Desktop (Toby, Oct 10): the spider is stuck to the screen and rides
          along as you scroll ("staring at you"), hanging from the top edge
          just left of the content column so it never covers anything. */

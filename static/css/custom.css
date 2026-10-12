@@ -13765,9 +13765,16 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
    above and to its right, in the avatar row, so it never covers the logo. */
 .site-header .tgo-spider.tgo-spider--hdr {
   position: absolute;
-  left: 14px;
+  left: 6px;
   top: 0;
   z-index: 2;
+}
+/* Phones get a spider lane (Toby, Oct 12): the page content steps right
+   44px while the skin is on, so the spider (6-52px) hangs in empty
+   space beside the cards as you scroll instead of over the text.
+   Header, tab bar and the top web are fixed to the screen, unaffected. */
+@media (max-width: 767px) {
+  html.season-hal body.home { padding-left: 44px; }
 }
 .tgo-spider--hdr .tgo-spider-bub {
   left: 44px;

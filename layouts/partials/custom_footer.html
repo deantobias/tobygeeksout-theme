@@ -1244,7 +1244,10 @@ document.addEventListener('click', function (e) {
       var rail = document.querySelector('.site-rail'), ft = document.querySelector('.site-footer');
       var host = (rail && getComputedStyle(rail).display !== 'none') ? rail : ft;
       if (host && wbot.parentNode !== host) host.appendChild(wbot);
-      wbot.style.bottom = (host === rail ? 0 : tbh) + 'px';
+      /* No tab-bar offset: on phones body already carries padding-bottom
+         = the tab bar height, so the footer's bottom edge is the page's
+         true end, right above the bar (Toby, Oct 12: it floated 64px up). */
+      wbot.style.bottom = '0px';
     }
     if (spider) {
       var head = document.querySelector('.feed-head--rabbit');

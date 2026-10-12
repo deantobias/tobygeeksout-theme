@@ -5,11 +5,20 @@
   Styles: custom.css section 94 (.tg-changelog).
 */ -}}
 <div class="tg-changelog">
-<p class="clog-dateline">71 logged work days &middot; March 27 &ndash; October 9, 2026</p>
+<p class="clog-dateline">73 logged work days &middot; March 27 &ndash; October 12, 2026</p>
 <p class="clog-fineprint">A quick note: the very minor stuff &mdash; tiny one-line fixes, spacing nudges, behind-the-scenes housekeeping &mdash; is not recorded here. This is just the work worth mentioning.</p>
 <section class="clog-month">
 <h2 class="clog-month-head">October 2026</h2>
 <div class="clog-entries">
+<article class="clog-entry clog-entry--dated" data-show-from="2026-10-13" hidden>
+<h3 class="clog-head"><span class="clog-date">Oct 13</span> <span class="clog-title">Spooky season</span></h3>
+<ul class="clog-list">
+<li>Halloween mode is on through October 31: plum and pumpkin colors by day and a deeper near-black night, gothic headings, and Halloween versions of the logo. It switches itself off on November 1.</li>
+<li>A new &ldquo;Season&rdquo; pill in the sidebar, the top bar, and the footer turns it off if it&rsquo;s not your thing. The pill only exists during the season.</li>
+<li>Cobwebs in the corners, and a spider hanging on the left who says hi once a day. On desktop he rides along as you scroll. On phones he has his own lane beside the posts.</li>
+<li>&ldquo;From the archive&rdquo; is &ldquo;From the crypt&rdquo; for the month, and Shuffle became &ldquo;Dig up another.&rdquo;</li>
+</ul>
+</article>
 <article class="clog-entry">
 <h3 class="clog-head"><span class="clog-date">Oct 9</span> <span class="clog-title">A new home page layout and a Watching page</span></h3>
 <ul class="clog-list">
@@ -474,4 +483,15 @@
 </article>
 </div>
 </section>
+<script>
+/* Dated entries stay hidden until their day arrives on the reader's clock
+   (Oct 12, 2026: the Halloween entry is in the file a day early). */
+(function () {
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  document.querySelectorAll('.clog-entry--dated[data-show-from]').forEach(function (e) {
+    var p = e.getAttribute('data-show-from').split('-');
+    if (today >= new Date(+p[0], +p[1] - 1, +p[2])) e.removeAttribute('hidden');
+  });
+})();
+</script>
 </div>

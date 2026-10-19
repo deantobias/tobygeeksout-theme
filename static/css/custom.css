@@ -13803,14 +13803,15 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 /* Newsletter list banner (Oct 19, Toby): /newsletters/ gets a Halloween
    banner while the skin is on. Same layout as the 70s Caprasimo banner
    (diagonal split, tagline, wordmark, "The Newsletter"), redone in plum
-   and pumpkin with Grenze Gotisch, the site's cobweb in the corner and
-   the spider on the pumpkin side. 2x image, same 1198:400 shape. Comes
+   and pumpkin with Grenze Gotisch and the spider on the pumpkin side
+   (v2, same day: no cobweb in the banner, the page already draws one
+   in the top-right corner). 2x image, same 1198:400 shape. Comes
    after the 70s rule (same specificity), so source order wins; when the
    season ends or a reader turns Season off, season-hal is gone and the
    70s banner is back on its own. height/aspect-ratio repeated here so
    it also holds if the html is not fonts-70s. */
 html.season-hal .section.section-newsletters #main-content::before {
-  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v1-newsletter-banner-halloween-2396x800.png');
+  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v2-newsletter-banner-halloween-2396x800.png');
   height: auto;
   aspect-ratio: 1198 / 400;
 }

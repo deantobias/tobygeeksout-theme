@@ -6,6 +6,15 @@
      No pagination: rows are short, so the whole category renders on
      one page. Summaries come from partials/clean-summary.html and
      always end on a complete sentence. CSS: section 91.
+
+     "Is that all?" cues (Oct 19, 2026, Toby): a summary that ends on a
+     full sentence looks like the whole post, which misleads on untitled
+     micros. So:
+       - untitled post, summary shorter than the post -> "Keep reading"
+       - untitled post that fits in the summary        -> nothing extra
+       - titled post -> "N min read" (the title already says teaser)
+     "Shorter" = the post has more than 3 words beyond the summary (the
+     slack covers tiny bits the summary drops). CSS: section 122.
      ============================================================ */}}
 {{ $pages := .Pages.ByDate.Reverse }}
 {{ $count := len $pages }}
@@ -51,7 +60,9 @@
       <h2 class="cat-feature-title">
         <a href="{{ .Permalink }}">{{ if .Title }}{{ .Title }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end }}</a>
       </h2>
-      <p class="cat-feature-summary">{{ partial "clean-summary.html" (dict "page" .) }}</p>
+      {{ $sum := partial "clean-summary.html" (dict "page" .) }}
+      {{ $more := gt (countwords .Plain) (add (countwords (plainify $sum)) 3) }}
+      <p class="cat-feature-summary">{{ $sum }}{{ if and (not .Title) $more }} <a href="{{ .Permalink }}" class="cat-more">Keep reading<span aria-hidden="true"> &rarr;</span></a>{{ end }}</p>
       <p class="cat-feature-meta">
         <a href="{{ .Permalink }}" class="u-url"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time></a>
         {{ if and .Title .ReadingTime }} · {{ .ReadingTime }} min read{{ end }}
@@ -80,14 +91,16 @@
         {{ $prevYear = $year }}
       {{ end }}
 
+      {{ $sum := partial "clean-summary.html" (dict "page" .) }}
+      {{ $more := gt (countwords .Plain) (add (countwords (plainify $sum)) 3) }}
       <a class="cat-row{{ if not .Title }} cat-row--untitled{{ end }}" href="{{ .Permalink }}">
         <span class="cat-row-title">
-          <span class="cat-row-text">{{ if .Title }}{{ .Title }}{{ else }}{{ partial "clean-summary.html" (dict "page" .) }}{{ end }}</span>
+          <span class="cat-row-text">{{ if .Title }}{{ .Title }}{{ else }}{{ $sum }}{{ if $more }} <span class="cat-more">Keep reading<span aria-hidden="true"> &rarr;</span></span>{{ end }}{{ end }}</span>
           <i class="cat-leader" aria-hidden="true"></i>
         </span>
         <time class="cat-row-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 Jan 2006" }}</time>
         {{ if .Title }}
-          <span class="cat-row-blurb">{{ partial "clean-summary.html" (dict "page" .) }}</span>
+          <span class="cat-row-blurb">{{ $sum }}{{ if .ReadingTime }} <span class="cat-row-time">&middot; {{ .ReadingTime }} min read</span>{{ end }}</span>
         {{ end }}
       </a>
     {{ end }}

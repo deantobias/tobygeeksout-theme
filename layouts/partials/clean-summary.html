@@ -124,12 +124,19 @@
       {{- /* no punctuation at all (e.g. a one-line micro): use the whole text */ -}}
       {{- $out = $text -}}
     {{- else -}}
+      {{- /* Oct 19, 2026 (Toby): stop at the FIRST sentence that doesn't
+             fit. It used to skip a long sentence and keep going, so the
+             blurb could jump from sentence 1 to sentence 3 and read as if
+             they were back to back (the /now page micro). */ -}}
+      {{- $stop := false -}}
       {{- range $i, $s := $sentences -}}
         {{- $s = trim $s " " -}}
         {{- if eq $i 0 -}}
           {{- $out = $s -}}
-        {{- else if and (lt $i $maxSentences) (le (add (len $out) (len $s) 1) $limit) -}}
+        {{- else if and (not $stop) (lt $i $maxSentences) (le (add (len $out) (len $s) 1) $limit) -}}
           {{- $out = printf "%s %s" $out $s -}}
+        {{- else -}}
+          {{- $stop = true -}}
         {{- end -}}
       {{- end -}}
     {{- end -}}

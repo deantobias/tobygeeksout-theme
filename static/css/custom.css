@@ -13800,6 +13800,21 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 @keyframes tgo-spider-swing { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
 @media (prefers-reduced-motion: reduce) { .tgo-spider { animation: none; } }
 
+/* Newsletter list banner (Oct 19, Toby): /newsletters/ gets a Halloween
+   banner while the skin is on. Same layout as the 70s Caprasimo banner
+   (diagonal split, tagline, wordmark, "The Newsletter"), redone in plum
+   and pumpkin with Grenze Gotisch, the site's cobweb in the corner and
+   the spider on the pumpkin side. 2x image, same 1198:400 shape. Comes
+   after the 70s rule (same specificity), so source order wins; when the
+   season ends or a reader turns Season off, season-hal is gone and the
+   70s banner is back on its own. height/aspect-ratio repeated here so
+   it also holds if the html is not fonts-70s. */
+html.season-hal .section.section-newsletters #main-content::before {
+  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v1-newsletter-banner-halloween-2396x800.png');
+  height: auto;
+  aspect-ratio: 1198 / 400;
+}
+
 }
 /* end section 118 */
 
@@ -14399,3 +14414,40 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
   .tg-now .tgn-chips, .tg-now .tgn-slashes { display: none; }
 }
 /* end section 121 */
+
+/* ------------------------------------------------------------
+   122. CATEGORY PAGES: "IS THAT ALL?" CUES (Oct 19, 2026, Toby)
+   Pairs with layouts/categories/list.html. A summary always ends
+   on a full sentence, so a cut-off untitled micro looked like the
+   whole post. Untitled posts that got cut now end in "Keep
+   reading ->"; titled rows get "N min read" after the blurb.
+   Upright Inter on purpose: untitled rows and blurbs are italic,
+   and the cue should read as a label, not part of the post.
+   ------------------------------------------------------------ */
+.cat-more {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.8em;
+  letter-spacing: 0.01em;
+  color: var(--color-terra-text);
+  white-space: nowrap;
+}
+a.cat-more { text-decoration: none; border: 0; background: none; }
+a.cat-more:hover,
+.cat-row:hover .cat-more {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.cat-row-time {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+@media print {
+  .cat-more { display: none; }
+}
+/* end section 122 */

@@ -3045,6 +3045,15 @@ table[style*="border-collapse:separate"][style*="#FAF8F5"] td {
   }
 }
 
+/* Banner flush to the top on desktop (Oct 19, 2026, Toby). With the
+   rail, every top-header-less page gets 2rem of top padding (section
+   46, !important) so text doesn't touch the window edge. The banner
+   already runs to the right edge, so that strip just read as a gap
+   above it. Higher specificity beats the rail rule. */
+@media (min-width: 768px) {
+  body.section-newsletters:not(.type-newsletter):not(.type-post) #main-content { padding-top: 0 !important; }
+}
+
 /* Constrain the list content */
 .section.section-newsletters .h-entry,
 .section.section-newsletters .pagination {
@@ -13805,13 +13814,14 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
    (diagonal split, tagline, wordmark, "The Newsletter"), redone in plum
    and pumpkin with Grenze Gotisch and the spider on the pumpkin side
    (v2, same day: no cobweb in the banner, the page already draws one
-   in the top-right corner). 2x image, same 1198:400 shape. Comes
+   in the top-right corner; v3: no stars either). 2x image, same
+   1198:400 shape. Comes
    after the 70s rule (same specificity), so source order wins; when the
    season ends or a reader turns Season off, season-hal is gone and the
    70s banner is back on its own. height/aspect-ratio repeated here so
    it also holds if the html is not fonts-70s. */
 html.season-hal .section.section-newsletters #main-content::before {
-  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v2-newsletter-banner-halloween-2396x800.png');
+  background-image: url('https://tobygeeksout.micro.blog/uploads/2026/v3-newsletter-banner-halloween-2396x800.png');
   height: auto;
   aspect-ratio: 1198 / 400;
 }

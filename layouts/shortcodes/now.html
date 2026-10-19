@@ -1,0 +1,475 @@
+{{/* ------------------------------------------------------------
+     NOW PAGE (Oct 19, 2026, Toby's design - mockup v35)
+     A /now page in the nownownow.com spirit. Everything on it either
+     pulls itself from posts and pages that already exist, or is an
+     evergreen line that never needs updating.
+
+     Usage on the Micro.blog page at /now/ :
+         {{< now >}}
+         {{< now updated="2026-10-19" >}}     pin the "Updated" date
+         {{< now making="LEGO" >}}            category for Making
+
+     SECTIONS, top to bottom:
+       Updated date  the newest date of anything shown below, unless
+                     updated="..." pins it. Trakt can bump it in the
+                     browser when a show was watched more recently.
+       Watching      up to 3 things in progress. Same two sources as
+                     the /watching/ page: "🍿 Now Watching" posts
+                     (partials/now-watching.html, at build time) plus
+                     Toby's public Trakt history (in the browser). It
+                     shares /watching/'s browser cache, so the two pages
+                     always agree. No ratings here: /now is the present.
+                     Hidden when nothing is in progress.
+       Reading       the newest "Currently Reading" post (cover, page
+                     count, %), else the Micro.blog "Currently reading"
+                     shelf - same rules as the home Bookshelf card.
+                     Hidden when there is no book.
+       Latest photo  the newest post in the Photos category with one of
+                     Toby's own uploads - same rules as the /photo/ page.
+       Writing       ONLY once a #100DaysToOffload post exists: the dot
+                     grid, one dot per post. Hidden until then.
+       Building      hand-written, evergreen lines (edit $builds below).
+       Making        ONLY when a post in the Making category (default
+                     "LEGO") is under 30 days old: its photo and title.
+                     A small script removes it on day 30 even if the
+                     site has not rebuilt. Every new post resets the 30.
+       Directory     "Take a look around": the true slash pages as cards,
+                     then every other page as a row of links. A link is
+                     only shown when its page exists on the site, so a
+                     wrong slug drops out instead of leading to a 404.
+                     Pages already linked elsewhere on /now (/watching,
+                     /tinkering) are left out of More pages on purpose.
+
+     No location anywhere on this page (Toby, Oct 19).
+     Styles: custom.css section 121.
+     ------------------------------------------------------------ */}}
+{{- $page := .Page -}}
+{{- $latest := 0 -}}
+{{- $latestT := $page.Date -}}
+{{- $makingCat := .Get "making" | default "LEGO" -}}
+{{- $intro := .Get "intro" | default "What I'm up to these days: what's on the screen, what's on the nightstand, what I'm building, and what I've been pointing my camera at." -}}
+
+{{/* ---- WATCHING (posts at build time; Trakt added in the browser) */}}
+{{- $nwDays := 90 -}}
+{{- $nw := partial "now-watching.html" (dict "days" $nwDays) -}}
+{{- $nwTop := first 3 $nw.items -}}
+{{- with $nwTop -}}{{- $d := div (index . 0).date 1000 -}}{{- if gt $d $latest -}}{{- $latest = $d -}}{{- $latestT = time.AsTime (index . 0).dateISO -}}{{- end -}}{{- end -}}
+
+{{/* ---- READING (same rules as the home Bookshelf card, index.html) */}}
+{{- $book := false -}}
+{{- $bookKeys := slice -}}
+{{- range where site.Pages.ByDate.Reverse "Type" "post" -}}
+  {{- if and (in .Params.categories "Currently Reading") .Title -}}
+    {{- $k := lower (replaceRE `(?i)^.*?currently reading:\s*` "" .Title) -}}
+    {{- if not (in $bookKeys $k) -}}{{- $bookKeys = $bookKeys | append $k -}}{{- end -}}
+    {{- if not $book -}}{{- $book = . -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $bookTitle := "" -}}{{- $bookCover := "" -}}{{- $bookURL := "" -}}
+{{- $bookPages := "" -}}{{- $bookPct := "" -}}{{- $bookMore := 0 -}}
+{{- with $book -}}
+  {{- $bookTitle = replaceRE `(?i)^.*?currently reading:\s*` "" .Title -}}
+  {{- $bookURL = .Permalink -}}
+  {{- $bookMore = sub (len $bookKeys) 1 -}}
+  {{- with findRE `(?s)(?:book-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 -}}
+    {{- $bookCover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}
+  {{- end -}}
+  {{- if not $bookCover -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $bookCover) (or (in $u "books.google.com") (in $u "cdn.micro.blog/books")) -}}{{- $bookCover = $u -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $bookCover -}}{{- $bookCover = replaceRE `&(amp;)?edge=curl` "" $bookCover -}}{{- end -}}
+  {{- $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify -}}
+  {{- with findRE `Page \d+ of \d+` $plain 1 -}}{{- $bookPages = index . 0 -}}{{- end -}}
+  {{- with findRE `\d{1,3}%` $plain 1 -}}{{- $bookPct = index . 0 -}}{{- end -}}
+  {{- if gt .Date.Unix $latest -}}{{- $latest = .Date.Unix -}}{{- $latestT = .Date -}}{{- end -}}
+{{- else -}}
+  {{- with site.Data.bookshelves -}}
+    {{- $n := 0 -}}
+    {{- range $k, $v := . -}}
+      {{- if eq (replaceRE `[^a-z]` "" (lower (printf "%v" $k))) "currentlyreading" -}}
+        {{- $list := $v -}}
+        {{- if reflect.IsMap $v -}}{{- $list = index $v "items" | default slice -}}{{- end -}}
+        {{- range $list -}}
+          {{- $n = add $n 1 -}}
+          {{- if and (eq $n 1) (reflect.IsMap .) -}}
+            {{- $bookTitle = index . "title" | default "" -}}
+            {{- $bookCover = index . "image" | default (index . "cover_url") | default "" -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if gt $n 1 -}}{{- $bookMore = sub $n 1 -}}{{- end -}}
+  {{- end -}}
+  {{- $bookURL = "/reading/" | absURL -}}
+{{- end -}}
+
+{{/* ---- LATEST PHOTO (same rules as shortcodes/photo.html) */}}
+{{- $shot := dict -}}
+{{- range (where (where site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos")).ByDate.Reverse -}}
+  {{- $p := . -}}
+  {{- if and (not (index $shot "src")) (not (in (lower $p.Content) "credit:")) -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- range findRE `<img[^>]+>` $p.Content -}}
+      {{- $tag := . -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" $tag) -}}
+      {{- if and (not (index $shot "src")) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}
+        {{- $a := "" -}}
+        {{- with findRE `alt="[^"]*"` $tag 1 -}}{{- $a = htmlUnescape (replaceRE `^alt="(.*)"$` "$1" (index . 0)) -}}{{- end -}}
+        {{- $a = replaceRE `^Auto-generated description:\s*` "" $a -}}
+        {{- if findRE `(?i)^[\w.\-]+\.(jpe?g|png|webp|gif|heic)$` $a 1 -}}{{- $a = "" -}}{{- end -}}
+        {{- if not $a -}}{{- $a = cond (ne (trim $p.Title " ") "") $p.Title (printf "Photo from %s" ($p.Date.Format "January 2, 2006")) -}}{{- end -}}
+        {{- $shot = dict "page" $p "src" $u "alt" $a "title" (trim $p.Title " \n\t") -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- with $shot.page -}}{{- if gt .Date.Unix $latest -}}{{- $latest = .Date.Unix -}}{{- $latestT = .Date -}}{{- end -}}{{- end -}}
+
+{{/* ---- WRITING: #100DaysToOffload, only once the first post exists */}}
+{{- $offN := 0 -}}{{- $offCat := "" -}}{{- $offLast := false -}}
+{{- range (where site.RegularPages "Type" "post").ByDate.Reverse -}}
+  {{- $hit := "" -}}
+  {{- range .Params.categories -}}
+    {{- if hasPrefix (replaceRE `[^a-z0-9]` "" (lower .)) "100days" -}}{{- $hit = . -}}{{- end -}}
+  {{- end -}}
+  {{- if $hit -}}
+    {{- $offN = add $offN 1 -}}
+    {{- if not $offLast -}}{{- $offLast = . -}}{{- $offCat = $hit -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- with $offLast -}}{{- if gt .Date.Unix $latest -}}{{- $latest = .Date.Unix -}}{{- $latestT = .Date -}}{{- end -}}{{- end -}}
+
+{{/* ---- MAKING: newest post in the Making category, if under 30 days */}}
+{{- $make := false -}}{{- $makeSrc := "" -}}
+{{- $makeCutoff := now.AddDate 0 0 -30 -}}
+{{- with first 1 (where (where site.RegularPages "Type" "post") "Params.categories" "intersect" (slice $makingCat)).ByDate.Reverse -}}
+  {{- $m := index . 0 -}}
+  {{- if not ($m.Date.Before $makeCutoff) -}}
+    {{- $make = $m -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` $m.Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $makeSrc) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) -}}{{- $makeSrc = $u -}}{{- end -}}
+    {{- end -}}
+    {{- if gt $m.Date.Unix $latest -}}{{- $latest = $m.Date.Unix -}}{{- $latestT = $m.Date -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* ---- BUILDING: hand-written and evergreen. Edit here. */}}
+{{- $up := "https://tobygeeksout.micro.blog/uploads/2026/" -}}
+{{- $builds := slice
+  (dict "name" "Perch" "icon" (print $up "icon-192.png") "line" "My own Micro.blog app." "tint" false)
+  (dict "name" "Draft Studio" "icon" (print $up "ds-icon.png") "line" "The writing app where my posts start." "tint" false)
+  (dict "name" "Hutch" "icon" (print $up "fb54b5e64c.png") "line" "This site's theme. Every change is in the" "link" (slice "/tinkering/" "/changelog/") "linkText" "Tinkering Log" "tint" true)
+  (dict "name" "Focus Mail" "icon" (print $up "icon.svg") "line" "A calmer way to do email." "tint" false)
+-}}
+
+{{/* ---- DIRECTORY. Each entry lists slugs to try, first match wins.
+     Archive is the home page's archive output, not a page, so it is
+     always shown. */}}
+{{- $have := slice -}}
+{{- range site.Pages -}}{{- $have = $have | append (replaceRE `(\.html|/)+$` "" .RelPermalink) -}}{{- end -}}
+{{- $slashDefs := slice
+  (dict "try" (slice "/about/") "line" "Who I am and why I geek out")
+  (dict "try" (slice "/photo/") "line" "My newest shot, swapped out as I go")
+  (dict "try" (slice "/uses/") "line" "The gear and apps I use")
+-}}
+{{- $moreDefs := slice
+  (slice "/the-pulse/" "/pulse/") (slice "/the-long-road/") (slice "/archive/") (slice "/calendar/")
+  (slice "/blaugust/" "/blaugust-2026/") (slice "/watched/") (slice "/the-queue/" "/queue/")
+  (slice "/newsletter/" "/newsletters/" "/subscribe/")
+-}}
+{{- $always := slice "/archive/" -}}
+{{- $found := 0 -}}
+{{- $slash := slice -}}
+{{- range $slashDefs -}}
+  {{- $hit := "" -}}
+  {{- range .try -}}{{- if and (not $hit) (in $have (replaceRE `/+$` "" .)) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
+  {{- if $hit -}}{{- $found = add $found 1 -}}{{- end -}}
+  {{- $slash = $slash | append (dict "url" $hit "first" (index .try 0) "line" .line) -}}
+{{- end -}}
+{{- $more := slice -}}
+{{- range $moreDefs -}}
+  {{- $hit := "" -}}
+  {{- range . -}}{{- if and (not $hit) (or (in $always .) (in $have (replaceRE `/+$` "" .))) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
+  {{- if and $hit (not (in $always $hit)) -}}{{- $found = add $found 1 -}}{{- end -}}
+  {{- $more = $more | append (dict "url" $hit "first" (index . 0)) -}}
+{{- end -}}
+{{/* If nothing at all was found, page detection itself failed on this
+     Hugo version: show every first slug rather than an empty section. */}}
+{{- $trust := gt $found 0 -}}
+
+{{/* ---- UPDATED DATE */}}
+{{- $updText := "" -}}{{- $updISO := "" -}}
+{{- with .Get "updated" -}}
+  {{- $t := time . -}}{{- $updText = $t.Format "January 2, 2006" -}}{{- $updISO = $t.Format "2006-01-02" -}}
+{{- else -}}
+  {{- $updText = $latestT.Format "January 2, 2006" -}}{{- $updISO = $latestT.Format "2006-01-02" -}}
+{{- end -}}
+
+<div class="tg-now">
+
+  <div class="tgn-intro">
+  <p class="tgn-lede">{{ $intro }}</p>
+  <p class="tgn-updated">Updated <time id="tgn-updated" datetime="{{ $updISO }}"{{ if .Get "updated" }} data-pinned="1"{{ end }}>{{ $updText }}</time></p>
+  </div>
+
+  <section class="tgn-sec" id="tgn-watching" aria-labelledby="tgn-watching-h"{{ if not $nwTop }} hidden{{ end }}>
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">On screen</span><h2 class="tgn-h" id="tgn-watching-h">Watching</h2></div>
+      <a class="tgn-src" href="{{ "/watching/" | absURL }}">from /watching ↗</a>
+    </div>
+    <div class="tgn-posters" id="tgn-watch-grid">
+      {{- range $nwTop }}
+      <a class="tgn-poster" href="{{ .url }}">
+        {{- if .poster }}<img class="tgn-poster-img" src="{{ .poster | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="tgn-poster-img tgn-poster-img--blank" aria-hidden="true">🍿</span>{{ end }}
+        <span class="tgn-poster-title">{{ .title }}</span>
+        <span class="tgn-poster-meta"><span class="tgn-pill">Watching</span>{{ if eq .kind "movie" }} Movie{{ else if .season }} Season {{ .season }}{{ end }}</span>
+      </a>
+      {{- end }}
+    </div>
+  </section>
+
+  {{- if $bookTitle }}
+  <section class="tgn-sec" aria-labelledby="tgn-reading-h">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">On the nightstand</span><h2 class="tgn-h" id="tgn-reading-h">Reading</h2></div>
+      <a class="tgn-src" href="{{ "/reading/" | absURL }}">from /reading ↗</a>
+    </div>
+    <a class="tgn-book" href="{{ $bookURL }}">
+      {{- with $bookCover }}<img class="tgn-book-cover" src="{{ . | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">{{ else }}<span class="tgn-book-cover tgn-book-cover--blank" aria-hidden="true"><b>{{ $bookTitle }}</b></span>{{ end }}
+      <span class="tgn-book-body">
+        <span class="tgn-book-title">{{ $bookTitle }}</span>
+        {{- if $bookPct }}<span class="tgn-bar" aria-hidden="true"><span class="tgn-bar-fill" style="width: {{ $bookPct }};"></span></span>{{ end }}
+        {{- if or $bookPages $bookPct }}<span class="tgn-small">{{ $bookPages }}{{ if and $bookPages $bookPct }} · {{ end }}{{ $bookPct }}</span>{{ end }}
+        {{- if gt $bookMore 0 }}<span class="tgn-small">+ {{ $bookMore }} more on the go</span>{{ end }}
+      </span>
+    </a>
+  </section>
+  {{- end }}
+
+  {{- with $shot.page }}
+  <section class="tgn-sec" aria-labelledby="tgn-photo-h">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">Through the lens</span><h2 class="tgn-h" id="tgn-photo-h">Latest photo</h2></div>
+      <a class="tgn-src" href="{{ "/photo/" | absURL }}">from /photo ↗</a>
+    </div>
+    <figure class="tgn-photo">
+      <a href="{{ .Permalink }}"><img src="{{ $shot.src }}" alt="{{ $shot.alt }}" loading="lazy" decoding="async"></a>
+      <figcaption class="tgn-small">
+        {{- with $shot.title }}<a class="tgn-cap-title" href="{{ $shot.page.Permalink }}">{{ . }}</a> · {{ end -}}
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+      </figcaption>
+    </figure>
+  </section>
+  {{- end }}
+
+  {{- if gt $offN 0 }}
+  {{- $goal := 100 }}{{ if gt $offN $goal }}{{ $goal = $offN }}{{ end }}
+  <section class="tgn-sec" aria-labelledby="tgn-writing-h">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">At the keyboard</span><h2 class="tgn-h" id="tgn-writing-h">Writing</h2></div>
+      <a class="tgn-src" href="{{ "/categories/" | absURL }}{{ $offCat | urlize }}/">all posts ↗</a>
+    </div>
+    <div class="tgn-writing">
+      <div class="tgn-dots" role="img" aria-label="{{ $offN }} of {{ $goal }} posts">
+        {{- range $i := seq $goal }}<i{{ if le $i $offN }} class="on"{{ end }}></i>{{ end -}}
+      </div>
+      <div class="tgn-writing-body">
+        <span class="tgn-count">{{ $offN }}<span> / {{ $goal }}</span></span>
+        <span class="tgn-small">#100DaysToOffload</span>
+        {{- with $offLast }}<span class="tgn-small">Latest: <a href="{{ .Permalink }}">{{ cond (ne .Title "") .Title (.Date.Format "January 2") }}</a></span>{{ end }}
+      </div>
+    </div>
+  </section>
+  {{- end }}
+
+  <section class="tgn-sec" aria-labelledby="tgn-building-h">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">On the workbench</span><h2 class="tgn-h" id="tgn-building-h">Building</h2></div>
+      <span class="tgn-src tgn-src--plain">always in progress</span>
+    </div>
+    <div class="tgn-builds">
+      {{- range $builds }}
+      {{- $b := . }}
+      <div class="tgn-build">
+        <img class="tgn-icon{{ if .tint }} tgn-icon--tint{{ end }}" src="{{ .icon }}" alt="" width="56" height="56" loading="lazy" decoding="async">
+        <div class="tgn-build-body">
+          <span class="tgn-build-name">{{ .name }}</span>
+          <span class="tgn-small">{{ .line }}{{ with .link }}{{ $l := "" }}{{ range . }}{{ if and (not $l) (in $have (replaceRE `/+$` "" .)) }}{{ $l = . }}{{ end }}{{ end }}{{ if not $l }}{{ $l = index . (sub (len .) 1) }}{{ end }} <a href="{{ $l | absURL }}">{{ $b.linkText }}</a>.{{ end }}</span>
+        </div>
+      </div>
+      {{- end }}
+    </div>
+  </section>
+
+  {{- with $make }}
+  <section class="tgn-sec" id="tgn-making" aria-labelledby="tgn-making-h" data-expires="{{ (.Date.AddDate 0 0 30).Format "2006-01-02T15:04:05-07:00" }}">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">Off screen</span><h2 class="tgn-h" id="tgn-making-h">Making</h2></div>
+    </div>
+    <a class="tgn-make" href="{{ .Permalink }}">
+      {{- with $makeSrc }}<img src="{{ . }}" alt="" loading="lazy" decoding="async">{{ end }}
+      <span class="tgn-small"><b>{{ cond (ne .Title "") .Title "New build" }}</b> · {{ .Date.Format "January 2, 2006" }}</span>
+    </a>
+  </section>
+  {{- end }}
+
+  <section class="tgn-sec" aria-labelledby="tgn-dir-h">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">Directory</span><h2 class="tgn-h" id="tgn-dir-h">Take a look around</h2></div>
+    </div>
+    <div class="tgn-subrow"><span class="tgn-sub">Slash pages</span><a class="tgn-src" href="https://slashpages.net">what's this? ↗</a></div>
+    <div class="tgn-slashes">
+      {{- range $i, $s := $slash }}
+      {{- $u := cond $trust $s.url $s.first }}
+      {{- with $u }}
+      <a class="tgn-slash" href="{{ . | absURL }}"><code>{{ replaceRE `/+$` "" . }}</code><span>{{ $s.line }}</span></a>
+      {{- end }}
+      {{- if eq $i 0 }}{{/* /now always sits second, right after /about */}}
+      <span class="tgn-slash tgn-slash--here" aria-current="page"><code>/now</code><span>What I'm up to. You're here.</span></span>
+      {{- end }}
+      {{- end }}
+    </div>
+    <div class="tgn-subrow"><span class="tgn-sub">More pages</span></div>
+    <div class="tgn-chips">
+      {{- range $more }}
+      {{- $u := cond $trust .url .first }}
+      {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
+      {{- end }}
+    </div>
+  </section>
+
+  <p class="tgn-foot">This is a <a href="https://nownownow.com/about">now page</a>. If you have your own site, you should make one too.</p>
+
+</div>
+
+<script>
+(function () {
+  /* Making: gone on day 30, even without a rebuild. */
+  var mk = document.getElementById("tgn-making");
+  if (mk && Date.now() > new Date(mk.getAttribute("data-expires")).getTime()) mk.parentNode.removeChild(mk);
+
+  /* Watching: same Trakt merge as shortcodes/watching.html, top 3 only.
+     Shares its cache key, so /now and /watching always agree. */
+  var USER = "technogeek75";
+  var DAYS = {{ $nwDays }};
+  var REVIEWED = {{ $nw.reviewed | jsonify | safeJS }};
+  var POSTS = {{ $nw.items | jsonify | safeJS }};
+  var TRAKT = "https://api.trakt.tv";
+  var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
+  var POSTER = "https://perch-app.pages.dev/poster";
+  var LIST_KEY = "tgo_watching_v3_" + USER + "_" + DAYS;
+  var LIST_TTL = 30 * 60 * 1000;
+  var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
+  var sec = document.getElementById("tgn-watching");
+  var grid = document.getElementById("tgn-watch-grid");
+  var upd = document.getElementById("tgn-updated");
+  if (!sec || !grid) return;
+
+  function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function load(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function tget(path) {
+    return fetch(TRAKT + path, { headers: { "trakt-api-version": "2", "trakt-api-key": CLIENT_ID } })
+      .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
+  }
+  function fetchTrakt() {
+    var since = Date.now() - DAYS * 86400000;
+    return Promise.all([
+      tget("/users/" + encodeURIComponent(USER) + "/history/episodes?limit=1000&start_at=" + encodeURIComponent(new Date(since).toISOString())),
+      tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
+    ]).then(function (res) {
+      var rated = {};
+      res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
+      var seen = {}, out = [];
+      res[0].forEach(function (h) {
+        var s = h.show, e = h.episode;
+        if (!s || !s.ids || !e || seen[s.ids.trakt]) return;
+        seen[s.ids.trakt] = 1;
+        var last = new Date(h.watched_at).getTime();
+        if (last < since || (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last)) return;
+        var n = norm(s.title);
+        if (!n || REVIEWED.indexOf(n) > -1) return;
+        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, last: last });
+      });
+      return out;
+    });
+  }
+  function merge(trakt) {
+    var byNorm = {}, used = {};
+    POSTS.forEach(function (p) { byNorm[p.norm] = p; });
+    var out = trakt.map(function (t) {
+      var n = norm(t.title), p = byNorm[n];
+      if (p) used[n] = 1;
+      return { title: t.title, kind: "tv", season: p ? Math.max(t.season, p.season || 0) : t.season, tmdb: t.tmdb,
+        last: p ? Math.max(t.last, p.date) : t.last, poster: p ? p.poster : "",
+        url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""), external: !p };
+    });
+    POSTS.forEach(function (p) {
+      if (used[p.norm]) return;
+      out.push({ title: p.title, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster, url: p.url, external: false });
+    });
+    out.sort(function (a, b) { return b.last - a.last; });
+    return out.slice(0, 3);
+  }
+  function getPoster(tmdb) {
+    if (!tmdb) return Promise.resolve("");
+    var k = "tgo_poster_v1_" + tmdb, c = load(k);
+    if (c && Date.now() - c.t < POSTER_TTL) return Promise.resolve(c.u);
+    return fetch(POSTER + "?tmdb=" + tmdb).then(function (r) { return r.json(); }).then(function (d) {
+      var u = (d && d.poster) || "";
+      if (u) store(k, { t: Date.now(), u: u });
+      return u;
+    }).catch(function () { return ""; });
+  }
+  function setPoster(card, blank, u) {
+    if (!u) return;
+    var img = document.createElement("img");
+    img.className = "tgn-poster-img"; img.alt = ""; img.width = 150; img.height = 225; img.loading = "lazy"; img.decoding = "async"; img.src = u;
+    card.replaceChild(img, blank);
+  }
+  function bumpUpdated(list) {
+    if (!upd || upd.getAttribute("data-pinned")) return;
+    var shown = new Date(upd.getAttribute("datetime") + "T23:59:59").getTime();
+    var top = 0;
+    list.forEach(function (it) { if (it.last > top) top = it.last; });
+    if (top > shown) {
+      var d = new Date(top);
+      upd.textContent = d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+  }
+  function render(list) {
+    if (!list.length) { sec.hidden = true; return; }
+    grid.textContent = "";
+    list.forEach(function (it) {
+      var card = el(it.url ? "a" : "div", "tgn-poster");
+      if (it.url) { card.href = it.url; if (it.external) card.rel = "noopener"; }
+      var blank = el("span", "tgn-poster-img tgn-poster-img--blank", "🍿");
+      blank.setAttribute("aria-hidden", "true");
+      card.appendChild(blank);
+      card.appendChild(el("span", "tgn-poster-title", it.title));
+      var meta = el("span", "tgn-poster-meta");
+      meta.appendChild(el("span", "tgn-pill", "Watching"));
+      meta.appendChild(document.createTextNode(it.kind === "movie" ? " Movie" : (it.season ? " Season " + it.season : "")));
+      card.appendChild(meta);
+      grid.appendChild(card);
+      if (it.poster) setPoster(card, blank, it.poster);
+      else getPoster(it.tmdb).then(function (u) { setPoster(card, blank, u); });
+    });
+    sec.hidden = false;
+    bumpUpdated(list);
+  }
+
+  var cached = load(LIST_KEY);
+  if (cached && Date.now() - cached.t < LIST_TTL) { render(merge(cached.list)); return; }
+  fetchTrakt().then(function (list) { store(LIST_KEY, { t: Date.now(), list: list }); render(merge(list)); })
+    .catch(function () { if (cached) render(merge(cached.list)); });
+})();
+</script>

@@ -1,0 +1,115 @@
+{{/* PHOTO PAGE - a /photo page in the spirit of Robert Birming's
+     (robertbirming.com/photo). (Oct 19, 2026) Pairs with custom.css
+     section 120.
+
+     Usage on the Micro.blog page at /photo/ :
+         {{< photo >}}                      uses the "Photos" category
+         {{< photo category="Photos" >}}    any other category
+
+     The newest post in the category is shown big, with its first
+     photo, Toby's comment from the post as the caption, the date,
+     and a "+N more in this post" link when the post holds several
+     photos. Every older post becomes a square tile below, newest
+     first, using its first photo, with a small stack badge when the
+     post has more inside. Updates itself on every build.
+
+     Rules:
+     - Only Toby's own uploads count (cdn.uploads.micro.blog or the
+       blog's /uploads/). Book and movie card posters are skipped,
+       same as the home page thumbnails.
+     - A post whose text says "Credit:" is someone else's photo
+       (the Orion nebula post, Mar 2026) and is left out.
+     - A post with no uploaded photo (the Instagram embed) is left out.
+     - Alt text that is only a filename ("4261.jpg") or starts with
+       Micro.blog's "Auto-generated description:" is cleaned up;
+       empty alt falls back to the post title or date.
+     - The "Last updated" line prints a date at build time; a tiny
+       script turns it into "3 hours ago" style in the browser.
+
+     Renders nothing if no post qualifies. */}}
+
+{{- $cat := .Get "category" | default "Photos" -}}
+{{- $posts := where (where .Site.RegularPages "Type" "post") "Params.categories" "intersect" (slice $cat) -}}
+
+{{- $shots := slice -}}
+{{- range $posts.ByDate.Reverse -}}
+  {{- $p := . -}}
+  {{- if not (in (lower $p.Content) "credit:") -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $srcs := slice -}}
+    {{- $alts := slice -}}
+    {{- range findRE `<img[^>]+>` $p.Content -}}
+      {{- $tag := . -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" $tag) -}}
+      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}
+        {{- $a := "" -}}
+        {{- with findRE `alt="[^"]*"` $tag 1 -}}{{- $a = htmlUnescape (replaceRE `^alt="(.*)"$` "$1" (index . 0)) -}}{{- end -}}
+        {{- $a = replaceRE `^Auto-generated description:\s*` "" $a -}}
+        {{- if findRE `(?i)^[\w.\-]+\.(jpe?g|png|webp|gif|heic)$` $a 1 -}}{{- $a = "" -}}{{- end -}}
+        {{- $srcs = $srcs | append $u -}}
+        {{- $alts = $alts | append $a -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if gt (len $srcs) 0 -}}
+      {{- $title := trim $p.Title " \n\t" -}}
+      {{- $alt := index $alts 0 -}}
+      {{- if not $alt -}}{{- $alt = cond (ne $title "") $title (printf "Photo from %s" ($p.Date.Format "January 2, 2006")) -}}{{- end -}}
+      {{- $shots = $shots | append (dict "page" $p "src" (index $srcs 0) "alt" $alt "n" (len $srcs) "title" $title) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if gt (len $shots) 0 -}}
+{{- $hero := index $shots 0 -}}
+{{- $hp := $hero.page -}}
+{{- $caption := partial "clean-summary.html" (dict "page" $hp) -}}
+<div class="tg-photo">
+
+  <p class="tgp-intro">This is my /photo page: my newest shot, swapped out whenever I share a new one. Last updated <time class="tgp-ago" datetime="{{ $hp.Date.Format "2006-01-02T15:04:05-07:00" }}">{{ $hp.Date.Format "2 Jan 2006" }}</time>.</p>
+
+  <figure class="tgp-hero">
+    <a class="tgp-hero-link" href="{{ $hp.Permalink }}">
+      <img src="{{ $hero.src }}" alt="{{ $hero.alt }}" decoding="async">
+    </a>
+    <figcaption class="tgp-cap">
+      {{- with $caption }}<span class="tgp-cap-text">{{ . }}</span>{{ end }}
+      <span class="tgp-cap-meta">
+        {{- with $hero.title }}<a class="tgp-cap-title" href="{{ $hp.Permalink }}">{{ . }}</a><span class="tgp-sep" aria-hidden="true">·</span>{{ end -}}
+        <time datetime="{{ $hp.Date.Format "2006-01-02" }}">{{ $hp.Date.Format "2 Jan 2006" }}</time>
+        {{- if gt $hero.n 1 }}<span class="tgp-sep" aria-hidden="true">·</span><a class="tgp-more" href="{{ $hp.Permalink }}">+{{ sub $hero.n 1 }} more in this post</a>{{ end -}}
+      </span>
+    </figcaption>
+  </figure>
+
+  {{- if gt (len $shots) 1 }}
+  <section class="tgp-archive" aria-labelledby="tgp-archive-head">
+    <h2 class="tgp-head" id="tgp-archive-head">Previous shots <span class="tgp-count">{{ sub (len $shots) 1 }}</span></h2>
+    <ul class="tgp-grid">
+      {{- range after 1 $shots }}
+      {{- $sp := .page }}
+      {{- $label := cond (ne .title "") .title "Untitled" }}
+      <li>
+        <a class="tgp-tile" href="{{ $sp.Permalink }}" aria-label="{{ $label }}, {{ $sp.Date.Format "2 Jan 2006" }}{{ if gt .n 1 }}, {{ .n }} photos{{ end }}">
+          <span class="tgp-tile-img">
+            <img src="{{ .src }}" alt="" loading="lazy" decoding="async">
+            {{- if gt .n 1 }}<span class="tgp-stack" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12"><rect x="4.5" y="1.5" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1.5" y="4.5" width="10" height="10" rx="1.5" fill="currentColor"/></svg>{{ .n }}</span>{{ end }}
+          </span>
+          <span class="tgp-tile-cap" aria-hidden="true">
+            {{- with .title }}<span class="tgp-tile-title">{{ . }}</span>{{ end -}}
+            <span class="tgp-tile-date">{{ $sp.Date.Format "2 Jan 2006" }}</span>
+          </span>
+        </a>
+      </li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
+
+  <p class="tgp-credit">Inspired by <a href="https://robertbirming.com/photo/">Robert Birming’s /photo page</a>, where you can also find a whole directory of them.</p>
+
+</div>
+<script>(function(){var t=document.querySelector('.tg-photo .tgp-ago');if(!t)return;var d=new Date(t.getAttribute('datetime'));var s=(Date.now()-d.getTime())/1000;if(!(s>=0))return;var m=Math.floor(s/60),h=Math.floor(s/3600),dy=Math.floor(s/86400),o;if(m<1)o='just now';else if(h<1)o=m+(m===1?' minute':' minutes')+' ago';else if(dy<1)o=h+(h===1?' hour':' hours')+' ago';else if(dy===1)o='yesterday';else if(dy<30)o=dy+' days ago';else return;t.title=t.textContent;t.textContent=o;})();</script>
+{{- end -}}

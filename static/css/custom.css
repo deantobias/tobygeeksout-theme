@@ -13825,3 +13825,208 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
   body:not(.type-newsletter):not(.type-post) .site-header .site-logo-wordmark { opacity: 1 !important; }
 }
 /* end section 119 */
+
+/* ============================================================
+   120. PHOTO PAGE  (Oct 19, 2026, Toby)
+   ------------------------------------------------------------
+   The /photo page, inspired by robertbirming.com/photo. Markup from
+   layouts/shortcodes/photo.html: newest Photos post shown big with
+   its caption, older posts as square tiles below, credit line last.
+   Every selector carries .tg-photo plus an element, so the
+   .page-body p / ul / h2 rules (0,1,1) and the LINKS group (0,2,1)
+   can't leak in (section 93 lesson). Tokens only, so it follows
+   every sky and both looks.
+   ============================================================ */
+.tg-photo { margin: 0 0 var(--space-2xl); }
+
+.tg-photo p.tgp-intro {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-lg);
+}
+.tg-photo p.tgp-intro time { color: var(--color-text); font-weight: 600; }
+
+/* ---- the newest photo ---- */
+.tg-photo figure.tgp-hero { margin: 0 0 var(--space-2xl); padding: 0; }
+.tg-photo a.tgp-hero-link {
+  display: block;
+  text-decoration: none;
+  border: 0;
+  background: none;
+}
+.tg-photo .tgp-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(30, 45, 74, 0.08), 0 8px 28px rgba(30, 45, 74, 0.12);
+}
+/* Tall shots fit the window on wider screens, shape kept (section 99 idea) */
+@media (min-width: 600px) {
+  .tg-photo .tgp-hero img {
+    width: auto;
+    max-width: 100%;
+    max-height: 80vh;
+    max-height: 80svh;
+  }
+}
+.tg-photo figcaption.tgp-cap {
+  display: block;
+  text-align: left;
+  margin: var(--space-md) auto 0;
+  max-width: 40rem;
+  font-style: normal;
+}
+.tg-photo .tgp-cap-text {
+  display: block;
+  font-family: var(--font-reading);
+  font-size: 1.2rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+.tg-photo .tgp-cap-meta {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+.tg-photo .tgp-sep { margin: 0 0.4em; }
+.tg-photo a.tgp-cap-title,
+.tg-photo a.tgp-more {
+  color: var(--color-terra-text);
+  font-weight: 600;
+  text-decoration: none;
+  border: 0;
+  background: none;
+}
+.tg-photo a.tgp-cap-title:hover,
+.tg-photo a.tgp-more:hover {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ---- previous shots ---- */
+.tg-photo h2.tgp-head {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  margin: 0 0 var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 3px solid var(--color-navy);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.tg-photo .tgp-count {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.tg-photo ul.tgp-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+@media (min-width: 600px) { .tg-photo ul.tgp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .tg-photo ul.tgp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tg-photo ul.tgp-grid li { margin: 0; padding: 0; }
+.tg-photo ul.tgp-grid li::before, .tg-photo ul.tgp-grid li::marker { content: none; }
+
+.tg-photo a.tgp-tile {
+  display: block;
+  text-decoration: none;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+}
+.tg-photo .tgp-tile-img {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-warm);
+}
+.tg-photo .tgp-tile-img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 0;
+  transition: transform 0.35s ease;
+}
+.tg-photo a.tgp-tile:hover .tgp-tile-img img { transform: scale(1.04); }
+.tg-photo a.tgp-tile:focus-visible { outline: none; }
+.tg-photo a.tgp-tile:focus-visible .tgp-tile-img {
+  outline: 3px solid var(--color-terra);
+  outline-offset: 3px;
+}
+.tg-photo .tgp-stack {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(19, 26, 43, 0.72);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.tg-photo .tgp-tile-cap { display: block; margin-top: 6px; }
+.tg-photo .tgp-tile-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.tg-photo a.tgp-tile:hover .tgp-tile-title { color: var(--color-terra-text); }
+.tg-photo .tgp-tile-date {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+/* ---- credit ---- */
+.tg-photo p.tgp-credit {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: var(--space-2xl) 0 0;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+.tg-photo p.tgp-credit a { color: var(--color-terra-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-photo .tgp-tile-img img { transition: none; }
+  .tg-photo a.tgp-tile:hover .tgp-tile-img img { transform: none; }
+}
+@media print {
+  .tg-photo .tgp-archive { display: none; }
+}
+/* end section 120 */

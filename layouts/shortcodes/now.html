@@ -13,7 +13,8 @@
        Updated date  the newest date of anything shown below, unless
                      updated="..." pins it. Trakt can bump it in the
                      browser when a show was watched more recently.
-       Watching      up to 3 things in progress. Same two sources as
+       Watching      one full row of things in progress (as many as
+                     fit the width, up to 12). Same two sources as
                      the /watching/ page: "🍿 Now Watching" posts
                      (partials/now-watching.html, at build time) plus
                      Toby's public Trakt history (in the browser). It
@@ -52,7 +53,7 @@
 {{/* ---- WATCHING (posts at build time; Trakt added in the browser) */}}
 {{- $nwDays := 90 -}}
 {{- $nw := partial "now-watching.html" (dict "days" $nwDays) -}}
-{{- $nwTop := first 3 $nw.items -}}
+{{- $nwTop := first 12 $nw.items -}}
 {{- with $nwTop -}}{{- $d := div (index . 0).date 1000 -}}{{- if gt $d $latest -}}{{- $latest = $d -}}{{- $latestT = time.AsTime (index . 0).dateISO -}}{{- end -}}{{- end -}}
 
 {{/* ---- READING (same rules as the home Bookshelf card, index.html) */}}
@@ -355,7 +356,8 @@
   var mk = document.getElementById("tgn-making");
   if (mk && Date.now() > new Date(mk.getAttribute("data-expires")).getTime()) mk.parentNode.removeChild(mk);
 
-  /* Watching: same Trakt merge as shortcodes/watching.html, top 3 only.
+  /* Watching: same Trakt merge as shortcodes/watching.html, up to 12,
+     trimmed to exactly one row by fitRow() below.
      Shares its cache key, so /now and /watching always agree. */
   var USER = "technogeek75";
   var DAYS = {{ $nwDays }};
@@ -371,6 +373,18 @@
   var grid = document.getElementById("tgn-watch-grid");
   var upd = document.getElementById("tgn-updated");
   if (!sec || !grid) return;
+
+  /* One row only (Toby, Oct 19): show as many posters as the row has
+     columns at this width, hide the rest. Re-checks on resize. */
+  function fitRow() {
+    var t = getComputedStyle(grid).gridTemplateColumns;
+    if (!t || t === "none") return; /* section hidden: nothing to measure yet */
+    var cols = t.split(" ").filter(Boolean).length;
+    Array.prototype.forEach.call(grid.children, function (c, i) { c.hidden = i >= cols; });
+  }
+  if (window.ResizeObserver) new ResizeObserver(fitRow).observe(grid);
+  else window.addEventListener("resize", fitRow);
+  fitRow();
 
   function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -417,7 +431,7 @@
       out.push({ title: p.title, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster, url: p.url, external: false });
     });
     out.sort(function (a, b) { return b.last - a.last; });
-    return out.slice(0, 3);
+    return out.slice(0, 12);
   }
   function getPoster(tmdb) {
     if (!tmdb) return Promise.resolve("");
@@ -464,6 +478,7 @@
       else getPoster(it.tmdb).then(function (u) { setPoster(card, blank, u); });
     });
     sec.hidden = false;
+    fitRow();
     bumpUpdated(list);
   }
 

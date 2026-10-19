@@ -14118,15 +14118,21 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 }
 .tg-now .tgn-small a { color: var(--color-terra-text); font-weight: 600; }
 
-/* ---- watching: three posters ---- */
+/* ---- watching: one row of posters ---- */
 .tg-now .tgn-posters {
   display: grid;
-  /* Capped at 120px each (Oct 19, Toby: full-width posters were too big).
-     minmax(0, ...) still lets them shrink to fit on phones. */
-  grid-template-columns: repeat(3, minmax(0, 120px));
+  /* One full row (Oct 19, Toby): as many ~96-120px posters as the width
+     holds, three on a phone. A script in now.html hides any that would
+     wrap; the 0-height extra rows below are the no-script fallback. */
+  grid-template-columns: repeat(auto-fill, minmax(96px, 120px));
   justify-content: start;
-  gap: var(--space-md);
+  column-gap: var(--space-md);
+  row-gap: 0;
+  grid-template-rows: auto;
+  grid-auto-rows: 0;
+  overflow: hidden;
 }
+.tg-now .tgn-poster[hidden] { display: none; }
 .tg-now .tgn-poster {
   display: flex;
   flex-direction: column;

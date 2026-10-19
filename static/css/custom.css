@@ -14121,7 +14121,10 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 /* ---- watching: three posters ---- */
 .tg-now .tgn-posters {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Capped at 120px each (Oct 19, Toby: full-width posters were too big).
+     minmax(0, ...) still lets them shrink to fit on phones. */
+  grid-template-columns: repeat(3, minmax(0, 120px));
+  justify-content: start;
   gap: var(--space-md);
 }
 .tg-now .tgn-poster {
@@ -14219,16 +14222,28 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 }
 .tg-now .tgn-bar-fill { display: block; height: 100%; background: var(--color-terra); }
 
-/* ---- latest photo ---- */
+/* ---- latest photo ----
+   Sized exactly like a lone photo on a single post (section 99,
+   Toby, Oct 19): the whole picture, never cropped. Full width on
+   phones; from 600px up it fills the column but never grows past
+   ~80% of the window's height, centered, aspect ratio kept. */
 .tg-now figure.tgn-photo { margin: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
 .tg-now figure.tgn-photo img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-warm);
+  max-width: 100%;
+  border-radius: 6px;
+}
+@media (min-width: 600px) {
+  .tg-now figure.tgn-photo img {
+    width: auto;
+    max-height: 80vh;
+    max-height: 80svh;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .tg-now figure.tgn-photo figcaption { text-align: center; }
 }
 
 /* ---- writing: #100DaysToOffload dot grid ---- */

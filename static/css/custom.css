@@ -14287,7 +14287,9 @@ html.season-hal :is(body.type-post, body.type-newsletter, body.type-newsletters)
 }
 .tg-now img.tgn-icon--tint {
   object-fit: contain;
-  padding: 4px;
+  /* The rabbit sits on the tile's right edge (Toby, Oct 19). */
+  object-position: right bottom;
+  padding: 4px 0 0 4px;
   background: color-mix(in srgb, var(--color-terra) 14%, transparent);
 }
 .tg-now .tgn-build-body { display: flex; flex-direction: column; min-width: 0; }

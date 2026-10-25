@@ -14480,3 +14480,25 @@ a.cat-more:hover,
   .cat-more { display: none; }
 }
 /* end section 122 */
+
+/* ============================================================
+   123. CENTER UTILITY  (Oct 25, 2026, Toby)
+   ------------------------------------------------------------
+   class="center" on a <p>, <div>, <figure> or <img>.
+   Text and inline images get centered; an <img> on its own
+   becomes a block with auto side margins. Scoped to the post
+   and page wrappers so it beats .page-body p (0,1,1) and the
+   body img rules around section 5. Blog only: email strips
+   classes, so newsletters still need style="text-align:center".
+   ============================================================ */
+:is(.post-body, .micro-body, .post-card-content, .page-body) .center {
+  text-align: center;
+}
+
+:is(.post-body, .micro-body, .post-card-content, .page-body) img.center,
+:is(.post-body, .micro-body, .post-card-content, .page-body) .center img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* end section 123 */

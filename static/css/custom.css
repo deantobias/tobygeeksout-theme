@@ -14490,6 +14490,15 @@ a.cat-more:hover,
    and page wrappers so it beats .page-body p (0,1,1) and the
    body img rules around section 5. Blog only: email strips
    classes, so newsletters still need style="text-align:center".
+
+   Photo mosaic opt-out (fix, same day): a post with 2+ photos
+   turns on the section 18 two-column mosaic, which pins every
+   photo to width 100% / margin 0 of the LEFT column at (0,2,3).
+   When text sits between the photos, each photo ends up alone
+   on the left half. An img.center now leaves the mosaic: it
+   spans both columns, keeps its own size, and centers. The
+   :has(img.center) selectors land at (0,4,3) / (0,3,2) so they
+   win. Photos without the class still mosaic as before.
    ============================================================ */
 :is(.post-body, .micro-body, .post-card-content, .page-body) .center {
   text-align: center;
@@ -14500,5 +14509,24 @@ a.cat-more:hover,
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Mosaic opt-out: <p><img class="center"></p> (how Markdown wraps a
+   lone <img> line) and a bare <img class="center"> */
+:is(.post-card-excerpt, .post-body) > p:has(> img.center:only-child),
+:is(.post-card-excerpt, .post-body):has(> img.center) > img.center {
+  column-span: all;
+}
+:is(.post-card-excerpt, .post-body) > p:has(> img.center:only-child) > img.center,
+:is(.post-card-excerpt, .post-body):has(> img.center) > img.center {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 80vh;
+  max-height: 80svh;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 6px;
 }
 /* end section 123 */

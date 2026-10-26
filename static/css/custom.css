@@ -14530,3 +14530,31 @@ a.cat-more:hover,
   border-radius: 6px;
 }
 /* end section 123 */
+
+
+/* ------------------------------------------------------------
+   124. HOME DEFINE: EXTRAS STAY ON THE POST (Oct 26, 2026, Toby)
+   Pairs with layouts/index.html (Bookshelf & Define). Defines can
+   now carry extra rows - Roots, Close cousins, Opposites, First
+   known use - each a <td class="define-extra">. The home box shows
+   only the label, word, definition and example; the extras stay on
+   the post and in the email. index.html adds a "See more ->" link
+   under the card only when the post has extras, styled like the
+   box's own "All words ->" label link. Old defines are untouched.
+   ------------------------------------------------------------ */
+.home-pair .wna-body .define-card tr:has(.define-extra) { display: none; }
+.wna-extras {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+  text-decoration: none;
+}
+.wna-extras:hover { text-decoration: underline; text-underline-offset: 3px; }
+.wna-extras:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+/* end section 124 */

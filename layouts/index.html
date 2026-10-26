@@ -692,6 +692,14 @@
       <div class="wna-body" aria-live="polite">
         {{ replaceRE $stripImg "" $now.Content | safeHTML }}
       </div>
+      {{/* Oct 26, 2026 (Toby): defines with the extra rows (Roots, Close
+           cousins, Opposites, First known use - class "define-extra") keep
+           them on the post only; the home box shows the word and the
+           definition, plus this link to the rest. Defines without
+           extras get no link. Styles: custom.css section 124. */}}
+      {{ if in $now.Content "define-extra" }}
+      <a class="wna-extras" href="{{ $now.RelPermalink }}">See more<span class="sr-only"> about {{ replaceRE `(?i)^\s*word nerd alert:\s*` "" $now.Title }}</span> →</a>
+      {{ end }}
       {{/* Sept 30, 2026 (Toby): the date moved from the label row to the
            bottom, written and linked exactly like the micro's date. */}}
       <a class="wna-permalink wna-date u-url" href="{{ $now.RelPermalink }}"><time datetime="{{ $now.Date.Format "2006-01-02" }}">{{ $now.Date.Format "January 2, 2006" }}</time> ∞</a>

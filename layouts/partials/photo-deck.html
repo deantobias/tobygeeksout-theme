@@ -1,0 +1,84 @@
+{{/* ============================================================
+     partials/photo-deck.html
+     PHOTOS CATEGORY PAGE AS PACKED PHOTO CARDS
+     (Oct 28, 2026, Toby - Photos mockup v2, "mosaic")
+
+     Called from categories/list.html with the category's pages, newest
+     first, only on /categories/photos/. CSS: custom.css section 126.
+     Packed like Word Nerd Alert (partials/deck-pack.html).
+
+     Each card: a mosaic of the post's photos, the title, one or two
+     lines of the post's text, then the footer.
+       1 photo   the whole photo
+       2         side by side
+       3         one big + two small
+       4+        one big + three small; past four, the last small one
+                 is darkened and says "+N" (the photos not shown)
+     Photos come from cdn.uploads.micro.blog in the post, in order,
+     and load through Micro.blog's resizer (800px big, 400px small)
+     instead of the 1800px originals.
+
+     Footer: the date always links to the post. "Read more ->" when the
+     post has more than the card shows (more than one photo, an embed,
+     or more than ~20 words, about two lines); otherwise an infinity
+     sign after the date.
+     ============================================================ */}}
+<div class="pcard-deck" data-pack>
+{{ range $i, $p := . }}
+  {{ $c := $p.Content }}
+
+  {{/* the post's uploaded photos, in order, no repeats */}}
+  {{ $photos := slice }}
+  {{ $seen := slice }}
+  {{ range findRE `<img[^>]+>` $c }}
+    {{ $tag := . }}
+    {{ $src := "" }}
+    {{ with findRE `src="[^"]+"` $tag }}{{ $src = htmlUnescape (replaceRE `^src="([^"]+)"$` "$1" (index . 0)) }}{{ end }}
+    {{ if and $src (in $src "cdn.uploads.micro.blog") (not (in $seen $src)) }}
+      {{ $alt := "" }}
+      {{ with findRE `alt="[^"]*"` $tag }}{{ $alt = htmlUnescape (replaceRE `^alt="([^"]*)"$` "$1" (index . 0)) }}{{ end }}
+      {{ $seen = $seen | append $src }}
+      {{ $photos = $photos | append (dict "src" $src "alt" $alt) }}
+    {{ end }}
+  {{ end }}
+  {{ $n := len $photos }}
+
+  {{/* the post's text, for the 1-2 line excerpt (CSS clamps it) */}}
+  {{ $text := trim (replaceRE `\s+` " " (htmlUnescape $p.Plain)) " " }}
+  {{ $words := countwords $text }}
+  {{ $more := or (gt $n 1) (gt $words 20) (findRE `<(?:iframe|video)\b` $c) }}
+
+  <article class="pcard{{ if eq $i 0 }} pcard--new{{ end }}{{ if not $n }} pcard--nophoto{{ end }}">
+    {{ if $n }}
+    <div class="pcard-photo">
+      {{ if eq $n 1 }}
+        {{ $ph := index $photos 0 }}
+        <img class="pcard-single" src="https://cdn.micro.blog/photos/800x/{{ urlquery $ph.src }}" alt="{{ $ph.alt }}" loading="lazy" decoding="async">
+      {{ else }}
+        {{ $show := cond (ge $n 4) 4 $n }}
+        <div class="pm pm--{{ cond (ge $n 4) 4 $n }}">
+          {{ range $k, $ph := first $show $photos }}
+            {{ $big := or (and (ge $n 3) (eq $k 0)) (eq $n 2) }}
+            {{ $cls := cond (and (ge $n 3) (eq $k 0)) "pm-hero" (cond (eq $n 2) "" "pm-thumb") }}
+            <span class="pm-tile {{ $cls }}">
+              <img src="https://cdn.micro.blog/photos/{{ cond $big "800x" "400x" }}/{{ urlquery $ph.src }}" alt="{{ $ph.alt }}" loading="lazy" decoding="async">
+              {{ if and (eq $k 3) (gt $n 4) }}<span class="pm-more"><span aria-hidden="true">+{{ sub $n 4 }}</span><span class="sr-only">{{ sub $n 4 }} more photos</span></span>{{ end }}
+            </span>
+          {{ end }}
+        </div>
+      {{ end }}
+      {{ if eq $i 0 }}<span class="pcard-new">Newest</span>{{ end }}
+    </div>
+    {{ end }}
+    <div class="pcard-body">
+      <h2 class="pcard-title"><a href="{{ $p.RelPermalink }}">{{ with $p.Title }}{{ . }}{{ else }}{{ $p.Date.Format "January 2, 2006" }}{{ end }}</a></h2>
+      {{ with $text }}<p class="pcard-excerpt">{{ truncate 260 . }}</p>{{ end }}
+      <div class="pcard-foot">
+        <a class="pcard-perma" href="{{ $p.RelPermalink }}"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "Jan 2, 2006" }}</time>{{ if not $more }}<span class="pcard-inf" aria-hidden="true">∞</span>{{ end }}</a>
+        {{ if $more }}<a class="pcard-more" href="{{ $p.RelPermalink }}">Read more<span class="sr-only"> about {{ with $p.Title }}{{ . }}{{ else }}this post{{ end }}</span><span aria-hidden="true"> →</span></a>{{ end }}
+      </div>
+    </div>
+  </article>
+{{ end }}
+</div>
+{{ partial "deck-pack.html" . }}

@@ -128,7 +128,8 @@
   {{- if .IsHome -}}
     {{ .Site.Title }}
   {{- else -}}
-    {{ .Title }} | {{ .Site.Title }}
+    {{- /* Oct 28, 2026: the Word of the Day category reads "Word Nerd Alert" */ -}}
+    {{ if and (eq .Kind "term") (eq (lower .Title) "word of the day") }}Word Nerd Alert{{ else }}{{ .Title }}{{ end }} | {{ .Site.Title }}
   {{- end -}}
 </title>
 {{ $tgoCalDesc := "A year-at-a-glance calendar of every post on Toby Geeks Out! — pick a year, then click any day to jump straight to what I wrote." }}

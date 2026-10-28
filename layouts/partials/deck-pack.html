@@ -1,0 +1,31 @@
+{{/* partials/deck-pack.html (Oct 28, 2026, Toby)
+     Packs a card deck: each card tucks under the one above it (uneven
+     rows, no gaps) and the grid drops each card into the first column
+     with room, so date order still runs across the top. Put it right
+     after a <div ... data-pack> deck. Used by wna-deck.html (Word Nerd
+     Alert) and photo-deck.html (Photos). CSS: sections 125 and 126,
+     .is-packed rules. No JS = the plain grid, every card still there. */}}
+<script>
+(function () {
+  var deck = document.currentScript && document.currentScript.previousElementSibling;
+  if (!deck || !deck.hasAttribute('data-pack')) return;
+  deck.classList.add('is-packed');
+  var cards = [].slice.call(deck.children);
+  /* span = card height + its bottom margin (the gap), in 4px grid rows */
+  function fit(card) {
+    var gap = parseFloat(getComputedStyle(card).marginBottom) || 0;
+    card.style.gridRowEnd = 'span ' + Math.ceil((card.getBoundingClientRect().height + gap) / 4);
+  }
+  cards.forEach(fit);
+  /* re-measure when a card changes size: photos and fonts loading,
+     window resize, unfolding the phone */
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function (entries) {
+      entries.forEach(function (e) { fit(e.target); });
+    });
+    cards.forEach(function (c) { ro.observe(c); });
+  } else {
+    window.addEventListener('resize', function () { cards.forEach(fit); });
+  }
+})();
+</script>

@@ -21,12 +21,18 @@
 {{/* Oct 28, 2026 (Toby): Word of the Day gets flash cards instead of
      the magazine layout - partials/wna-deck.html, CSS section 125. */}}
 {{ $isWNA := eq (lower .Title) "word of the day" }}
+{{/* Oct 28, 2026 (Toby): Photos gets packed photo-mosaic cards -
+     partials/photo-deck.html, CSS section 126. */}}
+{{ $isPhotos := eq (lower .Title) "photos" }}
 
 <div class="cat-mast">
   {{/* Back link (Aug 1, 2026, Toby): the full category list lives in the
        archive page's Categories fold, so one link covers both. */}}
   <p class="cat-back"><a href="{{ "/archive/" | absURL }}">Back to Archive</a></p>
-  <h1 class="cat-title">{{ .Title | safeHTML }}</h1>
+  {{/* Word of the Day shows as "Word Nerd Alert" (Toby, Oct 28): the
+       category keeps its name because the home page, Perch and the
+       URL all depend on it; only the heading changes. */}}
+  <h1 class="cat-title">{{ if $isWNA }}Word Nerd Alert{{ else }}{{ .Title | safeHTML }}{{ end }}</h1>
   {{ if gt $count 0 }}
     {{ $latest := index $pages 0 }}
     {{ $oldest := index $pages (sub $count 1) }}
@@ -40,6 +46,8 @@
 
 {{ if and $isWNA (gt $count 0) }}
 {{ partial "wna-deck.html" $pages }}
+{{ else if and $isPhotos (gt $count 0) }}
+{{ partial "photo-deck.html" $pages }}
 {{ else if gt $count 0 }}
 {{ $latest := index $pages 0 }}
 {{ $oldest := index $pages (sub $count 1) }}

@@ -14720,3 +14720,157 @@ a.cat-more:hover,
   .wcard:hover { transform: none; }
 }
 /* end section 125 */
+
+
+/* ------------------------------------------------------------
+   126. PHOTOS: PACKED PHOTO-MOSAIC CARDS (Oct 28, 2026, Toby -
+        Photos mockup v2)
+   Pairs with layouts/partials/photo-deck.html, which
+   categories/list.html calls only for /categories/photos/. Packed
+   like Word Nerd Alert (partials/deck-pack.html adds .is-packed).
+   Card: photo mosaic (1 whole / 2 side by side / 3 big + 2 small /
+   4+ big + 3 small with "+N" on the last), terracotta line under it,
+   title, 1-2 line excerpt, footer (date link; "Read more ->" or an
+   infinity sign). Whole card clickable through the title's link.
+   Classes pcard-* / pm-* are new (nothing else uses them).
+   ------------------------------------------------------------ */
+.pcard-deck {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 32px var(--page-pad, 16px) 64px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.pcard-deck.is-packed { grid-auto-rows: 4px; row-gap: 0; }
+.pcard-deck.is-packed > .pcard { margin-bottom: 24px; }
+.pcard {
+  position: relative;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 var(--color-border-light), 0 6px 18px -12px rgba(30, 45, 74, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.pcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 0 var(--color-border-light), 0 14px 26px -14px rgba(30, 45, 74, 0.45);
+}
+/* photo area; the terracotta index-card line sits under it */
+.pcard-photo { position: relative; background: var(--color-bg-warm); }
+.pcard-photo::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 5px;
+  background: var(--color-terra);
+  z-index: 1;
+}
+.pcard .pcard-photo img {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.pcard .pcard-single { height: auto; max-height: 520px; object-fit: cover; }
+/* mosaic */
+.pm { display: grid; gap: 3px; background: var(--color-bg-card); }
+.pm-tile { position: relative; display: block; overflow: hidden; background: var(--color-bg-warm); }
+.pcard .pm-tile img { height: 100%; object-fit: cover; }
+.pm--2 { grid-template-columns: 1fr 1fr; }
+.pm--2 .pm-tile { aspect-ratio: 3 / 4; }
+.pm--3 { grid-template-columns: 1fr 1fr; }
+.pm--4 { grid-template-columns: 1fr 1fr 1fr; }
+.pm-hero { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
+.pm-thumb { aspect-ratio: 1 / 1; }
+.pm-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 45, 74, 0.62);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+}
+.pcard-new {
+  position: absolute;
+  top: 14px; left: 14px;
+  z-index: 1;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  background: var(--color-terra-light);
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.pcard-body { padding: 18px 22px 16px; }
+.pcard--new .pcard-body { background: var(--color-bg-warm); }
+.pcard--nophoto { border-top: 5px solid var(--color-terra); }
+.pcard-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.55rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-navy);
+}
+.pcard-title a { color: inherit; text-decoration: none; }
+/* stretch the title's link over the whole card */
+.pcard-title a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.pcard-title a:focus-visible { outline: none; }
+.pcard-title a:focus-visible::after { outline: 3px solid var(--color-terra); outline-offset: -3px; border-radius: 10px; }
+.pcard-excerpt {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--color-navy-mid);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pcard-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  border-top: 1px solid var(--color-border-light);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+.pcard-perma,
+.pcard-more { position: relative; z-index: 2; text-decoration: none; }
+.pcard-perma { color: var(--color-text-muted); }
+.pcard-inf { margin-left: 4px; font-weight: 600; color: var(--color-terra-text); }
+.pcard-more { font-weight: 600; color: var(--color-terra-text); white-space: nowrap; }
+.pcard-perma:hover,
+.pcard-more:hover { color: var(--color-terra-dark); text-decoration: underline; text-underline-offset: 3px; }
+.pcard-perma:focus-visible,
+.pcard-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+
+@media (max-width: 520px) {
+  .pcard-deck { gap: 16px; padding-top: 24px; }
+  .pcard-deck.is-packed > .pcard { margin-bottom: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pcard { transition: none; }
+  .pcard:hover { transform: none; }
+}
+/* end section 126 */

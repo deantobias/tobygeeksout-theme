@@ -22,7 +22,7 @@
      picture old cards carry inside the card has no words, so it never
      counts as more.
 
-     Packed (Oct 28, mockup v7): the script below gives each card a row
+     Packed (Oct 28, mockup v7): partials/deck-pack.html gives each card a row
      span from its height, so cards tuck under the one above with no
      gaps, and the grid drops each card into the first column with
      room, which keeps date order across the top. No JS = the plain
@@ -31,7 +31,7 @@
      Classes are wcard-* on purpose: the home page Word Nerd box already
      uses wna-* (wna-word, wna-date...).
      ============================================================ */}}
-<div class="wcard-deck">
+<div class="wcard-deck" data-pack>
 {{ range $i, $p := . }}
   {{ $c := $p.Content }}
 
@@ -115,27 +115,4 @@
   </article>
 {{ end }}
 </div>
-<script>
-/* Pack the cards (section 125): span = card height + gap, in 4px grid
-   rows. Re-measures when a card changes size (fonts loading, resize,
-   unfolding the phone). */
-(function () {
-  var deck = document.currentScript && document.currentScript.previousElementSibling;
-  if (!deck || !deck.classList.contains('wcard-deck')) return;
-  deck.classList.add('is-packed');
-  var cards = [].slice.call(deck.children);
-  function fit(card) {
-    var gap = parseFloat(getComputedStyle(card).marginBottom) || 0;
-    card.style.gridRowEnd = 'span ' + Math.ceil((card.getBoundingClientRect().height + gap) / 4);
-  }
-  cards.forEach(fit);
-  if ('ResizeObserver' in window) {
-    var ro = new ResizeObserver(function (entries) {
-      entries.forEach(function (e) { fit(e.target); });
-    });
-    cards.forEach(function (c) { ro.observe(c); });
-  } else {
-    window.addEventListener('resize', function () { cards.forEach(fit); });
-  }
-})();
-</script>
+{{ partial "deck-pack.html" . }}

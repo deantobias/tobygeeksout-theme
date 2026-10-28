@@ -14567,8 +14567,8 @@ a.cat-more:hover,
    categories/list.html calls only for /categories/word-of-the-day/.
    Every other category keeps the magazine layout (section 91).
    One card per word: part of speech, the word (never "Word Nerd
-   Alert:"), every definition. Cards keep their own height
-   (align-items: start) and read left to right, newest first.
+   Alert:"), every definition. Cards keep their own height and pack
+   together (see "Packed" below), newest first, across the top.
    Footer: the date always links to the post; "Read more ->" when
    the post holds more than the card, else an infinity sign after
    the date. The whole card is clickable through the word's link.
@@ -14703,8 +14703,16 @@ a.cat-more:hover,
 .wcard-perma:focus-visible,
 .wcard-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
 
+/* Packed (Oct 28, mockup v7): wna-deck.html's script adds .is-packed
+   and gives each card a row span from its height, so cards tuck under
+   the one above (uneven rows, no gaps) and keep date order across.
+   The gap moves to each card's bottom margin, which the script counts. */
+.wcard-deck.is-packed { grid-auto-rows: 4px; row-gap: 0; }
+.wcard-deck.is-packed > .wcard { margin-bottom: 24px; }
+
 @media (max-width: 520px) {
   .wcard-deck { gap: 16px; padding-top: 24px; }
+  .wcard-deck.is-packed > .wcard { margin-bottom: 16px; }
   .wcard-word { font-size: 2.1rem; }
 }
 @media (prefers-reduced-motion: reduce) {

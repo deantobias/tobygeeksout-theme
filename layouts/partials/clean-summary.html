@@ -89,10 +89,19 @@
          define post needs it or the blurb has no subject. */ -}}
   {{- if and $word (not $p.Title) -}}{{- $out = printf "%s %s%s%s" $out $wO $word $wC -}}{{- end -}}
 
-  {{- range findRE `(?s)<p class="define-def"[^>]*>.*?</p>` $content -}}
+  {{- /* Oct 28, 2026: newer Perch cards put each sense in table cells,
+         <td class="define-num">1</td><td class="define-def">: ...</td>,
+         instead of <p class="define-def">; read both, pairing the td
+         numbers with the td senses in order. */ -}}
+  {{- $tdNums := findRE `(?s)<td class="define-num(?:\s[^"]*)?"[^>]*>.*?</td>` $content -}}
+  {{- $tdi := 0 -}}
+  {{- range findRE `(?s)<(?:p|td) class="define-def(?:\s[^"]*)?"[^>]*>.*?</(?:p|td)>` $content -}}
     {{- $num := "" -}}
     {{- if findRE `class="define-num"` . -}}
       {{- $num = trim (replaceRE `(?s)^.*?class="define-num"[^>]*>(.*?)</span>.*$` "$1" . | plainify) " \n\t\u00A0" -}}
+    {{- else if hasPrefix . "<td" -}}
+      {{- if lt $tdi (len $tdNums) -}}{{- $num = trim (index $tdNums $tdi | plainify) " \n\t\u00A0" -}}{{- end -}}
+      {{- $tdi = add $tdi 1 -}}
     {{- end -}}
     {{- $body := partial "marked.html" (replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" .) -}}
     {{- /* the card writes each sense MW-style, ": a driving force" */ -}}

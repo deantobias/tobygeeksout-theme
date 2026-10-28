@@ -22,6 +22,12 @@
      picture old cards carry inside the card has no words, so it never
      counts as more.
 
+     Packed (Oct 28, mockup v7): the script below gives each card a row
+     span from its height, so cards tuck under the one above with no
+     gaps, and the grid drops each card into the first column with
+     room, which keeps date order across the top. No JS = the plain
+     grid, every card still there.
+
      Classes are wcard-* on purpose: the home page Word Nerd box already
      uses wna-* (wna-word, wna-date...).
      ============================================================ */}}
@@ -54,13 +60,24 @@
   {{/* every definition, with its own number ("1", "2 a") if the card has one */}}
   {{ $senses := slice }}
   {{ $cardWords := add (countwords $ebText) (countwords (plainify $cardWord)) }}
-  {{ range findRE `(?s)<p class="define-def"[^>]*>.*?</p>` $c }}
+  {{/* Two layouts (Oct 28 fix): older posts write each sense as
+       <p class="define-def"><span class="define-num">1</span>: ...</p>;
+       newer Perch posts use table cells, <td class="define-num">1</td>
+       <td class="define-def">: ...</td>, so the td numbers are paired
+       with the td senses in order. */}}
+  {{ $tdNums := findRE `(?s)<td class="define-num(?:\s[^"]*)?"[^>]*>.*?</td>` $c }}
+  {{ range $tdNums }}{{ $cardWords = add $cardWords (countwords (plainify .)) }}{{ end }}
+  {{ $tdi := 0 }}
+  {{ range findRE `(?s)<(?:p|td) class="define-def(?:\s[^"]*)?"[^>]*>.*?</(?:p|td)>` $c }}
     {{ $cardWords = add $cardWords (countwords (plainify .)) }}
     {{ $num := "" }}
     {{ if findRE `class="define-num"` . }}
       {{ $num = replaceRE `(?s)^.*?class="define-num"[^>]*>(.*?)</span>.*$` "$1" . | plainify | htmlUnescape }}
-      {{ $num = trim $num " \n\t " }}
+    {{ else if hasPrefix . "<td" }}
+      {{ if lt $tdi (len $tdNums) }}{{ $num = index $tdNums $tdi | plainify | htmlUnescape }}{{ end }}
+      {{ $tdi = add $tdi 1 }}
     {{ end }}
+    {{ $num = trim $num " \n\t " }}
     {{ $body := replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" . | plainify | htmlUnescape }}
     {{ $body = trim $body ": \n\t " }}
     {{ if $body }}{{ $senses = $senses | append (dict "num" $num "text" $body) }}{{ end }}
@@ -98,3 +115,27 @@
   </article>
 {{ end }}
 </div>
+<script>
+/* Pack the cards (section 125): span = card height + gap, in 4px grid
+   rows. Re-measures when a card changes size (fonts loading, resize,
+   unfolding the phone). */
+(function () {
+  var deck = document.currentScript && document.currentScript.previousElementSibling;
+  if (!deck || !deck.classList.contains('wcard-deck')) return;
+  deck.classList.add('is-packed');
+  var cards = [].slice.call(deck.children);
+  function fit(card) {
+    var gap = parseFloat(getComputedStyle(card).marginBottom) || 0;
+    card.style.gridRowEnd = 'span ' + Math.ceil((card.getBoundingClientRect().height + gap) / 4);
+  }
+  cards.forEach(fit);
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function (entries) {
+      entries.forEach(function (e) { fit(e.target); });
+    });
+    cards.forEach(function (c) { ro.observe(c); });
+  } else {
+    window.addEventListener('resize', function () { cards.forEach(fit); });
+  }
+})();
+</script>

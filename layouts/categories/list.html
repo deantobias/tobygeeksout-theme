@@ -18,6 +18,9 @@
      ============================================================ */}}
 {{ $pages := .Pages.ByDate.Reverse }}
 {{ $count := len $pages }}
+{{/* Oct 28, 2026 (Toby): Word of the Day gets flash cards instead of
+     the magazine layout - partials/wna-deck.html, CSS section 125. */}}
+{{ $isWNA := eq (lower .Title) "word of the day" }}
 
 <div class="cat-mast">
   {{/* Back link (Aug 1, 2026, Toby): the full category list lives in the
@@ -28,14 +31,16 @@
     {{ $latest := index $pages 0 }}
     {{ $oldest := index $pages (sub $count 1) }}
     <p class="cat-dateline">
-      <span><strong>{{ $count }}</strong> {{ if eq $count 1 }}post{{ else }}posts{{ end }}</span>
+      <span><strong>{{ $count }}</strong> {{ if $isWNA }}{{ if eq $count 1 }}word{{ else }}words{{ end }}{{ else }}{{ if eq $count 1 }}post{{ else }}posts{{ end }}{{ end }}</span>
       <span>since <strong>{{ $oldest.Date.Format "2006" }}</strong></span>
       <span>latest <strong>{{ $latest.Date.Format "2 Jan 2006" }}</strong></span>
     </p>
   {{ end }}
 </div>
 
-{{ if gt $count 0 }}
+{{ if and $isWNA (gt $count 0) }}
+{{ partial "wna-deck.html" $pages }}
+{{ else if gt $count 0 }}
 {{ $latest := index $pages 0 }}
 {{ $oldest := index $pages (sub $count 1) }}
 {{ $multiYear := ne ($latest.Date.Format "2006") ($oldest.Date.Format "2006") }}

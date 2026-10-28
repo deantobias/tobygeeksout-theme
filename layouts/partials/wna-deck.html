@@ -1,0 +1,100 @@
+{{/* ============================================================
+     partials/wna-deck.html
+     WORD OF THE DAY CATEGORY PAGE AS FLASH CARDS
+     (Oct 28, 2026, Toby - mockup v6)
+
+     Called from categories/list.html with the category's pages, newest
+     first, only on /categories/word-of-the-day/. Every other category
+     keeps the magazine layout. CSS: custom.css section 125.
+
+     Each card shows the part of speech, the word, and EVERY definition.
+     The word never says "Word Nerd Alert:". Old cards carry the word in
+     .define-word; new plain cards (Oct 7) only have it in the post
+     title, so the title prefix is stripped. Cards keep their own height.
+
+     The date always links to the post. Then:
+       - the post has more than the card (an example, extra rows, a
+         note / Found it, an ASL embed, or Toby's own writing around the
+         card)                                  -> "Read more ->"
+       - the post is only the definition        -> date + infinity sign
+     "Own writing" = the post has more than 3 words beyond the card's
+     own text (same slack as the "Keep reading" cue, section 122). The
+     picture old cards carry inside the card has no words, so it never
+     counts as more.
+
+     Classes are wcard-* on purpose: the home page Word Nerd box already
+     uses wna-* (wna-word, wna-date...).
+     ============================================================ */}}
+<div class="wcard-deck">
+{{ range $i, $p := . }}
+  {{ $c := $p.Content }}
+
+  {{/* part of speech; new cards keep the pronunciation in the eyebrow */}}
+  {{ $pos := "" }}
+  {{ $ebText := "" }}
+  {{ if findRE `class="define-eyebrow"` $c }}
+    {{ $eb := replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $c }}
+    {{ $ebText = plainify $eb }}
+    {{ $eb = replaceRE `(?s)<span class="define-pron"[^>]*>.*?</span>` "" $eb }}
+    {{ $pos = $eb | plainify | htmlUnescape }}
+    {{ $pos = replaceRE `[\s\x{00A0}·•|]+$` "" $pos }}
+    {{ $pos = trim $pos " \n\t " }}
+  {{ end }}
+
+  {{/* the word: the card's own, else the title minus "Word Nerd Alert:" */}}
+  {{ $cardWord := "" }}
+  {{ if findRE `class="define-word"` $c }}
+    {{ $cardWord = replaceRE `(?s)^.*?class="define-word"[^>]*>(.*?)</p>.*$` "$1" $c | plainify | htmlUnescape }}
+    {{ $cardWord = trim $cardWord " \n\t " }}
+  {{ end }}
+  {{ $word := $cardWord }}
+  {{ if not $word }}{{ $word = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" $p.Title) " \n\t " }}{{ end }}
+  {{ if not $word }}{{ $word = $p.Date.Format "January 2, 2006" }}{{ end }}
+
+  {{/* every definition, with its own number ("1", "2 a") if the card has one */}}
+  {{ $senses := slice }}
+  {{ $cardWords := add (countwords $ebText) (countwords (plainify $cardWord)) }}
+  {{ range findRE `(?s)<p class="define-def"[^>]*>.*?</p>` $c }}
+    {{ $cardWords = add $cardWords (countwords (plainify .)) }}
+    {{ $num := "" }}
+    {{ if findRE `class="define-num"` . }}
+      {{ $num = replaceRE `(?s)^.*?class="define-num"[^>]*>(.*?)</span>.*$` "$1" . | plainify | htmlUnescape }}
+      {{ $num = trim $num " \n\t " }}
+    {{ end }}
+    {{ $body := replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" . | plainify | htmlUnescape }}
+    {{ $body = trim $body ": \n\t " }}
+    {{ if $body }}{{ $senses = $senses | append (dict "num" $num "text" $body) }}{{ end }}
+  {{ end }}
+
+  {{/* is there more on the post than on the card? */}}
+  {{ $more := false }}
+  {{ if or (findRE `class="define-(?:example|extra|note)` $c) (findRE `<(?:iframe|video)\b` $c) }}
+    {{ $more = true }}
+  {{ else if gt (countwords $p.Plain) (add $cardWords 3) }}
+    {{ $more = true }}
+  {{ end }}
+
+  <article class="wcard{{ if eq $i 0 }} wcard--new{{ end }}">
+    {{ if eq $i 0 }}<span class="wcard-new">Newest</span>{{ end }}
+    {{ with $pos }}<p class="wcard-pos">{{ . }}</p>{{ end }}
+    <h2 class="wcard-word"><a href="{{ $p.RelPermalink }}">{{ $word }}</a></h2>
+    <div class="wcard-rule" aria-hidden="true"></div>
+    {{ if eq (len $senses) 1 }}
+      <p class="wcard-def">: {{ (index $senses 0).text }}</p>
+    {{ else if gt (len $senses) 1 }}
+      <ol class="wcard-defs">
+        {{ range $n, $s := $senses }}
+        <li><span class="wcard-num" aria-hidden="true">{{ with $s.num }}{{ . }}{{ else }}{{ add $n 1 }}{{ end }}</span>{{ $s.text }}</li>
+        {{ end }}
+      </ol>
+    {{ else }}
+      {{/* no define card in the post at all: fall back to its blurb */}}
+      <p class="wcard-def">{{ partial "clean-summary.html" (dict "page" $p) }}</p>
+    {{ end }}
+    <div class="wcard-foot">
+      <a class="wcard-perma" href="{{ $p.RelPermalink }}"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "Jan 2, 2006" }}</time>{{ if not $more }}<span class="wcard-inf" aria-hidden="true">∞</span>{{ end }}</a>
+      {{ if $more }}<a class="wcard-more" href="{{ $p.RelPermalink }}">Read more<span class="sr-only"> about {{ $word }}</span><span aria-hidden="true"> →</span></a>{{ end }}
+    </div>
+  </article>
+{{ end }}
+</div>

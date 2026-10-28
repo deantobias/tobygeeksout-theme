@@ -14558,3 +14558,157 @@ a.cat-more:hover,
 .wna-extras:hover { text-decoration: underline; text-underline-offset: 3px; }
 .wna-extras:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
 /* end section 124 */
+
+
+/* ------------------------------------------------------------
+   125. WORD OF THE DAY: FLASH CARD PAGE (Oct 28, 2026, Toby -
+        mockup v6)
+   Pairs with layouts/partials/wna-deck.html, which
+   categories/list.html calls only for /categories/word-of-the-day/.
+   Every other category keeps the magazine layout (section 91).
+   One card per word: part of speech, the word (never "Word Nerd
+   Alert:"), every definition. Cards keep their own height
+   (align-items: start) and read left to right, newest first.
+   Footer: the date always links to the post; "Read more ->" when
+   the post holds more than the card, else an infinity sign after
+   the date. The whole card is clickable through the word's link.
+   Columns: 1 on a phone, 2 unfolded (both ways), 3 on desktop.
+   Classes are wcard-*: the home Word Nerd box already owns wna-*.
+   ------------------------------------------------------------ */
+.wcard-deck {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 32px var(--page-pad, 16px) 64px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.wcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 26px 26px 18px;
+  box-shadow: 0 1px 0 var(--color-border-light), 0 6px 18px -12px rgba(30, 45, 74, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+/* the index-card line, in terracotta */
+.wcard::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 6px;
+  background: var(--color-terra);
+  border-radius: 10px 10px 0 0;
+}
+.wcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 0 var(--color-border-light), 0 14px 26px -14px rgba(30, 45, 74, 0.45);
+}
+.wcard--new { background: var(--color-bg-warm); }
+.wcard-new {
+  position: absolute;
+  top: 18px; right: 20px;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terra-dark);
+  background: var(--color-terra-light);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.wcard-pos {
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.wcard-word {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.4rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-navy);
+  overflow-wrap: anywhere;
+}
+.wcard-word a { color: inherit; text-decoration: none; }
+/* stretch the word's link over the whole card */
+.wcard-word a::after { content: ""; position: absolute; inset: 0; border-radius: 10px; }
+.wcard-word a:focus-visible { outline: none; }
+.wcard-word a:focus-visible::after { outline: 3px solid var(--color-terra); outline-offset: 3px; }
+.wcard-rule {
+  width: 46px;
+  height: 2px;
+  background: var(--color-terra);
+  margin: 16px 0 14px;
+}
+.wcard-def {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--color-navy);
+}
+.wcard-defs { list-style: none; margin: 0; padding: 0; }
+.wcard-defs li {
+  position: relative;
+  margin: 0 0 8px;
+  padding-left: 24px;
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--color-navy);
+}
+.wcard-defs li:last-child { margin-bottom: 0; }
+.wcard-num {
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-terra-text);
+}
+/* breathing room so a full definition never touches the divider */
+.wcard > :nth-last-child(2) { margin-bottom: 16px; }
+.wcard-foot {
+  margin-top: auto;
+  padding-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  border-top: 1px solid var(--color-border-light);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+.wcard-perma,
+.wcard-more { position: relative; z-index: 1; text-decoration: none; }
+.wcard-perma { color: var(--color-text-muted); }
+.wcard-inf { margin-left: 4px; font-weight: 600; color: var(--color-terra-text); }
+.wcard-more { font-weight: 600; color: var(--color-terra-text); white-space: nowrap; }
+.wcard-perma:hover,
+.wcard-more:hover { color: var(--color-terra-dark); text-decoration: underline; text-underline-offset: 3px; }
+.wcard-perma:focus-visible,
+.wcard-more:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+
+@media (max-width: 520px) {
+  .wcard-deck { gap: 16px; padding-top: 24px; }
+  .wcard-word { font-size: 2.1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wcard { transition: none; }
+  .wcard:hover { transform: none; }
+}
+/* end section 125 */

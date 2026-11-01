@@ -787,6 +787,8 @@
        Now Watching post. A post still wins while it is newer (Trakt can lag,
        and movies only exist as posts). Same rules as the Watching page:
        90 days, not reviewed on the blog, not rated AFTER the last episode.
+       Nov 1: a show or season rated on Trakt on or after a Now Watching
+       post's date hides that post too (it used to stay until 90 days).
        Several shows in one night: the newest one, plus "+ N more". */}}
   <script>
   (function () {
@@ -801,7 +803,7 @@
     var USER = "technogeek75";
     var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
     var POSTER = "https://perch-app.pages.dev/poster";
-    var KEY = "tgo_home_nw_v1", TTL = 30 * 60 * 1000, POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
+    var KEY = "tgo_home_nw_v2", TTL = 30 * 60 * 1000, POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
 
     function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
     function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -817,21 +819,35 @@
       var since = Date.now() - DAYS * 86400000;
       return Promise.all([
         tget("/users/" + USER + "/history/episodes?limit=1000&start_at=" + encodeURIComponent(new Date(since).toISOString())),
-        tget("/users/" + USER + "/ratings/shows").catch(function () { return []; })
+        tget("/users/" + USER + "/ratings/shows").catch(function () { return []; }),
+        tget("/users/" + USER + "/ratings/seasons").catch(function () { return []; })
       ]).then(function (res) {
-        var rated = {}, seen = {}, out = [];
-        res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
+        var rated = {};
+        res[1].forEach(function (x) { if (x.show) (rated[norm(x.show.title)] = rated[norm(x.show.title)] || []).push({ s: 0, at: new Date(x.rated_at || 0).getTime() }); });
+        res[2].forEach(function (x) { if (x.show && x.season) (rated[norm(x.show.title)] = rated[norm(x.show.title)] || []).push({ s: x.season.number || 0, at: new Date(x.rated_at || 0).getTime() }); });
+        var seen = {}, out = [];
         res[0].forEach(function (h) {
           var s = h.show, e = h.episode;
           if (!s || !s.ids || !e || seen[s.ids.trakt]) return;
           seen[s.ids.trakt] = 1;
           var last = new Date(h.watched_at).getTime(), n = norm(s.title);
           if (last < since || !n || REVIEWED.indexOf(n) > -1) return;
-          if (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last) return;
+          if (ratedSince(rated, n, e.season > 0 ? e.season : 1, last)) return;
           out.push({ title: s.title, norm: n, kind: "tv", season: e.season > 0 ? e.season : 1, tmdb: s.ids.tmdb || 0, last: last });
         });
-        return out;
+        return { list: out, rated: rated };
       });
+    }
+
+
+    // Nov 1, 2026 (Toby): Trakt ratings also hide a Now Watching POST.
+    // Rating a show (or the season the post is about, or a later one) on or
+    // after the post's date means he finished it, e.g. American Horror Story
+    // Season 13 rated weeks after its Sept 29 post. Season ratings count too
+    // (rating "Season 13" on Trakt is a season rating, not a show rating).
+    // rated: { normTitle: [{ s: season (0 = whole show), at: time }] }
+    function ratedSince(rated, n, season, time) {
+      return (rated[n] || []).some(function (r) { return (r.s === 0 || r.s >= (season || 0)) && r.at >= time; });
     }
 
     function getPoster(tmdb) {
@@ -845,12 +861,14 @@
       }).catch(function () { return ""; });
     }
 
-    function show(list) {
+    function show(data) {
+      var list = data.list || [], rated = data.rated || {};
       var items = list.map(function (x) { return { title: x.title, norm: x.norm, kind: x.kind, season: x.season, tmdb: x.tmdb, last: x.last, poster: "", url: "" }; });
       // Any Now Watching post for a show gives its card the post's link
       // and poster; posts for titles Trakt does not have (movies, or Trakt
       // lagging) are added as their own items.
       POSTS.forEach(function (p) {
+        if (ratedSince(rated, p.norm, p.season, p.date)) return; // finished: rated on Trakt since the post
         var hit = null;
         items.forEach(function (i) { if (i.norm === p.norm) hit = i; });
         if (hit) {
@@ -864,14 +882,32 @@
           items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postOnly: true });
         }
       });
-      if (!items.length) return;
+      if (!items.length) {
+        // Everything finished (the post card built into the page was rated
+        // since): show the same "Nothing playing" card the page has with no posts.
+        if (TOP && ratedSince(rated, TOP.norm, TOP.season, TOP.date)) {
+          var empty = el("a", "wr-card"); empty.id = "nw-card"; empty.href = WATCHING;
+          var blank = el("span", "wr-cover wr-cover--blank", "🍿"); blank.setAttribute("aria-hidden", "true");
+          var eb = el("span", "wr-body");
+          eb.appendChild(el("span", "wr-name", "Now Watching"));
+          eb.appendChild(el("span", "wr-line", "Nothing playing right now"));
+          eb.appendChild(el("span", "wr-see", "See all watching →"));
+          empty.appendChild(blank); empty.appendChild(eb);
+          card.parentNode.replaceChild(empty, card);
+        }
+        return;
+      }
       items.sort(function (a, b) { return b.last - a.last; });
       var top = items[0];
       // "+ N more" counts only what was watched the same day as the top one
       // (Toby, Oct 10: shows from other days do not belong in that number).
       var day = new Date(top.last).toDateString();
       var more = items.filter(function (i) { return i !== top && new Date(i.last).toDateString() === day; }).length;
-      if (TOP && items.length === 1 && top.norm === TOP.norm && top.season === (TOP.season || 0)) return; // nothing new: leave the post card
+      // Nothing new: leave the post card. Nov 1 (Toby): only when Trakt has
+      // nothing NEWER either. He doesn't post every episode (posted S13E12 on
+      // Oct 29, watched E13 on Oct 31 with no post), so a newer Trakt watch
+      // must update the card's date instead of leaving the old post's.
+      if (TOP && items.length === 1 && top.norm === TOP.norm && top.season === (TOP.season || 0) && top.last <= TOP.date) return;
       var fresh = el("div", "wr-card wr-card--split"); fresh.id = "nw-card";
       var cover = el("span", "wr-cover wr-cover--blank", "🍿"); cover.setAttribute("aria-hidden", "true");
       fresh.appendChild(cover);
@@ -901,8 +937,8 @@
     }
 
     var c = load(KEY);
-    if (c && Date.now() - c.t < TTL) { show(c.list); return; }
-    fetchTrakt().then(function (list) { store(KEY, { t: Date.now(), list: list }); show(list); }).catch(function () {});
+    if (c && Date.now() - c.t < TTL) { show(c); return; }
+    fetchTrakt().then(function (d) { store(KEY, { t: Date.now(), list: d.list, rated: d.rated }); show(d); }).catch(function () {});
   })();
   </script>
 {{/* Styling lives in custom.css section 31 (homepage-search) — the

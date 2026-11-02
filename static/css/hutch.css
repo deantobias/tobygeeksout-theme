@@ -44,7 +44,10 @@ html.hutch[data-happ="photos"],html.hutch[data-happ="photos"] body{background:#F
 html.hutch[data-happ="words"],html.hutch[data-happ="words"] body{background:#FFF9F2 !important}
 html.hutch[data-happ="words"]:is([data-hsky="dusk"],[data-hsky="night"]),html.hutch[data-happ="words"]:is([data-hsky="dusk"],[data-hsky="night"]) body{background:#141A26 !important}
 /* while the page is still being built, nothing of the Traditional page shows on app pages that become their own app */
-html.hutch:is([data-happ="den"],[data-happ="photos"],[data-happ="words"]):not(.hutch-own):not(.hutch-ready) #main-content{visibility:hidden}
+/* apps that never show the Traditional page: skip laying it out at all
+   (less for the browser to do before the app appears). If the app can't
+   start, hutch-ready lets the page show as a fallback. */
+html.hutch:is([data-happ="den"],[data-happ="photos"],[data-happ="words"]):not(.hutch-ready) #main-content{display:none !important}
 
 /* ---------- 2. App frame ---------- */
 /* No page-to-page fade inside Hutch (Nov 2, Toby: going back from a post

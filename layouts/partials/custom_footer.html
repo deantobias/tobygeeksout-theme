@@ -6,6 +6,7 @@
 
 <script>
 (function () {
+  if (document.documentElement.classList.contains('hutch')) return; /* Hutch OS has its own app bar (Nov 2): skip the Traditional header work */
   const scrollBar = document.getElementById('scroll-bar');
   const header    = document.querySelector('.site-header');
   const logo      = header ? header.querySelector('.site-logo-wordmark') : null;
@@ -51,6 +52,7 @@
    progress bar paints, so the two never disagree. Tapping the title
    scrolls to the top (instant when reduced motion is on). */
 (function () {
+  if (document.documentElement.classList.contains('hutch')) return; /* Hutch OS has its own app bar (Nov 2): skip the Traditional header work */
   var small = document.querySelector('.hdr-post-title');
   if (!small) return;
   var big = document.querySelector('.post-header-title');
@@ -165,6 +167,7 @@
    whose classic scrollbars can also flip the layout band at the
    same window size. */
 (function () {
+  if (document.documentElement.classList.contains('hutch')) return; /* Hutch OS has its own app bar (Nov 2): skip the Traditional header work */
   var main = document.getElementById('main-content');
   if (!main) return;
   var siteHeader = document.querySelector('.site-header');
@@ -257,6 +260,7 @@
    label/icon sizing per device) instead of guessing a fixed number in
    CSS. Sets --tab-bar-h for custom.css's body padding-bottom to use. */
 (function () {
+  if (document.documentElement.classList.contains('hutch')) return; /* Hutch OS has its own app bar (Nov 2): skip the Traditional header work */
   var bar = document.querySelector('.mobile-tab-bar');
   if (!bar) return;
   var setH = function () {
@@ -279,6 +283,7 @@
    The visual viewport shrinks >150px only for a keyboard; the URL
    bar hiding is ~56px, safely under the threshold. */
 (function () {
+  if (document.documentElement.classList.contains('hutch')) return; /* Hutch OS has its own app bar (Nov 2): skip the Traditional header work */
   var bar = document.querySelector('.mobile-tab-bar');
   if (!bar || !window.visualViewport) return;
   var vv = window.visualViewport;

@@ -31,6 +31,15 @@ html.hutch{
 html.hutch .hx-ic{width:22px;height:22px;display:block}
 
 /* ---------- 2. App frame ---------- */
+/* No page-to-page fade inside Hutch (Nov 2, Toby: going back from a post
+   to Photos lagged and sometimes took two taps). The Traditional theme's
+   cross-document view transition (custom.css section 42) holds the old
+   page and ignores taps until the next page is fully ready, then fades.
+   Apps should switch straight over. hutch.css loads after custom.css, so
+   this rule is the one the browser uses; only Hutch pages carry it, so
+   the Traditional theme keeps its fade. */
+@view-transition { navigation: none; }
+
 html.hutch .site-header,
 html.hutch .site-rail,
 html.hutch .site-footer,

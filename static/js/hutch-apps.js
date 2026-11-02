@@ -1044,7 +1044,21 @@ window.HutchApps = window.HutchApps || {};
     /* deep = opened straight from the home screen's Photo widget, so back
        goes back home instead of to the grid (Nov 2, Toby: fewer taps) */
     var deep = false;
-    function back() { if (history.state && history.state.hxp) history.back(); else if (deep) history.back(); else close(); }
+    function back() {
+      if (deep) { history.back(); return; }                          /* came from the home screen: go home */
+      if (history.state && history.state.hxp) history.back(); else close();
+    }
+
+    /* Leaving for the post (Read more, or any link in the open post):
+       save which post he was on in this history entry, so coming back
+       reopens that same photo instead of the grid (Nov 2, Toby). */
+    function remember() {
+      if (!open) return;
+      var i = built === 'feed' ? feedIndex() : cur;
+      try { history.replaceState({ hxp: 1, i: i, deep: deep ? 1 : 0 }, ''); } catch (e) {}
+    }
+    det.addEventListener('click', function (e) { if (e.target.closest('a[href]')) remember(); }, true);
+    window.addEventListener('pagehide', remember);
 
     root.addEventListener('click', function (e) {
       var t = e.target.closest('.hxp-tile');
@@ -1084,7 +1098,7 @@ window.HutchApps = window.HutchApps || {};
       }, 120);
     });
     /* back on this page after a reload with the feed still in history */
-    if (history.state && history.state.hxp) openPost(Math.min(P.length - 1, history.state.i || 0), false);
+    if (history.state && history.state.hxp) { deep = !!history.state.deep; openPost(Math.min(P.length - 1, history.state.i || 0), false); }
     /* /photo/#post=/2026/...: open that post right away (the home screen's
        Photo widget links here, so one tap shows the photo) */
     else {
@@ -1093,7 +1107,7 @@ window.HutchApps = window.HutchApps || {};
         var want = decodeURIComponent(hm[1]);
         for (var q = 0; q < P.length; q++) if (P[q].u === want) {
           deep = true;
-          try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+          try { history.replaceState({ hxp: 1, i: q, deep: 1 }, '', location.pathname + location.search); } catch (e) {}
           openPost(q, false);
           break;
         }
@@ -1554,8 +1568,8 @@ window.HutchApps = window.HutchApps || {};
       }
       if (!open) {
         open = true; de.classList.add('hxw-open');
-        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1 }, ''); } catch (e) {} }
-      }
+        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
     }
     function close(viaPop) {
       if (!open) return;
@@ -1598,5 +1612,9 @@ window.HutchApps = window.HutchApps || {};
     }
     if (mq.addEventListener) mq.addEventListener('change', layout); else if (mq.addListener) mq.addListener(layout);
     layout();
+    /* coming back from a post (Read more or the date link): reopen the card
+       he was on instead of dropping him on the list (Nov 2, Toby) */
+    var hs = history.state;
+    if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

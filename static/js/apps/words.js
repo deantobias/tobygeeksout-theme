@@ -137,8 +137,8 @@
       }
       if (!open) {
         open = true; de.classList.add('hxw-open');
-        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1 }, ''); } catch (e) {} }
-      }
+        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
     }
     function close(viaPop) {
       if (!open) return;
@@ -181,5 +181,9 @@
     }
     if (mq.addEventListener) mq.addEventListener('change', layout); else if (mq.addListener) mq.addListener(layout);
     layout();
+    /* coming back from a post (Read more or the date link): reopen the card
+       he was on instead of dropping him on the list (Nov 2, Toby) */
+    var hs = history.state;
+    if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

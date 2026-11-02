@@ -20,6 +20,9 @@
                      Toby's public Trakt history (in the browser). It
                      shares /watching/'s browser cache, so the two pages
                      always agree. No ratings here: /now is the present.
+                     Nov 2: same rating rules as /watching/ - a show or
+                     season rated on Trakt on or after a Now Watching
+                     post's date hides that post here too.
                      Hidden when nothing is in progress.
        Reading       the newest "Currently Reading" post (cover, page
                      count, %), else the Micro.blog "Currently reading"
@@ -366,7 +369,7 @@
   var TRAKT = "https://api.trakt.tv";
   var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
   var POSTER = "https://perch-app.pages.dev/poster";
-  var LIST_KEY = "tgo_watching_v3_" + USER + "_" + DAYS;
+  var LIST_KEY = "tgo_watching_v4_" + USER + "_" + DAYS;
   var LIST_TTL = 30 * 60 * 1000;
   var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
   var sec = document.getElementById("tgn-watching");
@@ -398,27 +401,40 @@
     var since = Date.now() - DAYS * 86400000;
     return Promise.all([
       tget("/users/" + encodeURIComponent(USER) + "/history/episodes?limit=1000&start_at=" + encodeURIComponent(new Date(since).toISOString())),
-      tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; })
+      tget("/users/" + encodeURIComponent(USER) + "/ratings/shows").catch(function () { return []; }),
+      tget("/users/" + encodeURIComponent(USER) + "/ratings/seasons").catch(function () { return []; })
     ]).then(function (res) {
       var rated = {};
-      res[1].forEach(function (x) { if (x.show && x.show.ids) rated[x.show.ids.trakt] = new Date(x.rated_at || 0).getTime(); });
+      res[1].forEach(function (x) { if (x.show) (rated[norm(x.show.title)] = rated[norm(x.show.title)] || []).push({ s: 0, at: new Date(x.rated_at || 0).getTime() }); });
+      res[2].forEach(function (x) { if (x.show && x.season) (rated[norm(x.show.title)] = rated[norm(x.show.title)] || []).push({ s: x.season.number || 0, at: new Date(x.rated_at || 0).getTime() }); });
       var seen = {}, out = [];
       res[0].forEach(function (h) {
         var s = h.show, e = h.episode;
         if (!s || !s.ids || !e || seen[s.ids.trakt]) return;
         seen[s.ids.trakt] = 1;
         var last = new Date(h.watched_at).getTime();
-        if (last < since || (rated[s.ids.trakt] !== undefined && rated[s.ids.trakt] >= last)) return;
         var n = norm(s.title);
+        if (last < since || ratedSince(rated, n, e.season > 0 ? e.season : 1, last)) return;
         if (!n || REVIEWED.indexOf(n) > -1) return;
         out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, last: last });
       });
-      return out;
+      return { list: out, rated: rated };
     });
   }
-  function merge(trakt) {
+  /* Nov 2, 2026 (Toby): copied from shortcodes/watching.html (Nov 1). The
+     Now page still had the old rules, so American Horror Story stayed in
+     Watching after Season 13 was rated on Trakt. Rating a show (or the
+     season a post is about, or a later one) on or after a Now Watching
+     post's date hides that post. Season ratings count too.
+     rated: { normTitle: [{ s: season (0 = whole show), at: time }] } */
+  function ratedSince(rated, n, season, time) {
+    return (rated[n] || []).some(function (r) { return (r.s === 0 || r.s >= (season || 0)) && r.at >= time; });
+  }
+  function merge(data) {
+    var trakt = data.list || [], rated = data.rated || {};
+    var posts = POSTS.filter(function (p) { return !ratedSince(rated, p.norm, p.season, p.date); });
     var byNorm = {}, used = {};
-    POSTS.forEach(function (p) { byNorm[p.norm] = p; });
+    posts.forEach(function (p) { byNorm[p.norm] = p; });
     var out = trakt.map(function (t) {
       var n = norm(t.title), p = byNorm[n];
       if (p) used[n] = 1;
@@ -426,7 +442,7 @@
         last: p ? Math.max(t.last, p.date) : t.last, poster: p ? p.poster : "",
         url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""), external: !p };
     });
-    POSTS.forEach(function (p) {
+    posts.forEach(function (p) {
       if (used[p.norm]) return;
       out.push({ title: p.title, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster, url: p.url, external: false });
     });
@@ -483,8 +499,8 @@
   }
 
   var cached = load(LIST_KEY);
-  if (cached && Date.now() - cached.t < LIST_TTL) { render(merge(cached.list)); return; }
-  fetchTrakt().then(function (list) { store(LIST_KEY, { t: Date.now(), list: list }); render(merge(list)); })
-    .catch(function () { if (cached) render(merge(cached.list)); });
+  if (cached && Date.now() - cached.t < LIST_TTL) { render(merge(cached)); return; }
+  fetchTrakt().then(function (d) { store(LIST_KEY, { t: Date.now(), list: d.list, rated: d.rated }); render(merge(d)); })
+    .catch(function () { if (cached) render(merge(cached)); });
 })();
 </script>

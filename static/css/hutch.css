@@ -1,0 +1,327 @@
+/* ==================================================================
+   HUTCH OS · Phase 1 (Nov 2, 2026, Toby + Claude)
+   Loaded ONLY when Hutch is switched on (?hutch=on, see head.html).
+   Everything here is scoped under html.hutch, so the Traditional
+   theme never sees a single rule of it.
+
+     html.hutch      Hutch is on
+     html.hutch-hs   this page is the Hutch home screen ("/")
+     html.hutch-app  any other page, shown inside the app frame
+
+   Sections
+     1. Tokens
+     2. App frame: hide the Traditional chrome, the app bar
+     3. Home screen: sky, ridge, greeting, widgets, dock, taskbar
+     4. Home layouts: phone, compact, unfolded portrait, landscape
+     5. Sheets: All apps, Hutch Search, Settings
+     6. Boot splash
+   Built by hutch.js. Mockups: v42 (unfolded), v45/v46 (phone sizes).
+   ================================================================== */
+
+/* ---------- 1. Tokens ---------- */
+html.hutch{
+  --h-terra:#C4622D;--h-navy:#1E2D4A;--h-cream:#FAF8F5;--h-line:#E7E1D8;--h-muted:#6B7280;
+  --h-ui:Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --h-flex:"Roboto Flex",Roboto,system-ui,sans-serif;
+  --h-bar:56px;
+  /* the Traditional header is gone; content clears the app bar instead */
+  --header-h:var(--h-bar) !important;
+  --header-actual-h:var(--h-bar) !important;
+}
+html.hutch .hx-ic{width:22px;height:22px;display:block}
+
+/* ---------- 2. App frame ---------- */
+html.hutch .site-header,
+html.hutch .site-rail,
+html.hutch .site-footer,
+html.hutch #scroll-progress,
+html.hutch #scroll-bar,
+html.hutch .mobile-tab-bar,
+html.hutch .back-pill,
+html.hutch .post-edge--top{display:none !important}
+html.hutch #main-content{margin-left:0 !important}
+html.hutch-app body #main-content#main-content{padding-top:calc(var(--h-bar) + 20px) !important}
+html.hutch-app body.page.type-post:not(.type-page) #main-content#main-content{padding-top:var(--h-bar) !important}
+html.hutch-app body{padding-bottom:env(safe-area-inset-bottom)}
+
+#hutch-bar{position:fixed;top:0;left:0;right:0;z-index:9000;height:var(--h-bar);
+  display:flex;align-items:center;gap:2px;padding:0 6px 0 4px;
+  background:var(--color-bg,#FAF8F5);color:var(--color-text,#1A1A18);
+  font-family:var(--h-ui);transition:box-shadow .2s,background-color 1.6s}
+#hutch-bar.scrolled{box-shadow:0 1px 0 var(--color-border,#E5DDD5),0 4px 14px rgba(15,23,38,.06)}
+#hutch-bar .hb-btn{width:44px;height:44px;flex:none;border:0;border-radius:50%;background:transparent;color:inherit;
+  display:grid;place-items:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+#hutch-bar .hb-btn:hover,#hutch-bar .hb-btn:focus-visible{background:rgba(127,127,127,.14);outline:none}
+#hutch-bar .hb-app{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}
+#hutch-bar .hb-tile{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
+#hutch-bar .hb-tile .hx-ic{width:16px;height:16px}
+#hutch-bar .hb-names{position:relative;flex:1;min-width:0;height:var(--h-bar)}
+#hutch-bar .hb-name,#hutch-bar .hb-title{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s,transform .2s}
+#hutch-bar .hb-name{font:500 20px/1.2 var(--h-ui)}
+#hutch-bar .hb-title{font:600 15.5px/1.25 var(--h-ui);opacity:0;transform:translateY(-20%)}
+#hutch-bar.titled .hb-name{opacity:0;transform:translateY(-80%)}
+#hutch-bar.titled .hb-title{opacity:1;transform:translateY(-50%)}
+#hutch-bar .hb-pct{flex:none;font:700 11px var(--h-ui);letter-spacing:.04em;color:var(--color-terra,#C4622D);
+  background:color-mix(in srgb,var(--color-terra,#C4622D) 13%,transparent);border-radius:999px;padding:4px 8px;margin:0 2px;
+  opacity:0;transition:opacity .2s}
+#hutch-bar.titled .hb-pct{opacity:1}
+#hutch-bar .hb-prog{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--color-terra,#C4622D);border-radius:0 2px 2px 0}
+#hutch-bar .hb-home .hx-rab{width:30px;height:30px;border-radius:50%;background:var(--h-terra);color:#fff;display:grid;place-items:center}
+#hutch-bar .hb-home .hx-rab svg{width:17px;height:17px}
+
+/* ---------- 3. Home screen ---------- */
+html.hutch-hs,html.hutch-hs body{overflow:hidden !important;height:100%;overscroll-behavior:none}
+html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
+
+#hutch-home{--sky1:#8FC1E6;--sky2:#EAF3F8;--r1:#5D7A99;--r2:#1E2D4A;--ht:#1E2D4A;--accent:#C4622D;
+  --glass:rgba(255,255,255,.9);--gap:12px;
+  position:fixed;inset:0;height:100vh;height:100dvh;z-index:9500;overflow:hidden;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2) 72%);color:var(--ht);
+  font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  padding-bottom:env(safe-area-inset-bottom);user-select:none;-webkit-user-select:none}
+#hutch-home *,#hutch-home *::before,#hutch-home *::after{box-sizing:border-box}
+#hutch-home a{color:inherit;text-decoration:none}
+#hutch-home .hh-wg{color:#1E2D4A}
+#hutch-home button{font-family:inherit}
+#hutch-home[data-sky="dawn"]{--sky1:#E9B49A;--sky2:#FBE7D6;--r1:#9A7C8E;--r2:#3B3355}
+#hutch-home[data-sky="sunset"]{--sky1:#D9784F;--sky2:#F6C190;--r1:#7C4A55;--r2:#2A2238;--accent:#FFFFFF}
+#hutch-home[data-sky="dusk"]{--sky1:#26304C;--sky2:#4C4F78;--r1:#6A5C86;--r2:#141A2C;--ht:#F3EEE7;--accent:#F2A27A}
+#hutch-home[data-sky="night"]{--sky1:#0C1322;--sky2:#1E2D4A;--r1:#2B3A57;--r2:#070B14;--ht:#F3EEE7;--accent:#E9875F}
+.hh-stars{position:absolute;inset:0;opacity:0;pointer-events:none;
+  background-image:radial-gradient(1.5px 1.5px at 12% 14%,#fff,transparent),radial-gradient(1px 1px at 30% 7%,#fff,transparent),radial-gradient(1.5px 1.5px at 58% 11%,#fff,transparent),radial-gradient(1px 1px at 76% 24%,#fff,transparent),radial-gradient(1.5px 1.5px at 90% 8%,#fff,transparent),radial-gradient(1px 1px at 44% 30%,#fff,transparent),radial-gradient(1px 1px at 22% 40%,#fff,transparent),radial-gradient(1.5px 1.5px at 66% 36%,#fff,transparent)}
+#hutch-home[data-sky="night"] .hh-stars{opacity:.85}
+#hutch-home[data-sky="dusk"] .hh-stars{opacity:.35}
+.hh-ridgebox{position:absolute;left:0;right:0;bottom:0;height:260px;pointer-events:none}
+.hh-ridge{position:absolute;inset:0;width:100%;height:100%}
+/* feet on the right peak: x 300/400, y 100/260 of the ridge */
+.hh-bunny{position:absolute;left:calc(75% - 11px);bottom:61.5%;width:21px;height:25px}
+
+.hh-area{position:relative;flex:1;min-height:0;overflow:hidden;padding:16px 16px 4px;
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);align-content:start;
+  grid-template-areas:"hello hello" "posts posts" "photo word";
+  grid-template-rows:auto auto minmax(120px,1fr)}
+.hh-photo,.hh-word{max-height:220px}
+.hh-hello{grid-area:hello;display:flex;align-items:center;gap:10px;padding:4px 4px 2px}
+.hh-posts{grid-area:posts}.hh-photo{grid-area:photo}.hh-word{grid-area:word}
+.hh-tx{flex:1;min-width:0}
+.hh-g{font:500 19px var(--h-flex);opacity:.85}
+.hh-s{font:700 28px/1.1 var(--h-flex);font-variation-settings:'opsz' 144;letter-spacing:-.015em;margin-top:6px}
+.hh-s em{font-style:normal;color:var(--accent)}
+.hh-p{font:500 13.5px var(--h-ui);opacity:.75;margin-top:8px}
+.hh-quad{display:grid;grid-template-columns:repeat(2,64px);gap:10px 2px;flex:none}
+
+.hh-ic{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:0;padding:0;margin:0;
+  color:var(--ht);font:500 11.5px/1.2 var(--h-ui);cursor:pointer;text-align:center;min-width:0}
+.hh-ic>span:last-child{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hh-tile{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none;
+  box-shadow:0 4px 10px rgba(15,23,38,.18);transition:transform .15s}
+.hh-tile .hx-ic{width:23px;height:23px}
+.hh-ic:active .hh-tile{transform:scale(.92)}
+#hutch-home[data-sky="night"] .hh-tile,#hutch-home[data-sky="dusk"] .hh-tile{box-shadow:0 0 0 2px rgba(243,238,231,.22),0 4px 10px rgba(0,0,0,.3)}
+
+.hh-wg{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:26px;
+  box-shadow:0 8px 24px rgba(15,23,38,.12);color:#1E2D4A;overflow:hidden;min-height:0;display:block}
+.hh-wtag{display:flex;justify-content:space-between;align-items:center;font:700 11px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:#6B7280}
+.hh-wtag a{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 10px}
+.hh-posts{padding:14px 16px 6px}
+.hh-row{display:flex;gap:12px;align-items:center;padding:7px 0;border-top:1px solid #E7E1D8}
+.hh-row:first-of-type{border-top:0}
+.hh-row img{width:48px;height:48px;border-radius:13px;flex:none;object-fit:cover;background:#E7E1D8}
+.hh-row .t{font:700 14.5px/1.25 var(--h-ui);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hh-row .d{font:700 10.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:#C4622D;margin-top:2px}
+.hh-photo{position:relative}
+.hh-photo img,.hh-photo .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hh-photo .ph{background:linear-gradient(180deg,#F2B880,#D98A5F 45%,#8A5A6E 75%,#2B3A57)}
+.hh-photo .cap{position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff}
+.hh-photo .cap small{font:600 10.5px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+.hh-photo .cap b{display:block;font:700 13.5px/1.25 var(--h-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hh-photo .n{position:absolute;top:10px;right:10px;font:700 11px var(--h-ui);background:rgba(0,0,0,.5);color:#fff;border-radius:999px;padding:3px 8px}
+.hh-word{padding:13px 14px;display:flex;flex-direction:column;background:#FFF9F2}
+.hh-word .hh-wtag{color:#C4622D}
+.hh-word .w{font:700 24px/1.05 var(--h-flex);margin-top:8px;overflow-wrap:anywhere}
+.hh-word .pos{font:italic 500 12.5px var(--h-ui);color:#6B7280;margin-top:3px}
+.hh-word .pos span{font-style:normal;font-weight:700;font-size:10px;color:#C4622D;background:rgba(196,98,45,.12);border-radius:999px;padding:2px 6px;margin-left:4px}
+.hh-word .def{font:500 13px/1.35 var(--h-ui);margin-top:auto;padding-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hh-word .rm{margin-top:8px;align-self:flex-start;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
+.hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
+
+.hh-handle{position:relative;z-index:2;align-self:center;display:flex;flex-direction:column;align-items:center;flex:none;
+  margin:6px 0 6px;padding:1px 16px 3px;border:0;color:var(--ht);cursor:pointer;touch-action:none;border-radius:14px;
+  background:rgba(255,255,255,.34);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#hutch-home[data-sky="night"] .hh-handle,#hutch-home[data-sky="dusk"] .hh-handle{background:rgba(255,255,255,.1)}
+.hh-handle .hx-ic{width:22px;height:22px;animation:hh-nudge 2.4s ease-in-out infinite}
+.hh-handle span{font:600 10.5px var(--h-ui);letter-spacing:.04em;margin-top:-3px}
+@keyframes hh-nudge{0%,70%,100%{transform:none}80%{transform:translateY(-4px)}}
+
+.hh-bottom{position:relative;z-index:2;flex:none;padding:0 14px 16px;display:flex;flex-direction:column;gap:12px}
+.hh-dock{height:68px;border-radius:30px;background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  display:flex;justify-content:space-around;align-items:center;padding:0 4px}
+#hutch-home[data-sky="night"] .hh-dock,#hutch-home[data-sky="dusk"] .hh-dock{background:rgba(255,255,255,.08)}
+.hh-dock .hh-ic>span:last-child{display:none}
+.hh-search{height:50px;margin:0 4px;border-radius:999px;background:var(--glass);border:0;display:flex;align-items:center;gap:12px;padding:0 8px;
+  color:#6B7280;font:500 15px var(--h-ui);cursor:pointer;box-shadow:0 4px 14px rgba(15,23,38,.12);text-align:left;min-width:0}
+.hh-search .lbl{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hx-face{width:36px;height:36px;border-radius:50%;background:#C4622D;color:#fff;display:grid;place-items:center;flex:none}
+.hx-face svg{width:20px;height:20px}
+
+/* ---------- 4. Home layouts ---------- */
+/* Compact: short phone screens (Pixel Fold outer screen in Chrome).
+   hutch.js also adds .fit1/.fit2 if anything would still run over,
+   so the home screen never scrolls. */
+@media (max-width:599px) and (max-height:789px){
+  #hutch-home{--gap:10px}
+  .hh-area{padding:10px 14px 4px;grid-template-rows:auto auto minmax(110px,1fr)}
+  .hh-hello{padding:2px 4px 0}
+  .hh-g{font-size:16px}
+  .hh-s{font-size:23px;margin-top:4px}
+  .hh-p{font-size:12.5px;margin-top:5px}
+  .hh-quad{grid-template-columns:repeat(2,58px);gap:6px 2px}
+  .hh-quad .hh-tile{width:42px;height:42px}
+  .hh-quad .hh-tile .hx-ic{width:20px;height:20px}
+  .hh-quad .hh-ic{font-size:10.5px;gap:3px}
+  .hh-posts{padding:11px 14px 4px}
+  .hh-row{padding:5px 0}
+  .hh-row img{width:40px;height:40px;border-radius:11px}
+  .hh-row .t{font-size:13.5px}
+  .hh-word{padding:11px 12px}
+  .hh-word .w{font-size:20px;margin-top:5px}
+  .hh-word .def{font-size:12px}
+  .hh-word .rm{padding:5px 10px;font-size:11px;margin-top:6px}
+  .hh-handle{margin:4px 0 2px}
+  .hh-handle span{display:none}
+  .hh-bottom{padding:0 14px 12px;gap:10px}
+  .hh-dock{height:58px}
+  .hh-dock .hh-tile{width:44px;height:44px}
+  .hh-dock .hh-tile .hx-ic{width:20px;height:20px}
+  .hh-search{height:44px;font-size:14px}
+  .hh-search .hx-face{width:32px;height:32px}
+}
+/* last-resort fits, added by hutch.js only when content would overflow */
+#hutch-home.fit1 .hh-p,#hutch-home.fit1 .hh-handle span{display:none}
+#hutch-home.fit1 .hh-word .def{-webkit-line-clamp:1}
+#hutch-home.fit2 .hh-row:nth-of-type(3){display:none}
+/* very short (a phone held sideways): let the widgets scroll, it can't fit */
+@media (max-height:520px){
+  .hh-area{overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px}
+  .hh-ridgebox{display:none}
+}
+
+/* Unfolded and bigger: taskbar instead of dock + search */
+@media (min-width:600px) and (min-height:521px){
+  .hh-ridgebox{height:170px}
+  .hh-area{padding:22px 26px 6px;--gap:14px}
+  .hh-word .def{-webkit-line-clamp:4}
+  .hh-s{font-size:34px}
+  .hh-tile{width:54px;height:54px}
+  .hh-quad{grid-template-columns:repeat(4,72px)}
+  .hh-bottom{flex-direction:row;align-items:center;gap:6px;margin:0 18px 16px;padding:0 10px;height:66px;border-radius:24px;
+    background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 6px 18px rgba(15,23,38,.12)}
+  #hutch-home[data-sky="night"] .hh-bottom,#hutch-home[data-sky="dusk"] .hh-bottom{background:rgba(255,255,255,.12)}
+  .hh-dock{height:auto;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;gap:4px;padding:0;justify-content:flex-start}
+  .hh-dock .hh-tile{width:46px;height:46px}
+  .hh-dock .hh-tile .hx-ic{width:21px;height:21px}
+  .hh-search{flex:1;height:46px;margin:0 0 0 8px;padding:0 5px;font-size:14px;box-shadow:none;background:rgba(255,255,255,.92)}
+}
+/* Unfolded, held upright: greeting row, Recent posts beside Word Nerd, wide Photo */
+@media (min-width:600px) and (min-height:521px) and (orientation:portrait){
+  .hh-area{grid-template-columns:1.5fr 1fr;grid-template-areas:"hello hello" "posts word" "photo photo";
+    grid-template-rows:auto auto minmax(140px,1fr)}
+  .hh-hello{padding:4px 2px 8px}
+  .hh-photo{max-height:300px}
+  .hh-word{max-height:none}
+}
+/* Landscape (unfolded sideways, tablets, desktop for now) */
+@media (min-width:600px) and (min-height:521px) and (orientation:landscape){
+  .hh-area{grid-template-columns:1fr 1.15fr;grid-template-areas:"hello posts" "photo word";
+    grid-template-rows:auto minmax(120px,1fr);column-gap:22px;width:100%;max-width:1100px;margin:0 auto}
+  .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
+  .hh-quad{margin-top:18px}
+  .hh-photo,.hh-word{max-height:280px}
+  .hh-bottom{width:calc(100% - 36px);max-width:900px;align-self:center}
+}
+
+/* ---------- 5. Sheets ---------- */
+.hx-sheet{position:fixed;inset:0;z-index:9700;display:flex;flex-direction:column;
+  background:#fff;color:#1E2D4A;font-family:var(--h-ui);-webkit-font-smoothing:antialiased;
+  transform:translateY(100%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s .32s;
+  padding-bottom:env(safe-area-inset-bottom)}
+.hx-sheet.open{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.hx-sheet *{box-sizing:border-box}
+.hx-sheet a{color:inherit;text-decoration:none}
+.hx-sheet button{font-family:inherit}
+html.hx-dark .hx-sheet{background:#141A26;color:#F3EEE7}
+.hx-grab{flex:none;height:22px;display:grid;place-items:center;border:0;background:none;cursor:pointer;width:100%;padding:0}
+.hx-grab i{width:44px;height:5px;border-radius:3px;background:#D6CFC6}
+html.hx-dark .hx-grab i{background:#3A4356}
+.hx-sh-in{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:980px;margin:0 auto;padding:6px 18px 18px}
+.hx-field{display:flex;align-items:center;gap:8px;background:#F2ECE5;border-radius:999px;padding:5px 12px 5px 5px;flex:none}
+html.hx-dark .hx-field{background:#222A3B}
+.hx-field input{flex:1;min-width:0;border:0;background:transparent;font:500 16px var(--h-ui);color:inherit;outline:none;padding:8px 0}
+.hx-field input::placeholder{color:#8A8F99}
+.hx-field input{-webkit-appearance:none;appearance:none}
+.hx-field input::-webkit-search-cancel-button,.hx-field input::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.hx-field .hx-face{width:34px;height:34px}
+.hx-field .hx-x{width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;flex:none}
+.hx-lab{font:700 12px var(--h-ui);letter-spacing:.07em;color:#6B7280;margin:18px 4px 10px;text-transform:uppercase}
+html.hx-dark .hx-lab{color:#A9B2C3}
+.hx-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;margin:0 -6px;padding:0 6px}
+.hx-dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 4px}
+@media (min-width:600px){.hx-dgrid{grid-template-columns:repeat(6,1fr)}}
+@media (min-width:900px){.hx-dgrid{grid-template-columns:repeat(8,1fr)}}
+.hx-sheet .hh-ic{color:inherit}
+.hx-sheet .hh-tile{width:52px;height:52px}
+.hx-dgrid .hh-ic{width:100%}
+
+/* Hutch Search results */
+.hx-res{list-style:none;margin:0;padding:0}
+.hx-res li a,.hx-res li button{display:flex;gap:12px;align-items:center;padding:10px 6px;border-radius:14px;width:100%;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+.hx-res li a:hover,.hx-res li a:focus-visible,.hx-res li button:hover{background:rgba(127,127,127,.1);outline:none}
+.hx-res .hh-tile{width:38px;height:38px}
+.hx-res .hh-tile .hx-ic{width:18px;height:18px}
+.hx-res .hx-t{font:600 15px/1.3 var(--h-ui);display:block}
+.hx-res .hx-sn{font:400 13px/1.4 var(--h-ui);color:#6B7280;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html.hx-dark .hx-res .hx-sn{color:#A9B2C3}
+.hx-res .hx-d{font:700 10.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:#C4622D;flex:none;margin-left:auto;align-self:flex-start;padding-top:3px}
+.hx-res mark{background:rgba(196,98,45,.18);color:inherit;border-radius:3px;padding:0 1px}
+.hx-chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.hx-chip{border:1px solid #E7E1D8;border-radius:999px;padding:7px 12px;font:600 13px var(--h-ui);background:transparent;color:inherit;cursor:pointer}
+html.hx-dark .hx-chip{border-color:#2E3A58}
+.hx-note{font:500 14px/1.5 var(--h-ui);color:#6B7280;padding:10px 6px}
+.hx-wdot{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;background:#FFF1E6;color:#C4622D;font:800 15px var(--h-flex)}
+
+/* Settings */
+html.hutch .hx-sheet h2,html.hutch .hx-sheet h3{font-family:var(--h-ui) !important;color:inherit;letter-spacing:0;text-transform:none}
+.hx-set h2{font:500 26px var(--h-ui);margin:6px 4px 4px}
+.hx-card{background:#F7F3EE;border-radius:22px;padding:14px 16px;margin-top:12px}
+html.hx-dark .hx-card{background:#1D2433}
+.hx-card h3{font:600 15px var(--h-ui);margin:0 0 4px}
+.hx-card p{font:400 13.5px/1.45 var(--h-ui);color:#6B7280;margin:0 0 10px}
+html.hx-dark .hx-card p{color:#A9B2C3}
+.hx-seg{display:flex;background:rgba(127,127,127,.14);border-radius:999px;padding:3px}
+.hx-seg button{flex:1;border:0;background:transparent;color:inherit;font:600 14px var(--h-ui);padding:9px 0;border-radius:999px;cursor:pointer}
+.hx-seg button.on{background:#C4622D;color:#fff}
+.hx-btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#C4622D;color:#fff !important;font:600 14px var(--h-ui);padding:10px 16px;cursor:pointer}
+.hx-btn.ghost{background:transparent;color:inherit !important;box-shadow:inset 0 0 0 1.5px currentColor}
+.hx-about{display:flex;gap:14px;align-items:center}
+.hx-about img{width:56px;height:56px;border-radius:50%;background:#C4622D;object-fit:cover}
+
+/* ---------- 6. Boot splash ---------- */
+#hutch-boot{position:fixed;inset:0;z-index:9900;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--sky1,#8FC1E6),var(--sky2,#EAF3F8) 72%);color:var(--ht,#1E2D4A);
+  font-family:var(--h-ui);transition:opacity .5s,transform .5s;pointer-events:none}
+#hutch-boot.gone{opacity:0;transform:scale(1.04)}
+#hutch-boot .face{width:112px;height:112px;border-radius:50%;background:#C4622D;object-fit:cover;
+  box-shadow:0 12px 30px rgba(196,98,45,.35);animation:hb-pop .6s cubic-bezier(.2,1.4,.4,1) both}
+#hutch-boot .logo{width:min(300px,72vw);height:auto;margin-top:18px;animation:hb-up .5s .15s both}
+#hutch-boot .os{font:600 12px var(--h-ui);letter-spacing:.3em;text-transform:uppercase;opacity:.65;margin-top:10px;animation:hb-up .5s .3s both}
+#hutch-boot .bar{width:90px;height:4px;border-radius:2px;background:rgba(127,127,127,.25);margin-top:24px;overflow:hidden}
+#hutch-boot .bar i{display:block;height:100%;width:40%;background:#C4622D;border-radius:2px;animation:hb-load 1.1s ease-in-out infinite}
+@keyframes hb-pop{from{transform:scale(.6);opacity:0}}
+@keyframes hb-up{from{transform:translateY(10px);opacity:0}}
+@keyframes hb-load{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
+@media (prefers-reduced-motion:reduce){
+  #hutch-home *,.hx-sheet,#hutch-bar *{animation:none !important;transition:none !important}
+}

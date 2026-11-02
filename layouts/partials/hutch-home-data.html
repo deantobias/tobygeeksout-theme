@@ -1,0 +1,95 @@
+{{/* ============================================================
+     HUTCH OS home data (Nov 2, 2026, Toby + Claude). Phase 1.
+     Hands the Hutch home screen what it needs as one small JSON
+     block, using the SAME rules the home page already uses:
+       recent  - the first 3 posts of Recent Geekouts ($recentPool),
+                 with the home page's thumbnail rule (Toby's own
+                 uploads only, never card posters)
+       word    - the newest "Word of the Day" post, parsed the same
+                 way partials/wna-deck.html reads a define card
+       photo   - the newest "Photos" post with an uploaded photo,
+                 same rules as shortcodes/photo.html
+       dates   - dates of the newest Recent Geekouts posts, for
+                 "N posts this week" (Micro, Watching etc. don't count)
+       cats    - every category with its count, for Hutch Search
+       words   - every word, for Hutch Search
+     Only used when Hutch OS is switched on (?hutch=on). Traditional
+     visitors never read it. Called from index.html.
+     ============================================================ */}}
+{{- $site := .site -}}
+{{- $recent := slice -}}
+{{- range .recent -}}
+  {{- $posters := slice -}}
+  {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
+    {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+  {{- end -}}
+  {{- $thumb := "" -}}
+  {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+    {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+    {{- if and (not $thumb) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) -}}{{- $thumb = $u -}}{{- end -}}
+  {{- end -}}
+  {{- $recent = $recent | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "img" $thumb) -}}
+{{- end -}}
+
+{{- $word := dict -}}
+{{- with .words -}}{{- with index . 0 -}}
+  {{- $c := .Content -}}
+  {{- $pos := "" -}}
+  {{- if findRE `class="define-eyebrow"` $c -}}
+    {{- $eb := replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $c -}}
+    {{- $eb = replaceRE `(?s)<span class="define-pron"[^>]*>.*?</span>` "" $eb -}}
+    {{- $pos = trim (replaceRE `[\s\x{00A0}·•|]+$` "" ($eb | plainify | htmlUnescape)) " \n\t " -}}
+  {{- end -}}
+  {{- $w := "" -}}
+  {{- if findRE `class="define-word"` $c -}}
+    {{- $w = trim (replaceRE `(?s)^.*?class="define-word"[^>]*>(.*?)</p>.*$` "$1" $c | plainify | htmlUnescape) " \n\t " -}}
+  {{- end -}}
+  {{- if not $w -}}{{- $w = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t " -}}{{- end -}}
+  {{- $senses := slice -}}
+  {{- range findRE `(?s)<(?:p|td) class="define-def(?:\s[^"]*)?"[^>]*>.*?</(?:p|td)>` $c -}}
+    {{- $b := trim (replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" . | plainify | htmlUnescape) ": \n\t " -}}
+    {{- if $b -}}{{- $senses = $senses | append $b -}}{{- end -}}
+  {{- end -}}
+  {{- $def := "" -}}
+  {{- with $senses -}}{{- $def = index . 0 -}}{{- end -}}
+  {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
+{{- end -}}{{- end -}}
+
+{{- $photo := dict -}}
+{{- $shots := where (where $site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos") -}}
+{{- range $shots.ByDate.Reverse -}}
+  {{- if not $photo -}}
+  {{- $p := . -}}
+  {{- if not (in (lower $p.Content) "credit:") -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $srcs := slice -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $srcs = $srcs | append $u -}}{{- end -}}
+    {{- end -}}
+    {{- if gt (len $srcs) 0 -}}
+      {{- $photo = dict "src" (index $srcs 0) "t" (trim $p.Title " \n\t") "u" $p.RelPermalink "d" ($p.Date.Format "Jan 2") "n" (len $srcs) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $dates := slice -}}
+{{- range first 40 .pool -}}
+  {{- $dates = $dates | append (.Date.Format "2006-01-02") -}}
+{{- end -}}
+
+{{- $cats := slice -}}
+{{- range $site.Taxonomies.categories.ByCount -}}
+  {{- $cats = $cats | append (dict "n" .Page.Title "c" .Count "u" .Page.RelPermalink) -}}
+{{- end -}}
+
+{{- $words := slice -}}
+{{- range .words -}}
+  {{- $words = $words | append (dict "w" (trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t ") "u" .RelPermalink) -}}
+{{- end -}}
+
+<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "dates" $dates "cats" $cats "words" $words | jsonify | safeJS }}</script>

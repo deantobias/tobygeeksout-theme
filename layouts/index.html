@@ -478,6 +478,8 @@
       {{ $wordPool = $wordPool | append . }}
     {{ end }}
   {{ end }}
+  {{/* HUTCH OS home data (Nov 2, 2026): JSON for the Hutch home screen. Inert unless ?hutch=on. */}}
+  {{ partial "hutch-home-data.html" (dict "recent" (first 3 $recentPool) "pool" $recentPool "words" $wordPool "site" .Site) }}
   {{/* Sept 30, 2026 (Toby): Micro and Word Nerd Alert share one row
        from 1024 up - the word card stretched across the full column
        left a lot of empty space on its right. Below 1024 they stack,

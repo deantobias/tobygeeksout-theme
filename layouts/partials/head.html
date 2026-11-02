@@ -40,6 +40,28 @@
 })();
 </script>
 
+<!-- HUTCH OS switch (Nov 2, 2026, Toby + Claude). Private testing only.
+     ?hutch=on turns Hutch OS on for this browser (saved as tgo-hutch=on),
+     ?hutch=off turns it back off. When on, <html class="hutch"> is set
+     here, before first paint; hutch.css loads right after custom.css and
+     hutch.js loads at the end of <body> (baseof.html). When off, nothing
+     Hutch loads at all and the Traditional theme is untouched. -->
+<script>
+(function () {
+  try {
+    var q = location.search.match(/[?&]hutch=(on|off)\b/i);
+    if (q) localStorage.setItem('tgo-hutch', q[1].toLowerCase());
+    if (localStorage.getItem('tgo-hutch') !== 'on') return;
+    var de = document.documentElement;
+    de.classList.add('hutch');
+    /* "/" is the Hutch home screen; "/?app=blog" and every other page
+       open inside the Hutch app frame */
+    var hs = (location.pathname === '/' || location.pathname === '/index.html') && !/[?&]app=blog\b/.test(location.search);
+    de.classList.add(hs ? 'hutch-hs' : 'hutch-app');
+  } catch (e) {}
+})();
+</script>
+
 <!-- tgo-sky boot: pre-applies night colors before first paint so pages don't flash light then go dark.
      Night palette + boundaries mirror custom_footer.html (night = sunset..sunrise) — keep in sync. -->
 <script>
@@ -235,6 +257,10 @@
      now.Unix changes on every Micro.blog rebuild (every post, every
      Update Design), so a fresh stylesheet URL ships with every build. */}}
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ now.Unix }}">
+<!-- HUTCH OS stylesheet + Roboto (Nov 2, 2026): only when the switch above is on. -->
+<script>
+if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ now.Unix }}">');
+</script>
 
 <!-- Hold first paint until the whole page (incl. end-of-body scripts) is
      parsed, so view transitions snapshot the finished layout instead of a

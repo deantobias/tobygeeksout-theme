@@ -75,6 +75,15 @@
     })();
   </script>
   {{ block "extra_scripts" . }}{{ end }}
+  {{/* HUTCH OS (Nov 2, 2026, Toby + Claude): page facts for the app
+       frame, then hutch.js. Both only matter when <html class="hutch">
+       (the ?hutch=on switch in head.html); otherwise the script tag is
+       never written and the JSON block is inert. Loaded parser-blocking
+       before #page-end so the Hutch screen is in place on first paint. */}}
+  <script type="application/json" id="hutch-page">{{ dict "kind" .Kind "type" .Type "title" .Title "path" .RelPermalink "cats" .Params.categories "date" (.Date.Format "Jan 2, 2006") "min" .ReadingTime "words" .WordCount "avatar" .Site.Author.avatar "site" .Site.Title | jsonify | safeJS }}</script>
+  <script>
+  if (document.documentElement.classList.contains('hutch')) document.write('<script src="{{ "js/hutch.js" | relURL }}?{{ now.Unix }}"><\/script>');
+  </script>
   <!-- Render-blocking anchor: pairs with <link rel="expect" href="#page-end"
        blocking="render"> in head.html. Parser reaching this element means all
        scripts above have executed, so the first painted frame is final. -->

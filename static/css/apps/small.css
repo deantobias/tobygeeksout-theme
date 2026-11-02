@@ -61,7 +61,12 @@
 .hx-sm .hx-sm-nl:hover{border-color:var(--ln)}
 .hx-sm .hx-sm-form.hx-sm-subform{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 0;padding:0;background:none;border:0}
 .hx-sm .hx-sm-form.hx-sm-subform > :not(input):not(button):not(label){flex-basis:100%;margin:0;font-size:13px;color:var(--sub)}
-.hx-sm .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){flex:1 1 160px;min-width:0;width:auto;margin:0;min-height:48px}
+/* Nov 2 (Toby: "the email box looks too tall"): his real signup form stacks
+   its parts in a column, which turned the 160px width basis into a 160px
+   HEIGHT. The row is forced across and the box held to one line. */
+.hx-sm .hx-sm-form.hx-sm-subform{flex-direction:row !important;align-items:center !important;height:auto !important}
+.hx-sm .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){flex:1 1 160px;min-width:0;width:auto;margin:0;
+  height:48px !important;min-height:48px !important;max-height:52px !important;padding:0 14px !important;line-height:normal !important;font-size:16px !important;box-sizing:border-box}
 .hx-sm .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){flex:none;width:auto;margin:0;min-height:48px}
 .hx-sm .hx-sm-more{margin-top:18px}
 

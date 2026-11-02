@@ -483,7 +483,9 @@
         (hasTitle ? '<span class="hb-title">' + esc(isPost ? PAGE.title || '' : '') + '</span>' : '') + '</div></div>' +
       (hasTitle ? '<span class="hb-pct">0%</span>' : '') +
       (isBlogApp ? '<button type="button" class="hb-btn hb-expand" aria-label="Full screen" title="Full screen">' + ic('expand') + '</button>' : '') +
-      '<button type="button" class="hb-btn" data-sheet="search" aria-label="Hutch Search">' + ic('search') + '</button>' +
+      /* no search button here (Nov 2, Toby): inside an app it read as
+         "search this app", but it searched the whole site. Hutch Search
+         lives on the home screen; Word Nerd and Archive have their own. */
       '<a class="hb-btn hb-home" href="/" aria-label="Home"><span class="hx-rab">' + RABBIT + '</span></a>' +
       (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);

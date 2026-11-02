@@ -87,8 +87,54 @@
     calendar: ['Calendar', '#CF5C4A', '/calendar/'],
     settings: ['Settings', '#6B7280', null]
   };
-  var QUAD = ['den', 'surprise', 'uses', 'follow'];
-  var DOCK = ['blog', 'archive', 'about', 'now', 'contact'];
+  var NAVDOCK = null;
+  /* Nov 2 (Toby: About in the dock opened /about/, but his page is
+     /about-me/): apps that are also in his Traditional menu take their
+     address from that menu (#hutch-page "menu", from .Site.Menus.main),
+     matched the same way partials/nav-icon.html matches icons. So a
+     renamed or moved page is followed automatically. */
+  (function () {
+    var menu = PAGE.menu || [];
+    function rel(u) { try { var x = new URL(u, location.origin); return x.origin === location.origin ? x.pathname + x.search : ''; } catch (e) { return ''; } }
+    var rules = [
+      ['about', /^about/i, /\/about/i], ['now', /^now$/i, /\/now\b/i], ['contact', /^contact/i, /\/contact/i],
+      ['archive', /^archive/i, /\/archive/i], ['uses', /^(geek gear|uses?|gear)$/i, /\/uses?\//i],
+      ['follow', /^(follow|subscribe)/i, /\/(subscribe|follow)/i], ['surprise', /surprise/i, /\/surprise/i]
+    ];
+    rules.forEach(function (r) {
+      var hit = null;
+      menu.forEach(function (m) { if (!hit && m && m.u && (r[1].test((m.n || '').trim()) || r[2].test(m.u))) hit = rel(m.u); });
+      if (hit && hit !== '/') APPS[r[0]][2] = hit;
+    });
+    /* The dock IS the nav (Nov 2, Toby): his menu items in his order,
+       with Blog in Home's place. Search isn't a dock app (Hutch Search
+       has its own bar). A menu item Hutch has no app for still gets a
+       dock icon that opens its page. Room for 5. */
+    var dock = ['blog'];
+    menu.forEach(function (m, i) {
+      if (!m || !m.u) return;
+      var u = rel(m.u), n = (m.n || '').trim();
+      if (!u || u === '/' || /^home$/i.test(n) || /search/i.test(n + ' ' + u)) return;
+      var key = null;
+      rules.forEach(function (r) { if (!key && (r[1].test(n) || r[2].test(m.u))) key = r[0]; });
+      if (!key) {
+        key = 'nav' + i; APPS[key] = [n, '#5B7A8C', u];
+        /* same icon the Traditional nav gives it (partials/nav-icon.html) */
+        IC[key] = /blaugust/i.test(n + u) ? '<path d="M12 3.2 14.7 9l6.3.6-4.8 4.2 1.5 6.2-5.7-3.5-5.7 3.5 1.5-6.2-4.8-4.2 6.3-.6Z"/>'
+          : /newsletter/i.test(n + u) ? IC.contact
+          : '<path d="M10.2 13.8a4.2 4.2 0 0 0 6 0l3-3a4.2 4.2 0 1 0-6-6l-1.3 1.3"/><path d="M13.8 10.2a4.2 4.2 0 0 0-6 0l-3 3a4.2 4.2 0 1 0 6 6l1.3-1.3"/>';
+      }
+      /* every nav item becomes an app (so All apps lists them all);
+         only the first ones fit in the dock */
+      if (dock.indexOf(key) < 0 && dock.length < 5) dock.push(key);
+    });
+    if (dock.length > 1) NAVDOCK = dock;
+  })();
+
+  var DOCK = NAVDOCK || ['blog', 'archive', 'about', 'now', 'contact'];
+  /* the four by the date never repeat a dock app (if his nav ever holds
+     one of them, the next app in line takes its place) */
+  var QUAD = ['den', 'surprise', 'uses', 'follow', 'photos', 'words', 'calendar'].filter(function (k) { return DOCK.indexOf(k) < 0; }).slice(0, 4);
   function tile(k) { return '<span class="hh-tile" style="background:' + APPS[k][1] + '">' + ic(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
@@ -100,8 +146,11 @@
   var path = location.pathname;
   function appForPage() {
     if (path === '/' || path === '/index.html') return 'blog';
-    var map = [['/archive/', 'archive'], ['/about/', 'about'], ['/now/', 'now'], ['/contact/', 'contact'], ['/watching/', 'den'],
-      ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
+    /* the app's own address first (it may come from the menu), then the
+       usual addresses as a fallback */
+    for (var k in APPS) { var u = APPS[k][2]; if (u && u !== '/?app=blog' && u.charAt(u.length - 1) === '/' && path.indexOf(u) === 0) return k; }
+    var map = [['/archive/', 'archive'], ['/about-me/', 'about'], ['/about/', 'about'], ['/now/', 'now'], ['/contact/', 'contact'], ['/watching/', 'den'],
+      ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/use/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
       ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar']];
     for (var i = 0; i < map.length; i++) if (path.indexOf(map[i][0]) === 0) return map[i][1];
     if (path.indexOf('/categories/') === 0) return 'archive';

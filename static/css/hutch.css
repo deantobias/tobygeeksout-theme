@@ -232,9 +232,10 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-search .hs-face{width:38px;height:38px;margin-left:auto}
 .hx-face{width:36px;height:36px;border-radius:50%;background:#FBE3D0;display:block;flex:none;position:relative;overflow:hidden;
   box-shadow:inset 0 0 0 1.5px rgba(196,98,45,.35)}
-/* the real rabbit (Nov 2, from Toby's screenshot): the whole picture fits,
-   ears at the top edge, paws resting on the bottom edge, peeking up */
-.hx-rabimg{position:absolute;left:50%;bottom:-2%;height:104%;width:auto;max-width:none;transform:translateX(-50%);pointer-events:none}
+/* the real rabbit (Nov 2, from Toby's screenshots): only his head shows,
+   peeking up from the bottom edge of the circle, chin on the edge and ears
+   inside the top. His paw and shoulder sit below the edge, out of sight. */
+.hx-rabimg{position:absolute;left:50%;bottom:-19%;height:116%;width:auto;max-width:none;transform:translateX(-50%);pointer-events:none}
 
 /* ---------- 4. Home layouts ---------- */
 @media (max-width:599px) and (min-height:740px){

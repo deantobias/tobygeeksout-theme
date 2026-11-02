@@ -23,11 +23,16 @@
   {{- $since := "" -}}
   {{- with $posts.ByDate | first 1 -}}{{- $since = (index . 0).Date.Format "2006" -}}{{- end -}}
   {{/* "Writes about" = what he's been writing about LATELY (Nov 2, Toby):
-       the categories on his newest 40 posts, most used first, top 3.
-       Micro is a kind of post, not a topic, so it doesn't count. Ties go
-       to the category used most recently. */}}
+       the categories on his posts from the last 30 days (counted when the
+       site builds, and Micro.blog rebuilds on every post), most used first,
+       top 3. A quiet month falls back to the newest 20 posts. Micro is a
+       kind of post, not a topic, so it doesn't count. Ties go to the
+       category used most recently. */}}
+  {{- $cut := now.AddDate 0 0 -30 -}}
+  {{- $recent := where $posts.ByDate.Reverse "Date" "ge" $cut -}}
+  {{- if lt (len $recent) 5 -}}{{- $recent = first 20 $posts.ByDate.Reverse -}}{{- end -}}
   {{- $count := dict -}}{{- $first := dict -}}
-  {{- range $i, $q := first 40 $posts.ByDate.Reverse -}}
+  {{- range $i, $q := $recent -}}
     {{- range $q.Params.categories -}}
       {{- if ne (lower .) "micro" -}}
         {{- $k := urlize . -}}

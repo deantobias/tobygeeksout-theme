@@ -523,3 +523,13 @@ html.hx-dark .hx-card p{color:#A9B2C3}
 @media (prefers-reduced-motion:reduce){
   #hutch-home *,.hx-sheet,#hutch-bar *{animation:none !important;transition:none !important}
 }
+
+/* ---------- 7. App launch ---------- */
+/* The tapped app's color grows out of its icon to fill the screen while
+   the app's page loads (Nov 2). */
+#hutch-launch{position:fixed;inset:0;z-index:9950;display:grid;place-items:center;color:#fff;
+  transition:clip-path .32s cubic-bezier(.2,.8,.2,1);will-change:clip-path;pointer-events:all}
+#hutch-launch .hl-ic{width:72px;height:72px;display:grid;place-items:center;animation:hl-pop .32s cubic-bezier(.2,.8,.2,1) both}
+#hutch-launch .hl-ic .hx-ic{width:44px;height:44px}
+@keyframes hl-pop{from{transform:scale(.6);opacity:.4}}
+@media (prefers-reduced-motion:reduce){#hutch-launch,#hutch-launch .hl-ic{transition:none;animation:none}}

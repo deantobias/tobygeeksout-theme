@@ -44,9 +44,10 @@
   /* Nov 2 (Toby): apps that are also in the Traditional nav use the SAME
      icons as the nav (partials/icon.html via nav-icon.html): Archive box,
      About person, Now clock, Contact envelope, Uses laptop, Surprise
-     shuffle, Follow RSS, Search. Blog is the nav's Home. */
+     shuffle, Follow RSS, Search. Blog gets a page-of-writing icon (Nov 2: the nav's house
+     read as Home, and Home is the rabbit). */
   var IC = {
-    blog: '<path d="M3 11.5 12 4l9 7.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-6h4v6"/>',
+    blog: '<path d="M5 4.5h11l3.5 3.5v11.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1Z"/><path d="M8 9.5h8 M8 13h8 M8 16.5h5"/>',
     archive: '<rect x="3.5" y="4.5" width="17" height="4" rx="1"/><path d="M5 8.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5"/><path d="M10 13h4"/>',
     about: '<circle cx="12" cy="8.2" r="3.7"/><path d="M4.5 20c0-4 3.5-6.2 7.5-6.2s7.5 2.2 7.5 6.2"/>',
     now: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/>',
@@ -445,8 +446,15 @@
     [].forEach.call(homeEl.querySelectorAll('img'), function (i) { if (!i.complete) i.addEventListener('load', fit, { once: true }); });
 
     /* browser bar matches the sky; custom_footer.html re-sets it every minute, so keep ours */
-    function bar() { var m = document.querySelector('meta[name="theme-color"]'); if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); } m.setAttribute('content', SKYTOP[PHASE]); }
-    bar(); setInterval(bar, 20000);
+    /* The phone's top bar takes the sky color at the top of the home
+       screen, and the strip by the gesture bar takes the mountains' color
+       at the bottom (Nov 2, Toby: "sometimes it shows the sky color").
+       The Traditional sky script re-colors the top bar every minute, so
+       Hutch watches for that and puts its own color straight back. */
+    var SKYBOT = { day: '#3A4A64', dawn: '#594E68', sunset: '#483744', dusk: '#22263C', night: '#0D1320' };
+    de.style.setProperty('background', SKYBOT[PHASE], 'important');
+    document.body.style.setProperty('background', SKYBOT[PHASE], 'important');
+    setBarColor(SKYTOP[PHASE]);
   }
   /* never scroll: if anything would run past the area, tighten step by step */
   function fit() {
@@ -492,6 +500,34 @@
   }
 
   /* ---------- app frame ---------- */
+  /* The browser's address bar takes the color of whatever sits at the top
+     of the page (Nov 2, Toby): the sky on the home screen, the app bar in
+     an app (Den dark, Photos white, Word Nerd cream...). The Traditional
+     sky script re-colors it every minute, so Hutch keeps one theme-color
+     tag, watches it, and puts its own color back. */
+  var tcWant = null, tcMeta = null;
+  function hex(c) {
+    var m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return c;
+    var v = m[1].split(',').map(function (x) { return parseFloat(x); });
+    if (v.length > 3 && v[3] === 0) return null;
+    return '#' + v.slice(0, 3).map(function (x) { return ('0' + Math.round(x).toString(16)).slice(-2); }).join('').toUpperCase();
+  }
+  function setBarColor(c) {
+    if (!c) return;
+    tcWant = c;
+    if (!tcMeta) {
+      var all = document.querySelectorAll('meta[name="theme-color"]'); tcMeta = all[0];
+      for (var i = 1; i < all.length; i++) all[i].parentNode.removeChild(all[i]);
+      if (!tcMeta) { tcMeta = document.createElement('meta'); tcMeta.name = 'theme-color'; document.head.appendChild(tcMeta); }
+      tcMeta.removeAttribute('media');
+      if (window.MutationObserver) new MutationObserver(function () {
+        [].forEach.call(document.querySelectorAll('meta[name="theme-color"]'), function (m) { if (m !== tcMeta) m.parentNode.removeChild(m); });
+        if (tcWant && tcMeta.getAttribute('content') !== tcWant) tcMeta.setAttribute('content', tcWant);
+      }).observe(document.head, { attributes: true, subtree: true, childList: true, attributeFilter: ['content'] });
+    }
+    if (tcMeta.getAttribute('content') !== c) tcMeta.setAttribute('content', c);
+  }
+
   /* Leaving the page (back arrow or Home): show it at once and ignore
      more taps while the next page loads, so a second tap can't skip two
      pages back (Nov 2, Toby: "slow or do I have to tap twice?"). Cleared
@@ -577,6 +613,14 @@
     /* App modules (hutch-apps.js): each app registers itself on
        window.HutchApps under its key (words, den, photos, ...). If this
        page belongs to one, it gets the bar, its data and the helpers. */
+    function syncBar() { var c = hex(getComputedStyle(bar).backgroundColor); if (c) setBarColor(c); }
+    syncBar();
+    requestAnimationFrame(syncBar);
+    setTimeout(syncBar, 400);
+    if (window.MutationObserver) new MutationObserver(function () { requestAnimationFrame(syncBar); })
+      .observe(de, { attributes: true, attributeFilter: ['class', 'style'] });
+    bar.addEventListener('transitionend', syncBar);
+
     var mod = window.HutchApps && window.HutchApps[k];
     if (mod && !isBlogApp) {
       try {
@@ -699,11 +743,59 @@
     });
   }
 
+  /* ---------- app launch (Nov 2, Toby: "when I click an app, it slowly
+     opens") ----------
+     Every app is a full page from the blog, so it takes a moment to load.
+     The tap answers at once instead: the app's color grows out of the
+     icon to fill the screen, with its icon in the middle, like Android
+     opening an app. It stays until the new page shows. */
+  function launch(a) {
+    if (!a || de.classList.contains('hx-launching')) return;
+    var t = a.querySelector('.hh-tile'), r = (t || a).getBoundingClientRect();
+    var color = t ? t.style.background || getComputedStyle(t).backgroundColor : '';
+    if (!color) color = a.classList.contains('hh-photo') ? APPS.photos[1] : a.classList.contains('hh-word') ? APPS.words[1] : APPS.blog[1];
+    var icon = t ? t.innerHTML : ic(a.classList.contains('hh-photo') ? 'photos' : a.classList.contains('hh-word') ? 'words' : 'blog');
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var far = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+    var L = el('<div id="hutch-launch" aria-hidden="true"><span class="hl-ic">' + icon + '</span></div>');
+    L.style.background = color;
+    L.style.clipPath = 'circle(' + Math.max(r.width, 24) / 2 + 'px at ' + cx + 'px ' + cy + 'px)';
+    document.body.appendChild(L);
+    de.classList.add('hx-launching');
+    L.getBoundingClientRect();
+    if (calm) L.style.clipPath = 'none';
+    else L.style.clipPath = 'circle(' + Math.ceil(far) + 'px at ' + cx + 'px ' + cy + 'px)';
+    setTimeout(function () { de.classList.remove('hx-launching'); if (L.parentNode) L.remove(); }, 6000);
+  }
+  window.addEventListener('pageshow', function () { de.classList.remove('hx-launching'); var L = document.getElementById('hutch-launch'); if (L) L.remove(); });
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest('#hutch-home a[href], #hutch-drawer a[href], #hutch-search a.hh-ic');
+    if (!a || a.target === '_blank') return;
+    var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
+    launch(a);
+  });
+
+  /* Load ahead: on the home screen, fetch the apps and recent posts on it
+     in the background, so they open faster (speculation rules; browsers
+     without them ignore this) */
+  function preload() {
+    try {
+      if (!(HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) || !homeEl) return;
+      var urls = [].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })
+        .filter(function (u, i, all) { return u && all.indexOf(u) === i; }).slice(0, 14);
+      var sr = document.createElement('script'); sr.type = 'speculationrules';
+      sr.textContent = JSON.stringify({ prefetch: [{ source: 'list', urls: urls, eagerness: 'eager' }] });
+      document.head.appendChild(sr);
+    } catch (e) {}
+  }
+
   /* ---------- go ---------- */
   var isEmbed = de.classList.contains('hutch-embed');
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
-  else if (isHome && HOME) { buildHome(); boot(false); }
+  else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1200); }
   else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
 
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };

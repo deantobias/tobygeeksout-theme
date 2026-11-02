@@ -16,7 +16,9 @@
      ============================================================ */ -}}
 {{- $p := .RelPermalink -}}
 {{- $d := dict "title" .Title "site" .Site.Title -}}
-{{- if eq $p "/about/" -}}
+{{/* Nov 2: About and Follow are found by address OR title, so /about-me/
+     (Toby's real About page) and a renamed Follow page both work */}}
+{{- if or (in (slice "/about/" "/about-me/") $p) (findRE `(?i)^\s*about\b` .Title 1) -}}
   {{- $posts := where .Site.RegularPages "Type" "post" -}}
   {{- $since := "" -}}
   {{- with $posts.ByDate | first 1 -}}{{- $since = (index . 0).Date.Format "2006" -}}{{- end -}}
@@ -24,8 +26,8 @@
   {{- with .Site.Taxonomies.categories -}}
     {{- range first 3 .ByCount -}}{{- $cats = $cats | append (dict "n" .Page.Title "u" .Page.RelPermalink) -}}{{- end -}}
   {{- end -}}
-  {{- $d = merge $d (dict "name" .Site.Author.name "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
-{{- else if eq $p "/subscribe/" -}}
+  {{- $d = merge $d (dict "name" (.Site.Author.name | default "Toby Overstreet") "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
+{{- else if or (in (slice "/subscribe/" "/follow/") $p) (findRE `(?i)^\s*(subscribe|follow)\b` .Title 1) -}}
   {{- $rss := "" -}}
   {{- with .Site.Home.OutputFormats.Get "rss" -}}{{- $rss = .Permalink -}}{{- else -}}{{- $rss = printf "%sfeed.xml" .Site.BaseURL -}}{{- end -}}
   {{- $past := "/newsletters/" | absURL -}}

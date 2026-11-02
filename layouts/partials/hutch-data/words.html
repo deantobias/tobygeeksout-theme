@@ -106,7 +106,18 @@
     {{- with $plain -}}{{- $m = slice (dict "n" "" "t" .) -}}{{- end -}}
   {{- end -}}
 
-  {{- $out = $out | append (dict "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
+  {{/* Is there more on the post than the card shows? (Nov 2, Toby: "Read
+       more" opened the same thing.) Same idea as wna-deck.html: a note, a
+       video, or more words in the post than on the card. The card here
+       already shows the example and the extra rows, so those don't count. */}}
+  {{- $cardW := add (add (countwords $w) (countwords $pos)) (add (countwords $pr) (countwords $ex)) -}}
+  {{- range $m -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .n)) -}}{{- end -}}
+  {{- range $x -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .l)) -}}{{- end -}}
+  {{- $more := false -}}
+  {{- if or (findRE (printf `%sdefine-note\b` $cls) $c 1) (findRE `<(?:iframe|video)\b` $c 1) -}}{{- $more = true -}}
+  {{- else if gt (countwords .Plain) (add $cardW 6) -}}{{- $more = true -}}{{- end -}}
+  {{- if not (findRE (printf `%sdefine-def\b` $cls) $c 1) -}}{{- $more = true -}}{{- end -}}
+  {{- $out = $out | append (dict "more" $more "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
 {{- end -}}
 {{- $d := dict "words" $out "cat" .RelPermalink -}}
 <script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

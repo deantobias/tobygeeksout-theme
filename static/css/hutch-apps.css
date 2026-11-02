@@ -930,7 +930,9 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 .hx-words .hxw-btn{border:0;border-radius:999px;background:var(--wn-acc);color:#fff !important;font:600 15px var(--h-ui);padding:11px 20px;display:inline-flex;align-items:center;gap:7px}
 .hxw-dk .hx-words .hxw-btn{color:#141A26 !important}
 .hx-words .hxw-btn svg{width:16px;height:16px}
-.hx-words .hxw-posted{font:500 14px var(--h-ui);color:var(--wn-sub);margin-top:22px}
+.hx-words .hxw-posted{display:inline-block;font:500 14px var(--h-ui);color:var(--wn-sub) !important;margin-top:18px;text-decoration:none !important}
+.hx-words .hxw-acts+.hxw-posted{margin-top:16px}
+.hx-words .hxw-posted:hover,.hx-words .hxw-posted:focus-visible{color:var(--wn-acc) !important}
 
 /* ---------- All words ---------- */
 .hx-words .hxw-mini{display:none}

@@ -347,13 +347,14 @@
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
     var photo = p.src
-      ? '<a class="hh-wg hh-photo" href="/photo/" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img src="' + esc(p.src) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
+      ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img src="' + esc(p.src) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
         '<div class="cap"><small>' + esc(p.d) + '</small><b>' + esc(p.t || 'Latest photo') + '</b></div></a>'
       : '<a class="hh-wg hh-photo" href="/photo/"><span class="ph"></span><div class="cap"><small>Photos</small><b>Open Photos</b></div></a>';
     var word = w.w
-      ? '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
-        '<div class="pos">' + esc(w.pos || '') + (w.n > 1 ? '<span>+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
-        '<span class="rm" data-href="' + esc(w.u) + '" role="link" tabindex="0">Read more</span></a>'
+      /* one tap: the whole widget opens Word Nerd, where the latest word's
+         card shows every meaning (no Read more button, Nov 2) */
+      ? '<a class="hh-wg hh-word" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
+        '<div class="pos">' + esc(w.pos || '') + (w.n > 1 ? '<span>+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div></a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -419,7 +420,8 @@
       };
       var pos = wc.querySelector('.pos'); if (pos) pos.style.display = '';
       if (clipped() && pos) pos.style.display = 'none';
-      if (clipped()) def.style.webkitLineClamp = '1';
+      /* step the definition down a line at a time until it fits the card */
+      for (var ln = 4; ln >= 1 && clipped(); ln--) def.style.webkitLineClamp = String(ln);
       if (clipped()) def.style.display = 'none';
     }
   }

@@ -68,8 +68,11 @@
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +
         (o.big && x.x.length ? '<dl class="hxw-extra">' + x.x.map(function (e) {
           return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + '</dl>' : '') +
-        '<div class="hxw-acts"><a class="hxw-btn" href="' + esc(x.u) + '">Read more' + ic('open') + '<span class="hxw-sr"> about ' + esc(x.w) + '</span></a></div>' +
-        (o.big ? '<div class="hxw-posted">Posted ' + esc(x.fd) + ' in Word Nerd Alert</div>' : '');
+        /* Read more only when the post has something the card doesn't
+           (Toby's own words, a note, a video). Otherwise the date links to
+           the post with ∞, like the Traditional Word Nerd page. */
+        (x.more ? '<div class="hxw-acts"><a class="hxw-btn" href="' + esc(x.u) + '">Read more' + ic('open') + '<span class="hxw-sr"> about ' + esc(x.w) + '</span></a></div>' : '') +
+        '<a class="hxw-posted" href="' + esc(x.u) + '">' + (o.big ? 'Posted ' + esc(x.fd) + ' in Word Nerd Alert' : esc(x.fd)) + ' <span aria-hidden="true">∞</span></a>';
     }
 
     var root = ctx.el(

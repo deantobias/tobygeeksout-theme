@@ -1041,7 +1041,10 @@ window.HutchApps = window.HutchApps || {};
         try { t.focus({ preventScroll: true }); } catch (e) {}
       }
     }
-    function back() { if (history.state && history.state.hxp) history.back(); else close(); }
+    /* deep = opened straight from the home screen's Photo widget, so back
+       goes back home instead of to the grid (Nov 2, Toby: fewer taps) */
+    var deep = false;
+    function back() { if (history.state && history.state.hxp) history.back(); else if (deep) history.back(); else close(); }
 
     root.addEventListener('click', function (e) {
       var t = e.target.closest('.hxp-tile');
@@ -1082,6 +1085,20 @@ window.HutchApps = window.HutchApps || {};
     });
     /* back on this page after a reload with the feed still in history */
     if (history.state && history.state.hxp) openPost(Math.min(P.length - 1, history.state.i || 0), false);
+    /* /photo/#post=/2026/...: open that post right away (the home screen's
+       Photo widget links here, so one tap shows the photo) */
+    else {
+      var hm = location.hash.match(/^#post=(.+)$/);
+      if (hm) {
+        var want = decodeURIComponent(hm[1]);
+        for (var q = 0; q < P.length; q++) if (P[q].u === want) {
+          deep = true;
+          try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+          openPost(q, false);
+          break;
+        }
+      }
+    }
   };
 })();
 
@@ -1468,8 +1485,11 @@ window.HutchApps = window.HutchApps || {};
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +
         (o.big && x.x.length ? '<dl class="hxw-extra">' + x.x.map(function (e) {
           return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + '</dl>' : '') +
-        '<div class="hxw-acts"><a class="hxw-btn" href="' + esc(x.u) + '">Read more' + ic('open') + '<span class="hxw-sr"> about ' + esc(x.w) + '</span></a></div>' +
-        (o.big ? '<div class="hxw-posted">Posted ' + esc(x.fd) + ' in Word Nerd Alert</div>' : '');
+        /* Read more only when the post has something the card doesn't
+           (Toby's own words, a note, a video). Otherwise the date links to
+           the post with ∞, like the Traditional Word Nerd page. */
+        (x.more ? '<div class="hxw-acts"><a class="hxw-btn" href="' + esc(x.u) + '">Read more' + ic('open') + '<span class="hxw-sr"> about ' + esc(x.w) + '</span></a></div>' : '') +
+        '<a class="hxw-posted" href="' + esc(x.u) + '">' + (o.big ? 'Posted ' + esc(x.fd) + ' in Word Nerd Alert' : esc(x.fd)) + ' <span aria-hidden="true">∞</span></a>';
     }
 
     var root = ctx.el(

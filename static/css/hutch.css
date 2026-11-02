@@ -67,8 +67,56 @@ html.hutch-app body{padding-bottom:env(safe-area-inset-bottom)}
   opacity:0;transition:opacity .2s}
 #hutch-bar.titled .hb-pct{opacity:1}
 #hutch-bar .hb-prog{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--color-terra,#C4622D);border-radius:0 2px 2px 0}
-#hutch-bar .hb-home .hx-rab{width:30px;height:30px;border-radius:50%;background:var(--h-terra);color:#fff;display:grid;place-items:center}
-#hutch-bar .hb-home .hx-rab svg{width:17px;height:17px}
+#hutch-bar .hb-home .hx-rab{width:32px;height:32px;border-radius:50%;background:#FBE3D0;display:block;position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1.5px rgba(196,98,45,.35)}
+
+/* Inside the Blog app's post pane: no bar, so nothing to clear */
+html.hutch.hutch-embed{--h-bar:0px}
+
+/* ---------- 2b. Blog app (/?app=blog), v36 ---------- */
+html.hutch-blog #main-content{display:none !important}
+#hutch-blog{--bg:var(--color-bg,#FAF8F5);--surf:var(--color-bg-card,#FFFFFF);--ink:var(--color-text,#1A1A18);--sub:var(--color-text-muted,#69635C);
+  --ln:var(--color-border,#E5DDD5);--acc:var(--color-terra,#C4622D);
+  padding:var(--h-bar) 0 30px;font-family:var(--h-ui);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+#hutch-blog *{box-sizing:border-box}
+.hbl-filters{position:sticky;top:var(--h-bar);z-index:5;display:flex;gap:8px;padding:6px 16px 12px;background:var(--bg)}
+.hbl-filters button{border:1px solid var(--ln);background:var(--surf);color:var(--ink);border-radius:10px;padding:7px 14px;font:600 13px var(--h-ui);cursor:pointer}
+.hbl-filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.hbl-tl{padding:0 16px;max-width:680px;margin:0 auto}
+@media (min-width:600px){.hbl-tl{padding:0 30px}.hbl-filters{padding:6px 30px 12px;max-width:680px;margin:0 auto}}
+.hbl-it{display:block;background:var(--surf);border:1px solid var(--ln);border-radius:20px;margin-bottom:12px;overflow:hidden;color:inherit !important;text-decoration:none !important;transition:border-color .15s}
+.hbl-it:hover,.hbl-it:focus-visible{border-color:var(--acc);outline:none}
+.hbl-it.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.hbl-it .hero{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--ln)}
+.hbl-tx{padding:14px 16px 16px}
+.hbl-k{font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.hbl-it h3{font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:21px;line-height:1.2;margin:6px 0;color:var(--ink);letter-spacing:0}
+.hbl-it p{font:400 15px/1.5 var(--font-reading,Georgia,serif);margin:0;color:var(--sub)}
+.hbl-kr{display:inline-block;margin-top:10px;font:600 13px var(--h-ui);color:var(--acc)}
+.hbl-it.micro .hbl-tx{display:flex;gap:10px}
+.hbl-it .fl{color:var(--acc);font-size:18px;line-height:1.2;flex:none}
+.hbl-mb{flex:1;min-width:0}
+.hbl-it.micro p{color:var(--ink);margin-top:4px}
+.hbl-it .mimg{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-top:10px;background:var(--ln)}
+.hbl-more{text-align:center;padding:12px 0 8px}
+.hbl-more a{display:inline-block;border:1px solid var(--ln);border-radius:999px;padding:9px 16px;font:600 13.5px var(--h-ui);color:var(--ink) !important;text-decoration:none !important}
+.hbl-none{text-align:center;color:var(--sub);padding:30px 0}
+.hbl-right{display:none}
+#hutch-bar .hb-expand{display:none}
+/* landscape: timeline left, post right */
+html.hbl-two,html.hbl-two body{overflow:hidden !important;height:100%}
+html.hbl-two #hutch-blog{position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;padding:0;display:flex}
+html.hbl-two .hbl-left{width:40%;max-width:460px;flex:none;border-right:1px solid var(--ln);overflow-y:auto;overscroll-behavior:contain;
+  transition:width .35s cubic-bezier(.2,.8,.2,1),max-width .35s,opacity .25s}
+html.hbl-two .hbl-filters{top:0;padding:10px 14px 12px;max-width:none}
+html.hbl-two .hbl-tl{padding:0 14px 20px}
+html.hbl-two .hbl-it .hero{aspect-ratio:2.2/1}
+html.hbl-two .hbl-it h3{font-size:17px}
+html.hbl-two .hbl-it p{font-size:14px}
+html.hbl-two .hbl-right{display:block;flex:1;min-width:0;position:relative}
+html.hbl-two .hbl-right iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
+html.hbl-two #hutch-bar .hb-expand{display:grid}
+html.hbl-full .hbl-left{width:0;max-width:0;opacity:0;border-right:0;overflow:hidden}
 
 /* ---------- 3. Home screen ---------- */
 html.hutch-hs,html.hutch-hs body{overflow:hidden !important;height:100%;overscroll-behavior:none}
@@ -84,6 +132,8 @@ html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
 #hutch-home *,#hutch-home *::before,#hutch-home *::after{box-sizing:border-box}
 #hutch-home a{color:inherit;text-decoration:none}
 #hutch-home .hh-wg{color:#1E2D4A}
+/* Recent posts never gets squeezed (its rows would be cut off); the photo row gives way instead */
+#hutch-home .hh-posts{min-height:auto;overflow:visible}
 #hutch-home button{font-family:inherit}
 #hutch-home[data-sky="dawn"]{--sky1:#E9B49A;--sky2:#FBE7D6;--r1:#9A7C8E;--r2:#3B3355}
 #hutch-home[data-sky="sunset"]{--sky1:#D9784F;--sky2:#F6C190;--r1:#7C4A55;--r2:#2A2238;--accent:#FFFFFF}
@@ -95,6 +145,7 @@ html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
 #hutch-home[data-sky="dusk"] .hh-stars{opacity:.35}
 .hh-ridgebox{position:absolute;left:0;right:0;bottom:0;height:260px;pointer-events:none}
 .hh-ridge{position:absolute;inset:0;width:100%;height:100%}
+.hh-ridge-wide{display:none}
 /* feet on the right peak: x 300/400, y 100/260 of the ridge */
 .hh-bunny{position:absolute;left:calc(75% - 11px);bottom:61.5%;width:21px;height:25px}
 
@@ -142,8 +193,9 @@ html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
 .hh-word .hh-wtag{color:#C4622D}
 .hh-word .w{font:700 24px/1.05 var(--h-flex);margin-top:8px;overflow-wrap:anywhere}
 .hh-word .pos{font:italic 500 12.5px var(--h-ui);color:#6B7280;margin-top:3px}
+.hh-word .hh-wtag .pos{margin:0;font-size:11px;font-style:normal;letter-spacing:.06em;color:#6B7280;text-transform:uppercase}
 .hh-word .pos span{font-style:normal;font-weight:700;font-size:10px;color:#C4622D;background:rgba(196,98,45,.12);border-radius:999px;padding:2px 6px;margin-left:4px}
-.hh-word .def{font:500 13px/1.35 var(--h-ui);margin-top:auto;padding-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hh-word .def{font:500 13px/1.35 var(--h-ui);margin-top:auto;padding-top:6px;flex:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hh-word .rm{margin-top:8px;align-self:flex-start;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
 .hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
 
@@ -163,69 +215,139 @@ html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
 .hh-search{height:50px;margin:0 4px;border-radius:999px;background:var(--glass);border:0;display:flex;align-items:center;gap:12px;padding:0 8px;
   color:#6B7280;font:500 15px var(--h-ui);cursor:pointer;box-shadow:0 4px 14px rgba(15,23,38,.12);text-align:left;min-width:0}
 .hh-search .lbl{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.hx-face{width:36px;height:36px;border-radius:50%;background:#C4622D;color:#fff;display:grid;place-items:center;flex:none}
-.hx-face svg{width:20px;height:20px}
+.hx-face{width:36px;height:36px;border-radius:50%;background:#FBE3D0;display:block;flex:none;position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1.5px rgba(196,98,45,.35)}
+/* the real rabbit: tall picture, so it's anchored at the bottom and scaled up
+   a little so his head and shoulders fill the circle */
+.hx-rabimg{position:absolute;left:50%;bottom:-14%;height:128%;width:auto;max-width:none;transform:translateX(-50%);pointer-events:none}
 
 /* ---------- 4. Home layouts ---------- */
+@media (max-width:599px) and (min-height:740px){
+  /* Regular phones (Pixel 11 Pro XL), Nov 2: bigger text, tighter spacing,
+     so Word Nerd still has room for its definition */
+  #hutch-home{--gap:10px}
+  .hh-area{padding:12px 16px 4px}
+  .hh-hello{padding:0 4px}
+  .hh-g{font-size:20px}
+  .hh-s{font-size:30px;margin-top:4px}
+  .hh-p{font-size:15px;margin-top:6px}
+  .hh-quad{grid-template-columns:repeat(2,68px);gap:4px 2px}
+  .hh-tile{width:52px;height:52px}
+  .hh-tile .hx-ic{width:24px;height:24px}
+  .hh-ic{font-size:13px;gap:4px}
+  .hh-wtag{font-size:12px}
+  .hh-posts{padding:12px 16px 4px}
+  .hh-row{padding:5px 0}
+  .hh-row img{width:46px;height:46px;border-radius:12px}
+  .hh-row .t{font-size:16px;-webkit-line-clamp:1}
+  .hh-row .d{font-size:11.5px}
+  .hh-photo .cap b{font-size:15px}
+  .hh-photo .cap small{font-size:11.5px}
+  .hh-word{padding:12px 14px}
+  .hh-word .w{font-size:26px;margin-top:6px}
+  .hh-word .pos{font-size:14px}
+  .hh-word .def{font-size:14.5px}
+  .hh-word .rm{font-size:13px;padding:7px 13px;margin-top:7px}
+  .hh-handle{margin:4px 0 4px}
+  .hh-handle span{font-size:11.5px}
+  .hh-bottom{gap:10px;padding:0 14px 12px}
+  .hh-dock{height:66px}
+  .hh-search{height:52px;font-size:16.5px}
+  .hh-search .hx-face{width:40px;height:40px}
+}
 /* Compact: short phone screens (Pixel Fold outer screen in Chrome).
    hutch.js also adds .fit1/.fit2 if anything would still run over,
    so the home screen never scrolls. */
-@media (max-width:599px) and (max-height:789px){
-  #hutch-home{--gap:10px}
-  .hh-area{padding:10px 14px 4px;grid-template-rows:auto auto minmax(110px,1fr)}
-  .hh-hello{padding:2px 4px 0}
-  .hh-g{font-size:16px}
-  .hh-s{font-size:23px;margin-top:4px}
-  .hh-p{font-size:12.5px;margin-top:5px}
-  .hh-quad{grid-template-columns:repeat(2,58px);gap:6px 2px}
-  .hh-quad .hh-tile{width:42px;height:42px}
-  .hh-quad .hh-tile .hx-ic{width:20px;height:20px}
-  .hh-quad .hh-ic{font-size:10.5px;gap:3px}
-  .hh-posts{padding:11px 14px 4px}
-  .hh-row{padding:5px 0}
-  .hh-row img{width:40px;height:40px;border-radius:11px}
-  .hh-row .t{font-size:13.5px}
-  .hh-word{padding:11px 12px}
-  .hh-word .w{font-size:20px;margin-top:5px}
-  .hh-word .def{font-size:12px}
-  .hh-word .rm{padding:5px 10px;font-size:11px;margin-top:6px}
-  .hh-handle{margin:4px 0 2px}
+@media (max-width:599px) and (max-height:739px){
+  /* Nov 2 (Toby: "everything looks small" on the Fold): text stays close
+     to the Pro XL sizes; the room comes from tighter spacing instead */
+  #hutch-home{--gap:9px}
+  /* lower peak so the rabbit stands between the widgets and the dock */
+  .hh-ridgebox{height:205px}
+  .hh-area{padding:8px 14px 4px;grid-template-rows:auto auto minmax(110px,1fr)}
+  .hh-hello{padding:0 4px}
+  .hh-g{font-size:18px}
+  .hh-s{font-size:26px;margin-top:3px}
+  .hh-p{font-size:13.5px;margin-top:4px}
+  .hh-quad{grid-template-columns:repeat(2,62px);gap:4px 2px}
+  .hh-quad .hh-tile{width:46px;height:46px}
+  .hh-quad .hh-tile .hx-ic{width:22px;height:22px}
+  .hh-quad .hh-ic{font-size:11.5px;gap:3px}
+  .hh-posts{padding:10px 14px 3px}
+  .hh-row{padding:4px 0}
+  .hh-row img{width:42px;height:42px;border-radius:11px}
+  .hh-row .t{font-size:14.5px;-webkit-line-clamp:1}
+  .hh-word{padding:11px 13px}
+  .hh-word .w{font-size:23px;margin-top:5px}
+  .hh-word .def{font-size:13px}
+  .hh-word .rm{padding:6px 11px;font-size:12px;margin-top:6px}
+  .hh-handle{margin:3px 0 2px}
   .hh-handle span{display:none}
-  .hh-bottom{padding:0 14px 12px;gap:10px}
+  .hh-bottom{padding:0 14px 10px;gap:8px}
   .hh-dock{height:58px}
-  .hh-dock .hh-tile{width:44px;height:44px}
-  .hh-dock .hh-tile .hx-ic{width:20px;height:20px}
-  .hh-search{height:44px;font-size:14px}
-  .hh-search .hx-face{width:32px;height:32px}
+  .hh-dock .hh-tile{width:46px;height:46px}
+  .hh-dock .hh-tile .hx-ic{width:22px;height:22px}
+  .hh-search{height:46px;font-size:15px}
+  .hh-search .hx-face{width:34px;height:34px}
 }
 /* last-resort fits, added by hutch.js only when content would overflow */
 #hutch-home.fit1 .hh-p,#hutch-home.fit1 .hh-handle span{display:none}
 #hutch-home.fit1 .hh-word .def{-webkit-line-clamp:1}
 #hutch-home.fit2 .hh-row:nth-of-type(3){display:none}
 /* very short (a phone held sideways): let the widgets scroll, it can't fit */
-@media (max-height:520px){
+@media (max-width:599px) and (max-height:520px),(max-height:379px){
   .hh-area{overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px}
   .hh-ridgebox{display:none}
 }
 
 /* Unfolded and bigger: taskbar instead of dock + search */
-@media (min-width:600px) and (min-height:521px){
-  .hh-ridgebox{height:170px}
-  .hh-area{padding:22px 26px 6px;--gap:14px}
+@media (min-width:600px) and (min-height:380px){
+  /* --tb = how far the taskbar's top edge sits above the bottom; the rabbit
+     stands 2px above it on the right peak, and the ridge is sized so the
+     peak meets its feet (the peak is 61.5% up the ridge) */
+  /* the taskbar stays short and centered (Android tablet style) so the
+     mountains show on both sides; the tall peak and the rabbit sit at the
+     far right, past the end of the taskbar */
+  .hh-ridge-phone{display:none}
+  .hh-ridge-wide{display:block}
+  .hh-ridgebox{height:160px}
+  .hh-bunny{left:calc(90% - 11px)}
+  .hh-area{padding:20px 28px 6px;--gap:16px}
   .hh-word .def{-webkit-line-clamp:4}
-  .hh-s{font-size:34px}
-  .hh-tile{width:54px;height:54px}
-  .hh-quad{grid-template-columns:repeat(4,72px)}
-  .hh-bottom{flex-direction:row;align-items:center;gap:6px;margin:0 18px 16px;padding:0 10px;height:66px;border-radius:24px;
+  /* bigger type on the unfolded screen (Nov 2, Toby) */
+  .hh-g{font-size:22px}
+  .hh-s{font-size:40px}
+  .hh-p{font-size:15.5px}
+  .hh-tile{width:62px;height:62px}
+  .hh-tile .hx-ic{width:27px;height:27px}
+  .hh-ic{font-size:13px;gap:6px}
+  .hh-quad{grid-template-columns:repeat(4,80px)}
+  .hh-wtag{font-size:12.5px}
+  .hh-posts{padding:16px 18px 8px}
+  .hh-row{padding:9px 0;gap:14px}
+  .hh-row img{width:58px;height:58px;border-radius:15px}
+  .hh-row .t{font-size:17px}
+  .hh-row .d{font-size:11.5px}
+  .hh-photo .cap b{font-size:16px}
+  .hh-photo .cap small{font-size:11.5px}
+  .hh-word{padding:16px 18px}
+  .hh-word .w{font-size:32px}
+  .hh-word .pos{font-size:14.5px}
+  .hh-word .def{font-size:15.5px}
+  .hh-word .rm{font-size:13.5px;padding:9px 15px}
+  .hh-handle .hx-ic{width:26px;height:26px}
+  .hh-handle span{font-size:12px}
+  .hh-bottom{flex-direction:row;align-items:center;gap:6px;margin:0 0 16px;padding:0 12px;height:76px;border-radius:28px;align-self:center;max-width:calc(100% - 36px);
     background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 6px 18px rgba(15,23,38,.12)}
   #hutch-home[data-sky="night"] .hh-bottom,#hutch-home[data-sky="dusk"] .hh-bottom{background:rgba(255,255,255,.12)}
   .hh-dock{height:auto;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;gap:4px;padding:0;justify-content:flex-start}
-  .hh-dock .hh-tile{width:46px;height:46px}
-  .hh-dock .hh-tile .hx-ic{width:21px;height:21px}
-  .hh-search{flex:1;height:46px;margin:0 0 0 8px;padding:0 5px;font-size:14px;box-shadow:none;background:rgba(255,255,255,.92)}
+  .hh-dock .hh-tile{width:54px;height:54px}
+  .hh-dock .hh-tile .hx-ic{width:24px;height:24px}
+  .hh-search{flex:none;width:clamp(200px,30vw,320px);height:54px;margin:0 0 0 8px;padding:0 7px;font-size:16.5px;box-shadow:none;background:rgba(255,255,255,.92)}
+  .hh-search .hx-face{width:40px;height:40px}
 }
 /* Unfolded, held upright: greeting row, Recent posts beside Word Nerd, wide Photo */
-@media (min-width:600px) and (min-height:521px) and (orientation:portrait){
+@media (min-width:600px) and (min-height:380px) and (orientation:portrait){
   .hh-area{grid-template-columns:1.5fr 1fr;grid-template-areas:"hello hello" "posts word" "photo photo";
     grid-template-rows:auto auto minmax(140px,1fr)}
   .hh-hello{padding:4px 2px 8px}
@@ -233,13 +355,45 @@ html.hutch-hs #main-content,html.hutch-hs .skip-link{display:none !important}
   .hh-word{max-height:none}
 }
 /* Landscape (unfolded sideways, tablets, desktop for now) */
-@media (min-width:600px) and (min-height:521px) and (orientation:landscape){
+@media (min-width:600px) and (min-height:380px) and (orientation:landscape){
   .hh-area{grid-template-columns:1fr 1.15fr;grid-template-areas:"hello posts" "photo word";
     grid-template-rows:auto minmax(120px,1fr);column-gap:22px;width:100%;max-width:1100px;margin:0 auto}
   .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
   .hh-quad{margin-top:18px}
   .hh-photo,.hh-word{max-height:280px}
-  .hh-bottom{width:calc(100% - 36px);max-width:900px;align-self:center}
+
+}
+
+/* Short landscape: the unfolded Fold sideways in a browser with tabs and
+   an address bar leaves only ~500-600px of height (Nov 2, Toby) */
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape){
+  .hh-ridgebox{height:122px}
+  .hh-area{padding:12px 24px 6px;--gap:12px;grid-template-rows:auto minmax(80px,1fr)}
+  .hh-g{font-size:18px}
+  .hh-s{font-size:30px;margin-top:4px}
+  .hh-p{font-size:14px;margin-top:5px}
+  .hh-quad{margin-top:12px;grid-template-columns:repeat(4,68px)}
+  .hh-tile{width:50px;height:50px}
+  .hh-tile .hx-ic{width:23px;height:23px}
+  .hh-ic{font-size:12px;gap:4px}
+  .hh-posts{padding:11px 16px 3px}
+  .hh-row{padding:4px 0}
+  .hh-row img{width:42px;height:42px;border-radius:11px}
+  .hh-row .t{font-size:15px;-webkit-line-clamp:1}
+  .hh-row .d{font-size:11px}
+  .hh-word{padding:11px 16px}
+  .hh-word .w{font-size:24px;margin-top:4px}
+  .hh-word .pos{font-size:13px}
+  .hh-word .def{font-size:14px;-webkit-line-clamp:2}
+  .hh-word .rm{font-size:12.5px;padding:6px 12px;margin-top:6px}
+  .hh-photo .cap b{font-size:14.5px}
+  .hh-handle{margin:2px 0 4px;padding:0 14px 1px}
+  .hh-handle span{display:none}
+  .hh-bottom{height:62px;margin:0 0 8px;border-radius:24px}
+  .hh-dock .hh-tile{width:46px;height:46px}
+  .hh-dock .hh-tile .hx-ic{width:21px;height:21px}
+  .hh-search{height:46px;font-size:15.5px}
+  .hh-search .hx-face{width:36px;height:36px}
 }
 
 /* ---------- 5. Sheets ---------- */

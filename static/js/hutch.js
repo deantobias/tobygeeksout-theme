@@ -59,10 +59,13 @@
     back: '<path d="M19 12H5 M11 18l-6-6 6-6"/>',
     up: '<path d="M6 15l6-6 6 6"/>',
     close: '<path d="M6 6l12 12 M18 6L6 18"/>',
-    tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>'
+    tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>',
+    expand: '<path d="M15 3h6v6 M9 21H3v-6 M21 3l-7 7 M3 21l7-7"/>',
+    shrink: '<path d="M4 14h6v6 M20 10h-6V4 M14 10l7-7 M3 21l7-7"/>'
   };
   function ic(k, w) { return '<svg class="hx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[k] || IC.blog) + '</svg>'; }
-  var RABBIT = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="9" cy="5" rx="2" ry="5"/><ellipse cx="15" cy="5" rx="2" ry="5"/><circle cx="12" cy="15" r="6.5"/></svg>';
+  /* Toby's own rabbit, the one that says "Hey!" on the Traditional home page */
+  var RABBIT = '<img class="hx-rabimg" src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" decoding="async">';
 
   /* key: [name, color, url]. url null = opens a sheet */
   var APPS = {
@@ -349,9 +352,13 @@
         '<span class="rm" data-href="' + esc(w.u) + '" role="link" tabindex="0">Read more</span></a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
-    var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge" viewBox="0 0 400 260" preserveAspectRatio="none">' +
+    var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
       '<path fill="var(--r1)" opacity=".45" d="M0 190 L50 164 L100 186 L160 150 L220 180 L262 140 L300 96 L338 132 L370 150 L400 140 L400 260 L0 260Z"/>' +
       '<path fill="var(--r2)" opacity=".8" d="M0 220 L70 192 L130 214 L195 184 L255 212 L320 190 L400 210 L400 260 L0 260Z"/></svg>' +
+      /* wide screens: the tall peak sits at the far right, clear of the taskbar */
+      '<svg class="hh-ridge hh-ridge-wide" viewBox="0 0 400 260" preserveAspectRatio="none">' +
+      '<path fill="var(--r1)" opacity=".45" d="M0 200 L50 176 L100 194 L160 166 L220 188 L280 160 L322 132 L360 96 L384 122 L400 130 L400 260 L0 260Z"/>' +
+      '<path fill="var(--r2)" opacity=".8" d="M0 226 L70 202 L130 220 L195 196 L255 216 L320 198 L360 206 L400 196 L400 260 L0 260Z"/></svg>' +
       '<svg class="hh-bunny" viewBox="0 0 20 24"><g fill="var(--r2)" opacity=".8" transform="translate(1 1)"><ellipse cx="9" cy="17" rx="8" ry="6.5"/><circle cx="15" cy="10" r="4.6"/><ellipse cx="13" cy="2" rx="1.6" ry="6"/><ellipse cx="17" cy="2" rx="1.6" ry="6"/><circle cx="2" cy="16" r="2.2"/></g></svg></div>';
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
       '<div class="hh-area">' +
@@ -400,7 +407,14 @@
     var wc = homeEl.querySelector('.hh-word'), def = wc && wc.querySelector('.def');
     if (def) {
       def.style.display = ''; def.style.webkitLineClamp = '';
-      var clipped = function () { return wc.scrollHeight > wc.clientHeight + 1 || def.scrollHeight > def.clientHeight + 2; };
+      /* clipped = the Read more button (or the definition) runs past the card's bottom edge */
+      var clipped = function () {
+        var cb = wc.getBoundingClientRect().bottom - parseFloat(getComputedStyle(wc).paddingBottom) + 1;
+        var rm = wc.querySelector('.rm'), last = rm || def;
+        return last.getBoundingClientRect().bottom > cb || (rm && def.getBoundingClientRect().bottom > rm.getBoundingClientRect().top);
+      };
+      var pos = wc.querySelector('.pos'); if (pos) pos.style.display = '';
+      if (clipped() && pos) pos.style.display = 'none';
       if (clipped()) def.style.webkitLineClamp = '1';
       if (clipped()) def.style.display = 'none';
     }
@@ -426,17 +440,19 @@
   function buildFrame() {
     var k = appForPage(), a = APPS[k] || APPS.blog;
     var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
+    var hasTitle = isPost || isBlogApp;
     var name = a[0];
     if (k === 'archive' && path.indexOf('/categories/') === 0 && PAGE.title) name = PAGE.title;
     if (k === 'blog' && !isPost && path !== '/' && PAGE.title) name = PAGE.title;
     var bar = el('<header id="hutch-bar" role="banner">' +
       '<button type="button" class="hb-btn hb-back" aria-label="Back">' + ic('back') + '</button>' +
       '<div class="hb-app"><span class="hb-tile" style="background:' + a[1] + '">' + ic(k) + '</span><div class="hb-names"><span class="hb-name">' + esc(name) + '</span>' +
-        (isPost ? '<span class="hb-title">' + esc(PAGE.title || '') + '</span>' : '') + '</div></div>' +
-      (isPost ? '<span class="hb-pct">0%</span>' : '') +
+        (hasTitle ? '<span class="hb-title">' + esc(isPost ? PAGE.title || '' : '') + '</span>' : '') + '</div></div>' +
+      (hasTitle ? '<span class="hb-pct">0%</span>' : '') +
+      (isBlogApp ? '<button type="button" class="hb-btn hb-expand" aria-label="Full screen" title="Full screen">' + ic('expand') + '</button>' : '') +
       '<button type="button" class="hb-btn" data-sheet="search" aria-label="Hutch Search">' + ic('search') + '</button>' +
       '<a class="hb-btn hb-home" href="/" aria-label="Home"><span class="hx-rab">' + RABBIT + '</span></a>' +
-      (isPost ? '<span class="hb-prog"></span>' : '') + '</header>');
+      (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);
     bar.querySelector('.hb-back').addEventListener('click', function () {
       var same = false;
@@ -448,7 +464,7 @@
        that pad themselves (posts, the newsletter reader) get 0 and keep it;
        everything else clears the app bar instead, every time it is re-set. */
     var main = document.getElementById('main-content');
-    if (main && !document.querySelector('.post-header, .newsletter-single')) {
+    if (main && !isBlogApp && !document.querySelector('.post-header, .newsletter-single')) {
       var want = 'calc(var(--h-bar) + 20px)';
       var fixPad = function () { if (main.style.getPropertyValue('padding-top') !== want || main.style.getPropertyPriority('padding-top') !== 'important') main.style.setProperty('padding-top', want, 'important'); };
       fixPad();
@@ -473,9 +489,121 @@
     onScroll();
   }
 
+  /* ---------- Blog app (/?app=blog), v36 ----------
+     Timeline of the newest 60 posts as cards (titled posts with their
+     photo and an excerpt, micros with the ❧ and the time), filtered by
+     All / Posts / Micros. Phone and unfolded-portrait: a card opens the
+     post itself. Landscape: timeline on the left, the post on the right
+     (the real post page in a pane), and the expand button gives the post
+     the whole screen. */
+  function buildBlog() {
+    var TL = HOME.tl || [];
+    de.classList.add('hutch-blog');
+    var filter = 'all', sel = null, full = false;
+    var wrap = el('<div id="hutch-blog"><div class="hbl-left">' +
+      '<div class="hbl-filters" role="group" aria-label="Show">' + [['all', 'All'], ['posts', 'Posts'], ['micro', 'Micros']].map(function (f) {
+        return '<button type="button" data-f="' + f[0] + '"' + (f[0] === 'all' ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + f[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="hbl-tl"></div></div><div class="hbl-right"></div></div>');
+    document.body.appendChild(wrap);
+    var list = wrap.querySelector('.hbl-tl'), right = wrap.querySelector('.hbl-right'), left = wrap.querySelector('.hbl-left');
+    var bar = document.getElementById('hutch-bar'), expandBtn = bar.querySelector('.hb-expand');
+    var mq = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
+    function card(x, i) {
+      var cls = 'hbl-it' + (x.m ? ' micro' : '') + (x.u === sel ? ' sel' : '');
+      if (x.m) return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '"><div class="hbl-tx"><span class="fl" aria-hidden="true">❧</span><div class="hbl-mb"><div class="hbl-k">' + esc(x.d) + ' · ' + esc(x.tm) + '</div><p>' + esc(x.x) + '</p>' +
+        (x.img ? '<img class="mimg" src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') + '</div></div></a>';
+      return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '">' + (x.img ? '<img class="hero" src="' + esc(x.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
+        '<div class="hbl-tx"><div class="hbl-k">' + esc(x.d) + (x.c ? ' · ' + esc(x.c) : '') + '</div><h3>' + esc(x.t) + '</h3>' + (x.x ? '<p>' + esc(x.x) + '</p>' : '') +
+        '<span class="hbl-kr">Keep reading · ' + (x.min || 1) + ' min</span></div></a>';
+    }
+    function render() {
+      var items = TL.map(function (x, i) { return [x, i]; }).filter(function (p) { return filter === 'all' || (filter === 'micro' ? p[0].m : !p[0].m); });
+      list.innerHTML = (items.map(function (p) { return card(p[0], p[1]); }).join('') || '<p class="hbl-none">Nothing here yet.</p>') +
+        '<div class="hbl-more"><a href="/archive/">Everything older is in Archive ›</a></div>';
+    }
+    function two() { return mq.matches; }
+    function openInPane(x) {
+      sel = x.u;
+      [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('href') === sel); });
+      var f = right.querySelector('iframe');
+      if (!f) { f = document.createElement('iframe'); f.title = 'Post'; right.appendChild(f); }
+      if (f.getAttribute('src') !== x.u) f.setAttribute('src', x.u);
+      bar.classList.remove('titled');
+      bar.querySelector('.hb-title').textContent = x.t || (x.d + ' · ' + x.tm);
+      bar.querySelector('.hb-prog').style.width = '0';
+    }
+    function layout() {
+      de.classList.toggle('hbl-two', two());
+      if (!two()) { de.classList.remove('hbl-full'); bar.classList.remove('titled'); return; }
+      if (!sel && TL.length) openInPane(TL[0]);
+    }
+    wrap.querySelector('.hbl-filters').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-f]'); if (!b) return;
+      filter = b.getAttribute('data-f');
+      [].forEach.call(this.querySelectorAll('[data-f]'), function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(); left.scrollTop = 0; window.scrollTo(0, 0);
+    });
+    list.addEventListener('click', function (e) {
+      var a = e.target.closest('.hbl-it'); if (!a || !two()) return;
+      e.preventDefault(); openInPane(TL[+a.getAttribute('data-i')]);
+    });
+    expandBtn.addEventListener('click', function () {
+      full = !de.classList.contains('hbl-full');
+      de.classList.toggle('hbl-full', full);
+      expandBtn.innerHTML = ic(full ? 'shrink' : 'expand');
+      expandBtn.setAttribute('aria-label', full ? 'Show the timeline' : 'Full screen');
+      expandBtn.title = expandBtn.getAttribute('aria-label');
+    });
+    /* the post in the right pane reports its title and how far you've read */
+    window.hutchPane = function (info) {
+      if (!two()) return;
+      if (info.title) bar.querySelector('.hb-title').textContent = info.title;
+      bar.classList.toggle('titled', !!info.past);
+      bar.querySelector('.hb-pct').textContent = (info.pct || 0) + '%';
+      bar.querySelector('.hb-prog').style.width = (info.pct || 0) + '%';
+      if (info.path && info.path !== sel) {
+        sel = info.path;
+        [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('href') === sel); });
+      }
+    };
+    render(); layout();
+    if (mq.addEventListener) mq.addEventListener('change', layout); else mq.addListener(layout);
+  }
+
+  /* a page shown inside the Blog app's right pane: no app bar of its own,
+     it tells the Blog app which post it is and how far down you are */
+  function buildEmbed() {
+    var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
+    var h1 = document.querySelector('.post-header-title'), tick = false;
+    var main = document.getElementById('main-content');
+    if (main && !document.querySelector('.post-header, .newsletter-single')) {
+      var fixPad = function () { if (main.style.getPropertyValue('padding-top') !== '20px') main.style.setProperty('padding-top', '20px', 'important'); };
+      fixPad(); new MutationObserver(fixPad).observe(main, { attributes: true, attributeFilter: ['style'] });
+    }
+    function report() {
+      tick = false;
+      var p = 0, body = document.querySelector('.post-content, .e-content, article') || document.body;
+      var r = body.getBoundingClientRect(), total = r.height - innerHeight + 120;
+      p = total > 0 ? Math.min(100, Math.max(0, Math.round((-r.top + 60) / total * 100))) : 100;
+      try { window.parent.hutchPane && window.parent.hutchPane({ title: PAGE.title, path: path, pct: isPost ? p : 0, past: h1 ? h1.getBoundingClientRect().bottom < 8 : false }); } catch (e) {}
+    }
+    window.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(report); } }, { passive: true });
+    report();
+    /* links that leave the posts open in the full window */
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a[href]'); if (!a) return;
+      var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
+      var postLike = u.origin === location.origin && /^\/\d{4}\/\d{2}\/\d{2}\//.test(u.pathname);
+      if (!postLike && !a.target) { e.preventDefault(); window.top.location.href = u.href; }
+    });
+  }
+
   /* ---------- go ---------- */
-  if (isHome && HOME) { buildHome(); boot(false); }
-  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); }
+  var isEmbed = de.classList.contains('hutch-embed');
+  var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
+  if (isEmbed) buildEmbed();
+  else if (isHome && HOME) { buildHome(); boot(false); }
+  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
 
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };
 })();

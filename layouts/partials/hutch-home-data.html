@@ -32,26 +32,39 @@
 {{- end -}}
 
 {{- $word := dict -}}
+{{/* Nov 2 fix: the class can sit anywhere in the tag, with either quote
+     style (Perch's plain cards put other attributes first), and the word,
+     part of speech and meanings are each found on their own. If no
+     meaning is found at all, the post's own text stands in so the widget
+     is never blank. */}}
 {{- with .words -}}{{- with index . 0 -}}
   {{- $c := .Content -}}
   {{- $pos := "" -}}
-  {{- if findRE `class="define-eyebrow"` $c -}}
-    {{- $eb := replaceRE `(?s)^.*?class="define-eyebrow"[^>]*>(.*?)</p>.*$` "$1" $c -}}
-    {{- $eb = replaceRE `(?s)<span class="define-pron"[^>]*>.*?</span>` "" $eb -}}
-    {{- $pos = trim (replaceRE `[\s\x{00A0}·•|]+$` "" ($eb | plainify | htmlUnescape)) " \n\t " -}}
+  {{- with findRE `(?s)<p\b[^>]*\bclass=["'][^"']*\bdefine-eyebrow\b[^"']*["'][^>]*>.*?</p>` $c 1 -}}
+    {{- $eb := replaceRE `(?s)<span\b[^>]*\bdefine-pron\b[^>]*>.*?</span>` "" (index . 0) -}}
+    {{- $pos = trim (replaceRE `[\s\x{00A0}·•|/]+$` "" ($eb | plainify | htmlUnescape)) " \n\t\u00a0" -}}
   {{- end -}}
   {{- $w := "" -}}
-  {{- if findRE `class="define-word"` $c -}}
-    {{- $w = trim (replaceRE `(?s)^.*?class="define-word"[^>]*>(.*?)</p>.*$` "$1" $c | plainify | htmlUnescape) " \n\t " -}}
+  {{- with findRE `(?s)<p\b[^>]*\bclass=["'][^"']*\bdefine-word\b[^"']*["'][^>]*>.*?</p>` $c 1 -}}
+    {{- $w = trim (index . 0 | plainify | htmlUnescape) " \n\t" -}}
   {{- end -}}
   {{- if not $w -}}{{- $w = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t " -}}{{- end -}}
   {{- $senses := slice -}}
-  {{- range findRE `(?s)<(?:p|td) class="define-def(?:\s[^"]*)?"[^>]*>.*?</(?:p|td)>` $c -}}
-    {{- $b := trim (replaceRE `(?s)<span class="define-num"[^>]*>.*?</span>` "" . | plainify | htmlUnescape) ": \n\t " -}}
+  {{- range findRE `(?s)<(?:p|td|div|li|span)\b[^>]*\bclass=["'][^"']*\bdefine-def\b[^"']*["'][^>]*>.*?</(?:p|td|div|li)>` $c -}}
+    {{- $b := replaceRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` "" . -}}
+    {{- $b = trim ($b | plainify | htmlUnescape) ": \n\t\u00a0" -}}
     {{- if $b -}}{{- $senses = $senses | append $b -}}{{- end -}}
   {{- end -}}
   {{- $def := "" -}}
   {{- with $senses -}}{{- $def = index . 0 -}}{{- end -}}
+  {{- if not $def -}}
+    {{/* fallback: the post's own words, minus the word and its label */}}
+    {{- $plain := .Plain | htmlUnescape -}}
+    {{- $plain = replaceRE `(?i)^\s*word nerd alert\s*:?\s*` "" $plain -}}
+    {{- with replaceRE `[^\pL\s-]` "" $w -}}{{- $plain = replaceRE (printf `(?i)^\s*%s` .) "" $plain -}}{{- end -}}
+    {{- with replaceRE `[^\pL\s-]` "" $pos -}}{{- $plain = replaceRE (printf `(?i)^[^\pL]*%s` .) "" $plain -}}{{- end -}}
+    {{- $def = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 160 -}}
+  {{- end -}}
   {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
 {{- end -}}{{- end -}}
 
@@ -92,4 +105,33 @@
   {{- $words = $words | append (dict "w" (trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t ") "u" .RelPermalink) -}}
 {{- end -}}
 
-<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "dates" $dates "cats" $cats "words" $words | jsonify | safeJS }}</script>
+{{/* Blog app timeline (Nov 2, 2026): the newest 60 posts, titled and
+     micro, newest first. Watchlist / "Want to Watch" cards stay out, same
+     tests as the home feed. img = first of Toby's own uploads (never a
+     card poster); x = a short plain-text excerpt; m = micro (no title). */}}
+{{- $tl := slice -}}
+{{- range first 150 (where $site.RegularPages.ByDate.Reverse "Type" "post") -}}
+  {{- if lt (len $tl) 60 -}}
+  {{- $skip := false -}}
+  {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
+  {{- if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) -}}{{- $skip = true -}}{{- end -}}
+  {{- if not $skip -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $img := "" -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $img = $u -}}{{- end -}}
+    {{- end -}}
+    {{- $micro := not .Title -}}
+    {{- $x := "" -}}
+    {{- if $micro -}}{{- $x = .Plain | htmlUnescape | truncate 280 -}}{{- else -}}{{- $x = .Summary | plainify | htmlUnescape | truncate 170 -}}{{- end -}}
+    {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat) -}}
+  {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>

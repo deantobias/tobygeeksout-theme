@@ -60,6 +60,30 @@
     /* inside the Blog app's post pane (landscape): no app bar of its own */
     if (window.self !== window.top) { de.classList.add('hutch-embed'); hs = false; }
     de.classList.add(hs ? 'hutch-hs' : 'hutch-app');
+    /* Paint the right color from the very first frame (Nov 2, Toby: apps
+       flashed the Traditional beige before the app showed). Which app this
+       page is, and the sky phase (same sun math and Day/Night setting as
+       the sky scripts), go on <html> as data-happ / data-hsky for hutch.css. */
+    var P = location.pathname, app = hs ? 'home' : '';
+    if (!app) [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words']].forEach(function (x) { if (!app && P.indexOf(x[0]) === 0) app = x[1]; });
+    de.setAttribute('data-happ', app || 'other');
+    var mode = localStorage.getItem('tgo-sky'), ph = 'day';
+    if (mode === 'night') ph = 'night';
+    else if (mode !== 'day' && mode !== 'off') {
+      var mins, m = location.search.match(/[?&]sky=(\d{1,2}):(\d{2})/), t = sessionStorage.getItem('tgo-sky-test');
+      if (m) mins = (+m[1]) * 60 + (+m[2]);
+      else if (t && /^\d{1,2}:\d{2}$/.test(t)) { t = t.split(':'); mins = (+t[0]) * 60 + (+t[1]); }
+      else { var n = new Date(); mins = n.getHours() * 60 + n.getMinutes(); }
+      var d = new Date(), rad = Math.PI / 180, tz = -d.getTimezoneOffset(), lon = tz / 4, lat = 38;
+      var doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5), g = 2 * Math.PI / 365 * (doy - 1);
+      var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      var dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      var cosHa = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec);
+      var R = 360, S = 1080;
+      if (cosHa <= 1 && cosHa >= -1) { var ha = Math.acos(cosHa) / rad; R = 720 - 4 * (lon + ha) - eq + tz; S = 720 - 4 * (lon - ha) - eq + tz; }
+      ph = mins < R - 60 || mins >= S + 60 ? 'night' : mins < R ? 'dusk' : mins < R + 100 ? 'dawn' : mins <= S - 90 ? 'day' : mins < S ? 'sunset' : 'dusk';
+    }
+    de.setAttribute('data-hsky', ph);
   } catch (e) {}
 })();
 </script>

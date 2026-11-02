@@ -743,39 +743,8 @@
     });
   }
 
-  /* ---------- app launch (Nov 2, Toby: "when I click an app, it slowly
-     opens") ----------
-     Every app is a full page from the blog, so it takes a moment to load.
-     The tap answers at once instead: the app's color grows out of the
-     icon to fill the screen, with its icon in the middle, like Android
-     opening an app. It stays until the new page shows. */
-  function launch(a) {
-    if (!a || de.classList.contains('hx-launching')) return;
-    var t = a.querySelector('.hh-tile'), r = (t || a).getBoundingClientRect();
-    var color = t ? t.style.background || getComputedStyle(t).backgroundColor : '';
-    if (!color) color = a.classList.contains('hh-photo') ? APPS.photos[1] : a.classList.contains('hh-word') ? APPS.words[1] : APPS.blog[1];
-    var icon = t ? t.innerHTML : ic(a.classList.contains('hh-photo') ? 'photos' : a.classList.contains('hh-word') ? 'words' : 'blog');
-    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    var far = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
-    var L = el('<div id="hutch-launch" aria-hidden="true"><span class="hl-ic">' + icon + '</span></div>');
-    L.style.background = color;
-    L.style.clipPath = 'circle(' + Math.max(r.width, 24) / 2 + 'px at ' + cx + 'px ' + cy + 'px)';
-    document.body.appendChild(L);
-    de.classList.add('hx-launching');
-    L.getBoundingClientRect();
-    if (calm) L.style.clipPath = 'none';
-    else L.style.clipPath = 'circle(' + Math.ceil(far) + 'px at ' + cx + 'px ' + cy + 'px)';
-    setTimeout(function () { de.classList.remove('hx-launching'); if (L.parentNode) L.remove(); }, 6000);
-  }
-  window.addEventListener('pageshow', function () { de.classList.remove('hx-launching'); var L = document.getElementById('hutch-launch'); if (L) L.remove(); });
-  document.addEventListener('click', function (e) {
-    if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var a = e.target.closest('#hutch-home a[href], #hutch-drawer a[href], #hutch-search a.hh-ic');
-    if (!a || a.target === '_blank') return;
-    var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
-    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
-    launch(a);
-  });
+  /* (Nov 2) An app-launch animation was tried here and taken out at
+     Toby's request; apps simply open. */
 
   /* Load ahead: on the home screen, fetch the apps and recent posts on it
      in the background, so they open faster (speculation rules; browsers
@@ -798,5 +767,6 @@
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1200); }
   else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
 
+  de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };
 })();

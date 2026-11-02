@@ -30,6 +30,22 @@ html.hutch{
 }
 html.hutch .hx-ic{width:22px;height:22px;display:block}
 
+/* ---------- 1b. First paint (Nov 2) ----------
+   head.html marks <html> with data-happ (which app) and data-hsky (sky
+   phase) before anything paints, so the very first frame is already the
+   app's own color instead of the Traditional beige. */
+html.hutch[data-happ="home"],html.hutch[data-happ="home"] body{background:#8FC1E6 !important}
+html.hutch[data-happ="home"][data-hsky="dawn"],html.hutch[data-happ="home"][data-hsky="dawn"] body{background:#E9B49A !important}
+html.hutch[data-happ="home"][data-hsky="sunset"],html.hutch[data-happ="home"][data-hsky="sunset"] body{background:#D9784F !important}
+html.hutch[data-happ="home"][data-hsky="dusk"],html.hutch[data-happ="home"][data-hsky="dusk"] body{background:#26304C !important}
+html.hutch[data-happ="home"][data-hsky="night"],html.hutch[data-happ="home"][data-hsky="night"] body{background:#0C1322 !important}
+html.hutch[data-happ="den"],html.hutch[data-happ="den"] body{background:#15110E !important}
+html.hutch[data-happ="photos"],html.hutch[data-happ="photos"] body{background:#FFFFFF !important}
+html.hutch[data-happ="words"],html.hutch[data-happ="words"] body{background:#FFF9F2 !important}
+html.hutch[data-happ="words"]:is([data-hsky="dusk"],[data-hsky="night"]),html.hutch[data-happ="words"]:is([data-hsky="dusk"],[data-hsky="night"]) body{background:#141A26 !important}
+/* while the page is still being built, nothing of the Traditional page shows on app pages that become their own app */
+html.hutch:is([data-happ="den"],[data-happ="photos"],[data-happ="words"]):not(.hutch-own):not(.hutch-ready) #main-content{visibility:hidden}
+
 /* ---------- 2. App frame ---------- */
 /* No page-to-page fade inside Hutch (Nov 2, Toby: going back from a post
    to Photos lagged and sometimes took two taps). The Traditional theme's
@@ -523,13 +539,3 @@ html.hx-dark .hx-card p{color:#A9B2C3}
 @media (prefers-reduced-motion:reduce){
   #hutch-home *,.hx-sheet,#hutch-bar *{animation:none !important;transition:none !important}
 }
-
-/* ---------- 7. App launch ---------- */
-/* The tapped app's color grows out of its icon to fill the screen while
-   the app's page loads (Nov 2). */
-#hutch-launch{position:fixed;inset:0;z-index:9950;display:grid;place-items:center;color:#fff;
-  transition:clip-path .32s cubic-bezier(.2,.8,.2,1);will-change:clip-path;pointer-events:all}
-#hutch-launch .hl-ic{width:72px;height:72px;display:grid;place-items:center;animation:hl-pop .32s cubic-bezier(.2,.8,.2,1) both}
-#hutch-launch .hl-ic .hx-ic{width:44px;height:44px}
-@keyframes hl-pop{from{transform:scale(.6);opacity:.4}}
-@media (prefers-reduced-motion:reduce){#hutch-launch,#hutch-launch .hl-ic{transition:none;animation:none}}

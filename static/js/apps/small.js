@@ -146,16 +146,16 @@
     if (d.since) facts.push('<div><span>Posting here since</span><b>' + ctx.esc(d.since) + '</b></div>');
     if (d.cats && d.cats.length) facts.push('<div class="wa"><span>Writes about</span><span class="hx-sm-chips">' +
       d.cats.map(function (c) { return '<a href="' + ctx.esc(c.u) + '">' + ctx.esc(c.n) + '</a>'; }).join('') + '</span></div>');
-    root.side.innerHTML = '<div class="hx-sm-hero">' + face + (name ? '<h2>' + ctx.esc(name) + '</h2>' : '') +
-      /* his logo under his name instead of the site name in text (Nov 2,
-         Toby). Same day/night pair as the Traditional header (custom_footer). */
-      (function () {
-        var is70 = document.documentElement.classList.contains('fonts-70s');
-        var up = 'https://tobygeeksout.micro.blog/uploads/2026/';
-        var src = ctx.dark ? (is70 ? up + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : up + 'sunset-toby-geeks-out-new-logo.png')
-                           : (is70 ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png');
-        return '<img class="hx-sm-logo" src="' + src + '" alt="' + ctx.esc(d.site || 'Toby Geeks Out!') + '" decoding="async">';
-      })() + '</div>' +
+    /* his logo on top, like the cover of the page, then his photo and
+       name (Nov 2, Toby). Same day/night pair as the Traditional header. */
+    var logo = (function () {
+      var is70 = document.documentElement.classList.contains('fonts-70s');
+      var up = 'https://tobygeeksout.micro.blog/uploads/2026/';
+      var src = ctx.dark ? (is70 ? up + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : up + 'sunset-toby-geeks-out-new-logo.png')
+                         : (is70 ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png');
+      return '<img class="hx-sm-logo" src="' + src + '" alt="' + ctx.esc(d.site || 'Toby Geeks Out!') + '" decoding="async">';
+    })();
+    root.side.innerHTML = '<div class="hx-sm-hero">' + logo + face + (name ? '<h2>' + ctx.esc(name) + '</h2>' : '') + '</div>' +
       (facts.length ? '<div class="hx-sm-facts">' + facts.join('') + '</div>' : '');
     if (root.title) root.doc.insertAdjacentHTML('afterbegin', titleHTML(ctx, root));
     tidy(root.doc, ctx);

@@ -22,9 +22,27 @@
   {{- $posts := where .Site.RegularPages "Type" "post" -}}
   {{- $since := "" -}}
   {{- with $posts.ByDate | first 1 -}}{{- $since = (index . 0).Date.Format "2006" -}}{{- end -}}
+  {{/* "Writes about" = what he's been writing about LATELY (Nov 2, Toby):
+       the categories on his newest 40 posts, most used first, top 3.
+       Micro is a kind of post, not a topic, so it doesn't count. Ties go
+       to the category used most recently. */}}
+  {{- $count := dict -}}{{- $first := dict -}}
+  {{- range $i, $q := first 40 $posts.ByDate.Reverse -}}
+    {{- range $q.Params.categories -}}
+      {{- if ne (lower .) "micro" -}}
+        {{- $k := urlize . -}}
+        {{- $count = merge $count (dict $k (add (index $count $k | default 0) 1)) -}}
+        {{- if not (index $first $k) -}}{{- $first = merge $first (dict $k (dict "n" . "i" $i)) -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $rank := slice -}}
+  {{- range $k, $c := $count -}}{{- $rank = $rank | append (dict "k" $k "c" $c "i" (index $first $k).i "n" (index $first $k).n) -}}{{- end -}}
   {{- $cats := slice -}}
-  {{- with .Site.Taxonomies.categories -}}
-    {{- range first 3 .ByCount -}}{{- $cats = $cats | append (dict "n" .Page.Title "u" .Page.RelPermalink) -}}{{- end -}}
+  {{- range first 3 (sort (sort $rank "i" "asc") "c" "desc") -}}
+    {{- $cp := $.Site.GetPage (printf "/categories/%s" .k) -}}
+    {{- $u := printf "/categories/%s/" .k -}}{{- with $cp -}}{{- $u = .RelPermalink -}}{{- end -}}
+    {{- $cats = $cats | append (dict "n" .n "u" $u) -}}
   {{- end -}}
   {{- $d = merge $d (dict "name" (.Site.Author.name | default "Toby Overstreet") "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
 {{- else if or (in (slice "/subscribe/" "/follow/") $p) (findRE `(?i)^\s*(subscribe|follow)\b` .Title 1) -}}

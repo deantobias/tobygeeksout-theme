@@ -1,0 +1,55 @@
+{{/* ============================================================
+     Hutch data: ARCHIVE (Nov 2, 2026). Called from list.archivehtml.html
+     (the /archive/ output of the home page). Same post set as the
+     Traditional archive: every page of Type "post", nothing else.
+       cats   every category: n name, u url, c count, l latest date,
+              f url of its newest post, fs that post's summary,
+              fi its first uploaded photo (same rule as the category
+              page feature: cdn.uploads, never a book/movie poster)
+       years  [{y, n, months:[{m, n, p:[{t, s, u, d, tm, c:[cat index]}]}]}]
+              t "" = untitled micro, s = short summary (clean-summary cut)
+     ============================================================ */}}
+{{- $posts := where .Site.Pages "Type" "post" -}}
+{{- $terms := ($.Site.GetPage "taxonomyTerm" "categories").Pages -}}
+{{- $idx := dict -}}
+{{- $cats := slice -}}
+{{- range $i, $t := $terms -}}
+  {{- $idx = merge $idx (dict (path.Base (strings.TrimSuffix "/" $t.RelPermalink)) $i) -}}
+  {{- $ps := $t.Pages.ByDate.Reverse -}}
+  {{- $c := dict "n" $t.Title "u" $t.RelPermalink "c" (len $ps) -}}
+  {{- with $ps -}}
+    {{- $p := index . 0 -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $photo := "" -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $photo) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) -}}{{- $photo = $u -}}{{- end -}}
+    {{- end -}}
+    {{- $c = merge $c (dict "l" ($p.Date.Format "2006-01-02") "f" $p.RelPermalink "fs" (partial "clean-summary.html" (dict "page" $p) | plainify | htmlUnescape) "fi" $photo) -}}
+  {{- end -}}
+  {{- $cats = $cats | append $c -}}
+{{- end -}}
+{{- $years := slice -}}
+{{- range $posts.GroupByDate "2006" -}}
+  {{- $months := slice -}}
+  {{- range .Pages.GroupByDate "January" -}}
+    {{- $ps := slice -}}
+    {{- range .Pages -}}
+      {{- $ci := slice -}}
+      {{- range .Params.categories -}}
+        {{- $k := urlize (lower .) -}}
+        {{- with index $idx $k -}}{{- $ci = $ci | append . -}}{{- else -}}{{- if eq (index $idx $k) 0 -}}{{- $ci = $ci | append 0 -}}{{- end -}}{{- end -}}
+      {{- end -}}
+      {{- $s := partial "clean-summary.html" (dict "page" . "cut" 110) | plainify | htmlUnescape -}}
+      {{- $s = trim (replaceRE `\s+` " " $s) " " -}}
+      {{- $ps = $ps | append (dict "t" .Title "s" $s "u" .RelPermalink "d" (.Date.Format "2006-01-02") "c" $ci) -}}
+    {{- end -}}
+    {{- $months = $months | append (dict "m" .Key "n" (len .Pages) "p" $ps) -}}
+  {{- end -}}
+  {{- $years = $years | append (dict "y" .Key "n" (len .Pages) "months" $months) -}}
+{{- end -}}
+{{- $d := dict "total" (len $posts) "cats" $cats "years" $years -}}
+<script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

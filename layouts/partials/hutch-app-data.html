@@ -1,0 +1,17 @@
+{{/* ============================================================
+     HUTCH OS app data (Nov 2, 2026). Each Hutch app gets its page's
+     data as one JSON block, <script id="hutch-app-data">, read by its
+     module in hutch-apps.js. Only the page that IS the app emits
+     anything; every other page outputs nothing. The data files live in
+     partials/hutch-data/. Inert unless ?hutch=on (nothing reads it).
+     /archive/ is an alternate output of the home page, so its data is
+     emitted from list.archivehtml.html instead.
+     ============================================================ */}}
+{{- $p := .RelPermalink -}}
+{{- if eq $p "/categories/word-of-the-day/" -}}{{ partial "hutch-data/words.html" . }}
+{{- else if eq $p "/watching/" -}}{{ partial "hutch-data/den.html" . }}
+{{- else if eq $p "/photo/" -}}{{ partial "hutch-data/photos.html" . }}
+{{- else if eq $p "/calendar/" -}}{{ partial "hutch-data/calendar.html" . }}
+{{- else if eq $p "/now/" -}}{{ partial "hutch-data/now.html" . }}
+{{- else if in (slice "/about/" "/contact/" "/uses/" "/subscribe/") $p -}}{{ partial "hutch-data/small.html" . }}
+{{- end -}}

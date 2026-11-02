@@ -1,0 +1,56 @@
+{{/* ============================================================
+     Hutch data: photos (Nov 2, 2026). Read by static/js/apps/photos.js
+     on /photo/ only (Hutch on). Same rules as shortcodes/photo.html:
+     - posts in the "Photos" category, newest first
+     - a post whose text says "Credit:" is someone else's photo: skipped
+     - only Toby's own uploads count (cdn.uploads.micro.blog or the
+       blog's /uploads/), never book or movie card posters
+     - a post with no upload of his own is skipped
+     Each post: t title ("" if untitled), l label (title or date),
+     d ISO date, dl display date, u link, c short plain caption,
+     ph every upload in order as {s src, a alt}.
+     ============================================================ */}}
+{{- $posts := where (where site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos") -}}
+{{- $out := slice -}}
+{{- $total := 0 -}}
+{{- range $posts.ByDate.Reverse -}}
+  {{- $p := . -}}
+  {{- if not (in (lower $p.Content) "credit:") -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $ph := slice -}}
+    {{- $seen := slice -}}
+    {{- range findRE `<img[^>]+>` $p.Content -}}
+      {{- $tag := . -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" $tag) -}}
+      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) (not (in $seen $u)) -}}
+        {{- $a := "" -}}
+        {{- with findRE `alt="[^"]*"` $tag 1 -}}{{- $a = htmlUnescape (replaceRE `^alt="(.*)"$` "$1" (index . 0)) -}}{{- end -}}
+        {{- $a = replaceRE `^Auto-generated description:\s*` "" $a -}}
+        {{- if findRE `(?i)^[\w.\-]+\.(jpe?g|png|webp|gif|heic)$` $a 1 -}}{{- $a = "" -}}{{- end -}}
+        {{- $seen = $seen | append $u -}}
+        {{- $ph = $ph | append (dict "s" $u "a" $a) -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if gt (len $ph) 0 -}}
+      {{- $title := trim $p.Title " \n\t" -}}
+      {{- $cap := partial "clean-summary.html" (dict "page" $p) | plainify | htmlUnescape -}}
+      {{- $cap = trim (replaceRE `\s+` " " $cap) " " -}}
+      {{- $total = add $total (len $ph) -}}
+      {{- $out = $out | append (dict
+            "t" $title
+            "l" (cond (ne $title "") $title ($p.Date.Format "January 2, 2006"))
+            "d" ($p.Date.Format "2006-01-02")
+            "dl" ($p.Date.Format "Jan 2, 2006")
+            "u" $p.RelPermalink
+            "c" $cap
+            "ph" $ph) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if gt (len $out) 0 -}}
+{{- $d := dict "posts" $out "photos" $total "bio" "Life in the holler, one photo at a time." -}}
+<script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>
+{{- end -}}

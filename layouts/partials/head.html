@@ -261,7 +261,7 @@
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ now.Unix }}">
 <!-- HUTCH OS stylesheet + Roboto (Nov 2, 2026): only when the switch above is on. -->
 <script>
-if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ now.Unix }}">');
+if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ now.Unix }}"><link rel="stylesheet" href="{{ "css/hutch-apps.css" | relURL }}?{{ now.Unix }}">');
 </script>
 
 <!-- Hold first paint until the whole page (incl. end-of-body scripts) is

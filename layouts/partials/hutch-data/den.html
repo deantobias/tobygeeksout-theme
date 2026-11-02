@@ -1,0 +1,253 @@
+{{/* ============================================================
+     HUTCH DATA: DEN (Nov 2, 2026, Toby + Claude) - mockup v30
+     The Den app on /watching/ (static/js/apps/den.js) gets three lists:
+
+       reading   "Currently Reading" posts, one per book, newest first.
+                 Same reading rules as the home Bookshelf card and The
+                 Bookmark: title from the card's <h3> or the post title
+                 minus "Currently Reading:", author from the card,
+                 "Page X of Y" and "NN%" read from the plainified text.
+                 A book drops off once a Book Reviews / rated book post
+                 for the same title is posted on or after it. No posts?
+                 Falls back to the Micro.blog "Currently reading" shelf
+                 (title + cover, no progress), like the home card.
+       watching  the "Now Watching" posts from partials/now-watching.html
+                 (90 days, reviewed titles out, newest post per title),
+                 plus the episode (S2E4, the episode name in quotes) and
+                 a summary read from each post. In the browser den.js
+                 also reads the cards the /watching/ page itself draws
+                 after its Trakt fetch (#watching-grid), so Trakt-only
+                 shows join in and the page's hide list + ratings apply.
+       history   everything Toby RATED, newest first:
+                   movies + TV: the Watched page's test (watched.html):
+                     a star run + Movie Reviews / TV Reviews / Reel and
+                     Remote, never a book post, never "Want to Watch";
+                   books: a star run + Book Reviews / Bookshelf /
+                     Reading, never a Currently Reading or Want to
+                     Read post.
+                 Stars are the LONGEST run in the tag-stripped text
+                 (watched.html lesson: grey spans split the run), as a
+                 number out of 5 (½ = .5).
+     NO Watchlist anywhere (Toby: it's private): watchlist / Want to
+     Watch / Want to Read posts never get in, rated or not.
+     Covers: the card's own poster cell first, then a known host
+     (TMDB, Google Books, Micro.blog books, Toby's uploads), curl off.
+     ============================================================ */}}
+{{- $reelCats := slice "Movie Reviews" "TV Reviews" "Reel and Remote" -}}
+{{- $bookCats := slice "Book Reviews" "Bookshelf" "Reading" -}}
+{{- $emoji := `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` -}}
+{{- $posts := (where site.Pages "Type" "post").ByDate.Reverse -}}
+
+{{/* ---------- shared little readers (inline, no define blocks) ---------- */}}
+{{- $history := slice -}}
+{{- $bookDone := dict -}}{{/* norm title -> newest rated date (unix) */}}
+{{- range $posts -}}
+  {{- $p := . -}}
+  {{- $isReel := false -}}{{- $isBook := false -}}{{- $isCR := false -}}
+  {{- range .Params.categories -}}
+    {{- if in $reelCats . -}}{{- $isReel = true -}}{{- end -}}
+    {{- if in $bookCats . -}}{{- $isBook = true -}}{{- end -}}
+    {{- if eq . "Currently Reading" -}}{{- $isCR = true -}}{{- end -}}
+  {{- end -}}
+  {{- $private := or (findRE `(?i)want to (?:watch|read)` .Content 1) (findRE `(?i)^\W*(?:watchlist|on my radar|want to read):` .Title 1) -}}
+  {{- $bare := replaceRE `(?s)<[^>]*>` "" .Content -}}
+  {{- $run := "" -}}
+  {{- range findRE `[★☆½]{2,}` $bare -}}{{- if gt (len .) (len $run) -}}{{- $run = . -}}{{- end -}}{{- end -}}
+  {{- $kind := "" -}}
+  {{- if and $isBook (not $isCR) -}}{{- $kind = "Book" -}}{{- else if and $isReel (not $isBook) -}}{{- $kind = "Movie" -}}{{- end -}}
+  {{- if and $kind (not $private) $run (findRE `★` $run 1) -}}
+    {{- $full := len (findRE `★` $run) -}}{{- if gt $full 5 -}}{{- $full = 5 -}}{{- end -}}
+    {{- $r := float $full -}}
+    {{- if and (findRE `½` $run 1) (lt $full 5) -}}{{- $r = add $r 0.5 -}}{{- end -}}
+    {{- $plain := trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content))) " " -}}
+
+    {{/* ---- title (watched.html's cascade, plus books) ---- */}}
+    {{- $t := "" -}}
+    {{- with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 -}}{{- $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" -}}{{- end -}}
+    {{- if and (not $t) (or (in .Content "review-card--plain") (eq $kind "Book")) .Title -}}
+      {{- $t = replaceRE $emoji "" .Title -}}
+      {{- $t = replaceRE `(?i)^\s*(?:now watching|watched|finished|finished reading|read|book review):\s*` "" $t -}}
+      {{- $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $t -}}
+    {{- end -}}
+    {{- if not $t -}}
+      {{- $before := trim (replaceRE `(?s)[★☆½]{2,}[\s\S]*$` "" $plain) " " -}}
+      {{- if and $before (le (len $before) 45) (not (findRE `(?i)watch` $before 1)) -}}
+        {{- $t = $before -}}
+      {{- else -}}
+        {{- $x := $plain -}}
+        {{- $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\b[^:.!?]{0,40}:\s*` "" $x -}}
+        {{- $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\s+` "" $x -}}
+        {{- $x = replaceRE `(?s)^([^★☆½.!?…\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}]*)[\s\S]*$` "$1" $x -}}
+        {{- $x = replaceRE `(?i)\s+(?:last night|tonight|yesterday|this weekend|a few days ago|on (?:Netflix|Hulu|Max|Prime Video|Prime|Disney\+?|Apple TV\+?|Peacock|Paramount\+?|Shudder))\b` "" $x -}}
+        {{- $x = replaceRE `(?i),?\s+(?:and|but|which|though|so)\s+i\b[\s\S]*$` "" $x -}}
+        {{- $t = trim (replaceRE `[\s,;:–—-]+$` "" $x) " " -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $t -}}{{- $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" .Title -}}{{- end -}}
+    {{- $t = htmlUnescape (trim (replaceRE `[★☆½]+` "" (replaceRE $emoji "" $t)) " ") -}}
+
+    {{/* ---- maker: director / creator / author ---- */}}
+    {{- $who := "" -}}
+    {{- if eq $kind "Book" -}}
+      {{- with findRE `(?s)<p[^>]*book-card-byline[^>]*>.*?</p>` .Content 1 -}}{{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" -}}{{- end -}}
+      {{- if findRE `\d|★` $who 1 -}}{{- $who = "" -}}{{- end -}}
+      {{- if not $who -}}
+        {{- with findRE `(?s)review-fact-label[^>]*>\s*Author\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 -}}
+          {{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" -}}
+        {{- end -}}
+      {{- end -}}
+      {{- if not $who -}}{{- with findRE `(?i)\sby\s+[^()]+$` $t 1 -}}{{- $who = trim (replaceRE `(?i)^\s*by\s+` "" (index . 0)) " " -}}{{- end -}}{{- end -}}
+      {{- with $who -}}{{- $t = trim (strings.TrimSuffix (printf " by %s" .) $t) " " -}}{{- end -}}
+    {{- else -}}
+      {{- with findRE `(?s)review-fact-label[^>]*>\s*(?:Director|Created by)\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 -}}
+        {{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" -}}
+      {{- end -}}
+      {{- if not $who -}}{{- with findRE `(?s)<[^>]*movie-card-byline[^>]*>\s*[^<>0-9★☆½]{2,45}?\s*</` .Content 1 -}}{{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>|>|</` "" (index . 0))) " \n\t" -}}{{- end -}}{{- end -}}
+      {{- if not $who -}}{{- with findRE `(?:19|20)\d{2}\s*[•·|]\s*[A-Z][^\s<]*(?:\s+[A-Z][^\s<]*)?` $plain 1 -}}{{- $who = trim (replaceRE `(?s)^[^•·|]*[•·|]\s*` "" (index . 0)) " " -}}{{- end -}}{{- end -}}
+      {{- if or (findRE `(?i)^(?:my thoughts|watch on youtube|trailer|watched|synopsis)$` $who 1) (not (findRE `[A-Za-z]` $who 1)) -}}{{- $who = "" -}}{{- end -}}
+    {{- end -}}
+
+    {{/* ---- release year ---- */}}
+    {{- $ry := "" -}}
+    {{- with findRE `>\s*(?:19|20)\d{2}\s*<` .Content 1 -}}{{- $ry = replaceRE `\D` "" (index . 0) -}}{{- end -}}
+    {{- if not $ry -}}{{- with findRE `(?:19|20)\d{2}\s*[•·|]` $plain 1 -}}{{- $ry = replaceRE `\D` "" (index . 0) -}}{{- end -}}{{- end -}}
+    {{- if not $ry -}}{{- with findRE `\((?:19|20)\d{2}\)` .Title 1 -}}{{- $ry = replaceRE `[()]` "" (index . 0) -}}{{- end -}}{{- end -}}
+
+    {{/* ---- TV + season (watched.html) ---- */}}
+    {{- if and (eq $kind "Movie") (or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") (in .Title "📺") (findRE `review-fact-label[^>]*>\s*Created by` .Content 1)) -}}{{- $kind = "TV" -}}{{- end -}}
+    {{- $season := 0 -}}
+    {{- if eq $kind "TV" -}}
+      {{- $st := "" -}}
+      {{- with findRE `movie-card-eptag[^>]*>[^<]+<` .Content 1 -}}{{- $st = index . 0 -}}{{- end -}}
+      {{- if not $st -}}{{- with findRE `(?s)<p[^>]*review-byline[^>]*>[^<]*</p>` .Content 1 -}}{{- $st = index . 0 -}}{{- end -}}{{- end -}}
+      {{- if not $st -}}{{- $st = .Title -}}{{- end -}}
+      {{- with findRE `(?i)Season\s*\d+|\bS\d+` $st 1 -}}{{- $season = int (replaceRE `\D` "" (index . 0)) -}}{{- end -}}
+      {{- $t = trim (replaceRE `(?i)[,:\s–—-]*(?:Season\s*\d+|S\d+(?:E\d+)?)\s*$` "" $t) " " -}}
+    {{- end -}}
+
+    {{/* ---- cover ---- */}}
+    {{- $cover := "" -}}
+    {{- with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 -}}{{- $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}{{- end -}}
+    {{- if not $cover -}}
+      {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+        {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+        {{- if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books") (in $u "cdn.uploads.micro.blog")) -}}{{- $cover = $u -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- end -}}
+
+    {{/* ---- short summary from the post: the card's synopsis, else the
+         quote / thoughts, else the post text with the stars taken out ---- */}}
+    {{- $sum := "" -}}
+    {{- range slice `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` `(?s)<blockquote[^>]*card-quote[^>]*>.*?</blockquote>` `(?s)<[^>]*(?:review|movie-card)-thoughts[^>]*>.*?</(?:p|div|td)>` -}}
+      {{- if not $sum -}}{{- with findRE . $p.Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}{{- end -}}
+    {{- end -}}
+    {{- if not $sum -}}
+      {{- $sum = trim (replaceRE `\s+` " " (replaceRE `[★☆½]+` "" (htmlUnescape (replaceRE `(?s)<h3[^>]*>.*?</h3>|<p[^>]*(?:book|movie)-card-(?:emoji|byline)[^>]*>.*?</p>` " " .Content | plainify)))) " " -}}
+      {{/* prose reviews start with "Title ★★★★☆ 2026 • Director": take those off */}}
+      {{- $sum = trim (strings.TrimPrefix $t $sum) " " -}}
+      {{- $sum = replaceRE `^(?:19|20)\d{2}\s*[•·|]\s*` "" $sum -}}
+      {{- with $who -}}{{- $sum = trim (strings.TrimPrefix . $sum) " " -}}{{- end -}}
+    {{- end -}}
+    {{- $sum = truncate 320 $sum -}}
+
+    {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
+    {{- if eq $kind "Book" -}}{{- if not (index $bookDone $norm) -}}{{- $bookDone = merge $bookDone (dict $norm .Date.Unix) -}}{{- end -}}{{- end -}}
+    {{- $history = $history | append (dict "id" (printf "h%d" (len $history)) "kind" $kind "t" $t "who" $who "y" $ry "season" $season "cover" $cover "r" $r "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "iso" (.Date.Format "2006-01-02") "sum" $sum) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* ---------- currently reading ---------- */}}
+{{- $reading := slice -}}
+{{- $seenBooks := slice -}}
+{{- range $posts -}}
+  {{- if and (in .Params.categories "Currently Reading") .Title (not (findRE `(?i)want to read` .Title 1)) -}}
+    {{- $t := "" -}}
+    {{- with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 -}}{{- $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" -}}{{- end -}}
+    {{- if not $t -}}{{- $t = trim (replaceRE $emoji "" (replaceRE `(?i)^.*?currently reading:\s*` "" .Title)) " " -}}{{- end -}}
+    {{- $t = htmlUnescape $t -}}
+    {{- $who := "" -}}
+    {{- with findRE `(?s)<p[^>]*book-card-byline[^>]*>.*?</p>` .Content 1 -}}{{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" -}}{{- end -}}
+    {{- if findRE `\d` $who 1 -}}{{- $who = "" -}}{{- end -}}
+    {{- if not $who -}}
+      {{- with findRE `(?s)review-fact-label[^>]*>\s*Author\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 -}}
+        {{- $who = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" -}}
+      {{- end -}}
+    {{- end -}}
+    {{- with $who -}}{{- $t = trim (strings.TrimSuffix (printf " by %s" .) $t) " " -}}{{- end -}}
+    {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
+    {{- $done := index $bookDone $norm -}}
+    {{- if and $norm (not (in $seenBooks $norm)) -}}
+      {{- $seenBooks = $seenBooks | append $norm -}}
+      {{- if not (and $done (ge $done .Date.Unix)) -}}
+        {{- $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify -}}
+        {{- $page := 0 -}}{{- $total := 0 -}}{{- $pct := -1 -}}
+        {{- with findRE `Page \d+ of \d+` $plain 1 -}}{{- $bits := findRE `\d+` (index . 0) -}}{{- $page = int (index $bits 0) -}}{{- $total = int (index $bits 1) -}}{{- end -}}
+        {{- with findRE `\d{1,3}%` $plain 1 -}}{{- $pct = int (replaceRE `%` "" (index . 0)) -}}{{- end -}}
+        {{- if and (eq $pct -1) (gt $total 0) -}}{{- $pct = int (math.Round (mul (div (float $page) (float $total)) 100)) -}}{{- end -}}
+        {{- $cover := "" -}}
+        {{- with findRE `(?s)(?:book-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 -}}{{- $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) -}}{{- end -}}
+        {{- if not $cover -}}
+          {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+            {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+            {{- if and (not $cover) (or (in $u "books.google.com") (in $u "cdn.micro.blog/books") (in $u "cdn.uploads.micro.blog")) -}}{{- $cover = $u -}}{{- end -}}
+          {{- end -}}
+        {{- end -}}
+        {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- end -}}
+        {{- $sum := "" -}}
+        {{- with findRE `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
+        {{- if not $sum -}}{{- $sum = trim (replaceRE `\s+` " " (replaceRE `(?s)Page \d+ of \d+|\d{1,3}%` "" (replaceRE `(?s)<h3[^>]*>.*?</h3>|<p[^>]*book-card-(?:byline|emoji)[^>]*>.*?</p>|<p[^>]*review-tag[^>]*>.*?</p>` "" .Content | plainify))) " " -}}{{- end -}}
+        {{- $reading = $reading | append (dict "id" (printf "r%d" (len $reading)) "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum)) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{/* No Currently Reading posts: the Micro.blog shelf, read the home card's way. */}}
+{{- if not $reading -}}
+  {{- with site.Data.bookshelves -}}
+    {{- range $k, $v := . -}}
+      {{- if eq (replaceRE `[^a-z]` "" (lower (printf "%v" $k))) "currentlyreading" -}}
+        {{- $list := $v -}}
+        {{- if reflect.IsMap $v -}}{{- $list = index $v "items" | default slice -}}{{- end -}}
+        {{- range $list -}}
+          {{- if reflect.IsMap . -}}
+            {{- with index . "title" -}}
+              {{- $reading = $reading | append (dict "id" (printf "r%d" (len $reading)) "kind" "Book" "t" . "who" "" "cover" "" "page" 0 "total" 0 "pct" -1 "url" "/reading/" "d" "" "date" "" "sum" "") -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* ---------- currently watching (posts; den.js adds the Trakt cards) ---------- */}}
+{{- $nw := partial "now-watching.html" (dict "days" 90) -}}
+{{- $extra := dict -}}
+{{- range $posts -}}
+  {{- if findRE `(?i)^\W*now watching:` .Title 1 -}}
+    {{- $plain := trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " .Content))) " " -}}
+    {{- $src := printf "%s %s" .Title $plain -}}
+    {{- $ep := 0 -}}{{- $eps := 0 -}}{{- $epn := "" -}}
+    {{- with findRE `\bSE?\d+E(\d+)\b` $src 1 -}}{{- $ep = int (replaceRE `^.*E0*(\d+)$` "$1" (index . 0)) -}}{{- end -}}
+    {{- if not $ep -}}{{- with findRE `(?i)\bEpisode\s+\d+` $src 1 -}}{{- $ep = int (replaceRE `\D` "" (index . 0)) -}}{{- end -}}{{- end -}}
+    {{- with findRE `(?i)\bEpisode\s+\d+\s+of\s+\d+` $plain 1 -}}{{- $eps = int (replaceRE `(?i)^.*of\s+` "" (index . 0)) -}}{{- end -}}
+    {{- with findRE `(?:\bSE?\d+E\d+|(?i:Episode\s+\d+(?:\s+of\s+\d+)?))\s*[·•:,–—-]?\s*[“"][^”"]{2,70}[”"]` $plain 1 -}}{{- $epn = replaceRE `^.*[“"]([^”"]+)[”"]$` "$1" (index . 0) -}}{{- end -}}
+    {{- $y := "" -}}{{- with findRE `\((?:19|20)\d{2}\)` .Title 1 -}}{{- $y = replaceRE `[()]` "" (index . 0) -}}{{- end -}}
+    {{- if not $y -}}{{- with findRE `>\s*(?:19|20)\d{2}\s*<` .Content 1 -}}{{- $y = replaceRE `\D` "" (index . 0) -}}{{- end -}}{{- end -}}
+    {{- $sum := "" -}}
+    {{- with findRE `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
+    {{- if not $sum -}}{{- with findRE `(?s)<blockquote[^>]*card-quote[^>]*>.*?</blockquote>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}{{- end -}}
+    {{- $extra = merge $extra (dict .Permalink (dict "ep" $ep "eps" $eps "epn" $epn "y" $y "sum" (truncate 320 $sum) "u" .RelPermalink)) -}}
+  {{- end -}}
+{{- end -}}
+{{- $watching := slice -}}
+{{- range $nw.items -}}
+  {{- $x := index $extra .url | default dict -}}
+  {{- $watching = $watching | append (dict "id" (printf "w%d" (len $watching)) "kind" (cond (eq .kind "tv") "TV" "Movie") "t" (htmlUnescape .title) "n" .norm "season" .season
+      "ep" (index $x "ep" | default 0) "eps" (index $x "eps" | default 0) "epn" (index $x "epn" | default "") "y" (index $x "y" | default "")
+      "cover" .poster "url" (index $x "u" | default .url) "d" ((time.AsTime .dateISO).Format "Jan 2") "date" .dateText "at" .date "sum" (index $x "sum" | default "")) -}}
+{{- end -}}
+
+{{- $d := dict "reading" $reading "watching" $watching "history" $history -}}
+<script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

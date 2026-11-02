@@ -1,0 +1,23 @@
+{{/* ============================================================
+     Hutch data: CALENDAR (Nov 2, 2026). Same post set and title rule as
+     shortcodes/postcalendar.html (the Traditional /calendar/ page):
+     every RegularPage of Type "post"; untitled posts use their text,
+     cut to 60 characters. Newest first, one row per post:
+       [date "2006-01-02", time "3:04 PM", title, url, first category,
+        "b" when Blaugust, "m" when untitled]
+     ============================================================ */}}
+{{- $posts := where .Site.RegularPages "Type" "post" -}}
+{{- $rows := slice -}}
+{{- range $posts.ByDate.Reverse -}}
+  {{- $t := .Title -}}
+  {{- $m := "" -}}
+  {{- if not $t -}}
+    {{- $m = "m" -}}
+    {{- $t = replaceRE `\s+` " " (.Plain | htmlUnescape | plainify) | truncate 60 "…" -}}
+  {{- end -}}
+  {{- if not $t -}}{{- $t = "Untitled post" -}}{{- end -}}
+  {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}
+  {{- $b := cond (strings.Contains (printf "%v" .Params.categories) "Blaugust") "b" "" -}}
+  {{- $rows = $rows | append (.Date.Format "2006-01-02") | append (.Date.Format "3:04 PM") | append (printf "%v" $t | htmlUnescape) | append .RelPermalink | append (printf "%v" $cat) | append $b | append $m -}}
+{{- end -}}
+<script type="application/json" id="hutch-app-data">{{ dict "p" $rows | jsonify | safeJS }}</script>

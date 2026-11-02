@@ -1,0 +1,35 @@
+{{- /* ============================================================
+     Hutch data: the small apps (Nov 2, 2026). One partial for About
+     (/about/), Contact (/contact/), Uses (/uses/) and Follow
+     (/subscribe/). The page's own words are NOT copied here: the app
+     (static/js/apps/small.js) moves the page's rendered .page-body
+     into its shell, so Toby's text, links and any form stay exactly
+     as he wrote them in Micro.blog. This only adds the facts the page
+     itself doesn't have:
+       title   the page title from Micro.blog
+       name, avatar, site   for the About hero (.Site.Author)
+       posts, since, cats   About facts, counted like the Traditional
+                            archive (posts = Type "post"; top 3
+                            categories by post count)
+       rss, json, past      Follow: the same feed and newsletter links
+                            the side rail uses (partials/header.html)
+     ============================================================ */ -}}
+{{- $p := .RelPermalink -}}
+{{- $d := dict "title" .Title "site" .Site.Title -}}
+{{- if eq $p "/about/" -}}
+  {{- $posts := where .Site.RegularPages "Type" "post" -}}
+  {{- $since := "" -}}
+  {{- with $posts.ByDate | first 1 -}}{{- $since = (index . 0).Date.Format "2006" -}}{{- end -}}
+  {{- $cats := slice -}}
+  {{- with .Site.Taxonomies.categories -}}
+    {{- range first 3 .ByCount -}}{{- $cats = $cats | append (dict "n" .Page.Title "u" .Page.RelPermalink) -}}{{- end -}}
+  {{- end -}}
+  {{- $d = merge $d (dict "name" .Site.Author.name "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
+{{- else if eq $p "/subscribe/" -}}
+  {{- $rss := "" -}}
+  {{- with .Site.Home.OutputFormats.Get "rss" -}}{{- $rss = .Permalink -}}{{- else -}}{{- $rss = printf "%sfeed.xml" .Site.BaseURL -}}{{- end -}}
+  {{- $past := "/newsletters/" | absURL -}}
+  {{- with (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 -}}{{- $past = printf "%s?view=list" (index . 0).Permalink -}}{{- end -}}
+  {{- $d = merge $d (dict "rss" $rss "json" (printf "%sfeed.json" .Site.BaseURL) "past" $past) -}}
+{{- end -}}
+<script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

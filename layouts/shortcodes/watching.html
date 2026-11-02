@@ -69,7 +69,7 @@
   var TRAKT = "https://api.trakt.tv";
   var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
   var POSTER = "https://perch-app.pages.dev/poster";
-  var LIST_KEY = "tgo_watching_v4_" + USER + "_" + DAYS;
+  var LIST_KEY = "tgo_watching_v5_" + USER + "_" + DAYS; /* v5 (Nov 2): episode number + name */
   var LIST_TTL = 30 * 60 * 1000;
   var POSTER_TTL = 30 * 24 * 60 * 60 * 1000;
 
@@ -113,7 +113,8 @@
         var n = norm(s.title);
         if (last < since || ratedSince(rated, n, e.season > 0 ? e.season : 1, last)) return;
         if (!n || HIDE.indexOf(n) > -1 || REVIEWED.indexOf(n) > -1) return;
-        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, last: last });
+        // Nov 2 (Hutch Den): keep the latest episode's number and name too
+        out.push({ title: s.title, slug: s.ids.slug || "", tmdb: s.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, ep: e.number || 0, epn: e.title || "", last: last });
       });
       return { list: out, rated: rated };
     });
@@ -139,8 +140,10 @@
     var out = trakt.map(function (t) {
       var n = norm(t.title), p = byNorm[n];
       if (p) used[n] = 1;
+      var tSeason = p ? Math.max(t.season, p.season || 0) : t.season;
       return {
-        title: t.title, kind: "tv", season: p ? Math.max(t.season, p.season || 0) : t.season, tmdb: t.tmdb,
+        title: t.title, kind: "tv", season: tSeason, tmdb: t.tmdb, slug: t.slug || "",
+        ep: tSeason === t.season ? (t.ep || 0) : 0, epn: tSeason === t.season ? (t.epn || "") : "",
         last: p ? Math.max(t.last, p.date) : t.last,
         poster: p ? p.poster : "",
         url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""),
@@ -153,6 +156,25 @@
     });
     out.sort(function (a, b) { return b.last - a.last; });
     return out;
+  }
+
+  /* Nov 2 (Hutch Den): how many episodes a season has and how long an
+     episode runs, for "E4 of 10" and "5 left · 4h 50m". Only asked when
+     Hutch is on (the Traditional card doesn't use it); cached a day. */
+  function seasonSize(slug, season) {
+    if (!document.documentElement.classList.contains("hutch")) return Promise.resolve({});
+    var k = "tgo_seasons_v1_" + slug, c = load(k);
+    var pick = function (d) { var n = 0; (d.s || []).forEach(function (x) { if (x.number === season) n = x.aired_episodes || x.episode_count || 0; }); return { n: n, rt: d.rt || 0 }; };
+    if (c && Date.now() - c.t < 864e5) return Promise.resolve(pick(c));
+    return Promise.all([
+      tget("/shows/" + encodeURIComponent(slug) + "/seasons?extended=full"),
+      tget("/shows/" + encodeURIComponent(slug) + "?extended=full").catch(function () { return {}; })
+    ]).then(function (r) {
+      var d = { t: Date.now(), rt: (r[1] && r[1].runtime) || 0,
+        s: (r[0] || []).map(function (x) { return { number: x.number, aired_episodes: x.aired_episodes, episode_count: x.episode_count }; }) };
+      store(k, d);
+      return pick(d);
+    }).catch(function () { return {}; });
   }
 
   function getPoster(tmdb) {
@@ -188,6 +210,14 @@
       body.appendChild(el("span", "wr-prog-text", it.kind === "movie" ? "Movie" : (it.season ? "Season " + it.season : "TV")));
       body.appendChild(el("span", "wr-date", (it.kind === "movie" ? "Started " : "Last watched ") + fmt(it.last)));
       card.appendChild(body);
+      /* Nov 2 (Hutch Den): episode facts ride along as data attributes, so
+         the Traditional card looks the same; Den reads them */
+      if (it.kind === "tv") {
+        if (it.season) card.setAttribute("data-season", it.season);
+        if (it.ep) card.setAttribute("data-ep", it.ep);
+        if (it.epn) card.setAttribute("data-epn", it.epn);
+        if (it.slug && it.season && it.ep) seasonSize(it.slug, it.season).then(function (r) { if (r.n) card.setAttribute("data-eps", r.n); if (r.rt) card.setAttribute("data-rt", r.rt); });
+      }
       gridEl.appendChild(card);
       if (it.poster) setPoster(card, cover, it.poster);
       else getPoster(it.tmdb).then(function (u) { setPoster(card, cover, u); });

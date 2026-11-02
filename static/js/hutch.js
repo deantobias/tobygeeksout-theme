@@ -41,21 +41,25 @@
   IDX = IDX || { words: [], cats: [], recent: [] };
 
   /* ---------- icons + apps ---------- */
+  /* Nov 2 (Toby): apps that are also in the Traditional nav use the SAME
+     icons as the nav (partials/icon.html via nav-icon.html): Archive box,
+     About person, Now clock, Contact envelope, Uses laptop, Surprise
+     shuffle, Follow RSS, Search. Blog is the nav's Home. */
   var IC = {
-    blog: '<path d="M6 3h9l4 4v14H6z M14 3v5h5 M9 13h7 M9 17h7"/>',
-    archive: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
-    about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6 M12 7.5v.5"/>',
-    now: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-    contact: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8 M8 12h5"/>',
+    blog: '<path d="M3 11.5 12 4l9 7.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-6h4v6"/>',
+    archive: '<rect x="3.5" y="4.5" width="17" height="4" rx="1"/><path d="M5 8.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5"/><path d="M10 13h4"/>',
+    about: '<circle cx="12" cy="8.2" r="3.7"/><path d="M4.5 20c0-4 3.5-6.2 7.5-6.2s7.5 2.2 7.5 6.2"/>',
+    now: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/>',
+    contact: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7.5 12 13l8.5-5.5"/>',
     den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9l5 3-5 3z"/>',
-    surprise: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/><circle cx="15" cy="15" r="1.2" fill="currentColor"/><circle cx="15" cy="9" r="1.2" fill="currentColor"/><circle cx="9" cy="15" r="1.2" fill="currentColor"/>',
-    uses: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V5h8v3 M3 13h18"/>',
-    follow: '<path d="M5 19a1 1 0 1 0 0-.01 M5 12a7 7 0 0 1 7 7 M5 5a14 14 0 0 1 14 14"/>',
+    surprise: '<path d="M3.5 7h3c1.5 0 2.5.8 3.3 2l4.4 6c.8 1.2 1.8 2 3.3 2h3"/><path d="M3.5 17h3c1.5 0 2.5-.8 3.3-2l.8-1.1"/><path d="M13.4 10.1l.8-1.1c.8-1.2 1.8-2 3.3-2h3"/><path d="M18 4.5 20.5 7 18 9.5"/><path d="M18 14.5l2.5 2.5-2.5 2.5"/>',
+    uses: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/>',
+    follow: '<path d="M4.5 4.5a15 15 0 0 1 15 15"/><path d="M4.5 10.8a8.7 8.7 0 0 1 8.7 8.7"/><circle cx="5.3" cy="18.7" r="1.6"/>',
     photos: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-8 8"/>',
     words: '<path d="M4 19L9 5h2l5 14 M6 14h8 M17 9h4 M17 13h4"/>',
     calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18 M8 3v4 M16 3v4"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-    search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+    search: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.1-4.1"/>',
     back: '<path d="M19 12H5 M11 18l-6-6 6-6"/>',
     up: '<path d="M6 15l6-6 6 6"/>',
     close: '<path d="M6 6l12 12 M18 6L6 18"/>',
@@ -176,7 +180,7 @@
     if (!drawer) {
       var keys = Object.keys(APPS).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
-        '<label class="hx-field"><span class="hx-face">' + RABBIT + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
+        '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
         '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '">' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
@@ -298,7 +302,7 @@
   function openSearch() {
     if (!search) {
       search = sheet('hutch-search',
-        '<label class="hx-field"><span class="hx-face">' + RABBIT + '</span><input type="search" placeholder="Hutch Search" aria-label="Hutch Search" autocomplete="off" enterkeyhint="search"><button type="button" class="hx-x" aria-label="Clear">' + ic('close') + '</button></label>' +
+        '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Hutch Search" aria-label="Hutch Search" autocomplete="off" enterkeyhint="search"><button type="button" class="hx-x" aria-label="Clear">' + ic('close') + '</button></label>' +
         '<div class="hx-scroll"><div class="hx-results"></div></div>');
       var inp = search.querySelector('input'), t;
       inp.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { renderSearch(inp.value); }, 140); });
@@ -362,14 +366,14 @@
       '<svg class="hh-bunny" viewBox="0 0 20 24"><g fill="var(--r2)" opacity=".8" transform="translate(1 1)"><ellipse cx="9" cy="17" rx="8" ry="6.5"/><circle cx="15" cy="10" r="4.6"/><ellipse cx="13" cy="2" rx="1.6" ry="6"/><ellipse cx="17" cy="2" rx="1.6" ry="6"/><circle cx="2" cy="16" r="2.2"/></g></svg></div>';
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
       '<div class="hh-area">' +
-        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><div class="hh-s">It\'s <em>' + day + '</em>,<br>' + mon + ' ' + ordinal(now.getDate()) + '.</div><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
+        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br>' + mon + ' ' + ordinal(now.getDate()) + '.</a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
         '<div class="hh-quad">' + QUAD.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
         '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
         photo + word +
       '</div>' +
       '<button type="button" class="hh-handle" data-sheet="apps" aria-label="All apps">' + ic('up', 2.4) + '<span>All apps</span></button>' +
       '<div class="hh-bottom"><nav class="hh-dock" aria-label="Dock">' + DOCK.map(function (k) { return appIcon(k); }).join('') + '</nav>' +
-        '<button type="button" class="hh-search" data-sheet="search"><span class="hx-face">' + RABBIT + '</span><span class="lbl">Hutch Search</span></button></div>' +
+        '<button type="button" class="hh-search" data-sheet="search"><span class="hs-ic">' + ic('search') + '</span><span class="lbl">Hutch Search</span><span class="hx-face hs-face">' + RABBIT + '</span></button></div>' +
       '</div>');
     document.body.appendChild(homeEl);
 
@@ -487,6 +491,21 @@
     }
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
     onScroll();
+
+    /* App modules (hutch-apps.js): each app registers itself on
+       window.HutchApps under its key (words, den, photos, ...). If this
+       page belongs to one, it gets the bar, its data and the helpers. */
+    var mod = window.HutchApps && window.HutchApps[k];
+    if (mod && !isBlogApp) {
+      try {
+        mod({
+          key: k, app: a, bar: bar, page: PAGE, data: J('hutch-app-data'), path: path,
+          ic: ic, esc: esc, el: el, ls: ls, phase: PHASE, dark: DARK, calm: calm,
+          own: function () { de.classList.add('hutch-own'); }, /* hide the Traditional page */
+          openSheet: openSheet, closeSheet: closeSheet
+        });
+      } catch (err) { de.classList.remove('hutch-own'); if (window.console) console.error('Hutch app ' + k, err); }
+    }
   }
 
   /* ---------- Blog app (/?app=blog), v36 ----------

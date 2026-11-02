@@ -1,0 +1,112 @@
+{{/* ============================================================
+     HUTCH OS app data: Word Nerd (Nov 2, 2026, Toby + Claude)
+     Every "Word of the Day" post, newest first, for the Word Nerd app
+     (static/js/apps/words.js). Called by partials/hutch-app-data.html
+     on /categories/word-of-the-day/ only; inert unless Hutch is on.
+
+     Reads the define card the same way wna-deck.html and
+     hutch-home-data.html do, hardened for both card styles:
+       - old cards: <p class="define-word">, <p class="define-def">
+         <span class="define-num">1</span>: ...</p>
+       - Perch "plain" cards (define-card--plain): no define-word (the
+         word comes from the title, minus "Word Nerd Alert:"), senses in
+         table cells <td class='define-num'>1</td><td class='define-def'>
+         with other attributes first and either quote style, the
+         pronunciation in .define-pron inside .define-eyebrow, plus
+         .define-example and optional .define-extra rows (Roots, Close
+         cousins, Opposites, First known use).
+     No define card at all: the post's own text stands in as the meaning.
+
+     Per word: w word, pr pronunciation, pos part of speech (as written),
+     m meanings [{n, t}], ex example, x extras [{l, t}], u url,
+     d "Jan 2", y year, iso date.
+     ============================================================ */}}
+{{- $out := slice -}}
+{{- $cls := `\bclass=["'][^"']*\b` -}}
+{{- range .Pages.ByDate.Reverse -}}
+  {{- $c := .Content -}}
+
+  {{/* part of speech + pronunciation, both from the eyebrow */}}
+  {{- $pos := "" -}}{{- $pr := "" -}}
+  {{- with findRE (printf `(?s)<span\b[^>]*%sdefine-pron\b[^"']*["'][^>]*>.*?</span>` $cls) $c 1 -}}
+    {{- $pr = trim (index . 0 | plainify | htmlUnescape) " \n\t ·•|/" -}}
+  {{- end -}}
+  {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-eyebrow\b[^"']*["'][^>]*>.*?</p>` $cls) $c 1 -}}
+    {{- $eb := replaceRE `(?s)<span\b[^>]*\bdefine-pron\b[^>]*>.*?</span>` "" (index . 0) -}}
+    {{- $pos = trim (replaceRE `[\s\x{00A0}·•|/]+$` "" ($eb | plainify | htmlUnescape)) " \n\t ·•|/" -}}
+  {{- end -}}
+
+  {{/* the word: the card's own, else the title */}}
+  {{- $w := "" -}}
+  {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-word\b[^"']*["'][^>]*>.*?</p>` $cls) $c 1 -}}
+    {{- $w = trim (index . 0 | plainify | htmlUnescape) " \n\t " -}}
+  {{- end -}}
+  {{- if not $w -}}{{- $w = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t " -}}{{- end -}}
+  {{- if not $w -}}{{- $w = .Date.Format "January 2, 2006" -}}{{- end -}}
+
+  {{/* meanings; table-cell numbers pair with table-cell senses in order */}}
+  {{- $tdNums := findRE (printf `(?s)<td\b[^>]*%sdefine-num\b[^"']*["'][^>]*>.*?</td>` $cls) $c -}}
+  {{- $tdi := 0 -}}
+  {{- $m := slice -}}
+  {{- range findRE (printf `(?s)<(?:p|td|div|li)\b[^>]*%sdefine-def\b[^"']*["'][^>]*>.*?</(?:p|td|div|li)>` $cls) $c -}}
+    {{- $num := "" -}}
+    {{- with findRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` . 1 -}}
+      {{- $num = index . 0 | plainify | htmlUnescape -}}
+    {{- else -}}
+      {{- if hasPrefix . "<td" -}}
+        {{- if lt $tdi (len $tdNums) -}}{{- $num = index $tdNums $tdi | plainify | htmlUnescape -}}{{- end -}}
+        {{- $tdi = add $tdi 1 -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $b := replaceRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` "" . -}}
+    {{- $b = trim ($b | plainify | htmlUnescape) ": \n\t " -}}
+    {{- if $b -}}{{- $m = $m | append (dict "n" (trim $num " \n\t .:") "t" $b) -}}{{- end -}}
+  {{- end -}}
+
+  {{/* example */}}
+  {{- $ex := "" -}}
+  {{- with findRE (printf `(?s)<(?:p|td|div)\b[^>]*%sdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $cls) $c 1 -}}
+    {{- $ex = trim (index . 0 | plainify | htmlUnescape) " \n\t " -}}
+  {{- end -}}
+
+  {{/* extra rows. A cell that is only a label ("Roots") joins the cell
+       after it; a cell that starts with a bold label or a known label
+       is split into label + text. */}}
+  {{- $x := slice -}}
+  {{- $cells := findRE (printf `(?s)<td\b[^>]*%sdefine-extra[\w-]*[^"']*["'][^>]*>.*?</td>` $cls) $c -}}
+  {{- if not $cells -}}{{- $cells = findRE (printf `(?s)<(?:p|div|li)\b[^>]*%sdefine-extra[\w-]*[^"']*["'][^>]*>.*?</(?:p|div|li)>` $cls) $c -}}{{- end -}}
+  {{- $known := `(?i)^(roots?|close cousins|cousins|opposites?|first known use|origin|etymology|synonyms?|antonyms?|related)\s*:?\s*` -}}
+  {{- $pend := "" -}}
+  {{- range $cells -}}
+    {{- $lab := "" -}}
+    {{- $inner := replaceRE `(?s)^<[^>]+>(.*)</\w+>$` "$1" . -}}
+    {{- with findRE `(?s)^\s*<(?:b|strong|span)\b[^>]*>.*?</(?:b|strong|span)>` $inner 1 -}}
+      {{- $lab = trim (index . 0 | plainify | htmlUnescape) " \n\t :" -}}
+      {{- $inner = replaceRE `(?s)^\s*<(?:b|strong|span)\b[^>]*>.*?</(?:b|strong|span)>` "" $inner -}}
+    {{- end -}}
+    {{- $t := trim ($inner | plainify | htmlUnescape) " \n\t :·" -}}
+    {{- if and (not $lab) (findRE $known $t 1) -}}
+      {{- $lab = trim (replaceRE (printf `%s(?s:.*)$` $known) "$1" $t) " " -}}
+      {{- $t = trim (replaceRE $known "" $t) " \n\t :·" -}}
+    {{- end -}}
+    {{- if and $lab (not $t) -}}{{- $pend = $lab -}}
+    {{- else if $t -}}
+      {{- if and (not $lab) $pend -}}{{- $lab = $pend -}}{{- end -}}
+      {{- $pend = "" -}}
+      {{- $x = $x | append (dict "l" $lab "t" $t) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/* no define card: the post's own words (minus a leading "word:" label) */}}
+  {{- if not $m -}}
+    {{- $plain := .Plain | htmlUnescape -}}
+    {{- $plain = replaceRE `(?i)^\s*word nerd alert\s*:?\s*` "" $plain -}}
+    {{- with replaceRE `[^\pL\s-]` "" $w -}}{{- $plain = replaceRE (printf `(?i)^\s*%s\s*[:·•|–—]\s*` .) "" $plain -}}{{- end -}}
+    {{- $plain = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 220 -}}
+    {{- with $plain -}}{{- $m = slice (dict "n" "" "t" .) -}}{{- end -}}
+  {{- end -}}
+
+  {{- $out = $out | append (dict "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
+{{- end -}}
+{{- $d := dict "words" $out "cat" .RelPermalink -}}
+<script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

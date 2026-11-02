@@ -443,6 +443,33 @@
   }
 
   /* ---------- app frame ---------- */
+  /* Leaving the page (back arrow or Home): show it at once and ignore
+     more taps while the next page loads, so a second tap can't skip two
+     pages back (Nov 2, Toby: "slow or do I have to tap twice?"). Cleared
+     if the page comes back from the browser's back/forward cache. */
+  function leaving() {
+    if (de.classList.contains('hx-leaving')) return true;
+    de.classList.add('hx-leaving');
+    setTimeout(function () { de.classList.remove('hx-leaving'); }, 4000);
+    return false;
+  }
+  window.addEventListener('pageshow', function () { de.classList.remove('hx-leaving'); });
+
+  /* Ask the browser to fetch a page in the background as soon as a finger
+     is on its link, and to get the home screen ready ahead of time.
+     Browsers that don't know speculation rules just ignore this. */
+  try {
+    if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+      var sr = document.createElement('script');
+      sr.type = 'speculationrules';
+      sr.textContent = JSON.stringify({
+        prefetch: [{ source: 'document', where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/*.xml' } }] }, eagerness: 'moderate' }],
+        prerender: [{ source: 'list', urls: ['/'], eagerness: 'moderate' }]
+      });
+      document.head.appendChild(sr);
+    }
+  } catch (e) {}
+
   function buildFrame() {
     var k = appForPage(), a = APPS[k] || APPS.blog;
     var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
@@ -461,10 +488,12 @@
       (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);
     bar.querySelector('.hb-back').addEventListener('click', function () {
+      if (leaving()) return;
       var same = false;
       try { same = document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
       if (same && history.length > 1) history.back(); else location.href = '/';
     });
+    bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else leaving(); });
     /* custom_footer.html writes an inline !important padding-top on <main>
        for the Traditional header (32px once the header is hidden). Pages
        that pad themselves (posts, the newsletter reader) get 0 and keep it;

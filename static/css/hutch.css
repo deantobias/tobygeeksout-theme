@@ -52,6 +52,12 @@ html.hutch-app body{padding-bottom:env(safe-area-inset-bottom)}
 #hutch-bar .hb-btn{width:44px;height:44px;flex:none;border:0;border-radius:50%;background:transparent;color:inherit;
   display:grid;place-items:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 #hutch-bar .hb-btn:hover,#hutch-bar .hb-btn:focus-visible{background:rgba(127,127,127,.14);outline:none}
+/* tapped back or Home: the button lights up and the app dims while the
+   next page loads (Nov 2) */
+#hutch-bar .hb-btn:active{background:rgba(127,127,127,.22)}
+html.hx-leaving #hutch-bar .hb-back,html.hx-leaving #hutch-bar .hb-home{background:color-mix(in srgb,var(--color-terra,#C4622D) 22%,transparent)}
+html.hx-leaving body>*:not(#hutch-bar){opacity:.55;transition:opacity .15s}
+html.hx-leaving body{cursor:progress}
 #hutch-bar .hb-app{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}
 #hutch-bar .hb-tile{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
 #hutch-bar .hb-tile .hx-ic{width:16px;height:16px}

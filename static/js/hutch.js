@@ -540,21 +540,6 @@
   }
   window.addEventListener('pageshow', function () { de.classList.remove('hx-leaving'); });
 
-  /* Ask the browser to fetch a page in the background as soon as a finger
-     is on its link, and to get the home screen ready ahead of time.
-     Browsers that don't know speculation rules just ignore this. */
-  try {
-    if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
-      var sr = document.createElement('script');
-      sr.type = 'speculationrules';
-      sr.textContent = JSON.stringify({
-        prefetch: [{ source: 'document', where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/*.xml' } }] }, eagerness: 'moderate' }],
-        prerender: [{ source: 'list', urls: ['/'], eagerness: 'moderate' }]
-      });
-      document.head.appendChild(sr);
-    }
-  } catch (e) {}
-
   function buildFrame() {
     var k = appForPage(), a = APPS[k] || APPS.blog;
     var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
@@ -746,27 +731,61 @@
   /* (Nov 2) An app-launch animation was tried here and taken out at
      Toby's request; apps simply open. */
 
-  /* Load ahead: on the home screen, fetch the apps and recent posts on it
-     in the background, so they open faster (speculation rules; browsers
-     without them ignore this) */
+  /* ---------- the page helper (static/hutch-sw.js) ----------
+     Nov 2 (Toby: "any app I tap opens slowly"). It keeps a copy of each
+     page on the phone and opens that copy at once. Here Hutch turns it
+     on, asks it to save the home screen's apps ahead of time, and after
+     a page opens from a saved copy, quietly fetches the fresh one and
+     offers "New posts · Refresh" if anything changed. */
+  var SW_CACHE = 'hutch-pages-v1';
+  var swOK = 'serviceWorker' in navigator && 'caches' in window && (location.protocol === 'https:' || location.hostname === 'localhost');
+  if (swOK && !de.classList.contains('hutch-embed')) {
+    try { navigator.serviceWorker.register('/hutch-sw.js', { scope: '/' }).catch(function () {}); } catch (e) { swOK = false; }
+  }
   function preload() {
-    try {
-      if (!(HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) || !homeEl) return;
-      var urls = [].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })
-        .filter(function (u, i, all) { return u && all.indexOf(u) === i; }).slice(0, 14);
-      var sr = document.createElement('script'); sr.type = 'speculationrules';
-      sr.textContent = JSON.stringify({ prefetch: [{ source: 'list', urls: urls, eagerness: 'eager' }] });
-      document.head.appendChild(sr);
-    } catch (e) {}
+    if (!swOK || !homeEl) return;
+    var urls = [].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })
+      .filter(function (u, i, all) { return u && all.indexOf(u) === i; }).slice(0, 16);
+    navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: urls }); }).catch(function () {});
+  }
+  /* strip what changes on every site rebuild without the page changing
+     (cache-busting numbers), so only real changes count */
+  function norm(t) { return String(t || '').replace(/\?\d{9,11}\b/g, '').replace(/\s+/g, ' '); }
+  function freshCheck() {
+    if (!swOK || isEmbed || /[?&](hutch|sky|season|fonts)=/.test(location.search)) return;
+    var k = location.href.split('#')[0];
+    caches.open(SW_CACHE).then(function (c) {
+      return c.match(k).then(function (hit) {
+        var was = hit ? hit.text() : Promise.resolve(null);
+        return was.then(function (old) {
+          return fetch(k, { cache: 'no-store', credentials: 'same-origin' }).then(function (res) {
+            if (!res.ok || !/text\/html/i.test(res.headers.get('content-type') || '')) return;
+            return res.clone().text().then(function (fresh) {
+              c.put(k, res);
+              if (old !== null && norm(old) !== norm(fresh)) staleChip();
+            });
+          });
+        });
+      });
+    }).catch(function () {});
+  }
+  function staleChip() {
+    if (document.getElementById('hutch-fresh')) return;
+    var b = el('<button type="button" id="hutch-fresh">' + ic('up') + '<span>New posts · Refresh</span></button>');
+    b.addEventListener('click', function () { b.disabled = true; location.reload(); });
+    document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add('on'); });
   }
 
-  /* ---------- go ---------- */
+  /* ---------- go ---------- */  /* ---------- go ---------- */
   var isEmbed = de.classList.contains('hutch-embed');
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
-  else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1200); }
+  else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }
   else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
+  if (document.readyState === 'complete') setTimeout(freshCheck, 1200);
+  else window.addEventListener('load', function () { setTimeout(freshCheck, 1200); });
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };
 })();

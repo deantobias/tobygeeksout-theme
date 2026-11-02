@@ -51,7 +51,15 @@
   try {
     var q = location.search.match(/[?&]hutch=(on|off)\b/i);
     if (q) localStorage.setItem('tgo-hutch', q[1].toLowerCase());
-    if (localStorage.getItem('tgo-hutch') !== 'on') return;
+    if (localStorage.getItem('tgo-hutch') !== 'on') {
+      /* Hutch is off: remove Hutch's page helper and the pages it saved
+         (static/hutch-sw.js), so the Traditional theme is plain again */
+      if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) navigator.serviceWorker.getRegistrations().then(function (rs) {
+        rs.forEach(function (r) { if (/hutch-sw\.js/.test((r.active || r.waiting || r.installing || {}).scriptURL || '')) r.unregister(); });
+      });
+      if (window.caches) caches.delete('hutch-pages-v1');
+      return;
+    }
     var de = document.documentElement;
     de.classList.add('hutch');
     /* "/" is the Hutch home screen; "/?app=blog" and every other page

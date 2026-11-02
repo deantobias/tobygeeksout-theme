@@ -66,7 +66,9 @@
         (x.pr ? '<div class="hxw-syl">' + esc(x.pr) + '</div>' : '') +
         chips(x) + means(x) +
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +
-        (o.big && x.x.length ? '<dl class="hxw-extra">' + x.x.map(function (e) {
+        /* Roots, Close cousins, First known use... on every card, including
+           Latest alert (Nov 2, Toby: Petrichor wasn't showing all) */
+        (x.x.length ? '<dl class="hxw-extra">' + x.x.map(function (e) {
           return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + '</dl>' : '') +
         /* Read more only when the post has something the card doesn't
            (Toby's own words, a note, a video). Otherwise the date links to

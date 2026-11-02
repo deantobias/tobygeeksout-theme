@@ -922,10 +922,11 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
   font:700 12px/22px var(--h-ui);text-align:center}
 .hxw-dk .hx-words .hxw-n{color:#141A26}
 .hx-words .hxw-ex{font:italic 400 16px/1.5 var(--wn-serif);color:var(--wn-sub);border-left:3px solid var(--wn-acc);padding:2px 0 2px 12px;margin:14px 0 0}
-.hx-words .hxw-extra{margin:18px 0 0;padding:12px 0 0;border-top:1px solid var(--wn-ln);display:grid;gap:8px}
-.hx-words .hxw-extra div{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
-.hx-words .hxw-extra dt{font:700 12px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--wn-acc);min-width:118px}
-.hx-words .hxw-extra dd{margin:0;font:400 16px/1.45 var(--wn-serif);color:var(--wn-ink);flex:1;min-width:180px}
+.hx-words .hxw-extra{margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--wn-ln);display:grid;gap:12px}
+/* label above its text, like the post (Nov 2) */
+.hx-words .hxw-extra div{display:block}
+.hx-words .hxw-extra dt{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--wn-acc);margin:0 0 2px}
+.hx-words .hxw-extra dd{margin:0;font:400 16px/1.45 var(--wn-serif);color:var(--wn-ink)}
 .hx-words .hxw-acts{display:flex;align-items:center;gap:10px;margin-top:18px}
 .hx-words .hxw-btn{border:0;border-radius:999px;background:var(--wn-acc);color:#fff !important;font:600 15px var(--h-ui);padding:11px 20px;display:inline-flex;align-items:center;gap:7px}
 .hxw-dk .hx-words .hxw-btn{color:#141A26 !important}

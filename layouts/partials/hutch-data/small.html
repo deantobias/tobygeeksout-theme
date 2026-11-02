@@ -22,32 +22,42 @@
   {{- $posts := where .Site.RegularPages "Type" "post" -}}
   {{- $since := "" -}}
   {{- with $posts.ByDate | first 1 -}}{{- $since = (index . 0).Date.Format "2006" -}}{{- end -}}
-  {{/* "Writes about" = what he's been writing about LATELY (Nov 2, Toby):
-       the categories on his posts from the last 30 days (counted when the
-       site builds, and Micro.blog rebuilds on every post), most used first,
-       top 3. A quiet month falls back to the newest 20 posts. Micro is a
-       kind of post, not a topic, so it doesn't count. Ties go to the
-       category used most recently. */}}
-  {{- $cut := now.AddDate 0 0 -30 -}}
-  {{- $recent := where $posts.ByDate.Reverse "Date" "ge" $cut -}}
-  {{- if lt (len $recent) 5 -}}{{- $recent = first 20 $posts.ByDate.Reverse -}}{{- end -}}
-  {{- $count := dict -}}{{- $first := dict -}}
-  {{- range $i, $q := $recent -}}
-    {{- range $q.Params.categories -}}
-      {{- if ne (lower .) "micro" -}}
-        {{- $k := urlize . -}}
-        {{- $count = merge $count (dict $k (add (index $count $k | default 0) 1)) -}}
-        {{- if not (index $first $k) -}}{{- $first = merge $first (dict $k (dict "n" . "i" $i)) -}}{{- end -}}
+  {{/* "Writes about" = the TOPICS he's been writing about lately (Nov 2,
+       Toby: "I post Photos and Appalachian Life recently but they didn't
+       show up"). Only the posts that show in Recent Geekouts on the home
+       page count, by the same rules as index.html ($excluded there):
+       no Word of the Day, Reel and Remote, reviews, bookshelf, Micro,
+       Now Watching or Watchlist posts, and untitled posts don't count.
+       Challenge and marker tags (Spotlight, Blaugust, 100DaysToOffload)
+       aren't topics either. Window: the last 90 days (counted when the
+       site builds; Micro.blog rebuilds on every post); a quiet stretch
+       falls back to the newest 20 such posts. */}}
+  {{- $excluded := slice "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" -}}
+  {{- $pool := slice -}}
+  {{- range $posts.ByDate.Reverse -}}
+    {{- $skip := not .Title -}}
+    {{- range .Params.categories -}}{{- if in $excluded . -}}{{- $skip = true -}}{{- end -}}{{- end -}}
+    {{- if findRE `(?i)^\W*(now watching|watchlist):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
+    {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
+    {{- if not $skip -}}{{- $pool = $pool | append . -}}{{- end -}}
+  {{- end -}}
+  {{- $cut := now.AddDate 0 0 -90 -}}
+  {{- $recent := where $pool "Date" "ge" $cut -}}
+  {{- if lt (len $recent) 5 -}}{{- $recent = first 20 $pool -}}{{- end -}}
+  {{/* Nov 2 (Toby: "show what I post recently, not by volume"): newest
+       first, the first three DIFFERENT categories win, however many posts
+       each one has. */}}
+  {{- $cats := slice -}}{{- $seen := slice -}}
+  {{- range $recent -}}
+    {{- range .Params.categories -}}
+      {{- $k := urlize . -}}
+      {{- if and (lt (len $cats) 3) (not (in $seen $k)) (not (findRE `(?i)^(micro|spotlight|blaugust.*|100\s*days\s*to\s*offload|#?100daystooffload)$` . 1)) -}}
+        {{- $seen = $seen | append $k -}}
+        {{- $cp := $.Site.GetPage (printf "/categories/%s" $k) -}}
+        {{- $u := printf "/categories/%s/" $k -}}{{- with $cp -}}{{- $u = .RelPermalink -}}{{- end -}}
+        {{- $cats = $cats | append (dict "n" . "u" $u) -}}
       {{- end -}}
     {{- end -}}
-  {{- end -}}
-  {{- $rank := slice -}}
-  {{- range $k, $c := $count -}}{{- $rank = $rank | append (dict "k" $k "c" $c "i" (index $first $k).i "n" (index $first $k).n) -}}{{- end -}}
-  {{- $cats := slice -}}
-  {{- range first 3 (sort (sort $rank "i" "asc") "c" "desc") -}}
-    {{- $cp := $.Site.GetPage (printf "/categories/%s" .k) -}}
-    {{- $u := printf "/categories/%s/" .k -}}{{- with $cp -}}{{- $u = .RelPermalink -}}{{- end -}}
-    {{- $cats = $cats | append (dict "n" .n "u" $u) -}}
   {{- end -}}
   {{- $d = merge $d (dict "name" (.Site.Author.name | default "Toby Overstreet") "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
 {{- else if or (in (slice "/subscribe/" "/follow/") $p) (findRE `(?i)^\s*(subscribe|follow)\b` .Title 1) -}}

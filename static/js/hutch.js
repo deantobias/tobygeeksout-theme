@@ -12,7 +12,7 @@
      - "/?app=blog" is the Blog app (the Traditional home feed in the
        app frame)
      - All apps drawer, Hutch Search (apps, words, categories, posts
-       via /feed.json), and a Settings sheet (Sky, Switch to classic)
+       via /feed.json), and a Settings sheet (Sky, Theme with Classic look)
      - boot splash with Toby's face + logo, once a day, home only
 
    Data it reads (all written by Hugo, nothing fetched up front)
@@ -324,17 +324,19 @@
       var avatar = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
       settings = sheet('hutch-settings',
         '<div class="hx-scroll hx-set"><h2>Settings</h2>' +
-        '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are, like the ' + esc(ORIGINAL) + ' theme. Day and Night stay put.</p>' +
+        '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are. Day and Night stay put. Works in Hutch and ' + esc(ORIGINAL) + ' alike.</p>' +
         '<div class="hx-seg" role="group" aria-label="Sky">' + [['sky', 'Auto'], ['day', 'Day'], ['night', 'Night']].map(function (o) {
           return '<button type="button" data-sky="' + o[0] + '"' + (m === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
-        /* Look and Theme (Nov 3, Toby: "toggles in Settings, a good place for them").
-           Look shares the original theme's own setting (tgo-look), so both themes match. */
-        '<div class="hx-card"><h3>Look</h3><p>The fonts for posts and pages: 70s headlines, or clean and modern. Same as the Look button in the ' + esc(ORIGINAL) + ' theme.</p>' +
-        '<div class="hx-seg" role="group" aria-label="Look">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
-          var on = (o[0] === 'modern') === !de.classList.contains('fonts-70s');
-          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
-        '<div class="hx-card"><h3>Theme</h3><p>Hutch, or the ' + esc(ORIGINAL) + ' Toby Geeks Out! theme. You can come back to Hutch any time.</p>' +
-        '<div class="hx-seg" role="group" aria-label="Theme"><button type="button" class="on" aria-pressed="true">Hutch</button><button type="button" data-classic aria-pressed="false">' + esc(ORIGINAL) + '</button></div></div>' +
+        /* Theme, with Look tucked under Classic (Nov 3, Toby): Look only
+           changes the Classic theme's fonts, so it shows only after
+           Classic is tapped, along with a button that goes there. It
+           shares Classic's own setting (tgo-look). */
+        '<div class="hx-card hx-theme"><h3>Theme</h3><p>Hutch, or the ' + esc(ORIGINAL) + ' Toby Geeks Out! theme. You can come back to Hutch any time.</p>' +
+        '<div class="hx-seg" role="group" aria-label="Theme"><button type="button" class="on" aria-pressed="true" data-theme-pick="hutch">Hutch</button><button type="button" aria-pressed="false" data-theme-pick="classic">' + esc(ORIGINAL) + '</button></div>' +
+        '<div class="hx-classic" hidden><div class="hx-sub">' + esc(ORIGINAL) + ' look</div><p>70s headlines, or clean and modern. Tap one and ' + esc(ORIGINAL) + ' opens in that look.</p>' +
+        '<div class="hx-seg" role="group" aria-label="' + esc(ORIGINAL) + ' look">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
+          var on = (o[0] === 'modern') === (ls('tgo-look') === 'modern');
+          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div></div>' +
         '<a class="hx-card hx-upd" href="/changelog/"><span class="hh-tile" style="background:' + APPS.tinkering[1] + '">' + ic('tinkering') + '</span><span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
@@ -343,14 +345,12 @@
         var b = e.target.closest('[data-sky]');
         if (b) { ls('tgo-sky', b.getAttribute('data-sky')); location.reload(); return; }
         if (e.target.closest('[data-replay]')) { ls('hutch-boot-day', null); if (homeEl) { closeSheet(); boot(true); } else location.href = '/'; return; }
+        var pick = function (sel, b) { [].forEach.call(settings.querySelectorAll(sel), function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); }); };
+        var tp = e.target.closest('[data-theme-pick]');
+        if (tp) { pick('[data-theme-pick]', tp); settings.querySelector('.hx-classic').hidden = tp.getAttribute('data-theme-pick') !== 'classic'; return; }
         var lk = e.target.closest('[data-look]');
-        if (lk) {
-          var modern = lk.getAttribute('data-look') === 'modern';
-          ls('tgo-look', modern ? 'modern' : null);
-          de.classList.toggle('fonts-70s', !modern);
-          [].forEach.call(settings.querySelectorAll('[data-look]'), function (x) { var on = x === lk; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-          return;
-        }
+        /* no Switch button (Nov 3, Toby): picking a look goes straight to Classic in that look */
+        if (lk) { ls('tgo-look', lk.getAttribute('data-look') === 'modern' ? 'modern' : null); pick('[data-look]', lk); location.href = location.pathname + '?hutch=off'; return; }
         if (e.target.closest('[data-classic]')) { location.href = location.pathname + '?hutch=off'; }
       });
     }

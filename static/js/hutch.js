@@ -600,7 +600,7 @@
       cats.map(function (c) { return '<a href="' + esc(c.u) + '">' + esc(c.n) + '<span>' + c.c + '</span></a>'; }).join('') + '</div></section>';
     var ph = (HOME && HOME.photos) || [];
     if (ph.length > 2) out += '<section class="hh-wg hh-strip" aria-label="Latest photos"><div class="hh-wtag">Latest photos<a href="' + esc(APPS.photos[2]) + '">Photos ›</a></div><div class="hh-thumbs">' +
-      ph.slice(0, 6).map(function (p) { return '<a href="/photo/#post=' + encodeURIComponent(p.u) + '" aria-label="' + esc(p.t || 'Photo') + '"><img src="' + esc(p.src) + '" alt="" loading="lazy" decoding="async"><small>' + esc(p.d) + '</small></a>'; }).join('') + '</div></section>';
+      ph.slice(0, 10).map(function (p) { return '<a href="/photo/#post=' + encodeURIComponent(p.u) + '" aria-label="' + esc(p.t || 'Photo') + '"><img src="' + esc(p.src) + '" alt="" loading="lazy" decoding="async"><small>' + esc(p.d) + '</small></a>'; }).join('') + '</div></section>';
     return out;
   }
 
@@ -767,8 +767,9 @@
       ['t1', 't2', 't3'].forEach(function (t) { if (x.scrollHeight > x.clientHeight + 1) x.classList.add(t); });
     });
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(nitemFit, 50); });
-  window.addEventListener('load', function () { setTimeout(nitemFit, 50); });
+  /* once fonts and images are in, every card is measured again (fit() runs nitemFit too) */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(function () { if (homeEl) fit(); }, 50); });
+  window.addEventListener('load', function () { setTimeout(function () { if (homeEl) fit(); }, 50); });
   function fit() {
     if (!homeEl) return;
     setTimeout(photoFit, 0);

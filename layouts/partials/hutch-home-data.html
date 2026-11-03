@@ -78,7 +78,7 @@
 {{- $photos6 := slice -}}{{/* desktop "Latest photos" strip (Nov 3) */}}
 {{- $shots := where (where $site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos") -}}
 {{- range $shots.ByDate.Reverse -}}
-  {{- if lt (len $photos6) 6 -}}
+  {{- if lt (len $photos6) 10 -}}{{/* up to 10: a shorter strip fits more, each kept near 4:3 (Nov 3) */}}
   {{- $p := . -}}
   {{- if not (in (lower $p.Content) "credit:") -}}
     {{- $posters := slice -}}

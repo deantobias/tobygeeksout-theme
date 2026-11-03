@@ -830,7 +830,11 @@
     var mq = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
     function card(x, i) {
       var cls = 'hbl-it' + (x.m ? ' micro' : '') + (x.u === sel ? ' sel' : '');
-      if (x.m) return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '"><div class="hbl-tx"><span class="fl" aria-hidden="true">❧</span><div class="hbl-mb"><div class="hbl-k">' + esc(x.d) + ' · ' + esc(x.tm) + '</div><p>' + esc(x.x) + '</p>' +
+      /* a Watch Log reads as a short list: the week, then each show with its episodes (Nov 3) */
+      var wl = x.wl && x.wl.it && x.wl.it.length ? '<div class="hbl-wl"><b>🍿 Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
+        x.wl.it.slice(0, 5).map(function (w) { return '<li><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</li>'; }).join('') +
+        (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div>' : '';
+      if (x.m) return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '"><div class="hbl-tx"><span class="fl" aria-hidden="true">❧</span><div class="hbl-mb"><div class="hbl-k">' + esc(x.d) + ' · ' + esc(x.tm) + '</div>' + (wl || '<p>' + esc(x.x) + '</p>') +
         (x.img ? '<img class="mimg" src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') + '</div></div></a>';
       return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '">' + (x.img ? '<img class="hero" src="' + esc(x.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
         '<div class="hbl-tx"><div class="hbl-k">' + esc(x.d) + (x.c ? ' · ' + esc(x.c) : '') + '</div><h3>' + esc(x.t) + '</h3>' +

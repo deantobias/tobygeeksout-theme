@@ -23,7 +23,7 @@
      order and rules as Recent Geekouts. */}}
 {{- range first 8 .pool -}}
   {{- $posters := slice -}}
-  {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
+  {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
     {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
   {{- end -}}
   {{- $thumb := "" -}}
@@ -121,7 +121,7 @@
   {{- if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) -}}{{- $skip = true -}}{{- end -}}
   {{- if not $skip -}}
     {{- $posters := slice -}}
-    {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
+    {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
     {{- end -}}
     {{- $img := "" -}}
@@ -131,7 +131,8 @@
     {{- end -}}
     {{- $micro := not .Title -}}
     {{- $x := "" -}}
-    {{- if $micro -}}{{- $x = .Plain | htmlUnescape | truncate 280 -}}{{- else -}}{{- $x = .Summary | plainify | htmlUnescape | truncate 170 -}}{{- end -}}
+    {{/* truncate escapes quotes (&#39;), so unescape again after it */}}
+    {{- if $micro -}}{{- $x = .Plain | htmlUnescape | truncate 280 | htmlUnescape -}}{{- else -}}{{- $x = .Summary | plainify | htmlUnescape | truncate 170 | htmlUnescape -}}{{- end -}}
     {{/* Card posts (Nov 3, Toby: "M3GAN 2.0" read as "★★★☆☆My Rating
          Scale ↗ DirectorGerard JohnstoneStarring..."). The plain-text
          excerpt runs a card's boxes together, so card posts get a short
@@ -141,6 +142,7 @@
            define card   part of speech · first meaning
            watch log     the titles in that week's log */}}
     {{- $c := .Content -}}
+    {{- $wl := dict -}}
     {{- $rs := "" -}}{{- $ry := "" -}}{{- $rb := "" -}}{{- $rl := "" -}}{{- $rep := "" -}}
     {{- if or (in $c "review-card") (in $c "movie-card") (in $c "book-card") -}}
       {{- with findRE `(?s)class="[^"]*\b(?:review|movie-card|book-card)-stars\b[^"]*"[^>]*>.*?</p>` $c 1 -}}
@@ -186,14 +188,28 @@
       {{- end -}}
       {{- if $def -}}{{- $x = cond (ne $pos "") (printf "%s · %s" $pos $def) $def | truncate 170 -}}{{- end -}}
     {{- else if in $c "watch-log" -}}
-      {{- $names := slice -}}
-      {{- range findRE `(?s)<td[^>]*\bwatch-log-item\b[^>]*>.*?<strong>.*?</strong>` $c -}}
-        {{- $names = $names | append (trim (replaceRE `(?s)^.*<strong>(.*?)</strong>$` "$1" . | plainify | htmlUnescape) " \n\t") -}}
+      {{/* Nov 3 (Toby: the Watch Log read as one long dotted line): kept
+           as a short list for the Blog app, wl = {h: the week, it: [{t: show,
+           e: season / episodes}]}; x stays as plain text for search */}}
+      {{- $names := slice -}}{{- $items := slice -}}
+      {{- range findRE `(?s)<td[^>]*\bwatch-log-item\b[^>]*>.*?</td>` $c -}}
+        {{- $t := "" -}}
+        {{- with findRE `(?s)<strong>.*?</strong>` . 1 -}}{{- $t = trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t" -}}{{- end -}}
+        {{- if $t -}}
+          {{- $e := trim (replaceRE `(?s)<strong>.*?</strong>` "" . | plainify | htmlUnescape | htmlUnescape) " \n\t·" -}}
+          {{- $names = $names | append $t -}}
+          {{- $items = $items | append (dict "t" $t "e" $e) -}}
+        {{- end -}}
       {{- end -}}
-      {{- with $names -}}{{- $x = printf "🍿 Watch Log · %s" (delimit . " · ") | truncate 220 -}}{{- end -}}
+      {{- $wh := "" -}}
+      {{- with findRE `(?s)<p[^>]*\bwatch-log-head\b[^>]*>.*?</p>` $c 1 -}}
+        {{- $wh = trim (replaceRE `(?s)<strong>.*?</strong>` "" (index . 0) | plainify | htmlUnescape | htmlUnescape) " \n\t·" -}}
+      {{- end -}}
+      {{- with $names -}}{{- $x = printf "🍿 Watch Log · %s" (delimit . " · ") | truncate 220 | htmlUnescape -}}{{- end -}}
+      {{- if $items -}}{{- $wl = dict "h" $wh "it" $items -}}{{- end -}}
     {{- end -}}
     {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat "rs" $rs) -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat "rs" $rs "wl" $wl) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}

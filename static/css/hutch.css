@@ -157,6 +157,16 @@ html.hutch-blog #main-content,html.hutch-own #main-content{display:none !importa
 .hbl-it .fl{color:var(--acc);font-size:18px;line-height:1.2;flex:none}
 .hbl-mb{flex:1;min-width:0}
 .hbl-it.micro p{color:var(--ink);margin-top:4px}
+/* Watch Log as a short list (Nov 3) */
+.hbl-wl{margin-top:4px;color:var(--ink)}
+.hbl-wl>b{font:700 15px var(--h-ui)}
+.hbl-wl>small{display:block;font:500 12.5px var(--h-ui);color:var(--sub);margin-top:1px}
+.hbl-wl ul{list-style:none;margin:8px 0 0;padding:0}
+.hbl-wl li{padding:6px 0;border-top:1px solid var(--ln);display:flex;flex-direction:column;gap:1px}
+.hbl-wl li:first-child{border-top:0;padding-top:2px}
+.hbl-wl .t{font:600 14.5px/1.3 var(--h-ui)}
+.hbl-wl .e{font:400 12.5px/1.3 var(--h-ui);color:var(--sub)}
+.hbl-wl li.more{font:600 12.5px var(--h-ui);color:var(--acc)}
 .hbl-it .mimg{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-top:10px;background:var(--ln)}
 .hbl-more{text-align:center;padding:12px 0 8px}
 .hbl-more a{display:inline-block;border:1px solid var(--ln);border-radius:999px;padding:9px 16px;font:600 13.5px var(--h-ui);color:var(--ink) !important;text-decoration:none !important}

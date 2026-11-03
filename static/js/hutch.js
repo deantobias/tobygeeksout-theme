@@ -568,7 +568,11 @@
     setTimeout(function () { de.classList.remove('hx-leaving'); }, 4000);
     return false;
   }
-  window.addEventListener('pageshow', function () { de.classList.remove('hx-leaving'); });
+  /* how long the back list was when this page loaded: anything added
+     after (an embedded frame, a sheet) is skipped by the back arrow */
+  var L0 = history.length, fromBF = false;
+  try { var nv = performance.getEntriesByType('navigation')[0]; fromBF = !!nv && nv.type === 'back_forward'; } catch (e) {}
+  window.addEventListener('pageshow', function (e) { de.classList.remove('hx-leaving'); if (e.persisted) fromBF = true; });
 
   function buildFrame() {
     var k = appForPage(), a = APPS[k] || APPS.blog;
@@ -592,10 +596,19 @@
       (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);
     bar.querySelector('.hb-back').addEventListener('click', function () {
-      if (leaving()) return;
       var same = false;
       try { same = document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+      /* a second tap while waiting never gets ignored: it goes straight back */
+      if (leaving()) { location.href = same ? document.referrer : '/'; return; }
       if (!(same && history.length > 1)) { location.href = '/'; return; }
+      var extra = fromBF ? 0 : history.length - L0;
+      if (extra > 0) {
+        var gone0 = false;
+        window.addEventListener('pagehide', function () { gone0 = true; }, { once: true });
+        history.go(-(extra + 1));
+        setTimeout(function () { if (!gone0 && document.visibilityState === 'visible') location.href = document.referrer; }, 1200);
+        return;
+      }
       /* Nov 3 (Toby: back on a post "gets stuck" behind a dimmed page):
          history.back() can land on a step inside this same page (a sheet,
          a #link, a step the browser kept) and never leave. If that happens,
@@ -610,7 +623,7 @@
       window.addEventListener('pagehide', away, { once: true });
       window.addEventListener('popstate', function pop() { setTimeout(stay, 60); });
       history.back();
-      setTimeout(function () { if (!gone && document.visibilityState === 'visible') location.href = document.referrer; }, 2500);
+      setTimeout(function () { if (!gone && document.visibilityState === 'visible') location.href = document.referrer; }, 1200);
     });
     bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else { ls('hutch-home-tip', '9'); leaving(); } });
     /* first few app opens: a small "Home" bubble under the rabbit, until
@@ -717,7 +730,13 @@
       [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('href') === sel); });
       var f = right.querySelector('iframe');
       if (!f) { f = document.createElement('iframe'); f.title = 'Post'; right.appendChild(f); }
-      if (f.getAttribute('src') !== x.u) f.setAttribute('src', x.u);
+      /* Nov 3 (Toby: back needed two or three taps): changing an iframe's
+         src adds a step to the browser's back list, so back walked through
+         every post shown in the pane before leaving. replace() swaps the
+         post without adding a step. */
+      if (!f.getAttribute('src')) f.setAttribute('src', x.u);
+      else if (f.getAttribute('data-u') !== x.u) { try { f.contentWindow.location.replace(x.u); } catch (er) { f.setAttribute('src', x.u); } }
+      f.setAttribute('data-u', x.u);
       bar.classList.remove('titled');
       bar.querySelector('.hb-title').textContent = x.t || (x.d + ' · ' + x.tm);
       bar.querySelector('.hb-prog').style.width = '0';
@@ -757,6 +776,15 @@
       }
     };
     render(); layout();
+    /* new posts arrive without a refresh (Nov 3): the timeline is redrawn
+       from the newer copy and stays on the post you were looking at */
+    window.hutchBlogFresh = function (tl) {
+      if (!tl || !tl.length) return;
+      var top = null, off = 0, cards = list.querySelectorAll('.hbl-it');
+      for (var i = 0; i < cards.length; i++) { var r = cards[i].getBoundingClientRect(); if (r.bottom > 70) { top = cards[i].getAttribute('href'); off = r.top; break; } }
+      TL = tl; render();
+      if (top) { var c = list.querySelector('.hbl-it[href="' + top.replace(/"/g, '') + '"]'); if (c) { var sc = two() ? left : null, d = c.getBoundingClientRect().top - off; if (sc) sc.scrollTop += d; else window.scrollBy(0, d); } }
+    };
     if (mq.addEventListener) mq.addEventListener('change', layout); else mq.addListener(layout);
   }
 
@@ -785,6 +813,7 @@
       var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
       var postLike = u.origin === location.origin && /^\/\d{4}\/\d{2}\/\d{2}\//.test(u.pathname);
       if (!postLike && !a.target) { e.preventDefault(); window.top.location.href = u.href; }
+      else if (postLike && !a.target && u.pathname !== location.pathname) { e.preventDefault(); location.replace(u.href); }
     });
   }
 
@@ -822,32 +851,36 @@
             if (!res.ok || !/text\/html/i.test(res.headers.get('content-type') || '')) return;
             return res.clone().text().then(function (fresh) {
               c.put(k, res);
-              if (old !== null && norm(old) !== norm(fresh)) staleChip();
+              if (old !== null && norm(old) !== norm(fresh)) gotFresh(fresh);
             });
           });
         });
       });
     }).catch(function () {});
   }
-  /* Nov 3 (Toby: "it should be automatic"): if the reader hasn't touched
-     the page yet (no scroll, tap or key), the newer copy just loads (it is
-     already saved, so it is instant). Once they have started reading, the
-     chip asks instead, so nothing jumps under them. At most once a minute
-     per page, so a page that never matches can't keep reloading. */
+  /* Fully automatic (Nov 3, Toby: "it should be automatic, as I
+     asked"): no chip, no tap.
+       - Not touched yet (no scroll, tap or key): the newer copy loads
+         at once. It is already saved, so it is instant.
+       - Already reading in the Blog app: new posts slide into the
+         timeline where they belong, and you stay where you were.
+       - Already reading anything else: nothing moves under you; the
+         newer copy is saved and shows next time.
+     At most one automatic reload a minute per page, so a page that never
+     matches can't keep reloading. */
   var touched = false;
   ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, function () { touched = true; }, { passive: true, once: true }); });
-  function staleChip() {
+  function gotFresh(fresh) {
     var key = 'hutch-auto:' + location.pathname + location.search, last = 0;
     try { last = +(sessionStorage.getItem(key) || 0); } catch (e) {}
     if (!touched && !openSheetEl && Date.now() - last > 60000) {
       try { sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
       location.reload(); return;
     }
-    if (document.getElementById('hutch-fresh')) return;
-    var b = el('<button type="button" id="hutch-fresh">' + ic('up') + '<span>New posts · Refresh</span></button>');
-    b.addEventListener('click', function () { b.disabled = true; location.reload(); });
-    document.body.appendChild(b);
-    requestAnimationFrame(function () { b.classList.add('on'); });
+    if (window.hutchBlogFresh) {
+      var m = fresh.match(/<script[^>]*id="hutch-home-data"[^>]*>([\s\S]*?)<\/script>/);
+      if (m) { try { window.hutchBlogFresh(JSON.parse(m[1]).tl); } catch (e) {} }
+    }
   }
 
   /* ---------- go ---------- */

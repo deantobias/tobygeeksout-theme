@@ -113,7 +113,7 @@ html.hx-leaving body{cursor:progress}
 /* Home is the rabbit: a small house badge on its circle, and the first
    few times an app opens, a "Tap the bunny for Home" bubble (Nov 3) */
 #hutch-bar .hb-home{position:relative}
-#hutch-bar .hb-hbadge{position:absolute;right:2px;bottom:3px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+#hutch-bar .hb-hbadge{position:absolute;left:3px;bottom:4px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;
   background:var(--color-terra,#C4622D);color:#fff;box-shadow:0 0 0 2px var(--color-bg,#FAF8F5)}
 #hutch-bar .hb-hbadge .hx-ic{width:10px;height:10px}
 #hutch-bar .hb-tip{position:absolute;right:8px;top:calc(var(--h-bar) - 2px);background:#1E2D4A;color:#fff;font:600 13px/1.2 var(--h-ui);
@@ -567,13 +567,5 @@ html.hx-dark .hx-card p{color:#A9B2C3}
   #hutch-home *,.hx-sheet,#hutch-bar *{animation:none !important;transition:none !important}
 }
 
-/* ---------- 7. "New posts · Refresh" (Nov 2) ----------
-   The page opened from the copy saved on the phone; a newer one exists. */
-#hutch-fresh{position:fixed;left:50%;top:calc(var(--h-bar) + 10px);z-index:9600;transform:translate(-50%,-140%);opacity:0;
-  display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 16px 9px 12px;
-  background:#1E2D4A;color:#fff;font:600 14px var(--h-ui);box-shadow:0 6px 18px rgba(15,23,38,.28);cursor:pointer;
-  transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s}
-#hutch-fresh.on{transform:translate(-50%,0);opacity:1}
-#hutch-fresh .hx-ic{width:18px;height:18px}
-html.hutch-hs #hutch-fresh{top:12px}
-html.hx-dark #hutch-fresh{background:#F3EEE7;color:#1E2D4A}
+/* ---------- 7. (Nov 3) The "New posts · Refresh" chip is gone: newer
+   copies now load or slide in by themselves (hutch.js, gotFresh). */

@@ -839,7 +839,17 @@
   }
   /* strip what changes on every site rebuild without the page changing
      (cache-busting numbers), so only real changes count */
-  function norm(t) { return String(t || '').replace(/\?\d{9,11}\b/g, '').replace(/\s+/g, ' '); }
+  /* Only what the app actually shows counts (Nov 3, Toby: every app was
+     asking to refresh): the page's main content and its Hutch app data.
+     The side rail, footer and header carry site-wide bits (latest posts,
+     counts) that change on every new post and would make every page look
+     "new". */
+  function norm(t) {
+    t = String(t || '');
+    var m = t.match(/<main\b[^>]*id="main-content"[\s\S]*?<\/main>/);
+    var j = t.match(/<script[^>]*id="hutch-(?:app|home)-data"[^>]*>[\s\S]*?<\/script>/g) || [];
+    return ((m ? m[0] : t) + j.join('')).replace(/\?\d{9,11}\b/g, '').replace(/\s+/g, ' ');
+  }
   function freshCheck() {
     if (!swOK || isEmbed || /[?&](hutch|sky|season|fonts)=/.test(location.search)) return;
     var k = location.href.split('#')[0];

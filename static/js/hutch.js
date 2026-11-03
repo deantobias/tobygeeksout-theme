@@ -316,24 +316,41 @@
 
   /* Settings */
   var settings = null;
+  /* the original theme's name in Settings: one place to change when it gets its new name */
+  var ORIGINAL = 'Classic';
   function openSettings() {
     if (!settings) {
       var m = skyMode();
       var avatar = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
       settings = sheet('hutch-settings',
         '<div class="hx-scroll hx-set"><h2>Settings</h2>' +
-        '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are, like the Traditional theme. Day and Night stay put.</p>' +
+        '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are, like the ' + esc(ORIGINAL) + ' theme. Day and Night stay put.</p>' +
         '<div class="hx-seg" role="group" aria-label="Sky">' + [['sky', 'Auto'], ['day', 'Day'], ['night', 'Night']].map(function (o) {
           return '<button type="button" data-sky="' + o[0] + '"' + (m === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
+        /* Look and Theme (Nov 3, Toby: "toggles in Settings, a good place for them").
+           Look shares the original theme's own setting (tgo-look), so both themes match. */
+        '<div class="hx-card"><h3>Look</h3><p>The fonts for posts and pages: 70s headlines, or clean and modern. Same as the Look button in the ' + esc(ORIGINAL) + ' theme.</p>' +
+        '<div class="hx-seg" role="group" aria-label="Look">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
+          var on = (o[0] === 'modern') === !de.classList.contains('fonts-70s');
+          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
+        '<div class="hx-card"><h3>Theme</h3><p>Hutch, or the ' + esc(ORIGINAL) + ' Toby Geeks Out! theme. You can come back to Hutch any time.</p>' +
+        '<div class="hx-seg" role="group" aria-label="Theme"><button type="button" class="on" aria-pressed="true">Hutch</button><button type="button" data-classic aria-pressed="false">' + esc(ORIGINAL) + '</button></div></div>' +
         '<a class="hx-card hx-upd" href="/changelog/"><span class="hh-tile" style="background:' + APPS.tinkering[1] + '">' + ic('tinkering') + '</span><span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
-        '<div class="hx-card"><h3>Classic look</h3><p>Go back to the Traditional Toby Geeks Out! theme. You can come back with the Hutch link any time.</p><button type="button" class="hx-btn" data-classic>Switch to classic</button></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
         '</div>');
       settings.addEventListener('click', function (e) {
         var b = e.target.closest('[data-sky]');
         if (b) { ls('tgo-sky', b.getAttribute('data-sky')); location.reload(); return; }
         if (e.target.closest('[data-replay]')) { ls('hutch-boot-day', null); if (homeEl) { closeSheet(); boot(true); } else location.href = '/'; return; }
+        var lk = e.target.closest('[data-look]');
+        if (lk) {
+          var modern = lk.getAttribute('data-look') === 'modern';
+          ls('tgo-look', modern ? 'modern' : null);
+          de.classList.toggle('fonts-70s', !modern);
+          [].forEach.call(settings.querySelectorAll('[data-look]'), function (x) { var on = x === lk; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+          return;
+        }
         if (e.target.closest('[data-classic]')) { location.href = location.pathname + '?hutch=off'; }
       });
     }
@@ -890,15 +907,25 @@
          rather than dropped, so the card fills up; a single one may go
          down to 1 line */
       var over = function () { return defs.getBoundingClientRect().bottom > cbot(); };
-      var vis = lis.length;
-      for (; vis >= 1; vis--) {
-        lis.forEach(function (li, i) { li.style.display = i < vis ? '' : 'none'; li.style.webkitLineClamp = ''; });
-        var last = lis[vis - 1], ok = !over();
-        /* the last one may go down to 1 line (…) so a little room still shows it (Nov 3) */
-        for (var l2 = 3; !ok && l2 >= 1; l2--) { last.style.webkitLineClamp = String(l2); ok = !over(); }
-        if (ok) break;
+      var vis;
+      var place = function () {
+        for (vis = lis.length; vis >= 1; vis--) {
+          lis.forEach(function (li, i) { li.style.display = i < vis ? '' : 'none'; li.style.webkitLineClamp = ''; });
+          var last = lis[vis - 1], ok = !over();
+          /* the last one may go down to 1 line (…) so a little room still shows it (Nov 3) */
+          for (var l2 = 3; !ok && l2 >= 1; l2--) { last.style.webkitLineClamp = String(l2); ok = !over(); }
+          if (ok) break;
+        }
+        if (vis < 1) { vis = 1; lis.forEach(function (li, i) { li.style.display = i < 1 ? '' : 'none'; }); lis[0].style.webkitLineClamp = '1'; }
+      };
+      /* Nov 3 (Toby, folded Fold): when the next meaning is a few pixels
+         short, the lines and gaps tighten a little, kept only if that
+         shows one more meaning */
+      wc.classList.remove('snug'); place();
+      if (vis < lis.length) {
+        var v0 = vis; wc.classList.add('snug'); place();
+        if (vis <= v0) { wc.classList.remove('snug'); place(); }
       }
-      if (vis < 1) { vis = 1; lis.forEach(function (li, i) { li.style.display = i < 1 ? '' : 'none'; }); lis[0].style.webkitLineClamp = '1'; }
       if (more) { var left = total - vis; more.textContent = '+' + left + ' more'; more.style.display = left > 0 ? '' : 'none'; }
     } else if (def) {
       def.style.display = ''; def.style.webkitLineClamp = '';

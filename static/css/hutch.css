@@ -286,6 +286,9 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
    the ones that don't and counts them in "+N more") */
 .hh-word.multi .def{display:none}
 .hh-word.multi .defs{display:block}
+/* Nov 3: tighter spacing, only when it lets one more meaning show (set by fit() in hutch.js) */
+.hh-word.snug .defs{padding-top:5px;line-height:1.24}
+.hh-word.snug .defs li{margin-bottom:3px}
 @media (max-width:599px) and (min-height:740px){ .hh-word .defs{font-size:14px} }
 @media (min-width:600px) and (min-height:380px){ .hh-word .defs{font-size:15px} }
 .hh-word .rm{margin-top:auto;align-self:flex-start;position:relative;top:0;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}

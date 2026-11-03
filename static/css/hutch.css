@@ -800,12 +800,16 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-nitem .bar{display:block;height:5px;border-radius:9px;background:#E5DDD5;margin-top:auto;overflow:hidden}
   .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
   /* shorter screens: Currently is a narrower card, so smaller covers leave room for the titles (Nov 3) */
-  #hutch-home.nostrip .hh-nitem{gap:10px;padding:10px}
-  #hutch-home.nostrip .hh-nitem img,#hutch-home.nostrip .hh-nitem .cv{width:62px;height:92px;border-radius:8px}
-  #hutch-home.nostrip .hh-nitem b{font-size:15px}
+  #hutch-home.nostrip .hh-nitem,#hutch-home.tight .hh-nitem{gap:10px;padding:10px}
+  #hutch-home.nostrip .hh-nitem img,#hutch-home.nostrip .hh-nitem .cv,#hutch-home.tight .hh-nitem img,#hutch-home.tight .hh-nitem .cv{width:62px;height:92px;border-radius:8px}
+  #hutch-home.nostrip .hh-nitem b,#hutch-home.tight .hh-nitem b{font-size:15px}
 
   /* Top categories */
-  .hh-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .hh-chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;margin-top:12px}
+  /* the chips take the room the row gives; they never stretch the row (hutch.js hides the ones that don't fit) */
+  .hh-cats{display:flex !important;flex-direction:column}
+  .hh-cats .hh-chips{flex:1 1 0;min-height:0;contain:size;overflow:hidden}
+  #hutch-home.nostrip:not(.nonow) .hh-cats{display:none !important}
   .hh-chips a{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:#F4EEE7;font:600 14px var(--h-ui);color:#1E2D4A}
   .hh-chips a:hover{background:#EADFD3}
   .hh-chips span{font:700 11.5px var(--h-ui);color:#fff;background:#C4622D;border-radius:999px;padding:2px 7px}
@@ -835,4 +839,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-brand.sm{bottom:calc(24px + env(safe-area-inset-bottom));gap:12px}
   .hh-brand.sm .face{width:58px;height:58px}
   .hh-brand.sm .logo{height:62px}
+  .hh-brand.xs{gap:10px}
+  .hh-brand.xs .face{width:44px;height:44px}
+  .hh-brand.xs .logo{height:46px}
 }

@@ -223,7 +223,8 @@
     document.addEventListener('keydown', function (e) {
       if (!open || document.querySelector('.hx-sheet.open')) return;
       if (e.key === 'Escape') back();
-      else if (built === 'split' && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); step(e.key === 'ArrowRight' ? 1 : -1); }
+      /* J = next, K = previous, like the arrow keys (Nov 3) */
+      else if (built === 'split' && !(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) && /^(ArrowRight|ArrowLeft|j|k)$/.test(e.key)) { e.preventDefault(); step(e.key === 'ArrowRight' || e.key === 'j' ? 1 : -1); }
     });
     /* the app bar's back button closes the post first */
     ctx.bar.addEventListener('click', function (e) {

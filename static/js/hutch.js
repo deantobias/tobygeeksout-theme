@@ -691,7 +691,7 @@
      if it has to be, gone if there's no free sky for it */
   function brandFit() {
     var b = homeEl && homeEl.querySelector('.hh-brand'); if (!b) return;
-    b.classList.remove('sm', 'low', 'off');
+    b.classList.remove('sm', 'low', 'xs', 'off');
     if (getComputedStyle(b).display === 'none') return;
     var hit = function () {
       var r = b.getBoundingClientRect();
@@ -704,6 +704,9 @@
     /* laptops: no free sky above the mountains, so it rests on the
        mountains beside the dock instead */
     if (hit()) b.classList.add('low');
+    /* one more, smaller step before it goes away (Nov 3, Toby: the logo
+       and face vanished when the photo strip came in) */
+    if (hit()) b.classList.add('xs');
     if (hit()) b.classList.add('off');
   }
   function fit() {
@@ -713,13 +716,18 @@
     setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2', 'nostrip', 'noex');
+    /* every pass starts clean (Nov 3, Toby: the photo strip came and went
+       on each refresh, because the last pass's trimmed Word Nerd and
+       hidden chips changed the next measurement) */
+    [].forEach.call(homeEl.querySelectorAll('.hh-word .defs li, .hh-chips a'), function (x) { x.style.display = ''; x.style.webkitLineClamp = ''; });
+    [].forEach.call(homeEl.querySelectorAll('.hh-posts .hh-row.on'), function (x) { x.classList.remove('on'); });
     var strip = homeEl.querySelector('.hh-strip');
     /* Nov 3 (Toby: at 80% zoom his Mac showed everything at once): on a
        big desktop that's a little short, the cards shrink to fit, never
        below 85%, the way the browser's zoom does. Big monitors stay 100%. */
     /* The words stay full size (Toby: "fonts bigger, 100%"): the text
        blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
-    a.style.zoom = ''; a.style.removeProperty('--tz');
+    a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight');
     var z = 1;
     if (strip && window.matchMedia && matchMedia('(min-width:1400px) and (min-height:820px)').matches) {
       strip.style.removeProperty('--sth');
@@ -729,6 +737,8 @@
         var need = a.getBoundingClientRect().height;
         a.style.flex = ''; a.style.height = '';
         if (need <= h0 + 1 || z <= 0.85) break;
+        /* tight: smaller covers in Currently first (CSS), then shrink */
+        if (!homeEl.classList.contains('tight')) { homeEl.classList.add('tight'); zi--; continue; }
         z = Math.max(0.85, Math.floor(z * h0 / need * 100) / 100);
         a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
       }
@@ -743,14 +753,18 @@
           padB = parseFloat(getComputedStyle(a).paddingBottom) || 0, low = 0;
         /* the cards' full height, measured without the strip (the grid
            squeezes them while it's there) */
-        homeEl.classList.add('nostrip');
+        /* Word Nerd's example can step aside for the strip, so it's measured without it */
+        homeEl.classList.add('nostrip', 'noex');
         [].forEach.call(a.children, function (c) { if (c !== strip && getComputedStyle(c).display !== 'none') low = Math.max(low, c.getBoundingClientRect().bottom); });
-        homeEl.classList.remove('nostrip');
+        homeEl.classList.remove('nostrip', 'noex');
         if (th) {
           /* on-screen sizes are shrunk by z; the strip's own sizes are not */
           var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0) * z,
-            room = Math.floor((ar.bottom - padB * z - low - (parseFloat(getComputedStyle(a).rowGap) || 18) * z - chrome - 2) / z);
-          if (room < th.getBoundingClientRect().height) strip.style.setProperty('--sth', Math.max(room, 0) + 'px');
+            room = Math.floor((ar.bottom - padB * z - low - (parseFloat(getComputedStyle(a).rowGap) || 18) * z - chrome) / z) - 8;
+          /* 8px to spare so the cards above never get squeezed; both sizes unshrunk */
+          if (room < th.getBoundingClientRect().height / z) strip.style.setProperty('--sth', Math.max(room, 0) + 'px');
+          /* the room above was measured without Word Nerd's example: on a shrunk screen it stays out */
+          if (z < 1 || room < th.getBoundingClientRect().height / z) homeEl.classList.add('noex');
           if (room < 96) homeEl.classList.add('nostrip');
         }
       }
@@ -758,9 +772,8 @@
     if (strip && !homeEl.classList.contains('nostrip') && getComputedStyle(strip).display !== 'none') {
       /* a row squeezed by the grid shows up as a card cut short inside */
       var ab0 = a.getBoundingClientRect();
-      /* Top categories just shows fewer chips (below), so it doesn't count */
-      [].forEach.call(homeEl.querySelectorAll('.hh-chips a'), function (x) { x.style.display = ''; });
-      if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && !c.classList.contains('hh-cats') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
+      /* Top categories shows fewer chips and Word Nerd trims itself (below), so they don't count */
+      if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && !c.classList.contains('hh-cats') && !c.classList.contains('hh-word') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
     }
     /* Top categories: as many chips as fit its card (Nov 3) */
     var cc = homeEl.querySelector('.hh-area .hh-cats');
@@ -1356,7 +1369,9 @@
       var t = e.target;
       if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
       if (opts.active && !opts.active()) return;
-      var d = e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0;
+      /* J and K too, like Gmail and most readers (Nov 3, Toby): J = next
+         (older), K = previous (newer) */
+      var d = e.key === 'ArrowLeft' || e.key === 'k' ? 1 : e.key === 'ArrowRight' || e.key === 'j' ? -1 : 0;
       if (!d || !opts.has(d)) return;
       e.preventDefault(); opts.go(d);
     });

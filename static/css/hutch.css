@@ -655,7 +655,7 @@ html.hx-hasfab .hx-top{bottom:calc(82px + env(safe-area-inset-bottom))}
 html.hx-hasfab.hx-fab-away .hx-top{bottom:calc(18px + env(safe-area-inset-bottom))}
 .hx-top{transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s,bottom .3s cubic-bezier(.2,.8,.2,1)}
 html.hxw-open .hx-top{bottom:calc(104px + env(safe-area-inset-bottom))}
-html.hxp-lock .hx-top{bottom:calc(96px + env(safe-area-inset-bottom))}
+html.hxp-lock .hx-top{bottom:calc(82px + env(safe-area-inset-bottom))}
 html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba(0,0,0,.45)}
 @media print{.hx-top{display:none !important}}
 @media (prefers-reduced-motion:reduce){.hx-top{transition:none !important}}

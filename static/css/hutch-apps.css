@@ -710,6 +710,21 @@ html.hxp-lock,html.hxp-lock body{overflow:hidden}
 }
 @media (prefers-reduced-motion:reduce){.hxp-det,.hxp-det.on{transition:none}.hxp-tile img{transition:none}}
 
+/* All photos: the gallery button (Nov 3) */
+.hxp-gal{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8500;width:52px;height:52px;border-radius:16px;border:0;
+  display:grid;place-items:center;background:#3F7FA6;color:#fff;box-shadow:0 6px 18px rgba(15,23,38,.28);cursor:pointer;
+  transform:translateY(calc(100% + 30px));opacity:0;pointer-events:none;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s;-webkit-tap-highlight-color:transparent}
+.hxp-gal svg{width:24px;height:24px}
+html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1;pointer-events:auto}
+.hxp-gal:active{transform:scale(.94)}
+.hxp-gal:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.hxp-nav .hxp-all{flex:0 1 auto;padding:8px 14px;gap:7px}
+.hxp-nav .hxp-all svg{width:18px;height:18px}
+@media (prefers-reduced-motion:reduce){.hxp-gal{transition:none}}
+.hxp-nav button{white-space:nowrap}
+.hxp-nav .hxp-all{flex:1.2 1 auto}
+@media (max-width:1000px){.hxp-nav{gap:8px;padding-left:16px;padding-right:16px}.hxp-nav button{padding:8px 6px;font-size:14px}}
+
 /* ------------------------------------------------------------------
    Small apps (v37 mockup): About, Contact, Uses, Follow. Nov 2, 2026.
    Built by js/apps/small.js. Everything is scoped under .hx-sm and

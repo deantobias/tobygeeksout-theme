@@ -887,6 +887,7 @@ window.HutchApps = window.HutchApps || {};
     var IC = {
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       stack: '<rect x="7" y="7" width="13" height="13" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',
+      grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
       l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
@@ -923,6 +924,12 @@ window.HutchApps = window.HutchApps || {};
       '</main>' +
       '<section class="hxp-det" aria-label="Photo post" aria-hidden="true"></section></div>');
     var det = root.querySelector('.hxp-det');
+    /* the gallery, one tap away while a photo is open (Nov 3, Toby: "from a
+       widget, if they want more photos, either keep going or go to the
+       gallery"). Bottom right on the phone, where Surprise me sits on
+       posts; between Newer and Older on the wide screens. */
+    var gal = ctx.el('<button type="button" class="hxp-gal" data-gallery aria-label="All photos" title="All photos">' + ic('grid') + '</button>');
+    root.appendChild(gal);
     document.body.appendChild(root);
     de.classList.add('hxp-on');
     ctx.own();
@@ -989,7 +996,7 @@ window.HutchApps = window.HutchApps || {};
           '<button type="button" class="hxp-arrow l" data-step="-1" aria-label="Previous"' + (i === 0 && stepK === 0 ? ' disabled' : '') + '>' + ic('l') + '</button>' +
           '<button type="button" class="hxp-arrow r" data-step="1" aria-label="Next"' + (i === P.length - 1 && stepK === n - 1 ? ' disabled' : '') + '>' + ic('r') + '</button></div>' +
         '<div class="hxp-right"><div class="hxp-text">' + words(p, false) + thumbs + readMore(p) + '</div>' +
-          '<div class="hxp-nav"><button type="button" data-go="-1"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + 'Newer</button><button type="button" data-go="1"' + (i === P.length - 1 ? ' disabled' : '') + '>Older' + ic('r') + '</button></div></div>';
+          '<div class="hxp-nav"><button type="button" data-go="-1"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + 'Newer</button><button type="button" class="hxp-all" data-gallery>' + ic('grid') + 'All photos</button><button type="button" data-go="1"' + (i === P.length - 1 ? ' disabled' : '') + '>Older' + ic('r') + '</button></div></div>';
       var car = wire(det.querySelector('.hxp-left'), p, function (k) {
         stepK = k;
         [].forEach.call(det.querySelectorAll('.hxp-thumbs button'), function (b, j) { b.classList.toggle('on', j === k); if (j === k) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
@@ -1043,6 +1050,11 @@ window.HutchApps = window.HutchApps || {};
         try { t.focus({ preventScroll: true }); } catch (e) {}
       }
     }
+    /* to the grid, keeping back = where you came from */
+    function toGallery() {
+      if (deep) { deep = false; close(); try { history.replaceState(null, ''); } catch (e) {} }
+      else back();
+    }
     /* deep = opened straight from the home screen's Photo widget, so back
        goes back home instead of to the grid (Nov 2, Toby: fewer taps) */
     var deep = false;
@@ -1066,6 +1078,7 @@ window.HutchApps = window.HutchApps || {};
       var t = e.target.closest('.hxp-tile');
       if (t && !(e.metaKey || e.ctrlKey || e.shiftKey)) { e.preventDefault(); openPost(+t.getAttribute('data-i')); return; }
       var s = e.target.closest('[data-step]'); if (s) { step(+s.getAttribute('data-step')); return; }
+      if (e.target.closest('[data-gallery]')) { toGallery(); return; }
       var g = e.target.closest('[data-go]'); if (g) { var j = cur + +g.getAttribute('data-go'); if (j >= 0 && j < P.length) showSplit(j, 0); return; }
       var k = e.target.closest('[data-k]'); if (k) { var car = det.querySelector('.hxp-car'); if (car) goPhoto(car, +k.getAttribute('data-k'), true); }
     });
@@ -1085,8 +1098,7 @@ window.HutchApps = window.HutchApps || {};
          to the Photos home page?"). Back from the grid still goes home. */
       else if (open && e.target.closest('.hb-app')) {
         e.preventDefault(); e.stopPropagation();
-        if (deep) { deep = false; close(); try { history.replaceState(null, ''); } catch (er) {} }
-        else back();
+        toGallery();
       }
     }, true);
     window.addEventListener('popstate', function (e) {

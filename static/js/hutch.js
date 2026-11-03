@@ -858,6 +858,24 @@
       /* a second tap while waiting never gets ignored: it goes straight back */
       if (leaving(this)) { location.href = same ? document.referrer : '/'; return; }
       if (!(same && history.length > 1)) { location.href = '/'; return; }
+      /* skip any steps inside this page (an open photo, a Den list) and go
+         to the page before it */
+      try {
+        if (window.navigation && navigation.entries && navigation.currentEntry) {
+          var ents = navigation.entries(), ci = navigation.currentEntry.index, here = location.pathname + location.search;
+          for (var j = ci - 1; j >= 0; j--) {
+            var eu = new URL(ents[j].url);
+            if (eu.pathname + eu.search !== here) {
+              var gone1 = false;
+              window.addEventListener('pagehide', function () { gone1 = true; }, { once: true });
+              navigation.traverseTo(ents[j].key);
+              var back1 = ents[j].url;
+              setTimeout(function () { if (!gone1 && document.visibilityState === 'visible') location.href = back1; }, 1200);
+              return;
+            }
+          }
+        }
+      } catch (er) {}
       var extra = fromBF ? 0 : history.length - L0;
       if (extra > 0) {
         var gone0 = false;

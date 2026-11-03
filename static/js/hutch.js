@@ -433,7 +433,7 @@
          room for more than one meaning, so they're listed, numbered, as
          many as fit (fit() below). The phone keeps one, with "+2 more". */
       ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
-        '<div class="pos">' + esc(w.pos || '') + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
+        '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
@@ -504,9 +504,18 @@
       var lis = [].slice.call(defs.children), more = wc.querySelector('.pos .more'), total = (HOME.word && HOME.word.n) || lis.length;
       lis.forEach(function (li) { li.style.display = ''; li.style.webkitLineClamp = ''; });
       var cbot = function () { return wc.getBoundingClientRect().bottom - parseFloat(getComputedStyle(wc).paddingBottom) + 1; };
+      /* as many as fit: the last one shown may be cut to 2 lines (with …)
+         rather than dropped, so the card fills up; a single one may go
+         down to 1 line */
+      var over = function () { return defs.getBoundingClientRect().bottom > cbot(); };
       var vis = lis.length;
-      while (vis > 1 && defs.getBoundingClientRect().bottom > cbot()) { lis[--vis].style.display = 'none'; }
-      for (var l2 = 3; l2 >= 1 && defs.getBoundingClientRect().bottom > cbot(); l2--) lis[vis - 1].style.webkitLineClamp = String(l2);
+      for (; vis >= 1; vis--) {
+        lis.forEach(function (li, i) { li.style.display = i < vis ? '' : 'none'; li.style.webkitLineClamp = ''; });
+        var last = lis[vis - 1], ok = !over();
+        for (var l2 = 3; !ok && l2 >= (vis > 1 ? 2 : 1); l2--) { last.style.webkitLineClamp = String(l2); ok = !over(); }
+        if (ok) break;
+      }
+      if (vis < 1) { vis = 1; lis.forEach(function (li, i) { li.style.display = i < 1 ? '' : 'none'; }); lis[0].style.webkitLineClamp = '1'; }
       if (more) { var left = total - vis; more.textContent = '+' + left + ' more'; more.style.display = left > 0 ? '' : 'none'; }
     } else if (def) {
       def.style.display = ''; def.style.webkitLineClamp = '';
@@ -516,10 +525,14 @@
         var rm = wc.querySelector('.rm'), last = rm || def;
         return last.getBoundingClientRect().bottom > cb || (rm && def.getBoundingClientRect().bottom > rm.getBoundingClientRect().top);
       };
-      var pos = wc.querySelector('.pos'); if (pos) pos.style.display = '';
-      if (clipped() && pos) pos.style.display = 'none';
-      /* step the definition down a line at a time until it fits the card */
-      for (var ln = 4; ln >= 1 && clipped(); ln--) def.style.webkitLineClamp = String(ln);
+      /* Nov 3 (Toby: "+2 more" went missing on the phone): the
+         definition gets shorter first, a line at a time. Only if it still
+         doesn't fit does the part of speech step aside, and the "+2 more"
+         count always stays. */
+      var pt = wc.querySelector('.pos .pt'); if (pt) pt.style.display = '';
+      for (var ln = 4; ln >= 2 && clipped(); ln--) def.style.webkitLineClamp = String(ln);
+      if (clipped() && pt) pt.style.display = 'none';
+      if (clipped()) def.style.webkitLineClamp = '1';
       if (clipped()) def.style.display = 'none';
     }
   }

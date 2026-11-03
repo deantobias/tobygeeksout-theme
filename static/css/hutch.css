@@ -261,16 +261,18 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-word .w{font:700 24px/1.05 var(--h-flex);margin-top:8px;overflow-wrap:anywhere}
 .hh-word .pos{font:italic 500 12.5px var(--h-ui);color:#6B7280;margin-top:3px}
 .hh-word .hh-wtag .pos{margin:0;font-size:11px;font-style:normal;letter-spacing:.06em;color:#6B7280;text-transform:uppercase}
-.hh-word .pos span{font-style:normal;font-weight:700;font-size:10px;color:#C4622D;background:rgba(196,98,45,.12);border-radius:999px;padding:2px 6px;margin-left:4px}
+.hh-word .pos .more{font-style:normal;font-weight:700;font-size:10px;color:#C4622D;background:rgba(196,98,45,.12);border-radius:999px;padding:2px 6px;margin-left:4px}
 .hh-word .def{font:500 13px/1.35 var(--h-ui);margin:0;padding-top:8px;flex:none;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 /* every meaning, numbered: unfolded screens only (Nov 3) */
 .hh-word .defs{display:none;list-style:none;margin:0;padding:8px 0 0;font:500 13px/1.35 var(--h-ui)}
 .hh-word .defs li{margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hh-word .defs li b{color:#C4622D;font-weight:800;margin-right:6px}
-@media (min-width:600px) and (min-height:380px){
-  .hh-word.multi .def{display:none}
-  .hh-word.multi .defs{display:block;font-size:15px}
-}
+/* Nov 3 (Toby): on phones too, as many as fit (fit() in hutch.js drops
+   the ones that don't and counts them in "+N more") */
+.hh-word.multi .def{display:none}
+.hh-word.multi .defs{display:block}
+@media (max-width:599px) and (min-height:740px){ .hh-word .defs{font-size:14px} }
+@media (min-width:600px) and (min-height:380px){ .hh-word .defs{font-size:15px} }
 .hh-word .rm{margin-top:auto;align-self:flex-start;position:relative;top:0;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
 .hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
 

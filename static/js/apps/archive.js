@@ -96,7 +96,8 @@
         '<div class="ar-recent-wrap"><div class="ar-lbl">Recent</div><div class="ar-recent">' + RECENT.map(function (f) {
           var tag = f.au ? 'a href="' + f.au + '"' : 'button type="button"';
           return '<' + tag + ' class="ar-rc" data-f="' + f.id + '">' + fic(f) + '<span>' + esc(f.n) + '</span><small>' + short(f.l) + '</small></' + tag.split(' ')[0] + '>'; }).join('') + '</div></div>' +
-        '<div class="ar-lbl">All folders<span>' + FOLDERS.length + '</span></div><div class="ar-fwrap"></div></div></div></div>' +
+        /* the folders run most posts first, so this is the Top categories list (Nov 3, Toby: they don't fit on the Fold's home screen) */
+        '<div class="ar-lbl">Top categories<span>' + FOLDERS.length + '</span></div><div class="ar-fwrap"></div></div></div></div>' +
       '<div class="ar-view ar-cat ar-off" aria-hidden="true"><div class="ar-scroll"></div></div>' +
       '<div class="ar-panes"><div class="ar-pane ar-left"><label class="ar-search">' + ic('search') + '<input type="search" placeholder="Search ' + FOLDERS.length + ' folders" aria-label="Search folders" autocomplete="off"></label><div class="ar-scroll ar-flist"></div></div>' +
         '<div class="ar-pane ar-right"><div class="ar-scroll ar-catpane"></div></div></div>' +

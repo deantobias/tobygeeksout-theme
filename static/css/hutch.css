@@ -843,3 +843,41 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-brand.xs .face{width:44px;height:44px}
   .hh-brand.xs .logo{height:46px}
 }
+
+/* ---------- 14. Unfolded sideways: a tall Currently (Nov 3, mockup v54) ----------
+   Toby: Word Nerd had empty room on the unfolded Fold held sideways.
+   Currently (the Den widget) gets a tall card on the right, Watching on
+   top and Reading below; Recent posts and Word Nerd narrow a little; the
+   5 apps shrink a touch and the photo matches their width. No Top
+   categories here (the Archive app lists them). Nothing in progress in
+   Den (.nonow): the usual two columns. */
+@media (min-width:600px) and (min-height:380px) and (orientation:landscape) and (max-width:1099px){
+  #hutch-home:not(.nonow) .hh-area{grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
+  #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,58px);gap:8px 4px}
+  #hutch-home:not(.nonow) .hh-quad .hh-tile{width:46px;height:46px}
+  #hutch-home:not(.nonow) .hh-quad .hh-tile .hx-ic{width:21px;height:21px}
+  #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:11.5px}
+  #hutch-home:not(.nonow) .hh-photo{max-height:240px}
+  #hutch-home:not(.nonow) .hh-posts{padding:12px 14px 4px}
+  #hutch-home:not(.nonow) .hh-row .t{font-size:14px;white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}
+  #hutch-home:not(.nonow) .hh-row img{width:40px;height:40px;border-radius:11px}
+  #hutch-home:not(.nonow) .hh-word{padding:12px 14px}
+  #hutch-home:not(.nonow) .hh-word .w{font-size:22px}
+  #hutch-home:not(.nonow) .hh-word .defs{font-size:13.5px}
+  #hutch-home:not(.nonow) .hh-now{grid-area:now;display:flex;flex-direction:column;padding:12px;min-height:0}
+  .hh-now .hh-wtag a{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px}
+  .hh-now .hh-ntwo{flex:1;display:grid;grid-template-columns:1fr;grid-auto-rows:1fr;gap:10px;margin-top:8px;min-height:0}
+  .hh-now .hh-nitem{display:flex;flex-direction:column;gap:8px;background:#F6F1EB;border-radius:14px;padding:10px;color:inherit;min-height:0;overflow:hidden}
+  .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:60px;height:88px;border-radius:9px;object-fit:cover;flex:none;background:#D9D2C8;box-shadow:0 3px 10px rgba(15,23,38,.2)}
+  .hh-now .hh-nitem .tx{min-width:0;display:flex;flex-direction:column;gap:2px;flex:1}
+  .hh-now .hh-nitem small{font:700 10px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:#6B7280}
+  .hh-now .hh-nitem b{font:700 14.5px/1.25 var(--h-ui);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hh-now .hh-nitem i{font:400 12px var(--h-ui);font-style:normal;color:#5F6673;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hh-now .hh-nitem em{font:500 12px var(--h-ui);font-style:normal;color:#5F6673}
+  .hh-now .hh-nitem .bar{display:block;height:4px;border-radius:9px;background:#E5DDD5;margin-top:6px;overflow:hidden}
+  .hh-now .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
+}
+/* the shorter sideways screen (Brave's bars leave ~540px): smaller covers */
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape) and (max-width:1099px){
+  .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:52px;height:78px}
+}

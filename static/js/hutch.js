@@ -633,7 +633,7 @@
 
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     /* a show finished since this page was built: swap Currently once his Trakt ratings come in */
-    if (window.matchMedia && matchMedia('(min-width:1400px) and (min-height:820px)').matches && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:820px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (orientation:landscape) and (max-width:1099px)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();

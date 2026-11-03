@@ -333,10 +333,11 @@
            shares Classic's own setting (tgo-look). */
         '<div class="hx-card hx-theme"><h3>Theme</h3><p>Hutch, or the ' + esc(ORIGINAL) + ' Toby Geeks Out! theme. You can come back to Hutch any time.</p>' +
         '<div class="hx-seg" role="group" aria-label="Theme"><button type="button" class="on" aria-pressed="true" data-theme-pick="hutch">Hutch</button><button type="button" aria-pressed="false" data-theme-pick="classic">' + esc(ORIGINAL) + '</button></div>' +
-        '<div class="hx-classic" hidden><div class="hx-sub">' + esc(ORIGINAL) + ' look</div><p>70s headlines, or clean and modern. Tap one and ' + esc(ORIGINAL) + ' opens in that look.</p>' +
+        '<div class="hx-classic" hidden><div class="hx-sub">' + esc(ORIGINAL) + ' look</div><p>Fonts for posts and pages: 70s headlines, or clean and modern.</p>' +
         '<div class="hx-seg" role="group" aria-label="' + esc(ORIGINAL) + ' look">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
           var on = (o[0] === 'modern') === (ls('tgo-look') === 'modern');
-          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div></div>' +
+          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div>' +
+        '<button type="button" class="hx-btn hx-go" data-classic>Switch to ' + esc(ORIGINAL) + '</button></div></div>' +
         '<a class="hx-card hx-upd" href="/changelog/"><span class="hh-tile" style="background:' + APPS.tinkering[1] + '">' + ic('tinkering') + '</span><span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
@@ -349,8 +350,7 @@
         var tp = e.target.closest('[data-theme-pick]');
         if (tp) { pick('[data-theme-pick]', tp); settings.querySelector('.hx-classic').hidden = tp.getAttribute('data-theme-pick') !== 'classic'; return; }
         var lk = e.target.closest('[data-look]');
-        /* no Switch button (Nov 3, Toby): picking a look goes straight to Classic in that look */
-        if (lk) { ls('tgo-look', lk.getAttribute('data-look') === 'modern' ? 'modern' : null); pick('[data-look]', lk); location.href = location.pathname + '?hutch=off'; return; }
+        if (lk) { ls('tgo-look', lk.getAttribute('data-look') === 'modern' ? 'modern' : null); pick('[data-look]', lk); return; }
         if (e.target.closest('[data-classic]')) { location.href = location.pathname + '?hutch=off'; }
       });
     }

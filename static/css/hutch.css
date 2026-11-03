@@ -592,6 +592,7 @@ html.hx-dark .hx-card p{color:#A9B2C3}
 /* Theme card: Classic's look, shown after Classic is tapped (Nov 3) */
 .hx-classic{margin-top:14px;padding-top:12px;border-top:1px solid rgba(127,127,127,.2)}
 .hx-classic .hx-sub{font:600 14px var(--h-ui);margin:0 0 4px}
+.hx-classic .hx-go{display:flex;justify-content:center;width:100%;margin-top:12px}
 .hx-btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#C4622D;color:#fff !important;font:600 14px var(--h-ui);padding:10px 16px;cursor:pointer}
 .hx-btn.ghost{background:transparent;color:inherit !important;box-shadow:inset 0 0 0 1.5px currentColor}
 .hx-about{display:flex;gap:14px;align-items:center}

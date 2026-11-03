@@ -269,7 +269,9 @@
     {{- $r := dict -}}{{- with .reading -}}{{- $r = index . 0 -}}{{- end -}}
     {{/* ws: the next few too, so hutch.js can skip a show he has since
          rated on Trakt (= finished) and show the next one (Nov 3) */}}
-    {{- $now = dict "w" $w "ws" $ws "r" $r -}}
+    {{/* rev: titles with a review post, kept out of Trakt's list like the Watching page does */}}
+    {{- $nw := partial "now-watching.html" (dict "days" 90) -}}
+    {{- $now = dict "w" $w "ws" $ws "r" $r "rev" $nw.reviewed -}}
   {{- end -}}
 {{- end -}}
 

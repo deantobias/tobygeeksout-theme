@@ -507,25 +507,62 @@
      minutes, drop finished shows and the next one in Den's list shows. */
   var TRAKT_KEY = 'hutch-trakt-rated', TRAKT_ID = '23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc';
   function tnorm(t) { try { return String(t || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''); } catch (e) { return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); } }
-  function traktRated() { try { var c = JSON.parse(localStorage.getItem(TRAKT_KEY) || 'null'); return c && c.rated ? c : null; } catch (e) { return null; } }
+  /* the newer of this screen's Trakt check and the Watching page's own
+     (tgo_watching_v5_..., already filtered by its rules), so the two match */
+  var DEN_KEY = 'tgo_watching_v5_technogeek75_90', TRAKT_TTL = 10 * 60 * 1000;
+  function traktRated() {
+    var a = null, b = null;
+    try { a = JSON.parse(localStorage.getItem(TRAKT_KEY) || 'null'); } catch (e) {}
+    try { b = JSON.parse(localStorage.getItem(DEN_KEY) || 'null'); } catch (e) {}
+    if (a && !a.rated) a = null; if (b && !(b.rated && b.list)) b = null;
+    return a && b ? (b.t > a.t ? b : a) : a || b;
+  }
+  /* Currently, Watching: the newest of his Now Watching posts and his
+     Trakt watch history (Nov 3, Toby: "The Final Problem" is what he
+     watched last, but it only lives on Trakt), the same lists the
+     Watching page merges. A show rated on Trakt since is finished. */
+  var MN3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function nowWatch(c, N) {
-    var list = (N.ws && N.ws.length ? N.ws : (N.w ? [N.w] : [])).filter(function (x) { return x && x.t; });
-    if (!c) return list[0] || null;
-    for (var i = 0; i < list.length; i++) {
-      var x = list[i], n = x.n || tnorm(x.t), at = +x.at || Date.parse(x.date) || 0;
-      if (!(c.rated[n] || []).some(function (q) { return (q.s === 0 || q.s >= (x.season || 0)) && q.at >= at; })) return x;
-    }
-    return null;
+    var done = function (n, season, at) { return c && (c.rated[n] || []).some(function (q) { return (q.s === 0 || q.s >= (season || 0)) && q.at >= at; }); };
+    var posts = (N.ws && N.ws.length ? N.ws : (N.w ? [N.w] : [])).filter(function (x) { return x && x.t; }), best = null, bestAt = -1, byN = {};
+    posts.forEach(function (x) {
+      var n = x.n || tnorm(x.t), at = +x.at || Date.parse(x.date) || 0;
+      if (done(n, x.season, at)) return;
+      byN[n] = x;
+      if (at > bestAt) { best = x; bestAt = at; }
+    });
+    ((c && c.list) || []).forEach(function (t) {
+      var n = tnorm(t.title), p = byN[n];
+      if (t.last <= bestAt || done(n, t.season, t.last)) return;
+      var d = new Date(t.last);
+      best = { t: t.title, kind: 'TV', season: Math.max(t.season || 0, (p && p.season) || 0), ep: t.ep, epn: t.epn, tmdb: t.tmdb,
+        cover: (p && p.cover) || ls('tgo_poster_v1_' + t.tmdb) && (JSON.parse(ls('tgo_poster_v1_' + t.tmdb)) || {}).u || '', d: MN3[d.getMonth()] + ' ' + d.getDate() };
+      bestAt = t.last;
+    });
+    return best;
   }
   function traktFresh(done) {
-    var c = traktRated(); if (c && Date.now() - c.t < 30 * 60 * 1000) return;
-    var get = function (path) { return fetch('https://api.trakt.tv/users/technogeek75/ratings/' + path, { headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_ID } }).then(function (q) { if (!q.ok) throw 0; return q.json(); }); };
-    Promise.all([get('shows'), get('seasons')]).then(function (res) {
-      var rated = {};
+    var c = traktRated(); if (c && c.list && Date.now() - c.t < TRAKT_TTL) return;
+    var REV = ((HOME && HOME.now && HOME.now.rev) || []);
+    var get = function (path) { return fetch('https://api.trakt.tv/users/technogeek75/' + path, { headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_ID } }).then(function (q) { if (!q.ok) throw 0; return q.json(); }); };
+    var since = new Date(Date.now() - 90 * 86400000).toISOString();
+    Promise.all([get('ratings/shows'), get('ratings/seasons'), get('history/episodes?limit=60&start_at=' + encodeURIComponent(since)).catch(function () { return []; })]).then(function (res) {
+      var rated = {}, seen = {}, list = [];
       res[0].forEach(function (x) { if (x.show) (rated[tnorm(x.show.title)] = rated[tnorm(x.show.title)] || []).push({ s: 0, at: Date.parse(x.rated_at) || 0 }); });
       res[1].forEach(function (x) { if (x.show && x.season) (rated[tnorm(x.show.title)] = rated[tnorm(x.show.title)] || []).push({ s: x.season.number || 0, at: Date.parse(x.rated_at) || 0 }); });
-      try { localStorage.setItem(TRAKT_KEY, JSON.stringify({ t: Date.now(), rated: rated })); } catch (e) {}
+      res[2].forEach(function (h) {
+        var sh = h.show, e = h.episode; if (!sh || !sh.ids || !e || seen[sh.ids.trakt]) return;
+        seen[sh.ids.trakt] = 1;
+        if (REV.indexOf(tnorm(sh.title)) > -1) return; /* reviewed = finished */
+        list.push({ title: sh.title, tmdb: sh.ids.tmdb || 0, season: e.season > 0 ? e.season : 1, ep: e.number || 0, epn: e.title || '', last: Date.parse(h.watched_at) || 0 });
+      });
+      try { localStorage.setItem(TRAKT_KEY, JSON.stringify({ t: Date.now(), rated: rated, list: list.slice(0, 12) })); } catch (e) {}
       done();
+      /* a show only on Trakt has no poster here: ask Perch once, like the Watching page (shared 30-day cache) */
+      var w = nowWatch(traktRated(), (HOME && HOME.now) || {});
+      if (w && !w.cover && w.tmdb) fetch('https://perch-app.pages.dev/poster?tmdb=' + w.tmdb).then(function (q) { return q.json(); }).then(function (d) {
+        if (d && d.poster) { ls('tgo_poster_v1_' + w.tmdb, JSON.stringify({ t: Date.now(), u: d.poster })); done(); }
+      }).catch(function () {});
     }).catch(function () {});
   }
   function nowCard() {
@@ -537,7 +574,7 @@
         var meta = '', by = '', pct = -1;
         if (kind === 'w') {
           by = x.kind === 'TV' ? (x.season ? 'Season ' + x.season : 'TV') : (x.y || 'Movie');
-          if (x.ep) { meta = 'Episode ' + x.ep + (x.eps ? ' of ' + x.eps : ''); if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
+          if (x.ep) { meta = 'Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') + (x.epn ? ' · ' + x.epn : ''); if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
           else meta = x.d ? 'Since ' + x.d : '';
         } else {
           by = x.who ? 'by ' + x.who : '';
@@ -632,8 +669,9 @@
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
-    /* a show finished since this page was built: swap Currently once his Trakt ratings come in */
-    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:820px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (orientation:landscape) and (max-width:1099px)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    /* a show finished since this page was built: swap Currently once his Trakt ratings come in;
+       checked again every 10 minutes and whenever he comes back to the screen */
+    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:820px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px) and (min-aspect-ratio:4/5)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();
@@ -641,6 +679,16 @@
       homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
       fit();
     });
+    var nowSwap = function () {
+      var old = homeEl.querySelector('.hh-now'), html = nowCard();
+      if (old && old.outerHTML === html) return;
+      if (old) old.remove();
+      if (html) homeEl.querySelector('.hh-cats').insertAdjacentHTML('beforebegin', html);
+      homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
+      fit();
+    };
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && homeEl.querySelector('.hh-cats')) { nowSwap(); traktFresh(nowSwap); } });
+    setInterval(function () { if (document.visibilityState === 'visible' && homeEl.querySelector('.hh-cats')) traktFresh(nowSwap); }, TRAKT_TTL);
     var shuf = homeEl.querySelector('.hh-shuf');
     if (shuf) shuf.addEventListener('click', function () {
       var ac = homeEl.querySelector('.hh-arch'), lst = ac.querySelector('.hh-alist'), n = lst.children.length || 5;

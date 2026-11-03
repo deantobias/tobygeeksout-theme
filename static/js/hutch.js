@@ -429,8 +429,12 @@
     var word = w.w
       /* one tap: the whole widget opens Word Nerd, where the latest word's
          card shows every meaning (no Read more button, Nov 2) */
-      ? '<a class="hh-wg hh-word" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
-        '<div class="pos">' + esc(w.pos || '') + (w.n > 1 ? '<span>+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div></a>'
+      /* Nov 3 (Toby): on the unfolded screen, upright or sideways, there's
+         room for more than one meaning, so they're listed, numbered, as
+         many as fit (fit() below). The phone keeps one, with "+2 more". */
+      ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
+        '<div class="pos">' + esc(w.pos || '') + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
+        (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -493,7 +497,18 @@
     if (over()) homeEl.classList.add('fit2');
     /* the Word Nerd card: shorten the definition until it fits its card */
     var wc = homeEl.querySelector('.hh-word'), def = wc && wc.querySelector('.def');
-    if (def) {
+    var defs = wc && wc.querySelector('.defs'), wide = defs && getComputedStyle(defs).display !== 'none';
+    if (wide) {
+      /* unfolded: list the meanings, dropping from the end until they fit;
+         "+N more" counts the ones that didn't */
+      var lis = [].slice.call(defs.children), more = wc.querySelector('.pos .more'), total = (HOME.word && HOME.word.n) || lis.length;
+      lis.forEach(function (li) { li.style.display = ''; li.style.webkitLineClamp = ''; });
+      var cbot = function () { return wc.getBoundingClientRect().bottom - parseFloat(getComputedStyle(wc).paddingBottom) + 1; };
+      var vis = lis.length;
+      while (vis > 1 && defs.getBoundingClientRect().bottom > cbot()) { lis[--vis].style.display = 'none'; }
+      for (var l2 = 3; l2 >= 1 && defs.getBoundingClientRect().bottom > cbot(); l2--) lis[vis - 1].style.webkitLineClamp = String(l2);
+      if (more) { var left = total - vis; more.textContent = '+' + left + ' more'; more.style.display = left > 0 ? '' : 'none'; }
+    } else if (def) {
       def.style.display = ''; def.style.webkitLineClamp = '';
       /* clipped = the Read more button (or the definition) runs past the card's bottom edge */
       var clipped = function () {
@@ -878,6 +893,37 @@
     });
   }
 
+  /* ---------- back to top (Nov 3, Toby) ----------
+     A small round up arrow in the bottom right corner (above Surprise me
+     on posts), on every app screen that can
+     get long (posts, the Blog list, Archive, Den, Word Nerd...). It shows
+     only when you start scrolling back up after going a good way down,
+     hides again when you scroll down or reach the top, and takes you to
+     the top of whatever you were scrolling (the page, or a pane that
+     scrolls on its own, like the Blog list or a Word Nerd card). */
+  function topButton() {
+    var b = el('<button type="button" class="hx-top" aria-label="Back to top" title="Back to top">' + ic('up', 2.6) + '</button>');
+    document.body.appendChild(b);
+    var last = new WeakMap(), cur = null;
+    function y(t) { return t === document || t === de || t === document.body ? (window.scrollY || de.scrollTop) : t.scrollTop; }
+    function h(t) { return t === document || t === de || t === document.body ? window.innerHeight : t.clientHeight; }
+    document.addEventListener('scroll', function (e) {
+      var t = e.target; if (t.nodeType !== 1 && t !== document) return;
+      if (t !== document && (t.closest && t.closest('.hx-sheet'))) return;
+      var now = y(t), was = last.has(t) ? last.get(t) : now;
+      last.set(t, now);
+      if (now < h(t) * 1.2) { if (cur === t || !cur) b.classList.remove('on'); return; }
+      if (now < was - 8) { cur = t; b.classList.add('on'); }
+      else if (now > was + 8 && cur === t) b.classList.remove('on');
+    }, { passive: true, capture: true });
+    b.addEventListener('click', function () {
+      var t = cur || document;
+      if (t === document || t === de || t === document.body) window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+      else t.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+      b.classList.remove('on');
+    });
+  }
+
   /* ---------- swipe for older / newer (posts, Word Nerd cards) ----------
      Nov 3 (Toby): one swipe that works the same everywhere you read one
      thing at a time. Finger to the left = older, to the right = newer.
@@ -992,6 +1038,7 @@
     /* Surprise me */
     var fab = el('<a class="hx-fab" href="' + (APPS.surprise[2] || '/surprise-me/') + '" aria-label="Surprise me: a random post" title="Surprise me">' + ic('surprise') + '</a>');
     document.body.appendChild(fab);
+    de.classList.add('hx-hasfab');
     var lastY = window.scrollY, hideT;
     window.addEventListener('scroll', function () {
       var y = window.scrollY, end = y + window.innerHeight >= document.documentElement.scrollHeight - 140;
@@ -1128,7 +1175,7 @@
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }
-  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); }
+  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); topButton(); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
 

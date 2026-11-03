@@ -65,7 +65,8 @@
     {{- with replaceRE `[^\pL\s-]` "" $pos -}}{{- $plain = replaceRE (printf `(?i)^[^\pL]*%s` .) "" $plain -}}{{- end -}}
     {{- $def = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 160 -}}
   {{- end -}}
-  {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
+  {{/* ms = up to 4 meanings, for the bigger unfolded screens (Nov 3) */}}
+  {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "ms" (first 4 $senses) "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
 {{- end -}}{{- end -}}
 
 {{- $photo := dict -}}

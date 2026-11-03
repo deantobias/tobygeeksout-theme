@@ -1519,7 +1519,8 @@ window.HutchApps = window.HutchApps || {};
     function card(x, o) {
       o = o || {};
       return (o.today ? '<div class="hxw-lbl"><span>Latest alert</span><span>' + esc(x.d) + '</span></div>' : '') +
-        '<h2 class="hxw-word">' + esc(x.w) + '</h2>' +
+        /* long words get smaller type so they don't break mid-word (Nov 3) */
+        '<h2 class="hxw-word' + (x.w.length > 15 ? ' xlong' : x.w.length > 11 ? ' long' : '') + '">' + esc(x.w) + '</h2>' +
         (x.pr ? '<div class="hxw-syl">' + esc(x.pr) + '</div>' : '') +
         chips(x) + means(x) +
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +

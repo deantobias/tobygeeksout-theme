@@ -42,6 +42,17 @@
     {{- $w = trim (index . 0 | plainify | htmlUnescape) " \n\t " -}}
   {{- end -}}
   {{- if not $w -}}{{- $w = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t " -}}{{- end -}}
+  {{/* Nov 3 (Toby: an older word showed "June 7, 2026" as the word, with
+       its text run together). The spring 2026 "TIL a new word" micros have
+       no title and a small hand-made card: the word in <strong>, the part
+       of speech in a colored pill, each meaning a line starting with ":",
+       the origin in a line starting "From", and an example in a quote.
+       They are read here; anything else in the post shows on Read more. */}}
+  {{- $legacy := and (not (findRE (printf `%sdefine-(?:card|def|word)\b` $cls) $c 1)) (not .Title) -}}
+  {{- if and (not $w) $legacy -}}
+    {{- with findRE `(?s)<strong\b[^>]*>.*?</strong>` $c 1 -}}{{- $w = trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t .:,!" -}}{{- end -}}
+    {{- if not $w -}}{{- with findRE `(?s)<blockquote\b[^>]*>.*?</blockquote>` $c 1 -}}{{- with findRE `^\s*[\pL'’-]+` (index . 0 | plainify | htmlUnescape) 1 -}}{{- $w = trim (index . 0) " " -}}{{- end -}}{{- end -}}{{- end -}}
+  {{- end -}}
   {{- if not $w -}}{{- $w = .Date.Format "January 2, 2006" -}}{{- end -}}
 
   {{/* meanings; table-cell numbers pair with table-cell senses in order */}}
@@ -97,13 +108,49 @@
     {{- end -}}
   {{- end -}}
 
+  {{/* the spring 2026 hand-made cards (see the word above) */}}
+  {{- $lexUsed := false -}}
+  {{- if and (not $m) $legacy -}}
+    {{- if not $pos -}}
+      {{- range findRE `(?s)<span\b[^>]*background[^>]*>.*?</span>` $c -}}
+        {{- $t := lower (trim (. | plainify | htmlUnescape) " \n\t") -}}
+        {{- if and (not $pos) (findRE `^(noun|verb|adjective|adverb|pronoun|preposition|conjunction|interjection|phrase|idiom)$` $t 1) -}}{{- $pos = $t -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $defs := findRE `(?s)<p\b[^>]*>\s*:\s*.*?</p>` $c -}}
+    {{- range $i, $d := $defs -}}
+      {{- $t := trim ($d | plainify | htmlUnescape | htmlUnescape) ": \n\t" -}}
+      {{- if $t -}}{{- $m = $m | append (dict "n" (cond (gt (len $defs) 1) (string (add $i 1)) "") "t" $t) -}}{{- end -}}
+    {{- end -}}
+    {{- with findRE `(?s)<p\b[^>]*>\s*From\s.*?</p>` $c 1 -}}
+      {{- $x = $x | append (dict "l" "Origin" "t" (trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t")) -}}
+    {{- end -}}
+    {{/* a quote is the example, unless it IS the definition
+         ("decoraphobia (n.) — the irrational anxiety of ...") */}}
+    {{- with findRE `(?s)<blockquote\b[^>]*>.*?</blockquote>` $c 1 -}}
+      {{- $q := trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t" -}}
+      {{- $lead := printf `(?i)^%s\s*(?:\((?:n|v|adj|adv|noun|verb|adjective|adverb)\.?\))?\s*[—–:-]\s*` (replaceRE `[^\pL'’-]` "" $w) -}}
+      {{- if and (not $m) (findRE $lead $q 1) -}}
+        {{- with findRE `(?i)\((?:n|v|adj|adv|noun|verb|adjective|adverb)\.?\)` $q 1 -}}
+          {{- $ab := lower (replaceRE `[().]` "" (index . 0)) -}}
+          {{- if not $pos -}}{{- $pos = index (dict "n" "noun" "v" "verb" "adj" "adjective" "adv" "adverb" "noun" "noun" "verb" "verb" "adjective" "adjective" "adverb" "adverb") $ab -}}{{- end -}}
+        {{- end -}}
+        {{- $m = slice (dict "n" "" "t" (trim (replaceRE $lead "" $q) " ")) -}}
+      {{- else if not $ex -}}{{- $ex = $q -}}{{- end -}}
+    {{- end -}}
+    {{- if $m -}}{{- $lexUsed = true -}}{{- end -}}
+  {{- end -}}
+
   {{/* no define card: the post's own words (minus a leading "word:" label) */}}
   {{- if not $m -}}
-    {{- $plain := .Plain | htmlUnescape -}}
+    {{- $plain := .Plain | htmlUnescape | htmlUnescape -}}
     {{- $plain = replaceRE `(?i)^\s*word nerd alert\s*:?\s*` "" $plain -}}
     {{- with replaceRE `[^\pL\s-]` "" $w -}}{{- $plain = replaceRE (printf `(?i)^\s*%s\s*[:·•|–—]\s*` .) "" $plain -}}{{- end -}}
-    {{- $plain = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 220 -}}
+    {{/* truncate escapes quotes (&#39;), so unescape after it */}}
+    {{- $plain = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 220 | htmlUnescape -}}
     {{- with $plain -}}{{- $m = slice (dict "n" "" "t" .) -}}{{- end -}}
+    {{/* the quote is already part of that text */}}
+    {{- if and $ex (in $plain (substr $ex 0 30)) -}}{{- $ex = "" -}}{{- end -}}
   {{- end -}}
 
   {{/* Is there more on the post than the card shows? (Nov 2, Toby: "Read
@@ -116,7 +163,7 @@
   {{- $more := false -}}
   {{- if or (findRE (printf `%sdefine-note\b` $cls) $c 1) (findRE `<(?:iframe|video)\b` $c 1) -}}{{- $more = true -}}
   {{- else if gt (countwords .Plain) (add $cardW 6) -}}{{- $more = true -}}{{- end -}}
-  {{- if not (findRE (printf `%sdefine-def\b` $cls) $c 1) -}}{{- $more = true -}}{{- end -}}
+  {{- if and (not (findRE (printf `%sdefine-def\b` $cls) $c 1)) (not $lexUsed) -}}{{- $more = true -}}{{- end -}}
   {{- $out = $out | append (dict "more" $more "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
 {{- end -}}
 {{- $d := dict "words" $out "cat" .RelPermalink -}}

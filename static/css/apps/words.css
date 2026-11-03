@@ -167,3 +167,11 @@ html.hxw-two .hx-words .hxw-fab{position:fixed;left:calc(min(42vw,480px) - 16px)
   html.hxw-two .hx-words .hxw-card{padding:28px 56px 36px}
 }
 .hx-words .hxw-pn button:disabled b{font:500 15px/1.5 var(--h-ui)}
+
+/* long words (Nov 3: "agathokakological" broke mid-word): smaller type,
+   and if it still can't fit, a proper hyphen instead of a bare break */
+.hx-words .hxw-word.long,.hx-words .hxw-card .hxw-word.long{font-size:min(1em,9.6vw)}
+.hx-words .hxw-word.xlong,.hx-words .hxw-card .hxw-word.xlong{font-size:min(1em,7.6vw)}
+html.hxw-two .hx-words .hxw-card .hxw-word.long{font-size:clamp(36px,6vh,52px)}
+html.hxw-two .hx-words .hxw-card .hxw-word.xlong{font-size:clamp(30px,5vh,44px)}
+.hx-words .hxw-word{hyphens:auto;-webkit-hyphens:auto}

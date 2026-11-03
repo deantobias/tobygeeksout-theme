@@ -263,6 +263,14 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-word .hh-wtag .pos{margin:0;font-size:11px;font-style:normal;letter-spacing:.06em;color:#6B7280;text-transform:uppercase}
 .hh-word .pos span{font-style:normal;font-weight:700;font-size:10px;color:#C4622D;background:rgba(196,98,45,.12);border-radius:999px;padding:2px 6px;margin-left:4px}
 .hh-word .def{font:500 13px/1.35 var(--h-ui);margin:0;padding-top:8px;flex:none;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+/* every meaning, numbered: unfolded screens only (Nov 3) */
+.hh-word .defs{display:none;list-style:none;margin:0;padding:8px 0 0;font:500 13px/1.35 var(--h-ui)}
+.hh-word .defs li{margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hh-word .defs li b{color:#C4622D;font-weight:800;margin-right:6px}
+@media (min-width:600px) and (min-height:380px){
+  .hh-word.multi .def{display:none}
+  .hh-word.multi .defs{display:block;font-size:15px}
+}
 .hh-word .rm{margin-top:auto;align-self:flex-start;position:relative;top:0;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
 .hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
 
@@ -603,3 +611,21 @@ html.hx-dark .hx-peek.go{background:var(--color-terra,#C4622D);color:#fff}
 .hx-swipetip.on{opacity:1;transform:translate(-50%,0)}
 html.hx-dark .hx-swipetip{background:#F3EDE4;color:#1E2D4A}
 @media (prefers-reduced-motion:reduce){.hx-fab,.hx-peek,.hx-swipetip{transition:none !important}}
+
+/* ---------- 9. Back to top (Nov 3) ----------
+   hutch.js topButton(): a small round up arrow in the bottom right corner
+   (Toby: "bottom right corner, next to shuffle"). It shows while you
+   scroll back up after going far down. On posts it sits just above the
+   Surprise me button; above the Newer / Older bar on an open Word Nerd
+   card or photo. */
+.hx-top{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:8700;width:48px;height:48px;border-radius:50%;
+  display:grid;place-items:center;border:0;padding:0;cursor:pointer;background:#1E2D4A;color:#fff;box-shadow:0 6px 16px rgba(15,23,38,.25);
+  transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s;-webkit-tap-highlight-color:transparent}
+.hx-top .hx-ic{width:22px;height:22px}
+.hx-top.on{transform:none;opacity:1;pointer-events:auto}
+html.hx-hasfab .hx-top{right:24px;bottom:calc(86px + env(safe-area-inset-bottom))}
+html.hxw-open .hx-top{bottom:calc(104px + env(safe-area-inset-bottom))}
+html.hxp-lock .hx-top{bottom:calc(96px + env(safe-area-inset-bottom))}
+html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+@media print{.hx-top{display:none !important}}
+@media (prefers-reduced-motion:reduce){.hx-top{transition:none !important}}

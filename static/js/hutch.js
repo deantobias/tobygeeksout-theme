@@ -884,7 +884,8 @@
          "+N more" counts the ones that didn't */
       var lis = [].slice.call(defs.children), more = wc.querySelector('.pos .more'), total = (HOME.word && HOME.word.n) || lis.length;
       lis.forEach(function (li) { li.style.display = ''; li.style.webkitLineClamp = ''; });
-      var cbot = function () { return wc.getBoundingClientRect().bottom - parseFloat(getComputedStyle(wc).paddingBottom) + 1; };
+      /* text may use half the bottom padding, so one more line shows when it nearly fits (Nov 3, Toby) */
+      var cbot = function () { return wc.getBoundingClientRect().bottom - parseFloat(getComputedStyle(wc).paddingBottom) / 2 + 1; };
       /* as many as fit: the last one shown may be cut to 2 lines (with …)
          rather than dropped, so the card fills up; a single one may go
          down to 1 line */

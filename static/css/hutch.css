@@ -991,6 +991,10 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home.short:not(.nonow) .hh-p{display:none}
   #hutch-home.short:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(170px,1fr)}
   #hutch-home.short:not(.nonow) .hh-photo{min-height:170px}
+  /* a touch tighter so a meaning's second line fits (Nov 3, Toby) */
+  #hutch-home.short:not(.nonow) .hh-word .defs{line-height:1.25}
+  #hutch-home.short:not(.nonow) .hh-word .defs li{margin-bottom:4px}
+  #hutch-home.short:not(.nonow) .hh-word .w{margin-top:4px}
   /* Recent posts sets the top row's height; Currently fits into it (covers step aside) so the photo row gets the rest */
   #hutch-home.short:not(.nonow) .hh-now{min-height:0;overflow:hidden}
   #hutch-home.short:not(.nonow) .hh-now .hh-ntwo{contain:size !important;flex:1 1 0;min-height:0}

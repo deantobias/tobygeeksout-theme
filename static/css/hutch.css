@@ -585,10 +585,10 @@ html.hx-dark .hx-card p{color:#A9B2C3}
 
 /* ---------- 8. Single posts: Surprise me button, swipe peek, nudge (Nov 3) ----------
    hutch.js postExtras(). */
-.hx-fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8500;width:56px;height:56px;border-radius:18px;
+.hx-fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8500;width:52px;height:52px;border-radius:16px;
   display:grid;place-items:center;background:#D9A441;color:#fff !important;text-decoration:none !important;
   box-shadow:0 6px 18px rgba(15,23,38,.28);transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s;-webkit-tap-highlight-color:transparent}
-.hx-fab .hx-ic{width:26px;height:26px}
+.hx-fab .hx-ic{width:24px;height:24px}
 .hx-fab:active{transform:scale(.94)}
 .hx-fab.away{transform:translateY(calc(100% + 30px));opacity:0;pointer-events:none}
 html.hx-dark .hx-fab{box-shadow:0 6px 18px rgba(0,0,0,.5)}
@@ -618,14 +618,15 @@ html.hx-dark .hx-swipetip{background:#F3EDE4;color:#1E2D4A}
    about a screen down and stays until you're back near the top. On posts it sits just above the
    Surprise me button; above the Newer / Older bar on an open Word Nerd
    card or photo. */
-.hx-top{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:8700;width:48px;height:48px;border-radius:50%;
+/* same size, shape and edge as Surprise me, so the two read as a pair (Nov 3) */
+.hx-top{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8700;width:52px;height:52px;border-radius:16px;
   display:grid;place-items:center;border:0;padding:0;cursor:pointer;background:#1E2D4A;color:#fff;box-shadow:0 6px 16px rgba(15,23,38,.25);
   transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s;-webkit-tap-highlight-color:transparent}
-.hx-top .hx-ic{width:22px;height:22px}
+.hx-top .hx-ic{width:24px;height:24px}
 .hx-top.on{transform:none;opacity:1;pointer-events:auto}
-html.hx-hasfab .hx-top{right:24px;bottom:calc(86px + env(safe-area-inset-bottom))}
-html.hx-hasfab.hx-fab-away .hx-top{right:20px;bottom:calc(20px + env(safe-area-inset-bottom))}
-.hx-top{transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s,bottom .3s cubic-bezier(.2,.8,.2,1),right .3s}
+html.hx-hasfab .hx-top{bottom:calc(82px + env(safe-area-inset-bottom))}
+html.hx-hasfab.hx-fab-away .hx-top{bottom:calc(18px + env(safe-area-inset-bottom))}
+.hx-top{transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .2s,bottom .3s cubic-bezier(.2,.8,.2,1)}
 html.hxw-open .hx-top{bottom:calc(104px + env(safe-area-inset-bottom))}
 html.hxp-lock .hx-top{bottom:calc(96px + env(safe-area-inset-bottom))}
 html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba(0,0,0,.45)}

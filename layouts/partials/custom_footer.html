@@ -459,6 +459,9 @@
     // in pill state — that click means "scroll to top", not "navigate".
     if (data && data.post === location.href && data.list) {
       document.addEventListener('click', function (e) {
+        /* Hutch has its own way back (Nov 3: this sent Hutch's Blog
+           link, /?app=blog, to the home screen it was opened from) */
+        if (document.documentElement.classList.contains('hutch')) return;
         if (window.scrollY > 126) return;
         var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
         if (!a || a.origin !== location.origin) return;

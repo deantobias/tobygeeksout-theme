@@ -749,10 +749,14 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 @media (min-width:1400px) and (min-height:820px){
   .hh-area{max-width:1720px;grid-template-columns:1fr 1.15fr .95fr;grid-template-areas:"hello posts arch" "now word cats" "strip strip strip";
     grid-template-rows:auto auto auto;align-content:start;column-gap:20px;row-gap:18px}
-  #hutch-home:not(.nostrip):not(.nonow) .hh-photo{display:none}
+  /* Currently always keeps its spot (Nov 3, Toby: on his Mac the strip
+     didn't fit and the big photo had pushed Currently out). The big
+     photo only fills in when Den has nothing in progress. */
+  #hutch-home:not(.nonow) .hh-photo{display:none}
   #hutch-home.nonow .hh-area{grid-template-areas:"hello posts arch" "photo word cats" "strip strip strip"}
-  #hutch-home.nostrip .hh-area{grid-template-areas:"hello posts arch" "photo word cats"}
-  #hutch-home.nostrip .hh-now,#hutch-home.nostrip .hh-strip{display:none !important}
+  #hutch-home.nostrip .hh-area{grid-template-areas:"hello posts arch" "now word cats"}
+  #hutch-home.nostrip.nonow .hh-area{grid-template-areas:"hello posts arch" "photo word cats"}
+  #hutch-home.nostrip .hh-strip{display:none !important}
   .hh-photo{max-height:none;min-height:220px}
   .hh-arch{grid-area:arch;display:flex;flex-direction:column}
   .hh-now{grid-area:now;display:flex;flex-direction:column}
@@ -761,7 +765,12 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-arch,.hh-now,.hh-cats,.hh-strip{padding:16px 18px}
 
   /* From the archive */
-  .hh-alist{flex:1;margin-top:8px;transition:opacity .18s}
+  .hh-alist{flex:1 1 0;min-height:0;contain:size;overflow:hidden;margin-top:8px;transition:opacity .18s}
+  .hh-arow.off{display:none}
+  .hh-alist.tight .hh-arow{padding:8px 0;gap:12px}
+  .hh-alist.tight .hh-arow:first-child{padding-top:2px}
+  .hh-alist.tight .hh-arow img{width:56px;height:56px;border-radius:13px}
+  .hh-alist.tight .hh-arow em{-webkit-line-clamp:1}
   .hh-arch.swap .hh-alist{opacity:0}
   .hh-arow{display:flex;gap:14px;align-items:flex-start;padding:10px 0;border-top:1px solid #E7E1D8;color:inherit}
   .hh-arow:first-child{border-top:0;padding-top:4px}
@@ -809,5 +818,9 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* the logo and face sit on the dock line here (mockup v48+) */
   .hh-brand{bottom:calc(24px + env(safe-area-inset-bottom))}
   .hh-brand .face{width:58px;height:58px}
-  .hh-brand .logo{height:62px}
+  .hh-brand .logo{height:clamp(80px,4.6vw,112px)}  /* bigger, Nov 3 (Toby) */
+  /* tight on room: a step down, never smaller than it was before */
+  .hh-brand.sm{bottom:calc(24px + env(safe-area-inset-bottom));gap:12px}
+  .hh-brand.sm .face{width:58px;height:58px}
+  .hh-brand.sm .logo{height:62px}
 }

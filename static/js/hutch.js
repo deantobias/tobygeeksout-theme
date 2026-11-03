@@ -55,7 +55,8 @@
     about: '<circle cx="12" cy="8.2" r="3.7"/><path d="M4.5 20c0-4 3.5-6.2 7.5-6.2s7.5 2.2 7.5 6.2"/>',
     now: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/>',
     contact: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7.5 12 13l8.5-5.5"/>',
-    den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9l5 3-5 3z"/>',
+    /* the big play button from the mockups (Nov 3, Toby: "I love your new Den icon") */
+    den: '<path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z" fill="currentColor"/>',
     surprise: '<path d="M3.5 7h3c1.5 0 2.5.8 3.3 2l4.4 6c.8 1.2 1.8 2 3.3 2h3"/><path d="M3.5 17h3c1.5 0 2.5-.8 3.3-2l.8-1.1"/><path d="M13.4 10.1l.8-1.1c.8-1.2 1.8-2 3.3-2h3"/><path d="M18 4.5 20.5 7 18 9.5"/><path d="M18 14.5l2.5 2.5-2.5 2.5"/>',
     uses: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/>',
     follow: '<path d="M4.5 4.5a15 15 0 0 1 15 15"/><path d="M4.5 10.8a8.7 8.7 0 0 1 8.7 8.7"/><circle cx="5.3" cy="18.7" r="1.6"/>',
@@ -481,11 +482,28 @@
         '<span class="tx"><b>' + esc(x.t) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small>' + (x.x ? '<em>' + esc(x.x) + '</em>' : '') + '</span></a>';
     }).join('');
   }
+  /* From the archive shows as many posts as fit its card (Nov 3, Toby:
+     "there's room for a third"), like Recent posts */
+  function archFit() {
+    var l = homeEl && homeEl.querySelector('.hh-alist'); if (!l || !l.offsetParent) return;
+    var rows = [].slice.call(l.children), lb = l.getBoundingClientRect().bottom;
+    function lay() {
+      rows.forEach(function (r) { r.classList.remove('off'); });
+      var n = 0;
+      rows.forEach(function (r, i) { if (i > 0 && (n < i || r.getBoundingClientRect().bottom > lb + 1)) r.classList.add('off'); else n++; });
+      return n;
+    }
+    /* a smaller picture and a one-line note, when that makes room for one more */
+    l.classList.remove('tight');
+    var roomy = lay();
+    l.classList.add('tight');
+    if (lay() <= roomy) { l.classList.remove('tight'); lay(); }
+  }
   function bigDesk() {
     var out = '';
     if (ARCH.length) out += '<section class="hh-wg hh-arch" aria-label="From the archive"><div class="hh-wtag">From the archive<a href="' + esc(APPS.archive[2]) + '">Archive ›</a></div>' +
-      '<div class="hh-alist">' + archRows(2) + '</div><div class="hh-afoot"><span>Older posts, picked at random</span>' +
-      '<button type="button" class="hh-shuf" aria-label="Shuffle: two more older posts">' + ic('surprise') + '<span>Shuffle</span></button></div></section>';
+      '<div class="hh-alist">' + archRows(5) + '</div><div class="hh-afoot"><span>Older posts, picked at random</span>' +
+      '<button type="button" class="hh-shuf" aria-label="Shuffle: more older posts">' + ic('surprise') + '<span>Shuffle</span></button></div></section>';
     var N = (HOME && HOME.now) || {}, w = N.w && N.w.t ? N.w : null, r = N.r && N.r.t ? N.r : null;
     if (w || r) {
       var den = APPS.den[2] || '/watching/', item = function (x, kind) {
@@ -539,7 +557,7 @@
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
         /* big desktop: the example and a way in, so the card never ends in empty space */
-        (w.ex ? '<p class="wex">“' + esc(w.ex) + '”</p>' : '') + '<span class="wopen">Open Word Nerd ›</span></a>'
+        (w.ex ? '<p class="wex">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</p>' : '') + '<span class="wopen">Open Word Nerd ›</span></a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -581,7 +599,7 @@
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     var shuf = homeEl.querySelector('.hh-shuf');
     if (shuf) shuf.addEventListener('click', function () {
-      var ac = homeEl.querySelector('.hh-arch'), lst = ac.querySelector('.hh-alist'), n = lst.children.length || 2;
+      var ac = homeEl.querySelector('.hh-arch'), lst = ac.querySelector('.hh-alist'), n = lst.children.length || 5;
       ac.classList.add('swap');
       setTimeout(function () { lst.innerHTML = archRows(n); ac.classList.remove('swap'); fit(); }, 180);
     });
@@ -648,6 +666,7 @@
     if (!homeEl) return;
     setTimeout(photoFit, 0);
     setTimeout(brandFit, 0);
+    setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2', 'nostrip');
     /* big desktop: the photo strip only when it fits above the dock; else
@@ -831,7 +850,10 @@
     if (appLink) appLink.addEventListener('click', function (e) {
       var u = new URL(appLink.href);
       if (u.pathname + u.search === location.pathname + location.search) { e.preventDefault(); window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' }); var lf = document.querySelector('.hbl-left'); if (lf) lf.scrollTop = 0; return; }
-      if (de.classList.contains('hx-leaving')) e.preventDefault(); else leaving(appLink);
+      if (de.classList.contains('hx-leaving')) { e.preventDefault(); return; }
+      /* from a post, the Blog list opens with this post lit */
+      if (isPost) try { sessionStorage.setItem('hutch-lastpost', location.pathname); } catch (er) {}
+      leaving(appLink);
     });
     bar.querySelector('.hb-back').addEventListener('click', function () {
       /* On a post, back never goes to another post (Nov 3, Toby: "swipe
@@ -1368,6 +1390,13 @@
        posts as the swipe (Nov 3, Toby): micros and Watchlist cards are
        skipped there too. Hutch only; the Traditional theme is untouched. */
     var allRow = document.querySelector('.kr-row--all');
+    /* "All posts" opens the Blog list, this post lit (Nov 3, Toby: "people
+       don't know they can tap Blog to go back to the list") */
+    var allLink = allRow && allRow.querySelector('.kr-row-cat a');
+    if (allLink) {
+      allLink.href = APPS.blog[2];
+      allLink.addEventListener('click', function () { try { sessionStorage.setItem('hutch-lastpost', location.pathname); } catch (er) {} });
+    }
     if (allRow) {
       var mk = function (cls, k, x) { return '<a class="' + cls + '" href="' + esc(x.u) + '"><span class="kr-row-k">' + k + '</span><span class="kr-row-v">' + esc(x.t) + '</span></a>'; };
       [].forEach.call(allRow.querySelectorAll('.kr-row-prev, .kr-row-next, .kr-row-gap'), function (n) { n.remove(); });

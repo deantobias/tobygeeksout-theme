@@ -893,6 +893,46 @@
     });
   }
 
+  /* ---------- save posts ahead as they come into view (Nov 3) ----------
+     Toby: tapping a post in the Blog list took 1-2 seconds. Only the home
+     screen's apps and a post's neighbours were saved on the phone ahead
+     of time, so a post picked from a list waited on Micro.blog. Now, in
+     every app (Blog, Archive, Den, Calendar, Word Nerd, Photos...), post
+     links that come into view are handed to the page helper a few at a
+     time to save ahead, up to 40 per screen, so a tap opens at once.
+     Skipped when the phone is in data saver mode or on a slow (2G)
+     connection. */
+  function warmLinks() {
+    if (!swOK || !window.IntersectionObserver) return;
+    var cn = navigator.connection;
+    if (cn && (cn.saveData || /2g/.test(cn.effectiveType || ''))) return;
+    var seen = {}, queue = [], sent = 0, MAX = 40, t = null;
+    seen[location.pathname] = 1;
+    function flush() {
+      t = null;
+      var batch = queue.splice(0, 6);
+      if (!batch.length) return;
+      sent += batch.length;
+      navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: batch }); }).catch(function () {});
+      if (queue.length) t = setTimeout(flush, 700);
+    }
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        var u; try { u = new URL(en.target.href, location.href); } catch (e) { return; }
+        if (u.origin !== location.origin || !isPostURL(u.href) || seen[u.pathname] || sent + queue.length >= MAX) return;
+        seen[u.pathname] = 1; queue.push(u.pathname);
+        if (!t) t = setTimeout(flush, 350);
+      });
+    }, { rootMargin: '200px 0px' });
+    function scan(root) { [].forEach.call((root || document).querySelectorAll('a[href]'), function (a) { if (!a.__hw) { a.__hw = 1; io.observe(a); } }); }
+    scan();
+    /* lists drawn or redrawn later (filters, new posts, tabs, open cards) */
+    var pend = false;
+    if (window.MutationObserver) new MutationObserver(function () { if (pend) return; pend = true; setTimeout(function () { pend = false; scan(); }, 300); }).observe(document.body, { childList: true, subtree: true });
+  }
+
   /* ---------- back to top (Nov 3, Toby) ----------
      A small round up arrow in the bottom right corner (above Surprise me
      on posts), on every app screen that can
@@ -1178,7 +1218,7 @@
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }
-  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); topButton(); }
+  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); topButton(); if (!(PAGE.type === 'post' && PAGE.kind === 'page')) setTimeout(warmLinks, 600); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
 

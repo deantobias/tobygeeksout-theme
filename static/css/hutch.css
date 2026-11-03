@@ -857,10 +857,14 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    Taller tablets held upright (iPad, 3:4) keep their own layout. */
 @media (min-width:600px) and (min-height:380px) and (max-width:1099px) and (min-aspect-ratio:4/5){
   #hutch-home:not(.nonow) .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
+  /* the apps stay right under the date, even when Recent posts makes the row taller (Nov 3, Toby) */
+  #hutch-home:not(.nonow) .hh-tx{flex:none}
   /* the three cards end on one line: no height caps here (Nov 3, Toby) */
   #hutch-home:not(.nonow) .hh-photo,#hutch-home:not(.nonow) .hh-word{max-height:none}
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto minmax(120px,1fr);grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
+  /* the bottom row is only as tall as Word Nerd needs (Nov 3, Toby: the photo and Pristine ran too tall upright); the cards sit together in the middle of the screen */
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto fit-content(330px);align-content:center;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
   #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,58px);gap:8px 4px}
+  @media (max-width:760px){ #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,57px);gap:8px 1px} #hutch-home:not(.nonow) .hh-wtag{letter-spacing:.06em;font-size:11px} #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:11px} }
   #hutch-home:not(.nonow) .hh-quad .hh-tile{width:46px;height:46px}
   #hutch-home:not(.nonow) .hh-quad .hh-tile .hx-ic{width:21px;height:21px}
   #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:11.5px}
@@ -871,6 +875,19 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home:not(.nonow) .hh-word .w{font-size:22px}
   #hutch-home:not(.nonow) .hh-word .defs{font-size:13.5px}
   #hutch-home:not(.nonow) .hh-now{grid-area:now;display:flex;flex-direction:column;padding:12px;min-height:0}
+  /* Currently takes the height the other cards give it; it never sets it */
+  #hutch-home:not(.nonow) .hh-now .hh-ntwo{contain:size}
+  /* headers on one line; long episode and page lines end in … */
+  #hutch-home:not(.nonow) .hh-wtag{white-space:nowrap;gap:6px}
+  #hutch-home:not(.nonow) .hh-wtag a{flex:none}
+  .hh-now .hh-nitem em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* still too tall (hutch.js): the by/season line goes, then the cover */
+  .hh-now .hh-nitem.t1 i:not(.bar i){display:none}
+  .hh-now .hh-nitem.t2 img,.hh-now .hh-nitem.t2 .cv{display:none}
+  .hh-now .hh-nitem.t3 em{display:none}
+  /* a slightly smaller date leaves the middle and right columns room */
+  #hutch-home:not(.nonow) .hh-s{font-size:min(36px,4.7vw)}
+  #hutch-home:not(.nonow) .hh-g{font-size:min(20px,2.8vw)}
   .hh-now .hh-wtag a{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px}
   .hh-now .hh-ntwo{flex:1;display:grid;grid-template-columns:1fr;grid-auto-rows:1fr;gap:10px;margin-top:8px;min-height:0}
   .hh-now .hh-nitem{display:flex;flex-direction:column;gap:8px;background:#F6F1EB;border-radius:14px;padding:10px;color:inherit;min-height:0;overflow:hidden}
@@ -885,5 +902,5 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 }
 /* the shorter sideways screen (Brave's bars leave ~540px): smaller covers */
 @media (min-width:600px) and (min-height:380px) and (max-height:640px) and (max-width:1099px) and (min-aspect-ratio:4/5){
-  .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:52px;height:78px}
+  .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:46px;height:68px}
 }

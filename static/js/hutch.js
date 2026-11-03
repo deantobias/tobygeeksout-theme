@@ -757,6 +757,18 @@
     if (hit()) b.classList.add('xs');
     if (hit()) b.classList.add('off');
   }
+  /* Currently's items never end cut off: the by/season line goes first,
+     then the cover, then the last line (Nov 3, Toby: on the Fold sideways
+     the bottom line was cut). Checked again once fonts and images are in. */
+  function nitemFit() {
+    if (!homeEl) return;
+    [].forEach.call(homeEl.querySelectorAll('.hh-nitem'), function (x) {
+      x.classList.remove('t1', 't2', 't3');
+      ['t1', 't2', 't3'].forEach(function (t) { if (x.scrollHeight > x.clientHeight + 1) x.classList.add(t); });
+    });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(nitemFit, 50); });
+  window.addEventListener('load', function () { setTimeout(nitemFit, 50); });
   function fit() {
     if (!homeEl) return;
     setTimeout(photoFit, 0);
@@ -839,6 +851,7 @@
       var lis = wd.querySelectorAll('.defs li');
       for (var k = lis.length - 1; k > 0 && wd.scrollHeight > wd.clientHeight + 2; k--) lis[k].style.display = 'none';
     }
+    nitemFit();
     if (innerHeight <= 520) return; /* sideways phone: the area scrolls instead */
     function over() { var ab = a.getBoundingClientRect(); return [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab.bottom + 1; }); }
     if (over()) homeEl.classList.add('fit1');

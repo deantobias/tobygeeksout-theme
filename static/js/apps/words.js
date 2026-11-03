@@ -176,6 +176,15 @@
     }
     if (mq.addEventListener) mq.addEventListener('change', layout); else if (mq.addListener) mq.addListener(layout);
     layout();
+    /* swipe between words on an open card, the same as posts (Nov 3,
+       Toby: keep it consistent). Finger left = older word, right = newer.
+       The Newer / Older buttons stay. Swiping doesn't add back steps, so
+       back still closes the card. */
+    if (ctx.swipe) ctx.swipe({
+      active: function (t) { return (open || two()) && !!(t && t.closest && t.closest('.hxw-detail')); },
+      has: function (dir) { return !!W[dir < 0 ? sel + 1 : sel - 1]; },
+      go: function (dir) { show(dir < 0 ? sel + 1 : sel - 1); }
+    });
     /* coming back from a post (Read more or the date link): reopen the card
        he was on instead of dropping him on the list (Nov 2, Toby) */
     var hs = history.state;

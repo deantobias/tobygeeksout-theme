@@ -31,6 +31,41 @@ self.addEventListener('activate', function (e) {
   }).then(function () { return self.clients.claim(); }));
 });
 
+/* Theme files on a saved page (Nov 3, Toby: after swiping, the next post
+   had no Home badge and no Surprise me button). A saved page keeps the
+   theme file addresses it was saved with (hutch.js?<build number>), so it
+   could run older theme code than the site has now. The newest build
+   numbers seen are kept here, and every saved page is handed out with its
+   theme files pointed at the newest ones. */
+var ASSETS = '/__hutch-assets__';
+/* the addresses can be written \/js\/hutch.js inside a script */
+var ASSET_RE = /(\\?\/(?:css|js)\\?\/[\w.-]+\.(?:css|js))\?(\d{9,11})/g;
+function akey(p) { return p.replace(/\\/g, ''); }
+var latest = null;
+function grab(text) { var m, map = {}; ASSET_RE.lastIndex = 0; while ((m = ASSET_RE.exec(text))) map[akey(m[1])] = m[2]; return map; }
+function learn(text) {
+  var map = grab(text); if (!Object.keys(map).length) return Promise.resolve();
+  return getLatest().then(function (cur) {
+    var changed = false;
+    Object.keys(map).forEach(function (k) { if (!cur[k] || +map[k] > +cur[k]) { cur[k] = map[k]; changed = true; } });
+    latest = cur;
+    if (!changed) return;
+    return caches.open(CACHE).then(function (c) { return c.put(ASSETS, new Response(JSON.stringify(cur), { headers: { 'content-type': 'application/json' } })); });
+  });
+}
+function getLatest() {
+  if (latest) return Promise.resolve(latest);
+  return caches.open(CACHE).then(function (c) { return c.match(ASSETS); }).then(function (r) { return r ? r.json() : {}; })
+    .catch(function () { return {}; }).then(function (m) { latest = m || {}; return latest; });
+}
+function freshen(res) {
+  return Promise.all([res.text(), getLatest()]).then(function (a) {
+    var t = a[0], map = a[1];
+    t = t.replace(ASSET_RE, function (all, path, v) { var n = map[akey(path)]; return n && +n > +v ? path + '?' + n : all; });
+    return new Response(t, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } });
+  });
+}
+
 function key(url) {
   var u = new URL(url);
   u.hash = '';
@@ -47,14 +82,18 @@ function skip(req) {
 }
 function trim(cache) {
   return cache.keys().then(function (keys) {
+    keys = keys.filter(function (k) { return k.url.indexOf(ASSETS) < 0; });
     if (keys.length <= MAX) return;
     return Promise.all(keys.slice(0, keys.length - MAX).map(function (k) { return cache.delete(k); }));
   });
 }
 function save(req, res) {
   if (!res || !res.ok || res.type !== 'basic' || res.redirected || !/text\/html/i.test(res.headers.get('content-type') || '')) return Promise.resolve();
-  var copy = res.clone();
-  return caches.open(CACHE).then(function (c) { return c.put(key(req.url), copy).then(function () { return trim(c); }); });
+  var copy = res.clone(), look = res.clone();
+  return Promise.all([
+    caches.open(CACHE).then(function (c) { return c.put(key(req.url), copy).then(function () { return trim(c); }); }),
+    look.text().then(learn)
+  ]);
 }
 
 self.addEventListener('fetch', function (e) {
@@ -62,7 +101,7 @@ self.addEventListener('fetch', function (e) {
   if (skip(req)) return;
   e.respondWith(
     caches.open(CACHE).then(function (c) { return c.match(key(req.url)); }).then(function (hit) {
-      if (hit) return hit;
+      if (hit) return freshen(hit);
       return fetch(req).then(function (res) { e.waitUntil(save(req, res)); return res; });
     }).catch(function () { return fetch(req); })
   );
@@ -79,11 +118,13 @@ self.addEventListener('message', function (e) {
         return c.match(k).then(function (hit) {
           if (hit) return;
           return fetch(k, { credentials: 'same-origin' }).then(function (res) {
-            if (res.ok && !res.redirected && /text\/html/i.test(res.headers.get('content-type') || '')) return c.put(k, res);
+            if (res.ok && !res.redirected && /text\/html/i.test(res.headers.get('content-type') || '')) { var look = res.clone(); return Promise.all([c.put(k, res), look.text().then(learn)]); }
           }).catch(function () {});
         });
       })).then(function () { return trim(c); });
     }));
   }
   if (d.type === 'hutch-clear') e.waitUntil(caches.delete(CACHE));
+  /* the page found a newer copy of itself: learn its theme build numbers */
+  if (d.type === 'hutch-learn' && d.text) e.waitUntil(learn(String(d.text)));
 });

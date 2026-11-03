@@ -91,9 +91,10 @@ html.hutch-app body{padding-bottom:env(safe-area-inset-bottom)}
    (Nov 2). Nov 3 (Toby: "something dimmed in the way"): the page no
    longer dims, only the button shows the tap. */
 #hutch-bar .hb-btn:active{background:rgba(127,127,127,.22)}
-html.hx-leaving #hutch-bar .hb-back,html.hx-leaving #hutch-bar .hb-home{background:color-mix(in srgb,var(--color-terra,#C4622D) 22%,transparent)}
+#hutch-bar .tapped{background:color-mix(in srgb,var(--color-terra,#C4622D) 22%,transparent) !important}
 html.hx-leaving body{cursor:progress}
 #hutch-bar .hb-app{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}
+a.hb-app{color:inherit !important;text-decoration:none !important;-webkit-tap-highlight-color:transparent;border-radius:12px}
 #hutch-bar .hb-tile{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
 #hutch-bar .hb-tile .hx-ic{width:16px;height:16px}
 #hutch-bar .hb-names{position:relative;flex:1;min-width:0;height:var(--h-bar)}
@@ -141,6 +142,7 @@ html.hutch-blog #main-content,html.hutch-own #main-content{display:none !importa
 .hbl-it{display:block;background:var(--surf);border:1px solid var(--ln);border-radius:20px;margin-bottom:12px;overflow:hidden;color:inherit !important;text-decoration:none !important;transition:border-color .15s}
 .hbl-it:hover,.hbl-it:focus-visible{border-color:var(--acc);outline:none}
 .hbl-it.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.hbl-it.hl{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent);transition:box-shadow .3s,border-color .3s}
 .hbl-it .hero{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--ln)}
 .hbl-tx{padding:14px 16px 16px}
 .hbl-k{font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}

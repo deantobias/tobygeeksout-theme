@@ -563,17 +563,35 @@
      more taps while the next page loads, so a second tap can't skip two
      pages back (Nov 2, Toby: "slow or do I have to tap twice?"). Cleared
      if the page comes back from the browser's back/forward cache. */
-  function leaving() {
+  /* btn: the button that was tapped. Only that one lights up (Nov 3,
+     Toby: swiping lit the back arrow pink though he never touched it) */
+  function leaving(btn) {
     if (de.classList.contains('hx-leaving')) return true;
     de.classList.add('hx-leaving');
-    setTimeout(function () { de.classList.remove('hx-leaving'); }, 4000);
+    if (btn && btn.classList) btn.classList.add('tapped');
+    setTimeout(function () { de.classList.remove('hx-leaving'); if (btn && btn.classList) btn.classList.remove('tapped'); }, 4000);
     return false;
   }
   /* how long the back list was when this page loaded: anything added
      after (an embedded frame, a sheet) is skipped by the back arrow */
   var L0 = history.length, fromBF = false;
   try { var nv = performance.getEntriesByType('navigation')[0]; fromBF = !!nv && nv.type === 'back_forward'; } catch (e) {}
-  window.addEventListener('pageshow', function (e) { de.classList.remove('hx-leaving'); if (e.persisted) fromBF = true; });
+  window.addEventListener('pageshow', function (e) {
+    de.classList.remove('hx-leaving');
+    [].forEach.call(document.querySelectorAll('#hutch-bar .tapped'), function (b) { b.classList.remove('tapped'); });
+    if (e.persisted) fromBF = true;
+  });
+
+  /* the nearest screen behind this one in the back list that isn't a post */
+  function isPostURL(u) { try { return /^\/\d{4}\/\d{2}\/\d{2}\//.test(new URL(u, location.href).pathname); } catch (e) { return false; } }
+  function appBehind() {
+    try {
+      if (!window.navigation || !navigation.entries || !navigation.currentEntry) return null;
+      var ents = navigation.entries(), cur = navigation.currentEntry.index;
+      for (var i = cur - 1; i >= 0; i--) if (ents[i] && ents[i].url && !isPostURL(ents[i].url)) return ents[i];
+    } catch (e) {}
+    return null;
+  }
 
   function buildFrame() {
     var k = appForPage(), a = APPS[k] || APPS.blog;
@@ -582,10 +600,14 @@
     var name = a[0];
     if (k === 'archive' && path.indexOf('/categories/') === 0 && PAGE.title) name = PAGE.title;
     if (k === 'blog' && !isPost && path !== '/' && PAGE.title) name = PAGE.title;
+    /* the app's icon and name open that app's main screen (Nov 3, Toby);
+       on a post, that's the Blog list */
+    var appHome = a[2] && !/^https?:/.test(a[2]) ? a[2] : null;
     var bar = el('<header id="hutch-bar" role="banner">' +
       '<button type="button" class="hb-btn hb-back" aria-label="Back">' + ic('back') + '</button>' +
-      '<div class="hb-app"><span class="hb-tile" style="background:' + a[1] + '">' + ic(k) + '</span><div class="hb-names"><span class="hb-name">' + esc(name) + '</span>' +
-        (hasTitle ? '<span class="hb-title">' + esc(isPost ? PAGE.title || '' : '') + '</span>' : '') + '</div></div>' +
+      (appHome ? '<a class="hb-app" href="' + esc(appHome) + '" aria-label="' + esc(a[0]) + ': main screen">' : '<div class="hb-app">') +
+        '<span class="hb-tile" style="background:' + a[1] + '">' + ic(k) + '</span><div class="hb-names"><span class="hb-name">' + esc(name) + '</span>' +
+        (hasTitle ? '<span class="hb-title">' + esc(isPost ? PAGE.title || '' : '') + '</span>' : '') + '</div>' + (appHome ? '</a>' : '</div>') +
       (hasTitle ? '<span class="hb-pct">0%</span>' : '') +
       (isBlogApp ? '<button type="button" class="hb-btn hb-expand" aria-label="Full screen" title="Full screen">' + ic('expand') + '</button>' : '') +
       /* no search button here (Nov 2, Toby): inside an app it read as
@@ -596,11 +618,36 @@
       '<a class="hb-btn hb-home" href="/" aria-label="Home" title="Home"><span class="hx-rab">' + RABBIT + '</span><span class="hb-hbadge" aria-hidden="true">' + ic('house', 2.4) + '</span></a>' +
       (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);
+    var appLink = bar.querySelector('a.hb-app');
+    if (appLink) appLink.addEventListener('click', function (e) {
+      var u = new URL(appLink.href);
+      if (u.pathname + u.search === location.pathname + location.search) { e.preventDefault(); window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' }); var lf = document.querySelector('.hbl-left'); if (lf) lf.scrollTop = 0; return; }
+      if (de.classList.contains('hx-leaving')) e.preventDefault(); else leaving(appLink);
+    });
     bar.querySelector('.hb-back').addEventListener('click', function () {
+      /* On a post, back never goes to another post (Nov 3, Toby: "swipe
+         takes care of older and newer"): it goes straight to the app
+         screen you came from (the Blog list, Photos, Word Nerd, the home
+         screen), skipping any posts in between, as you left it. Opened
+         from outside the site, it goes to the Blog list. */
+      if (isPost) {
+        var tgt = appBehind();
+        if (de.classList.contains('hx-leaving')) { location.href = tgt ? tgt.url : APPS.blog[2]; return; }
+        leaving(this);
+        if (tgt && window.navigation && navigation.traverseTo) {
+          var g = false;
+          window.addEventListener('pagehide', function () { g = true; }, { once: true });
+          try { navigation.traverseTo(tgt.key); } catch (er) { location.href = tgt.url; return; }
+          setTimeout(function () { if (!g && document.visibilityState === 'visible') location.href = tgt.url; }, 1200);
+          return;
+        }
+        if (!window.navigation || !navigation.entries) { /* older browsers: the usual way below */ de.classList.remove('hx-leaving'); }
+        else { location.href = APPS.blog[2]; return; }
+      }
       var same = false;
       try { same = document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
       /* a second tap while waiting never gets ignored: it goes straight back */
-      if (leaving()) { location.href = same ? document.referrer : '/'; return; }
+      if (leaving(this)) { location.href = same ? document.referrer : '/'; return; }
       if (!(same && history.length > 1)) { location.href = '/'; return; }
       var extra = fromBF ? 0 : history.length - L0;
       if (extra > 0) {
@@ -626,7 +673,7 @@
       history.back();
       setTimeout(function () { if (!gone && document.visibilityState === 'visible') location.href = document.referrer; }, 1200);
     });
-    bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else { ls('hutch-home-tip', '9'); leaving(); } });
+    bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else { ls('hutch-home-tip', '9'); leaving(this); } });
     /* first few app opens: a small "Home" bubble under the rabbit, until
        the reader has used it once */
     var tipN = +(ls('hutch-home-tip') || 0);
@@ -685,7 +732,8 @@
           key: k, app: a, bar: bar, page: PAGE, data: J('hutch-app-data'), path: path,
           ic: ic, esc: esc, el: el, ls: ls, phase: PHASE, dark: DARK, calm: calm,
           own: function () { de.classList.add('hutch-own'); }, /* hide the Traditional page */
-          openSheet: openSheet, closeSheet: closeSheet
+          openSheet: openSheet, closeSheet: closeSheet,
+          swipe: addSwipe /* the same older / newer swipe as posts (Nov 3) */
         });
       } catch (err) { de.classList.remove('hutch-own'); if (window.console) console.error('Hutch app ' + k, err); }
     }
@@ -777,6 +825,18 @@
       }
     };
     render(); layout();
+    /* back from swiping through posts (Nov 3): the list scrolls to the
+       post you ended on and lights it up for a moment */
+    function showLast() {
+      var u = null; try { u = sessionStorage.getItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lastpost'); } catch (e) {}
+      if (!u) return;
+      var c = list.querySelector('.hbl-it[href="' + u.replace(/"/g, '') + '"]');
+      if (!c) return;
+      c.scrollIntoView({ block: 'center' });
+      c.classList.add('hl'); setTimeout(function () { c.classList.remove('hl'); }, 2400);
+    }
+    showLast();
+    window.addEventListener('pageshow', function (e) { if (e.persisted) showLast(); });
     /* new posts arrive without a refresh (Nov 3): the timeline is redrawn
        from the newer copy and stays on the post you were looking at */
     window.hutchBlogFresh = function (tl) {
@@ -818,6 +878,94 @@
     });
   }
 
+  /* ---------- swipe for older / newer (posts, Word Nerd cards) ----------
+     Nov 3 (Toby): one swipe that works the same everywhere you read one
+     thing at a time. Finger to the left = older, to the right = newer.
+       - Only a clear sideways swipe counts: it has to start away from the
+         screen edges (Android's own back swipe lives there) and move
+         mostly sideways. Scrolling never triggers it; anything under the
+         finger that can really scroll sideways keeps its own swipe.
+       - While dragging, a quiet round arrow slides in from that side and
+         turns orange past the line. Let go there and it goes; let go
+         early and nothing happens.
+     opts: has(dir) is there something that way? go(dir) go there;
+     active() optional, swipes count only while it says yes. */
+  var peekEls = null;
+  function addSwipe(opts) {
+    var W = function () { return window.innerWidth; };
+    if (!peekEls) {
+      peekEls = { r: el('<div class="hx-peek r" aria-hidden="true">' + ic('fwd', 2.4) + '</div>'), l: el('<div class="hx-peek l" aria-hidden="true">' + ic('back', 2.4) + '</div>') };
+      document.body.appendChild(peekEls.r); document.body.appendChild(peekEls.l);
+    }
+    var peekR = peekEls.r, peekL = peekEls.l;
+    function line() { return Math.min(130, W() * 0.3); }
+    function place(pk, px, anim) {
+      if (!pk) return;
+      pk.style.transition = anim ? 'transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s, background-color .15s' : 'background-color .15s';
+      var k = Math.max(0, Math.min(1, px / line())), x = -60 + 76 * k;
+      pk.style.transform = pk.classList.contains('r') ? 'translate(' + (-x) + 'px,-50%)' : 'translate(' + x + 'px,-50%)';
+      pk.style.opacity = px > 4 ? String(0.35 + 0.65 * k) : '0';
+      pk.classList.toggle('go', px >= line());
+    }
+    /* stands down only when the thing under the finger can really scroll
+       sideways that way, by more than a sliver (a review card a few
+       pixels too wide used to block it, Nov 3) */
+    var scrollers = [];
+    function findScrollers(t) {
+      var out = [];
+      for (var e = t; e && e !== document.body && e !== de; e = e.parentElement) {
+        if (/^(INPUT|TEXTAREA|SELECT|VIDEO|IFRAME)$/.test(e.tagName)) return null;
+        if (e.scrollWidth > e.clientWidth + 24) { var o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') out.push(e); }
+      }
+      return out;
+    }
+    function canScroll(dir) {
+      for (var i = 0; i < scrollers.length; i++) {
+        var e = scrollers[i], max = e.scrollWidth - e.clientWidth;
+        if (dir < 0 ? e.scrollLeft < max - 2 : e.scrollLeft > 2) return true;
+      }
+      return false;
+    }
+    var x0 = 0, y0 = 0, mode = null, dx = 0, EDGE = 28;
+    document.addEventListener('touchstart', function (e) {
+      mode = null; dx = 0;
+      if (e.touches.length !== 1 || openSheetEl || de.classList.contains('hx-leaving') || (opts.active && !opts.active(e.target))) { mode = 'off'; return; }
+      var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
+      scrollers = findScrollers(e.target);
+      if (!scrollers || x0 < EDGE || x0 > W() - EDGE || (window.getSelection && String(window.getSelection()).length)) mode = 'off';
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (mode === 'off' || mode === 'v') return;
+      var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
+      if (!mode) {
+        if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { mode = 'v'; return; }
+        if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 1.8) mode = canScroll(mx) || !opts.has(mx < 0 ? -1 : 1) ? 'off' : 'h'; else return;
+        if (mode === 'off') return;
+      }
+      dx = mx;
+      var pk = dx < 0 ? peekR : peekL, other = dx < 0 ? peekL : peekR;
+      if (!opts.has(dx < 0 ? -1 : 1)) { place(pk, 0, false); place(other, 0, false); return; }
+      e.preventDefault();
+      place(pk, Math.abs(dx) * 0.9, false); place(other, 0, false);
+    }, { passive: false });
+    function end() {
+      if (mode !== 'h') { mode = null; return; }
+      mode = null;
+      var dir = dx < 0 ? -1 : 1, pk = dir < 0 ? peekR : peekL;
+      if (opts.has(dir) && Math.abs(dx) * 0.9 >= line()) {
+        ls('hutch-swipe-tip', '9');
+        place(pk, 9999, true);
+        opts.go(dir);
+        setTimeout(function () { place(peekR, 0, true); place(peekL, 0, true); }, 220);
+      } else { place(peekR, 0, true); place(peekL, 0, true); }
+      dx = 0;
+    }
+    document.addEventListener('touchend', end, { passive: true });
+    document.addEventListener('touchcancel', end, { passive: true });
+    window.addEventListener('pageshow', function () { place(peekR, 0, false); place(peekL, 0, false); });
+    return { place: place, peekR: peekR, peekL: peekL, busy: function () { return !!mode; } };
+  }
+
   /* ---------- single posts: swipe for older / newer, Surprise me ----------
      Nov 3 (Toby). Swipe left = older post, swipe right = newer post
      (titled posts by date, from partials/hutch-data/post.html).
@@ -851,88 +999,33 @@
       lastY = y;
     }, { passive: true });
 
+    /* the "All posts" row of Keep reading at the bottom goes to the same
+       posts as the swipe (Nov 3, Toby): micros and Watchlist cards are
+       skipped there too. Hutch only; the Traditional theme is untouched. */
+    var allRow = document.querySelector('.kr-row--all');
+    if (allRow) {
+      var mk = function (cls, k, x) { return '<a class="' + cls + '" href="' + esc(x.u) + '"><span class="kr-row-k">' + k + '</span><span class="kr-row-v">' + esc(x.t) + '</span></a>'; };
+      [].forEach.call(allRow.querySelectorAll('.kr-row-prev, .kr-row-next, .kr-row-gap'), function (n) { n.remove(); });
+      allRow.insertAdjacentHTML('beforeend', (older ? mk('kr-row-prev', '← Older', older) : '<span class="kr-row-gap" aria-hidden="true"></span>') + (newer ? mk('kr-row-next', 'Newer →', newer) : ''));
+      if (!older && !newer) allRow.remove();
+    }
     if (!older && !newer) return;
     /* save both neighbours ahead */
     if (swOK) navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: [older, newer].filter(Boolean).map(function (x) { return x.u; }) }); }).catch(function () {});
 
-    /* Nov 3 (Toby: the blue title card was "too much"): just a quiet
-       round arrow that slides in from the side as you drag, and turns
-       orange once you've pulled far enough to open the post. */
-    function peekHTML(side, x) {
-      return '<div class="hx-peek ' + side + '" aria-hidden="true" title="' + esc(x.t) + '">' + ic(side === 'r' ? 'fwd' : 'back', 2.4) + '</div>';
-    }
-    var peekR = older ? el(peekHTML('r', older)) : null, peekL = newer ? el(peekHTML('l', newer)) : null;
-    if (peekR) document.body.appendChild(peekR);
-    if (peekL) document.body.appendChild(peekL);
-    function place(pk, px, anim) {
-      if (!pk) return;
-      pk.style.transition = anim ? 'transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s, background-color .15s' : 'background-color .15s';
-      var k = Math.max(0, Math.min(1, px / line())), x = -60 + 76 * k;
-      pk.style.transform = pk.classList.contains('r') ? 'translate(' + (-x) + 'px,-50%)' : 'translate(' + x + 'px,-50%)';
-      pk.style.opacity = px > 4 ? String(0.35 + 0.65 * k) : '0';
-      pk.classList.toggle('go', px >= line());
-    }
-    function line() { return Math.min(130, W() * 0.3); }
-    /* Nov 3 (Toby: the 2nd and 3rd swipes didn't work): something in the
-       post that is a little wider than the screen (a review card) made the
-       swipe stand down. Now it only stands down when the thing under the
-       finger can really scroll sideways in that direction, by more than a
-       sliver. */
-    var scrollers = [];
-    function findScrollers(t) {
-      var out = [];
-      for (var e = t; e && e !== document.body && e !== de; e = e.parentElement) {
-        if (/^(INPUT|TEXTAREA|SELECT|VIDEO|IFRAME)$/.test(e.tagName)) return null;
-        if (e.scrollWidth > e.clientWidth + 24) { var o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') out.push(e); }
-      }
-      return out;
-    }
-    function canScroll(dir) {
-      for (var i = 0; i < scrollers.length; i++) {
-        var e = scrollers[i], max = e.scrollWidth - e.clientWidth;
-        if (dir < 0 ? e.scrollLeft < max - 2 : e.scrollLeft > 2) return true;
-      }
-      return false;
-    }
-    var x0 = 0, y0 = 0, mode = null, dx = 0, EDGE = 28;
-    document.addEventListener('touchstart', function (e) {
-      mode = null; dx = 0;
-      if (e.touches.length !== 1 || openSheetEl || de.classList.contains('hx-leaving')) { mode = 'off'; return; }
-      var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
-      scrollers = findScrollers(e.target);
-      if (!scrollers || x0 < EDGE || x0 > W() - EDGE || (window.getSelection && String(window.getSelection()).length)) mode = 'off';
-    }, { passive: true });
-    document.addEventListener('touchmove', function (e) {
-      if (mode === 'off' || mode === 'v') return;
-      var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
-      if (!mode) {
-        if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { mode = 'v'; return; }
-        if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 1.8) mode = canScroll(mx) ? 'off' : 'h'; else return;
-        if (mode === 'off') return;
-      }
-      dx = mx;
-      var pk = dx < 0 ? peekR : peekL, other = dx < 0 ? peekL : peekR;
-      if (!pk) { dx = 0; return; }
-      e.preventDefault();
-      place(pk, Math.abs(dx) * 0.9, false); place(other, 0, false);
-    }, { passive: false });
-    function end() {
-      if (mode !== 'h') { mode = null; return; }
-      mode = null;
-      var pk = dx < 0 ? peekR : peekL, x = dx < 0 ? older : newer;
-      if (pk && x && Math.abs(dx) * 0.9 >= line()) {
-        ls('hutch-swipe-tip', '9');
-        place(pk, 9999, true); leaving();
+    var sw = addSwipe({
+      has: function (dir) { return !!(dir < 0 ? older : newer); },
+      go: function (dir) {
+        var x = dir < 0 ? older : newer;
+        leaving();
+        try { sessionStorage.setItem('hutch-lastpost', x.u); } catch (er) {}
         /* replace, not a new step: back (the arrow or Android's edge
            swipe) goes straight to the app you started from, however many
            posts you swiped through (Nov 3, Toby) */
         location.replace(x.u);
-      } else { place(peekR, 0, true); place(peekL, 0, true); }
-      dx = 0;
-    }
-    document.addEventListener('touchend', end, { passive: true });
-    document.addEventListener('touchcancel', end, { passive: true });
-    window.addEventListener('pageshow', function () { place(peekR, 0, false); place(peekL, 0, false); });
+      }
+    });
+    var place = sw.place, peekR = older ? sw.peekR : null, peekL = newer ? sw.peekL : null, mode = null;
 
     /* one-time nudge: first two posts on a touch screen */
     var n = +(ls('hutch-swipe-tip') || 0), touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
@@ -940,7 +1033,7 @@
       ls('hutch-swipe-tip', String(n + 1));
       var demo = peekR || peekL;
       setTimeout(function () {
-        if (mode || window.scrollY > 200) return;
+        if (sw.busy() || window.scrollY > 200) return;
         var tip = el('<div class="hx-swipetip" role="status">' + ic('back') + '<span>Swipe for older and newer posts</span>' + ic('fwd') + '</div>');
         document.body.appendChild(tip);
         requestAnimationFrame(function () { tip.classList.add('on'); });
@@ -995,6 +1088,9 @@
             if (!res.ok || !/text\/html/i.test(res.headers.get('content-type') || '')) return;
             return res.clone().text().then(function (fresh) {
               c.put(k, res);
+              /* tell the page helper the newest theme build, so every saved
+                 page loads the newest theme files from now on */
+              try { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'hutch-learn', text: fresh.slice(0, 60000) }); } catch (e) {}
               if (old !== null && norm(old) !== norm(fresh)) gotFresh(fresh);
             });
           });

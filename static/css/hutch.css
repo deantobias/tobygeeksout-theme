@@ -989,3 +989,10 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home:not(.nonow) .hh-p{display:none}
   #hutch-home:not(.nonow) .hh-photo{min-height:170px}
 }
+
+/* the bunny on the big desktop sits just past the photo strip's right end,
+   on the ridge's last rise, so the strip never hides it (Nov 3, Toby: on
+   Windows it was behind the strip) */
+@media (min-width:1400px) and (min-height:700px){
+  .hh-bunny{left:calc(96% - 11px);bottom:52.5%}
+}

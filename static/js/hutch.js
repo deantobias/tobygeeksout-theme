@@ -825,11 +825,13 @@
          screen edges (Android's own back swipe lives there) and move
          mostly sideways. Scrolling never triggers it; photo mosaics,
          wide tables and code that scroll sideways keep their own swipe.
-       - While dragging, a card peeks in from the side with the post's
-         title. Let go past the line and it opens; let go early and
-         nothing happens.
+       - While dragging, a small round arrow slides in from the side and
+         turns orange past the line. Let go there and it opens; let go
+         early and nothing happens.
+       - Swiping replaces the page instead of adding a step, so back goes
+         straight to the app you came from.
        - The first two posts someone opens show a one-time nudge: the
-         older card peeks in and back, with "Swipe for older and newer
+         arrow peeks in and back, with "Swipe for older and newer
          posts". Never again once they've swiped.
        - Both neighbours are saved ahead, so they open at once.
      Surprise me: a round shuffle button, bottom right, in the Surprise
@@ -853,26 +855,42 @@
     /* save both neighbours ahead */
     if (swOK) navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: [older, newer].filter(Boolean).map(function (x) { return x.u; }) }); }).catch(function () {});
 
+    /* Nov 3 (Toby: the blue title card was "too much"): just a quiet
+       round arrow that slides in from the side as you drag, and turns
+       orange once you've pulled far enough to open the post. */
     function peekHTML(side, x) {
-      return '<div class="hx-peek ' + side + '" aria-hidden="true"><span class="ar">' + ic(side === 'r' ? 'fwd' : 'back') + '</span><span class="tx"><small>' + (side === 'r' ? 'Older' : 'Newer') + '</small><b>' + esc(x.t) + '</b></span></div>';
+      return '<div class="hx-peek ' + side + '" aria-hidden="true" title="' + esc(x.t) + '">' + ic(side === 'r' ? 'fwd' : 'back', 2.4) + '</div>';
     }
     var peekR = older ? el(peekHTML('r', older)) : null, peekL = newer ? el(peekHTML('l', newer)) : null;
     if (peekR) document.body.appendChild(peekR);
     if (peekL) document.body.appendChild(peekL);
     function place(pk, px, anim) {
       if (!pk) return;
-      pk.style.transition = anim ? 'transform .28s cubic-bezier(.2,.8,.2,1), opacity .28s' : 'none';
-      var w = pk.offsetWidth || 260;
-      var shown = Math.min(px, w);
-      pk.style.transform = pk.classList.contains('r') ? 'translateX(' + (w + 24 - shown) + 'px)' : 'translateX(' + (-(w + 24) + shown) + 'px)';
-      pk.style.opacity = px > 4 ? '1' : '0';
+      pk.style.transition = anim ? 'transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s, background-color .15s' : 'background-color .15s';
+      var k = Math.max(0, Math.min(1, px / line())), x = -60 + 76 * k;
+      pk.style.transform = pk.classList.contains('r') ? 'translate(' + (-x) + 'px,-50%)' : 'translate(' + x + 'px,-50%)';
+      pk.style.opacity = px > 4 ? String(0.35 + 0.65 * k) : '0';
       pk.classList.toggle('go', px >= line());
     }
-    function line() { return Math.min(150, W() * 0.32); }
-    function scrollsSideways(t) {
-      for (var e = t; e && e !== document.body; e = e.parentElement) {
-        if (e.scrollWidth > e.clientWidth + 4) { var o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') return true; }
-        if (/^(INPUT|TEXTAREA|SELECT|VIDEO|IFRAME)$/.test(e.tagName)) return true;
+    function line() { return Math.min(130, W() * 0.3); }
+    /* Nov 3 (Toby: the 2nd and 3rd swipes didn't work): something in the
+       post that is a little wider than the screen (a review card) made the
+       swipe stand down. Now it only stands down when the thing under the
+       finger can really scroll sideways in that direction, by more than a
+       sliver. */
+    var scrollers = [];
+    function findScrollers(t) {
+      var out = [];
+      for (var e = t; e && e !== document.body && e !== de; e = e.parentElement) {
+        if (/^(INPUT|TEXTAREA|SELECT|VIDEO|IFRAME)$/.test(e.tagName)) return null;
+        if (e.scrollWidth > e.clientWidth + 24) { var o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') out.push(e); }
+      }
+      return out;
+    }
+    function canScroll(dir) {
+      for (var i = 0; i < scrollers.length; i++) {
+        var e = scrollers[i], max = e.scrollWidth - e.clientWidth;
+        if (dir < 0 ? e.scrollLeft < max - 2 : e.scrollLeft > 2) return true;
       }
       return false;
     }
@@ -881,14 +899,16 @@
       mode = null; dx = 0;
       if (e.touches.length !== 1 || openSheetEl || de.classList.contains('hx-leaving')) { mode = 'off'; return; }
       var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
-      if (x0 < EDGE || x0 > W() - EDGE || scrollsSideways(e.target) || (window.getSelection && String(window.getSelection()).length)) mode = 'off';
+      scrollers = findScrollers(e.target);
+      if (!scrollers || x0 < EDGE || x0 > W() - EDGE || (window.getSelection && String(window.getSelection()).length)) mode = 'off';
     }, { passive: true });
     document.addEventListener('touchmove', function (e) {
       if (mode === 'off' || mode === 'v') return;
       var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
       if (!mode) {
         if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { mode = 'v'; return; }
-        if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 1.8) mode = 'h'; else return;
+        if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 1.8) mode = canScroll(mx) ? 'off' : 'h'; else return;
+        if (mode === 'off') return;
       }
       dx = mx;
       var pk = dx < 0 ? peekR : peekL, other = dx < 0 ? peekL : peekR;
@@ -903,7 +923,10 @@
       if (pk && x && Math.abs(dx) * 0.9 >= line()) {
         ls('hutch-swipe-tip', '9');
         place(pk, 9999, true); leaving();
-        location.href = x.u;
+        /* replace, not a new step: back (the arrow or Android's edge
+           swipe) goes straight to the app you started from, however many
+           posts you swiped through (Nov 3, Toby) */
+        location.replace(x.u);
       } else { place(peekR, 0, true); place(peekL, 0, true); }
       dx = 0;
     }

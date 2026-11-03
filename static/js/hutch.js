@@ -625,7 +625,7 @@
       /* Nov 3 (Toby): on the unfolded screen, upright or sideways, there's
          room for more than one meaning, so they're listed, numbered, as
          many as fit (fit() below). The phone keeps one, with "+2 more". */
-      ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert<span class="wsee" aria-hidden="true">Word Nerd ›</span></div><div class="w">' + esc(w.w) + '</div>' +
+      ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert<span class="wsee" aria-hidden="true"><span class="wl">Word Nerd </span>›</span></div><div class="w">' + esc(w.w) + '</div>' +
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
         /* big desktop: the example and a way in, so the card never ends in empty space */
@@ -671,7 +671,7 @@
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     /* a show finished since this page was built: swap Currently once his Trakt ratings come in;
        checked again every 10 minutes and whenever he comes back to the screen */
-    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:820px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px) and (min-aspect-ratio:4/5)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:700px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();
@@ -789,17 +789,19 @@
        blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
     a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight');
     var z = 1;
-    if (strip && window.matchMedia && matchMedia('(min-width:1400px) and (min-height:820px)').matches) {
+    if (strip && window.matchMedia && matchMedia('(min-width:1400px) and (min-height:700px)').matches) {
       strip.style.removeProperty('--sth');
       var h0 = a.getBoundingClientRect().height;
       for (var zi = 0; zi < 4; zi++) {
         a.style.flex = 'none'; a.style.height = 'auto';
         var need = a.getBoundingClientRect().height;
         a.style.flex = ''; a.style.height = '';
-        if (need <= h0 + 1 || z <= 0.85) break;
+        /* Nov 3 (Toby, Windows at 125%: about 1475 x 810): shorter screens may go to 80% */
+        var zMin = innerHeight < 820 ? 0.8 : 0.85;
+        if (need <= h0 + 1 || z <= zMin) break;
         /* tight: smaller covers in Currently first (CSS), then shrink */
         if (!homeEl.classList.contains('tight')) { homeEl.classList.add('tight'); zi--; continue; }
-        z = Math.max(0.85, Math.floor(z * h0 / need * 100) / 100);
+        z = Math.max(zMin, Math.floor(z * h0 / need * 100) / 100);
         a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
       }
     }

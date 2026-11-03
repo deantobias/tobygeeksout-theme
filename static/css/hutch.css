@@ -745,8 +745,11 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* ---------- 13. Big desktop widgets (Nov 3, mockup v52) ----------
    1400 x 820 or more: From the archive, Currently, Top categories and a
    Latest photos strip (hutch.js bigDesk). Hidden everywhere else. */
-.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex,.hh-word .wsee{display:none}
-@media (min-width:1400px) and (min-height:820px){
+.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex{display:none}
+/* Word Nerd's way in, top right like See all and Den (Nov 3, Toby: every layout) */
+.hh-word .wsee{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px;flex:none;white-space:nowrap}
+@media (max-width:599px){ .hh-word .wsee .wl{display:none} }
+@media (min-width:1400px) and (min-height:700px){
   .hh-area{max-width:1720px;grid-template-columns:1fr 1.15fr .95fr;grid-template-areas:"hello posts arch" "now word cats" "strip strip strip";
     grid-template-rows:auto auto auto;align-content:start;column-gap:20px;row-gap:18px}
   /* Currently always keeps its spot (Nov 3, Toby: on his Mac the strip
@@ -851,11 +854,12 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    5 apps shrink a touch and the photo matches their width. No Top
    categories here (the Archive app lists them). Nothing in progress in
    Den (.nonow): the usual two columns. */
-/* Nov 3: upright too (Toby picked "whenever it's unfolded"): any screen
-   600-1099 wide that's close to square or wider, so the Fold gets the
-   same layout upright or sideways, with or without the browser's bars.
-   Taller tablets held upright (iPad, 3:4) keep their own layout. */
-@media (min-width:600px) and (min-height:380px) and (max-width:1099px) and (min-aspect-ratio:4/5){
+/* Nov 3: 600-1099 wide. Google's window size classes split it at 840:
+   expanded (840+, foldables and tablets sideways) uses this layout;
+   medium (600-839, foldables and tablets upright) gets section 15 below,
+   which builds on the card styles here. Width only, so Brave's bars
+   don't flip the layout. */
+@media (min-width:600px) and (min-height:380px) and (max-width:1099px){
   #hutch-home:not(.nonow) .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
   /* the apps stay right under the date, even when Recent posts makes the row taller (Nov 3, Toby) */
   #hutch-home:not(.nonow) .hh-tx{flex:none}
@@ -864,7 +868,6 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* the bottom row is only as tall as Word Nerd needs (Nov 3, Toby: the photo and Pristine ran too tall upright); the cards sit together in the middle of the screen */
   #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto fit-content(330px);align-content:center;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
   #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,58px);gap:8px 4px}
-  @media (max-width:760px){ #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,57px);gap:8px 1px} #hutch-home:not(.nonow) .hh-wtag{letter-spacing:.06em;font-size:11px} #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:11px} }
   #hutch-home:not(.nonow) .hh-quad .hh-tile{width:46px;height:46px}
   #hutch-home:not(.nonow) .hh-quad .hh-tile .hx-ic{width:21px;height:21px}
   #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:11.5px}
@@ -901,6 +904,65 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-now .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
 }
 /* the shorter sideways screen (Brave's bars leave ~540px): smaller covers */
-@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (max-width:1099px) and (min-aspect-ratio:4/5){
+@media (min-width:840px) and (min-height:380px) and (max-height:640px) and (max-width:1099px){
   .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:46px;height:68px}
+}
+
+/* sideways with height to spare: the bigger date, like upright (Nov 3, Toby:
+   "I love how the date gets bigger"); the short Brave view keeps the smaller
+   one so Word Nerd keeps its second meaning */
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px){
+  #hutch-home:not(.nonow) .hh-s{font-size:44px}
+  #hutch-home:not(.nonow) .hh-g{font-size:20px}
+}
+/* ---------- 15. Unfolded upright (Nov 3, mockup v58) ----------
+   Google's "medium" width (600-839): the Fold and tablets held upright.
+   Date and apps across the top; then a 2x2: Recent posts (3) over the
+   photo on the left, Currently over Word Nerd on the right. Cards start
+   at the top. The date is bigger here and the apps sit level with the
+   bottom of the date block, spread across their side, so the two read
+   as one row (Toby: they felt far apart). */
+@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+  #hutch-home:not(.nonow) .hh-area{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);grid-template-areas:"hello hello" "posts now" "photo word";grid-template-rows:auto auto auto;align-content:start;row-gap:12px;column-gap:14px}
+  #hutch-home:not(.nonow) .hh-hello{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:2px}
+  #hutch-home:not(.nonow) .hh-s{font-size:min(46px,6.5vw)}
+  #hutch-home:not(.nonow) .hh-g{font-size:min(22px,3.1vw)}
+  #hutch-home:not(.nonow) .hh-quad{margin-top:0;flex:1;max-width:380px;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 4px;padding-bottom:4px}
+  #hutch-home:not(.nonow) .hh-quad .hh-tile{width:50px;height:50px}
+  #hutch-home:not(.nonow) .hh-quad .hh-tile .hx-ic{width:23px;height:23px}
+  #hutch-home:not(.nonow) .hh-quad .hh-ic{font-size:12px}
+  #hutch-home:not(.nonow) .hh-posts .hh-row.on{display:none}
+  #hutch-home:not(.nonow) .hh-row .t{-webkit-line-clamp:3;font-size:15px}
+  #hutch-home:not(.nonow) .hh-photo{min-height:120px}
+  /* the phone's tight-screen rule (hide the 3rd post) doesn't apply: the card has the room */
+  #hutch-home.fit2:not(.nonow) .hh-posts .hh-row:nth-of-type(3){display:flex}
+  #hutch-home:not(.nonow) .hh-wtag{letter-spacing:.07em}
+  .hh-now .hh-ntwo{contain:none !important;grid-auto-rows:auto;gap:8px}
+  .hh-now .hh-nitem{flex-direction:row;align-items:flex-start;gap:10px}
+  .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:46px;height:68px}
+}
+
+/* ---------- 16. Bigger words inside the Fold's cards (Nov 3, Toby) ----------
+   Upright: about 1-1.5px up everywhere. Sideways with height to spare:
+   about 1px. The short sideways Brave view keeps its sizes so Word Nerd
+   and Currently keep what they show. */
+@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+  #hutch-home:not(.nonow) .hh-wtag{font-size:12px}
+  #hutch-home:not(.nonow) .hh-row .t{font-size:16.5px}
+  #hutch-home:not(.nonow) .hh-row .d{font-size:12px}
+  #hutch-home:not(.nonow) .hh-word .w{font-size:26px}
+  #hutch-home:not(.nonow) .hh-word .pos{font-size:15px}
+  #hutch-home:not(.nonow) .hh-word .defs{font-size:15px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font-size:16px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:13px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
+  #hutch-home:not(.nonow) .hh-photo .cap b{font-size:17px}
+}
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px){
+  #hutch-home:not(.nonow) .hh-row .t{font-size:15px}
+  #hutch-home:not(.nonow) .hh-row .d{font-size:11.5px}
+  #hutch-home:not(.nonow) .hh-word .w{font-size:24px}
+  #hutch-home:not(.nonow) .hh-word .defs{font-size:14.5px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font-size:15.5px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:12.5px}
 }

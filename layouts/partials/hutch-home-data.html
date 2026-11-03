@@ -265,8 +265,11 @@
   {{- $j := replaceRE `(?s)^.*?<script[^>]*>(.*)</script>\s*$` "$1" . -}}
   {{- with transform.Unmarshal $j -}}
     {{- $w := dict -}}{{- with .watching -}}{{- $w = index . 0 -}}{{- end -}}
+    {{- $ws := slice -}}{{- with .watching -}}{{- $ws = first 6 . -}}{{- end -}}
     {{- $r := dict -}}{{- with .reading -}}{{- $r = index . 0 -}}{{- end -}}
-    {{- $now = dict "w" $w "r" $r -}}
+    {{/* ws: the next few too, so hutch.js can skip a show he has since
+         rated on Trakt (= finished) and show the next one (Nov 3) */}}
+    {{- $now = dict "w" $w "ws" $ws "r" $r -}}
   {{- end -}}
 {{- end -}}
 

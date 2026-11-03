@@ -745,16 +745,19 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* ---------- 13. Big desktop widgets (Nov 3, mockup v52) ----------
    1400 x 820 or more: From the archive, Currently, Top categories and a
    Latest photos strip (hutch.js bigDesk). Hidden everywhere else. */
-.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex,.hh-word .wopen{display:none}
+.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex,.hh-word .wsee{display:none}
 @media (min-width:1400px) and (min-height:820px){
   .hh-area{max-width:1720px;grid-template-columns:1fr 1.15fr .95fr;grid-template-areas:"hello posts arch" "now word cats" "strip strip strip";
     grid-template-rows:auto auto auto;align-content:start;column-gap:20px;row-gap:18px}
   /* Currently always keeps its spot (Nov 3, Toby: on his Mac the strip
      didn't fit and the big photo had pushed Currently out). The big
      photo only fills in when Den has nothing in progress. */
-  #hutch-home:not(.nonow) .hh-photo{display:none}
+  /* Shorter screens (no room for the strip): Currently, Word Nerd and
+     the big photo; Top categories steps aside (Nov 3, Toby) */
+  #hutch-home:not(.nonow):not(.nostrip) .hh-photo{display:none}
   #hutch-home.nonow .hh-area{grid-template-areas:"hello posts arch" "photo word cats" "strip strip strip"}
-  #hutch-home.nostrip .hh-area{grid-template-areas:"hello posts arch" "now word cats"}
+  #hutch-home.nostrip .hh-area{grid-template-areas:"hello posts arch" "now word photo"}
+  #hutch-home.nostrip:not(.nonow) .hh-cats{display:none}
   #hutch-home.nostrip.nonow .hh-area{grid-template-areas:"hello posts arch" "photo word cats"}
   #hutch-home.nostrip .hh-strip{display:none !important}
   .hh-photo{max-height:none;min-height:220px}
@@ -796,6 +799,10 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-nitem em{font:500 13px var(--h-ui);font-style:normal;color:#5F6673;margin-top:2px}
   .hh-nitem .bar{display:block;height:5px;border-radius:9px;background:#E5DDD5;margin-top:auto;overflow:hidden}
   .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
+  /* shorter screens: Currently is a narrower card, so smaller covers leave room for the titles (Nov 3) */
+  #hutch-home.nostrip .hh-nitem{gap:10px;padding:10px}
+  #hutch-home.nostrip .hh-nitem img,#hutch-home.nostrip .hh-nitem .cv{width:62px;height:92px;border-radius:8px}
+  #hutch-home.nostrip .hh-nitem b{font-size:15px}
 
   /* Top categories */
   .hh-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
@@ -806,6 +813,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* Latest photos */
   .hh-thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:12px}
   .hh-thumbs a{position:relative;aspect-ratio:4/3;border-radius:16px;overflow:hidden;display:block;background:#E7E1D8}
+  .hh-strip[style*="--sth"] .hh-thumbs a{aspect-ratio:auto;height:var(--sth)}
   .hh-thumbs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .hh-thumbs small{position:absolute;left:10px;bottom:8px;font:700 11px var(--h-ui);letter-spacing:.08em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.55)}
   .hh-thumbs a:hover img{transform:scale(1.03);transition:transform .25s}
@@ -813,7 +821,8 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* Word Nerd: the example and a way in */
   .hh-word .wex{display:block;margin:12px 0 0;padding:10px 14px;border-left:3px solid #C4622D;background:rgba(196,98,45,.06);border-radius:0 12px 12px 0;
     font:italic 400 15px/1.5 Georgia,serif;color:#4A5568}
-  .hh-word .wopen{display:inline-block;margin-top:12px;font:600 13px var(--h-ui);color:#C4622D}
+  /* the way into Word Nerd sits top right, like See all and Den (Nov 3, Toby) */
+  .hh-word .wsee{display:inline;color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 10px}
 
   /* the logo and face sit on the dock line here (mockup v48+) */
   .hh-brand{bottom:calc(24px + env(safe-area-inset-bottom))}

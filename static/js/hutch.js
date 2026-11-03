@@ -499,12 +499,39 @@
     l.classList.add('tight');
     if (lay() <= roomy) { l.classList.remove('tight'); lay(); }
   }
-  function bigDesk() {
+  /* ---------- Currently: skip shows he has finished (Nov 3) ----------
+     Toby: American Horror Story showed as Watching after he finished it.
+     The Watching page counts a Trakt rating made on or after a Now
+     Watching post as "finished" (shortcodes/watching.html, ratedSince).
+     The home screen does the same: his Trakt ratings, saved here 30
+     minutes, drop finished shows and the next one in Den's list shows. */
+  var TRAKT_KEY = 'hutch-trakt-rated', TRAKT_ID = '23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc';
+  function tnorm(t) { try { return String(t || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''); } catch (e) { return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); } }
+  function traktRated() { try { var c = JSON.parse(localStorage.getItem(TRAKT_KEY) || 'null'); return c && c.rated ? c : null; } catch (e) { return null; } }
+  function nowWatch(c, N) {
+    var list = (N.ws && N.ws.length ? N.ws : (N.w ? [N.w] : [])).filter(function (x) { return x && x.t; });
+    if (!c) return list[0] || null;
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i], n = x.n || tnorm(x.t), at = +x.at || Date.parse(x.date) || 0;
+      if (!(c.rated[n] || []).some(function (q) { return (q.s === 0 || q.s >= (x.season || 0)) && q.at >= at; })) return x;
+    }
+    return null;
+  }
+  function traktFresh(done) {
+    var c = traktRated(); if (c && Date.now() - c.t < 30 * 60 * 1000) return;
+    var get = function (path) { return fetch('https://api.trakt.tv/users/technogeek75/ratings/' + path, { headers: { 'trakt-api-version': '2', 'trakt-api-key': TRAKT_ID } }).then(function (q) { if (!q.ok) throw 0; return q.json(); }); };
+    Promise.all([get('shows'), get('seasons')]).then(function (res) {
+      var rated = {};
+      res[0].forEach(function (x) { if (x.show) (rated[tnorm(x.show.title)] = rated[tnorm(x.show.title)] || []).push({ s: 0, at: Date.parse(x.rated_at) || 0 }); });
+      res[1].forEach(function (x) { if (x.show && x.season) (rated[tnorm(x.show.title)] = rated[tnorm(x.show.title)] || []).push({ s: x.season.number || 0, at: Date.parse(x.rated_at) || 0 }); });
+      try { localStorage.setItem(TRAKT_KEY, JSON.stringify({ t: Date.now(), rated: rated })); } catch (e) {}
+      done();
+    }).catch(function () {});
+  }
+  function nowCard() {
     var out = '';
-    if (ARCH.length) out += '<section class="hh-wg hh-arch" aria-label="From the archive"><div class="hh-wtag">From the archive<a href="' + esc(APPS.archive[2]) + '">Archive ›</a></div>' +
-      '<div class="hh-alist">' + archRows(5) + '</div><div class="hh-afoot"><span>Older posts, picked at random</span>' +
-      '<button type="button" class="hh-shuf" aria-label="Shuffle: more older posts">' + ic('surprise') + '<span>Shuffle</span></button></div></section>';
-    var N = (HOME && HOME.now) || {}, w = N.w && N.w.t ? N.w : null, r = N.r && N.r.t ? N.r : null;
+    var N = (HOME && HOME.now) || {}, r = N.r && N.r.t ? N.r : null;
+    var w = nowWatch(traktRated(), N);
     if (w || r) {
       var den = APPS.den[2] || '/watching/', item = function (x, kind) {
         var meta = '', by = '', pct = -1;
@@ -523,6 +550,14 @@
       out += '<section class="hh-wg hh-now" aria-label="Currently"><div class="hh-wtag">Currently<a href="' + esc(den) + '">Den ›</a></div><div class="hh-ntwo' + (w && r ? '' : ' one') + '">' +
         (w ? item(w, 'w') : '') + (r ? item(r, 'r') : '') + '</div></section>';
     }
+    return out;
+  }
+  function bigDesk() {
+    var out = '';
+    if (ARCH.length) out += '<section class="hh-wg hh-arch" aria-label="From the archive"><div class="hh-wtag">From the archive<a href="' + esc(APPS.archive[2]) + '">Archive ›</a></div>' +
+      '<div class="hh-alist">' + archRows(5) + '</div><div class="hh-afoot"><span>Older posts, picked at random</span>' +
+      '<button type="button" class="hh-shuf" aria-label="Shuffle: more older posts">' + ic('surprise') + '<span>Shuffle</span></button></div></section>';
+    out += nowCard();
     var cats = ((HOME && HOME.cats) || []).filter(function (c) { return !/^micro$/i.test(c.n); }).slice(0, 12);
     if (cats.length) out += '<section class="hh-wg hh-cats" aria-label="Top categories"><div class="hh-wtag">Top categories<a href="' + esc(APPS.archive[2]) + '">See all ›</a></div><div class="hh-chips">' +
       cats.map(function (c) { return '<a href="' + esc(c.u) + '">' + esc(c.n) + '<span>' + c.c + '</span></a>'; }).join('') + '</div></section>';
@@ -553,11 +588,11 @@
       /* Nov 3 (Toby): on the unfolded screen, upright or sideways, there's
          room for more than one meaning, so they're listed, numbered, as
          many as fit (fit() below). The phone keeps one, with "+2 more". */
-      ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
+      ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert<span class="wsee" aria-hidden="true">Word Nerd ›</span></div><div class="w">' + esc(w.w) + '</div>' +
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
         /* big desktop: the example and a way in, so the card never ends in empty space */
-        (w.ex ? '<p class="wex">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</p>' : '') + '<span class="wopen">Open Word Nerd ›</span></a>'
+        (w.ex ? '<p class="wex">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</p>' : '') + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -597,6 +632,15 @@
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
+    /* a show finished since this page was built: swap Currently once his Trakt ratings come in */
+    if (window.matchMedia && matchMedia('(min-width:1400px) and (min-height:820px)').matches && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+      var old = homeEl.querySelector('.hh-now'), html = nowCard();
+      if (old && old.outerHTML === html) return;
+      if (old) old.remove();
+      if (html) homeEl.querySelector('.hh-cats').insertAdjacentHTML('beforebegin', html);
+      homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
+      fit();
+    });
     var shuf = homeEl.querySelector('.hh-shuf');
     if (shuf) shuf.addEventListener('click', function () {
       var ac = homeEl.querySelector('.hh-arch'), lst = ac.querySelector('.hh-alist'), n = lst.children.length || 5;
@@ -672,7 +716,28 @@
     /* big desktop: the photo strip only when it fits above the dock; else
        the big photo comes back in Currently's spot */
     var strip = homeEl.querySelector('.hh-strip');
-    if (strip && getComputedStyle(strip).display !== 'none') {
+    /* the strip's photos shrink to the room left under the cards (Nov 3,
+       Toby: on his Mac there wasn't room for full-size ones, and the
+       Photos widget went missing); too little room, no strip */
+    if (strip) {
+      strip.style.removeProperty('--sth');
+      if (getComputedStyle(strip).display !== 'none') {
+        var th = strip.querySelector('.hh-thumbs a'), ar = a.getBoundingClientRect(),
+          padB = parseFloat(getComputedStyle(a).paddingBottom) || 0, low = 0;
+        /* the cards' full height, measured without the strip (the grid
+           squeezes them while it's there) */
+        homeEl.classList.add('nostrip');
+        [].forEach.call(a.children, function (c) { if (c !== strip && getComputedStyle(c).display !== 'none') low = Math.max(low, c.getBoundingClientRect().bottom); });
+        homeEl.classList.remove('nostrip');
+        if (th) {
+          var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0),
+            room = Math.floor(ar.bottom - padB - low - (parseFloat(getComputedStyle(a).rowGap) || 18) - chrome - 2);
+          if (room < th.getBoundingClientRect().height) strip.style.setProperty('--sth', Math.max(room, 0) + 'px');
+          if (room < 96) homeEl.classList.add('nostrip');
+        }
+      }
+    }
+    if (strip && !homeEl.classList.contains('nostrip') && getComputedStyle(strip).display !== 'none') {
       /* a row squeezed by the grid shows up as a card cut short inside */
       var ab0 = a.getBoundingClientRect();
       if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');

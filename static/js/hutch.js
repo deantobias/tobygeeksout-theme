@@ -434,7 +434,10 @@
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
     var photo = p.src
-      ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img src="' + esc(p.src) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
+      /* the photo is never stretched: it fills its box by cropping, and a
+         photo much taller (or wider) than its box shows whole instead, on
+         a soft blurred copy of itself (Nov 3, Toby) */
+      ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img class="bg" src="' + esc(p.src) + '" alt="" aria-hidden="true" decoding="async"><img class="main" src="' + esc(p.src) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
         '<div class="cap"><small>' + esc(p.d) + '</small><b>' + esc(p.t || 'Latest photo') + '</b></div></a>'
       : '<a class="hh-wg hh-photo" href="/photo/"><span class="ph"></span><div class="cap"><small>Photos</small><b>Open Photos</b></div></a>';
     var word = w.w
@@ -503,8 +506,16 @@
     setBarColor(SKYTOP[PHASE]);
   }
   /* never scroll: if anything would run past the area, tighten step by step */
+  function photoFit() {
+    var ph = homeEl && homeEl.querySelector('.hh-photo'), im = ph && ph.querySelector('img.main');
+    if (!im || !im.naturalWidth) return;
+    var r = ph.getBoundingClientRect(); if (!r.width || !r.height) return;
+    var pic = im.naturalWidth / im.naturalHeight, box = r.width / r.height;
+    ph.classList.toggle('whole', pic < box * 0.72 || pic > box * 1.6);
+  }
   function fit() {
     if (!homeEl) return;
+    setTimeout(photoFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2');
     if (innerHeight <= 520) return; /* sideways phone: the area scrolls instead */

@@ -128,8 +128,68 @@
     {{- $micro := not .Title -}}
     {{- $x := "" -}}
     {{- if $micro -}}{{- $x = .Plain | htmlUnescape | truncate 280 -}}{{- else -}}{{- $x = .Summary | plainify | htmlUnescape | truncate 170 -}}{{- end -}}
+    {{/* Card posts (Nov 3, Toby: "M3GAN 2.0" read as "★★★☆☆My Rating
+         Scale ↗ DirectorGerard JohnstoneStarring..."). The plain-text
+         excerpt runs a card's boxes together, so card posts get a short
+         clean line instead:
+           review card / movie card / book card  stars · year · director
+                                                 (or author / creator)
+           define card   part of speech · first meaning
+           watch log     the titles in that week's log */}}
+    {{- $c := .Content -}}
+    {{- $rs := "" -}}{{- $ry := "" -}}{{- $rb := "" -}}{{- $rl := "" -}}{{- $rep := "" -}}
+    {{- if or (in $c "review-card") (in $c "movie-card") (in $c "book-card") -}}
+      {{- with findRE `(?s)class="[^"]*\b(?:review|movie-card|book-card)-stars\b[^"]*"[^>]*>.*?</p>` $c 1 -}}
+        {{- with findRE `[★☆½]+` (index . 0) 1 -}}{{- $rs = index . 0 -}}{{- end -}}
+      {{- end -}}
+      {{- with findRE `\((\d{4})\)` .Title 1 -}}{{- $ry = replaceRE `\D` "" (index . 0) -}}{{- end -}}
+      {{/* review card facts table: Director / Author / Creator first, else the first fact */}}
+      {{- $facts := findRE `(?s)<td[^>]*\breview-fact-label\b[^>]*>.*?</td>\s*<td[^>]*\breview-fact-value\b[^>]*>.*?</td>` $c -}}
+      {{- range $facts -}}
+        {{- $lab := trim (replaceRE `(?s)^.*?review-fact-label[^>]*>(.*?)</td>.*$` "$1" . | plainify | htmlUnescape) " \n\t" -}}
+        {{- $val := trim (replaceRE `(?s)^.*review-fact-value[^>]*>(.*?)</td>.*$` "$1" . | plainify | htmlUnescape) " \n\t" -}}
+        {{- if and (not $ry) (findRE `(?i)^(year|released|release|published)` $lab 1) -}}{{- with findRE `\d{4}` $val 1 -}}{{- $ry = index . 0 -}}{{- end -}}{{- end -}}
+        {{- if and (not $rb) (findRE `(?i)^(director|directed|author|written|writer|creator|created|showrunner)` $lab 1) -}}{{- $rb = $val -}}{{- $rl = $lab -}}{{- end -}}
+      {{- end -}}
+      {{- if and (not $rb) $facts -}}
+        {{- $f := index $facts 0 -}}
+        {{- $rl = trim (replaceRE `(?s)^.*?review-fact-label[^>]*>(.*?)</td>.*$` "$1" $f | plainify | htmlUnescape) " \n\t" -}}
+        {{- $rb = trim (replaceRE `(?s)^.*review-fact-value[^>]*>(.*?)</td>.*$` "$1" $f | plainify | htmlUnescape) " \n\t" -}}
+      {{- end -}}
+      {{/* movie and book cards: bylines (a 4-digit one is the year), season tag */}}
+      {{- range findRE `(?s)<p[^>]*\b(?:movie-card|book-card|review)-byline\b[^>]*>.*?</p>` $c -}}
+        {{- $v := trim (. | plainify | htmlUnescape) " \n\t" -}}
+        {{- if findRE `^\d{4}$` $v 1 -}}{{- if not $ry -}}{{- $ry = $v -}}{{- end -}}{{- else if and $v (not $rb) -}}{{- $rb = replaceRE `(?i)^by\s+` "" $v -}}{{- end -}}
+      {{- end -}}
+      {{- with findRE `(?s)<p[^>]*\bmovie-card-eptag\b[^>]*>.*?</p>` $c 1 -}}{{- $rep = trim (index . 0 | plainify | htmlUnescape) " \n\t" -}}{{- end -}}
+      {{- if or $rs $rb -}}
+        {{- $bits := slice -}}
+        {{- with $rs -}}{{- $bits = $bits | append . -}}{{- end -}}
+        {{- with $rep -}}{{- $bits = $bits | append . -}}{{- end -}}
+        {{- with $ry -}}{{- $bits = $bits | append . -}}{{- end -}}
+        {{- with $rb -}}{{- $bits = $bits | append . -}}{{- end -}}
+        {{- $x = delimit $bits " · " -}}
+      {{- end -}}
+    {{- else if in $c "define-card" -}}
+      {{- $pos := "" -}}{{- $def := "" -}}
+      {{- with findRE `(?s)<p\b[^>]*\bclass=["'][^"']*\bdefine-eyebrow\b[^"']*["'][^>]*>.*?</p>` $c 1 -}}
+        {{- $eb := replaceRE `(?s)<span\b[^>]*\bdefine-pron\b[^>]*>.*?</span>` "" (index . 0) -}}
+        {{- $pos = trim (replaceRE `[\s\x{00A0}·•|/]+$` "" ($eb | plainify | htmlUnescape)) " \n\t " -}}
+      {{- end -}}
+      {{- with findRE `(?s)<(?:p|td|div|li|span)\b[^>]*\bclass=["'][^"']*\bdefine-def\b[^"']*["'][^>]*>.*?</(?:p|td|div|li)>` $c 1 -}}
+        {{- $b := replaceRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` "" (index . 0) -}}
+        {{- $def = trim ($b | plainify | htmlUnescape) ": \n\t " -}}
+      {{- end -}}
+      {{- if $def -}}{{- $x = cond (ne $pos "") (printf "%s · %s" $pos $def) $def | truncate 170 -}}{{- end -}}
+    {{- else if in $c "watch-log" -}}
+      {{- $names := slice -}}
+      {{- range findRE `(?s)<td[^>]*\bwatch-log-item\b[^>]*>.*?<strong>.*?</strong>` $c -}}
+        {{- $names = $names | append (trim (replaceRE `(?s)^.*<strong>(.*?)</strong>$` "$1" . | plainify | htmlUnescape) " \n\t") -}}
+      {{- end -}}
+      {{- with $names -}}{{- $x = printf "🍿 Watch Log · %s" (delimit . " · ") | truncate 220 -}}{{- end -}}
+    {{- end -}}
     {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat) -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat "rs" $rs) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}

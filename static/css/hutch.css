@@ -87,11 +87,11 @@ html.hutch-app body{padding-bottom:env(safe-area-inset-bottom)}
 #hutch-bar .hb-btn{width:44px;height:44px;flex:none;border:0;border-radius:50%;background:transparent;color:inherit;
   display:grid;place-items:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 #hutch-bar .hb-btn:hover,#hutch-bar .hb-btn:focus-visible{background:rgba(127,127,127,.14);outline:none}
-/* tapped back or Home: the button lights up and the app dims while the
-   next page loads (Nov 2) */
+/* tapped back or Home: the button lights up while the next page loads
+   (Nov 2). Nov 3 (Toby: "something dimmed in the way"): the page no
+   longer dims, only the button shows the tap. */
 #hutch-bar .hb-btn:active{background:rgba(127,127,127,.22)}
 html.hx-leaving #hutch-bar .hb-back,html.hx-leaving #hutch-bar .hb-home{background:color-mix(in srgb,var(--color-terra,#C4622D) 22%,transparent)}
-html.hx-leaving body>*:not(#hutch-bar){opacity:.55;transition:opacity .15s}
 html.hx-leaving body{cursor:progress}
 #hutch-bar .hb-app{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-left:2px}
 #hutch-bar .hb-tile{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
@@ -110,6 +110,19 @@ html.hx-leaving body{cursor:progress}
 #hutch-bar .hb-prog{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--color-terra,#C4622D);border-radius:0 2px 2px 0}
 #hutch-bar .hb-home .hx-rab{width:32px;height:32px;border-radius:50%;background:#FBE3D0;display:block;position:relative;overflow:hidden;
   box-shadow:inset 0 0 0 1.5px rgba(196,98,45,.35)}
+/* Home is the rabbit: a small house badge on its circle, and the first
+   few times an app opens, a "Tap the bunny for Home" bubble (Nov 3) */
+#hutch-bar .hb-home{position:relative}
+#hutch-bar .hb-hbadge{position:absolute;right:2px;bottom:3px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  background:var(--color-terra,#C4622D);color:#fff;box-shadow:0 0 0 2px var(--color-bg,#FAF8F5)}
+#hutch-bar .hb-hbadge .hx-ic{width:10px;height:10px}
+#hutch-bar .hb-tip{position:absolute;right:8px;top:calc(var(--h-bar) - 2px);background:#1E2D4A;color:#fff;font:600 13px/1.2 var(--h-ui);
+  padding:9px 12px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,38,.22);white-space:nowrap;cursor:pointer;
+  opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s;pointer-events:none}
+#hutch-bar .hb-tip::before{content:"";position:absolute;top:-6px;right:16px;border:6px solid transparent;border-top:0;border-bottom-color:#1E2D4A}
+#hutch-bar .hb-tip.on{opacity:1;transform:none;pointer-events:auto}
+html.hx-dark #hutch-bar .hb-tip{background:#F3EDE4;color:#1E2D4A}
+html.hx-dark #hutch-bar .hb-tip::before{border-bottom-color:#F3EDE4}
 
 /* Inside the Blog app's post pane: no bar, so nothing to clear */
 html.hutch.hutch-embed{--h-bar:0px}
@@ -133,6 +146,10 @@ html.hutch-blog #main-content,html.hutch-own #main-content{display:none !importa
 .hbl-k{font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
 .hbl-it h3{font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:21px;line-height:1.2;margin:6px 0;color:var(--ink);letter-spacing:0}
 .hbl-it p{font:400 15px/1.5 var(--font-reading,Georgia,serif);margin:0;color:var(--sub)}
+/* excerpts stop at three lines; review posts show stars · year · director (Nov 3) */
+.hbl-it:not(.micro) p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hbl-it p.hbl-rv{font:500 14.5px/1.45 var(--h-ui);color:var(--sub)}
+.hbl-rv .st{color:var(--acc);letter-spacing:1px;margin-right:8px;font-size:16px}
 .hbl-kr{display:inline-block;margin-top:10px;font:600 13px var(--h-ui);color:var(--acc)}
 .hbl-it.micro .hbl-tx{display:flex;gap:10px}
 .hbl-it .fl{color:var(--acc);font-size:18px;line-height:1.2;flex:none}
@@ -514,6 +531,11 @@ html.hx-dark .hx-chip{border-color:#2E3A58}
 html.hutch .hx-sheet h2,html.hutch .hx-sheet h3{font-family:var(--h-ui) !important;color:inherit;letter-spacing:0;text-transform:none}
 .hx-set h2{font:500 26px var(--h-ui);margin:6px 4px 4px}
 .hx-card{background:#F7F3EE;border-radius:22px;padding:14px 16px;margin-top:12px}
+/* Settings > What's new (the Tinkering Log), Nov 3 */
+a.hx-card.hx-upd{display:flex;gap:12px;align-items:center;color:inherit;text-decoration:none}
+a.hx-card.hx-upd .hh-tile{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
+a.hx-card.hx-upd .hh-tile .hx-ic{width:20px;height:20px}
+a.hx-card.hx-upd p{margin:0}
 html.hx-dark .hx-card{background:#1D2433}
 .hx-card h3{font:600 15px var(--h-ui);margin:0 0 4px}
 .hx-card p{font:400 13.5px/1.45 var(--h-ui);color:#6B7280;margin:0 0 10px}

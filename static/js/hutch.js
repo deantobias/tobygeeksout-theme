@@ -60,6 +60,14 @@
     words: '<path d="M4 19L9 5h2l5 14 M6 14h8 M17 9h4 M17 13h4"/>',
     calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18 M8 3v4 M16 3v4"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    /* Nov 3 (Toby): The Pulse, Reading, Blaugust, Micro.blog and the
+       Tinkering Log join the apps. Blaugust keeps the nav's star. */
+    pulse: '<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>',
+    reading: '<path d="M12 6.5C10.5 5.3 8.3 4.5 4 4.5v13c4.3 0 6.5.8 8 2 1.5-1.2 3.7-2 8-2v-13c-4.3 0-6.5.8-8 2Z"/><path d="M12 6.5v13"/>',
+    blaugust: '<path d="M12 3.2 14.7 9l6.3.6-4.8 4.2 1.5 6.2-5.7-3.5-5.7 3.5 1.5-6.2-4.8-4.2 6.3-.6Z"/>',
+    mb: '<path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-8.5L6 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V6.5A1.5 1.5 0 0 1 5 5Z"/><path d="M8 9.5h8 M8 12.5h5"/>',
+    tinkering: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    house: '<path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/>',
     search: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.1-4.1"/>',
     back: '<path d="M19 12H5 M11 18l-6-6 6-6"/>',
     up: '<path d="M6 15l6-6 6 6"/>',
@@ -86,6 +94,11 @@
     photos: ['Photos', '#3F7FA6', '/photo/'],
     words: ['Word Nerd', '#B07A1E', '/categories/word-of-the-day/'],
     calendar: ['Calendar', '#CF5C4A', '/calendar/'],
+    pulse: ['The Pulse', '#C44D58', '/the-pulse/'],
+    reading: ['Reading', '#6E8B4A', '/reading/'],
+    blaugust: ['Blaugust', '#D98E3C', '/blaugust/'],
+    mb: ['Micro.blog', '#4A6FA5', 'https://micro.blog/' + (PAGE.mbuser || 'technogeek75')],
+    tinkering: ['Tinkering Log', '#5B6B7A', '/changelog/'],
     settings: ['Settings', '#6B7280', null]
   };
   var NAVDOCK = null;
@@ -100,7 +113,9 @@
     var rules = [
       ['about', /^about/i, /\/about/i], ['now', /^now$/i, /\/now\b/i], ['contact', /^contact/i, /\/contact/i],
       ['archive', /^archive/i, /\/archive/i], ['uses', /^(geek gear|uses?|gear)$/i, /\/uses?\//i],
-      ['follow', /^(follow|subscribe)/i, /\/(subscribe|follow)/i], ['surprise', /surprise/i, /\/surprise/i]
+      ['follow', /^(follow|subscribe)/i, /\/(subscribe|follow)/i], ['surprise', /surprise/i, /\/surprise/i],
+      ['blaugust', /^blaugust/i, /\/blaugust/i], ['pulse', /pulse/i, /\/(the-)?pulse\//i], ['reading', /^reading$/i, /\/reading\//i],
+      ['tinkering', /tinkering|changelog/i, /\/(changelog|tinkering)\//i]
     ];
     rules.forEach(function (r) {
       var hit = null;
@@ -115,7 +130,8 @@
     menu.forEach(function (m, i) {
       if (!m || !m.u) return;
       var u = rel(m.u), n = (m.n || '').trim();
-      if (!u || u === '/' || /^home$/i.test(n) || /search/i.test(n + ' ' + u)) return;
+      /* Stats is left out (Nov 3, Toby: "I use the Pulse instead") */
+      if (!u || u === '/' || /^home$/i.test(n) || /search/i.test(n + ' ' + u) || /^stats$/i.test(n) || /\/stats\/?$/i.test(u)) return;
       var key = null;
       rules.forEach(function (r) { if (!key && (r[1].test(n) || r[2].test(m.u))) key = r[0]; });
       if (!key) {
@@ -135,11 +151,13 @@
   var DOCK = NAVDOCK || ['blog', 'archive', 'about', 'now', 'contact'];
   /* the four by the date never repeat a dock app (if his nav ever holds
      one of them, the next app in line takes its place) */
-  var QUAD = ['den', 'surprise', 'uses', 'follow', 'photos', 'words', 'calendar'].filter(function (k) { return DOCK.indexOf(k) < 0; }).slice(0, 4);
+  /* Nov 3 (Toby): Settings takes Uses' spot; Uses moves to All apps */
+  var QUAD = ['den', 'surprise', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses'].filter(function (k) { return DOCK.indexOf(k) < 0; }).slice(0, 4);
   function tile(k) { return '<span class="hh-tile" style="background:' + APPS[k][1] + '">' + ic(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
-    return a[2] ? '<a class="hh-ic" href="' + a[2] + '" aria-label="' + esc(a[0]) + '">' + inner + '</a>'
+    var ext = a[2] && /^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '';
+    return a[2] ? '<a class="hh-ic" href="' + a[2] + '"' + ext + ' aria-label="' + esc(a[0]) + '">' + inner + '</a>'
                 : '<button type="button" class="hh-ic" data-sheet="' + k + '" aria-label="' + esc(a[0]) + '">' + inner + '</button>';
   }
 
@@ -152,7 +170,8 @@
     for (var k in APPS) { var u = APPS[k][2]; if (u && u !== '/?app=blog' && u.charAt(u.length - 1) === '/' && path.indexOf(u) === 0) return k; }
     var map = [['/archive/', 'archive'], ['/about-me/', 'about'], ['/about/', 'about'], ['/now/', 'now'], ['/contact/', 'contact'], ['/watching/', 'den'],
       ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/use/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
-      ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar']];
+      ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/the-pulse/', 'pulse'], ['/pulse/', 'pulse'],
+      ['/reading/', 'reading'], ['/blaugust', 'blaugust'], ['/changelog/', 'tinkering'], ['/tinkering/', 'tinkering']];
     for (var i = 0; i < map.length; i++) if (path.indexOf(map[i][0]) === 0) return map[i][1];
     if (path.indexOf('/categories/') === 0) return 'archive';
     return 'blog';
@@ -228,14 +247,19 @@
   var drawer = null;
   function openDrawer() {
     if (!drawer) {
-      var keys = Object.keys(APPS).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
+      /* Nov 3 (Toby): All apps lists only what isn't already on the home
+         screen (dock + the four by the date). Photos and Word Nerd stay:
+         on the home screen they are widgets, not icons. Searching still
+         finds every app. The Tinkering Log lives in Settings. */
+      var onHome = DOCK.concat(QUAD);
+      var keys = Object.keys(APPS).filter(function (k) { return k !== 'tinkering'; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '">' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { var h = onHome.indexOf(k) > -1; return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (h ? ' data-home style="display:none"' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();
-        drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = !q || d.getAttribute('data-n').indexOf(q) > -1 ? '' : 'none'; });
+        drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = q ? (d.getAttribute('data-n').indexOf(q) > -1 ? '' : 'none') : (d.hasAttribute('data-home') ? 'none' : ''); });
       });
       inp.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter') return;
@@ -257,6 +281,7 @@
         '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are, like the Traditional theme. Day and Night stay put.</p>' +
         '<div class="hx-seg" role="group" aria-label="Sky">' + [['sky', 'Auto'], ['day', 'Day'], ['night', 'Night']].map(function (o) {
           return '<button type="button" data-sky="' + o[0] + '"' + (m === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
+        '<a class="hx-card hx-upd" href="/changelog/"><span class="hh-tile" style="background:' + APPS.tinkering[1] + '">' + ic('tinkering') + '</span><span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
         '<div class="hx-card"><h3>Classic look</h3><p>Go back to the Traditional Toby Geeks Out! theme. You can come back with the Hutch link any time.</p><button type="button" class="hx-btn" data-classic>Switch to classic</button></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
@@ -487,6 +512,11 @@
     if (!force) {
       var today = new Date().toDateString();
       if (calm || ls('hutch-boot-day') === today) return;
+      /* Nov 3 (Toby: "a splash, then another splash"): opened from the
+         phone's home screen icon, the phone already shows its own launch
+         screen, so Hutch skips its boot screen there (Settings > Show it
+         again still plays it). */
+      if (window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen)').matches) return;
       ls('hutch-boot-day', today);
     }
     var avatar = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
@@ -556,16 +586,44 @@
       /* no search button here (Nov 2, Toby): inside an app it read as
          "search this app", but it searched the whole site. Hutch Search
          lives on the home screen; Word Nerd and Archive have their own. */
-      '<a class="hb-btn hb-home" href="/" aria-label="Home"><span class="hx-rab">' + RABBIT + '</span></a>' +
+      /* the rabbit is Home; a little house badge says so (Nov 3, Toby:
+         "people don't know they can tap the logo to go home") */
+      '<a class="hb-btn hb-home" href="/" aria-label="Home" title="Home"><span class="hx-rab">' + RABBIT + '</span><span class="hb-hbadge" aria-hidden="true">' + ic('house', 2.4) + '</span></a>' +
       (hasTitle ? '<span class="hb-prog"></span>' : '') + '</header>');
     document.body.insertBefore(bar, document.body.firstChild);
     bar.querySelector('.hb-back').addEventListener('click', function () {
       if (leaving()) return;
       var same = false;
       try { same = document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
-      if (same && history.length > 1) history.back(); else location.href = '/';
+      if (!(same && history.length > 1)) { location.href = '/'; return; }
+      /* Nov 3 (Toby: back on a post "gets stuck" behind a dimmed page):
+         history.back() can land on a step inside this same page (a sheet,
+         a #link, a step the browser kept) and never leave. If that happens,
+         or nothing has left after a moment, go to the page we came from. */
+      var gone = false, tries = 0;
+      function away() { gone = true; }
+      function stay() {
+        if (gone) return;
+        if (tries++ < 3) { history.back(); return; }
+        location.href = document.referrer;
+      }
+      window.addEventListener('pagehide', away, { once: true });
+      window.addEventListener('popstate', function pop() { setTimeout(stay, 60); });
+      history.back();
+      setTimeout(function () { if (!gone && document.visibilityState === 'visible') location.href = document.referrer; }, 2500);
     });
-    bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else leaving(); });
+    bar.querySelector('.hb-home').addEventListener('click', function (e) { if (de.classList.contains('hx-leaving')) e.preventDefault(); else { ls('hutch-home-tip', '9'); leaving(); } });
+    /* first few app opens: a small "Home" bubble under the rabbit, until
+       the reader has used it once */
+    var tipN = +(ls('hutch-home-tip') || 0);
+    if (tipN < 3 && !isEmbed) {
+      ls('hutch-home-tip', String(tipN + 1));
+      var tip = el('<div class="hb-tip" role="status">Tap the bunny for Home</div>');
+      bar.appendChild(tip);
+      setTimeout(function () { tip.classList.add('on'); }, 500);
+      setTimeout(function () { tip.classList.remove('on'); setTimeout(function () { tip.remove(); }, 400); }, 4500);
+      tip.addEventListener('click', function () { tip.remove(); });
+    }
     /* custom_footer.html writes an inline !important padding-top on <main>
        for the Traditional header (32px once the header is hidden). Pages
        that pad themselves (posts, the newsletter reader) get 0 and keep it;
@@ -643,7 +701,9 @@
       if (x.m) return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '"><div class="hbl-tx"><span class="fl" aria-hidden="true">❧</span><div class="hbl-mb"><div class="hbl-k">' + esc(x.d) + ' · ' + esc(x.tm) + '</div><p>' + esc(x.x) + '</p>' +
         (x.img ? '<img class="mimg" src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') + '</div></div></a>';
       return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '">' + (x.img ? '<img class="hero" src="' + esc(x.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
-        '<div class="hbl-tx"><div class="hbl-k">' + esc(x.d) + (x.c ? ' · ' + esc(x.c) : '') + '</div><h3>' + esc(x.t) + '</h3>' + (x.x ? '<p>' + esc(x.x) + '</p>' : '') +
+        '<div class="hbl-tx"><div class="hbl-k">' + esc(x.d) + (x.c ? ' · ' + esc(x.c) : '') + '</div><h3>' + esc(x.t) + '</h3>' +
+        /* card posts carry a clean line (hutch-home-data.html); reviews show their stars */
+        (x.rs ? '<p class="hbl-rv"><span class="st">' + esc(x.rs) + '</span>' + esc(x.x.replace(x.rs, '').replace(/^\s*·\s*/, '')) + '</p>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') +
         '<span class="hbl-kr">Keep reading · ' + (x.min || 1) + ' min</span></div></a>';
     }
     function render() {
@@ -769,7 +829,20 @@
       });
     }).catch(function () {});
   }
+  /* Nov 3 (Toby: "it should be automatic"): if the reader hasn't touched
+     the page yet (no scroll, tap or key), the newer copy just loads (it is
+     already saved, so it is instant). Once they have started reading, the
+     chip asks instead, so nothing jumps under them. At most once a minute
+     per page, so a page that never matches can't keep reloading. */
+  var touched = false;
+  ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, function () { touched = true; }, { passive: true, once: true }); });
   function staleChip() {
+    var key = 'hutch-auto:' + location.pathname + location.search, last = 0;
+    try { last = +(sessionStorage.getItem(key) || 0); } catch (e) {}
+    if (!touched && !openSheetEl && Date.now() - last > 60000) {
+      try { sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
+      location.reload(); return;
+    }
     if (document.getElementById('hutch-fresh')) return;
     var b = el('<button type="button" id="hutch-fresh">' + ic('up') + '<span>New posts · Refresh</span></button>');
     b.addEventListener('click', function () { b.disabled = true; location.reload(); });
@@ -777,7 +850,7 @@
     requestAnimationFrame(function () { b.classList.add('on'); });
   }
 
-  /* ---------- go ---------- */  /* ---------- go ---------- */
+  /* ---------- go ---------- */
   var isEmbed = de.classList.contains('hutch-embed');
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
@@ -785,6 +858,34 @@
   else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
+
+  /* Night safety net (Nov 3, Toby: the Follow page's white signup box had
+     white words at night). A page's own boxes can keep a light background
+     while the night theme turns words light. Any words that end up nearly
+     invisible on what is behind them get a readable color instead. Only
+     at night or dusk, once the page is up. */
+  function readable(root) {
+    if (!root || !window.getComputedStyle) return;
+    function rgb(c) { var m = String(c).match(/[\d.]+/g); if (!m || m.length < 3) return null; return { r: +m[0], g: +m[1], b: +m[2], a: m.length > 3 ? +m[3] : 1 }; }
+    function L(c) { var f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); }
+    function bgL(e) { for (; e && e.nodeType === 1; e = e.parentElement) { var c = rgb(getComputedStyle(e).backgroundColor); if (c && c.a > 0.5) return L(c); } return DARK ? 0.01 : 1; }
+    var els = root.querySelectorAll('*'), n = 0;
+    for (var i = 0; i < els.length && n < 3000; i++) {
+      var e = els[i]; n++;
+      if (/^(SCRIPT|STYLE|SVG|PATH|IMG|VIDEO|IFRAME|INPUT|SELECT|TEXTAREA|BR|HR)$/i.test(e.tagName)) continue;
+      var own = false;
+      for (var k = e.firstChild; k; k = k.nextSibling) if (k.nodeType === 3 && k.nodeValue.trim()) { own = true; break; }
+      if (!own) continue;
+      var cs = getComputedStyle(e); if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      var fc = rgb(cs.color); if (!fc || fc.a < 0.3) continue;
+      var b = bgL(e), f = L(fc), ratio = (Math.max(b, f) + 0.05) / (Math.min(b, f) + 0.05);
+      if (ratio < 2.2) e.style.setProperty('color', b > 0.4 ? '#1E2D4A' : '#F3EDE4', 'important');
+    }
+  }
+  if (DARK && !isHome) {
+    var runReadable = function () { readable(document.querySelector('.hx-sm-doc') || (de.classList.contains('hutch-own') || de.classList.contains('hutch-blog') ? null : document.getElementById('main-content'))); };
+    if (window.requestIdleCallback) requestIdleCallback(runReadable, { timeout: 1500 }); else setTimeout(runReadable, 300);
+  }
   if (document.readyState === 'complete') setTimeout(freshCheck, 1200);
   else window.addEventListener('load', function () { setTimeout(freshCheck, 1200); });
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };

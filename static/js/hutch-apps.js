@@ -1361,6 +1361,22 @@ window.HutchApps = window.HutchApps || {};
     if (form || nlLink) {
       var sub = 'New posts in your inbox', prev = form && form.previousElementSibling;
       if (prev && prev.tagName === 'P' && !prev.querySelector('a') && prev.textContent.length < 160) { sub = prev.textContent.trim(); prev.remove(); }
+      /* Nov 3 (Toby: the "Enjoying this?" box was empty and unreadable at
+         night): when the form sat inside its own signup box, the box's
+         words come along (the pitch under the row title, the "no spam"
+         note under the button) and the emptied box goes away. */
+      var box = form, note = '';
+      while (box && box.parentNode !== doc) box = box.parentNode;
+      if (box && box !== form) {
+        var ps = [].filter.call(box.querySelectorAll('p'), function (q) { return !q.contains(form) && !form.contains(q) && q.textContent.trim(); });
+        var pitch = null;
+        ps.forEach(function (q) {
+          var tx = q.textContent.replace(/\s+/g, ' ').trim();
+          if (/spam|unsubscribe/i.test(tx) && tx.length < 120) { note = tx; return; }
+          if (tx.length > 30 && tx.length < 320 && (!pitch || /pitch/.test(q.className) || tx.length > pitch.length)) pitch = tx;
+        });
+        if (pitch) sub = pitch;
+      }
       if (form) {
         var row = ctx.el('<div class="hx-sm-row hx-sm-nl"><span class="ri" style="background:#C4622D">' + svg('mail') + '</span><span class="m"><b>Email newsletter</b><small>' + ctx.esc(sub) + '</small></span></div>');
         form.classList.add('hx-sm-subform');
@@ -1369,6 +1385,8 @@ window.HutchApps = window.HutchApps || {};
         var em = form.querySelector('input[type="email"], input[name*="email" i]');
         if (em && !em.getAttribute('placeholder')) em.setAttribute('placeholder', 'you@example.com');
         row.appendChild(form);
+        if (note) row.appendChild(ctx.el('<p class="hx-sm-nlnote">' + ctx.esc(note) + '</p>'));
+        if (box && box !== form && box.parentNode && !box.querySelector('a[href], form, input, img, iframe, video')) box.remove();
         rows.push(row);
       } else rows.push(rowA(nlLink.getAttribute('href'), 'mail', '#C4622D', 'Email newsletter', sub, 'Sign up', true));
     }

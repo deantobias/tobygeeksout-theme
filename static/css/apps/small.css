@@ -59,6 +59,9 @@
 /* Follow: the newsletter row holds the page's own signup form */
 .hx-sm .hx-sm-nl{flex-wrap:wrap;cursor:default}
 .hx-sm .hx-sm-nl:hover{border-color:var(--ln)}
+/* the signup box's pitch and "no spam" note, folded into the row (Nov 3) */
+.hx-sm .hx-sm-nl small{white-space:normal;line-height:1.45;margin-top:2px}
+.hx-sm .hx-sm-nl .hx-sm-nlnote{flex-basis:100%;margin:2px 0 0;font:400 13px/1.4 var(--h-ui);color:var(--sub)}
 .hx-sm .hx-sm-form.hx-sm-subform{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 0;padding:0;background:none;border:0}
 .hx-sm .hx-sm-form.hx-sm-subform > :not(input):not(button):not(label){flex-basis:100%;margin:0;font-size:13px;color:var(--sub)}
 /* Nov 2 (Toby: "the email box looks too tall"): his real signup form stacks

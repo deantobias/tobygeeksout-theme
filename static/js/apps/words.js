@@ -152,7 +152,7 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) close(); });
     /* the app bar's back arrow closes the card first */
     ctx.bar.addEventListener('click', function (e) {
-      if (open && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); close(); }
+      if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
     }, true);
 
     root.addEventListener('click', function (e) {

@@ -646,6 +646,8 @@ window.HutchApps = window.HutchApps || {};
     /* the app bar's back closes the open list / detail first */
     ctx.bar.addEventListener('click', function (e) {
       if (state.view !== 'home' && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      /* the Den icon and name go all the way back to Den's main screen (Nov 3) */
+      else if (state.view !== 'home' && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); history.go(state.view === 'detail' && state.fromList ? -2 : -1); }
     }, true);
 
     root.addEventListener('click', function (e) {
@@ -1078,6 +1080,14 @@ window.HutchApps = window.HutchApps || {};
     /* the app bar's back button closes the post first */
     ctx.bar.addEventListener('click', function (e) {
       if (open && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); back(); }
+      /* the Photos icon and name: close the photo and show the grid, even
+         when it came from the home screen (Nov 3, Toby: "how do I go back
+         to the Photos home page?"). Back from the grid still goes home. */
+      else if (open && e.target.closest('.hb-app')) {
+        e.preventDefault(); e.stopPropagation();
+        if (deep) { deep = false; close(); try { history.replaceState(null, ''); } catch (er) {} }
+        else back();
+      }
     }, true);
     window.addEventListener('popstate', function (e) {
       if (e.state && e.state.hxp) { if (!open) openPost(e.state.i || 0, false); }
@@ -1609,7 +1619,7 @@ window.HutchApps = window.HutchApps || {};
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) close(); });
     /* the app bar's back arrow closes the card first */
     ctx.bar.addEventListener('click', function (e) {
-      if (open && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); close(); }
+      if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
     }, true);
 
     root.addEventListener('click', function (e) {

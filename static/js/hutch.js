@@ -290,7 +290,9 @@
         var q = inp.value.trim().toLowerCase();
         drawer.classList.toggle('q', !!q);
         drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = q ? (d.getAttribute('data-n').indexOf(q) > -1 ? '' : 'none') : (d.hasAttribute('data-home') ? 'none' : ''); });
+        drawerCols();
       });
+      window.addEventListener('resize', function () { if (drawer.classList.contains('open')) drawerCols(); });
       inp.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter') return;
         var first = [].filter.call(drawer.querySelectorAll('[data-n]'), function (d) { return d.style.display !== 'none'; })[0];
@@ -298,6 +300,17 @@
       });
     }
     openSheet(drawer);
+    drawerCols();
+  }
+  /* one row when the apps fit across (Nov 3, Toby: the unfolded screen
+     upright showed 6 + 1 on two rows); more apps wrap to more rows */
+  function drawerCols() {
+    var g = drawer && drawer.querySelector('.hx-dgrid'); if (!g) return;
+    g.style.gridTemplateColumns = '';
+    var base = getComputedStyle(g).gridTemplateColumns.split(' ').length,
+      n = [].filter.call(g.children, function (d) { return getComputedStyle(d).display !== 'none'; }).length,
+      fit = Math.floor(g.clientWidth / 76);
+    if (n > base && n <= fit) g.style.gridTemplateColumns = 'repeat(' + n + ',minmax(0,1fr))';
   }
 
   /* Settings */
@@ -443,6 +456,64 @@
     var r = HOME.recent && HOME.recent[0];
     return r ? 'Latest post ' + r.d : 'Welcome to Hutch';
   }
+  /* ---------- big desktop widgets (Nov 3, Toby; mockup v52) ----------
+     On a big screen (1400 x 820 or more): From the archive (two older
+     posts, Shuffle for two more), Currently (watching + reading, from the
+     Den data), Top categories, and a Latest photos strip across the
+     bottom. The strip holds the photos there, so the big photo widget
+     steps aside for Currently; if the strip can't fit above the dock,
+     the strip and Currently hide and the big photo comes back (fit()).
+     Phones, the Fold and laptops never show these. */
+  function agoText(iso) {
+    var d = new Date(iso + 'T12:00:00'), now = new Date(), m = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
+    if (m < 1) return 'this month'; if (m < 12) return m + (m === 1 ? ' month ago' : ' months ago');
+    var y = Math.floor(m / 12); return y + (y === 1 ? ' year ago' : ' years ago');
+  }
+  var ARCH = (HOME && HOME.arch) || [], archAt = 0, archOrder = null;
+  function archPick(n) {
+    if (!archOrder) { archOrder = ARCH.map(function (x, i) { return i; }); for (var i = archOrder.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = archOrder[i]; archOrder[i] = archOrder[j]; archOrder[j] = t; } }
+    var out = []; for (var k = 0; k < n && ARCH.length; k++) { out.push(ARCH[archOrder[archAt % archOrder.length]]); archAt++; }
+    return out;
+  }
+  function archRows(n) {
+    return archPick(n).map(function (x) {
+      return '<a class="hh-arow" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') +
+        '<span class="tx"><b>' + esc(x.t) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small>' + (x.x ? '<em>' + esc(x.x) + '</em>' : '') + '</span></a>';
+    }).join('');
+  }
+  function bigDesk() {
+    var out = '';
+    if (ARCH.length) out += '<section class="hh-wg hh-arch" aria-label="From the archive"><div class="hh-wtag">From the archive<a href="' + esc(APPS.archive[2]) + '">Archive ›</a></div>' +
+      '<div class="hh-alist">' + archRows(2) + '</div><div class="hh-afoot"><span>Older posts, picked at random</span>' +
+      '<button type="button" class="hh-shuf" aria-label="Shuffle: two more older posts">' + ic('surprise') + '<span>Shuffle</span></button></div></section>';
+    var N = (HOME && HOME.now) || {}, w = N.w && N.w.t ? N.w : null, r = N.r && N.r.t ? N.r : null;
+    if (w || r) {
+      var den = APPS.den[2] || '/watching/', item = function (x, kind) {
+        var meta = '', by = '', pct = -1;
+        if (kind === 'w') {
+          by = x.kind === 'TV' ? (x.season ? 'Season ' + x.season : 'TV') : (x.y || 'Movie');
+          if (x.ep) { meta = 'Episode ' + x.ep + (x.eps ? ' of ' + x.eps : ''); if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
+          else meta = x.d ? 'Since ' + x.d : '';
+        } else {
+          by = x.who ? 'by ' + x.who : '';
+          if (x.pct >= 0) { pct = x.pct; meta = x.pct + '%' + (x.page ? ' · page ' + x.page + (x.total ? ' of ' + x.total : '') : ''); }
+        }
+        return '<a class="hh-nitem" href="' + esc(den) + '">' + (x.cover ? '<img src="' + esc(x.cover) + '" alt="" loading="lazy" decoding="async">' : '<span class="cv"></span>') +
+          '<span class="tx"><small>' + (kind === 'w' ? 'Watching' : 'Reading') + '</small><b>' + esc(x.t) + '</b>' + (by ? '<i>' + esc(by) + '</i>' : '') + (meta ? '<em>' + esc(meta) + '</em>' : '') +
+          (pct >= 0 ? '<span class="bar"><i style="width:' + Math.max(3, Math.min(100, pct)) + '%"></i></span>' : '') + '</span></a>';
+      };
+      out += '<section class="hh-wg hh-now" aria-label="Currently"><div class="hh-wtag">Currently<a href="' + esc(den) + '">Den ›</a></div><div class="hh-ntwo' + (w && r ? '' : ' one') + '">' +
+        (w ? item(w, 'w') : '') + (r ? item(r, 'r') : '') + '</div></section>';
+    }
+    var cats = ((HOME && HOME.cats) || []).filter(function (c) { return !/^micro$/i.test(c.n); }).slice(0, 12);
+    if (cats.length) out += '<section class="hh-wg hh-cats" aria-label="Top categories"><div class="hh-wtag">Top categories<a href="' + esc(APPS.archive[2]) + '">See all ›</a></div><div class="hh-chips">' +
+      cats.map(function (c) { return '<a href="' + esc(c.u) + '">' + esc(c.n) + '<span>' + c.c + '</span></a>'; }).join('') + '</div></section>';
+    var ph = (HOME && HOME.photos) || [];
+    if (ph.length > 2) out += '<section class="hh-wg hh-strip" aria-label="Latest photos"><div class="hh-wtag">Latest photos<a href="' + esc(APPS.photos[2]) + '">Photos ›</a></div><div class="hh-thumbs">' +
+      ph.slice(0, 6).map(function (p) { return '<a href="/photo/#post=' + encodeURIComponent(p.u) + '" aria-label="' + esc(p.t || 'Photo') + '"><img src="' + esc(p.src) + '" alt="" loading="lazy" decoding="async"><small>' + esc(p.d) + '</small></a>'; }).join('') + '</div></section>';
+    return out;
+  }
+
   function buildHome() {
     var now = new Date();
     var day = now.toLocaleDateString('en-US', { weekday: 'long' }), mon = now.toLocaleDateString('en-US', { month: 'long' });
@@ -466,7 +537,9 @@
          many as fit (fit() below). The phone keeps one, with "+2 more". */
       ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert</div><div class="w">' + esc(w.w) + '</div>' +
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
-        (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') + '</a>'
+        (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
+        /* big desktop: the example and a way in, so the card never ends in empty space */
+        (w.ex ? '<p class="wex">“' + esc(w.ex) + '”</p>' : '') + '<span class="wopen">Open Word Nerd ›</span></a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -485,7 +558,7 @@
         '<div class="hh-quad">' + QUAD.map(function (k) { return (k === 'settings' && WIDE5 ? '<span class="hh-w5">' + appIcon(WIDE5) + '</span>' : '') + appIcon(k); }).join('') + '</div>' +
         '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
         '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
-        photo + word +
+        photo + word + bigDesk() +
       '</div>' +
       '<button type="button" class="hh-handle" data-sheet="apps" aria-label="All apps">' + ic('up', 2.4) + '<span>All apps</span></button>' +
       '<div class="hh-bottom"><nav class="hh-dock" aria-label="Dock">' + DOCK.map(function (k) { return appIcon(k); }).join('') + '</nav>' +
@@ -505,6 +578,13 @@
     homeEl.addEventListener('touchend', function (e) { if (y0 !== null && y0 - e.changedTouches[0].clientY > 60) openDrawer(); y0 = null; }, { passive: true });
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
+    homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
+    var shuf = homeEl.querySelector('.hh-shuf');
+    if (shuf) shuf.addEventListener('click', function () {
+      var ac = homeEl.querySelector('.hh-arch'), lst = ac.querySelector('.hh-alist'), n = lst.children.length || 2;
+      ac.classList.add('swap');
+      setTimeout(function () { lst.innerHTML = archRows(n); ac.classList.remove('swap'); fit(); }, 180);
+    });
     /* Desktop wallpaper mark (Nov 3, Toby): a computer has no launch
        screen, so the Toby Geeks Out! logo and his face rest low on the
        left, just above the mountains, the way the rabbit sits on the right
@@ -569,7 +649,15 @@
     setTimeout(photoFit, 0);
     setTimeout(brandFit, 0);
     var a = homeEl.querySelector('.hh-area');
-    homeEl.classList.remove('fit1', 'fit2');
+    homeEl.classList.remove('fit1', 'fit2', 'nostrip');
+    /* big desktop: the photo strip only when it fits above the dock; else
+       the big photo comes back in Currently's spot */
+    var strip = homeEl.querySelector('.hh-strip');
+    if (strip && getComputedStyle(strip).display !== 'none') {
+      /* a row squeezed by the grid shows up as a card cut short inside */
+      var ab0 = a.getBoundingClientRect();
+      if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
+    }
     if (innerHeight <= 520) return; /* sideways phone: the area scrolls instead */
     function over() { var ab = a.getBoundingClientRect(); return [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab.bottom + 1; }); }
     if (over()) homeEl.classList.add('fit1');

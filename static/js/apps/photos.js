@@ -215,6 +215,14 @@
     /* the app bar's back button closes the post first */
     ctx.bar.addEventListener('click', function (e) {
       if (open && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); back(); }
+      /* the Photos icon and name: close the photo and show the grid, even
+         when it came from the home screen (Nov 3, Toby: "how do I go back
+         to the Photos home page?"). Back from the grid still goes home. */
+      else if (open && e.target.closest('.hb-app')) {
+        e.preventDefault(); e.stopPropagation();
+        if (deep) { deep = false; close(); try { history.replaceState(null, ''); } catch (er) {} }
+        else back();
+      }
     }, true);
     window.addEventListener('popstate', function (e) {
       if (e.state && e.state.hxp) { if (!open) openPost(e.state.i || 0, false); }

@@ -239,6 +239,8 @@
     /* the app bar's back closes the open list / detail first */
     ctx.bar.addEventListener('click', function (e) {
       if (state.view !== 'home' && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      /* the Den icon and name go all the way back to Den's main screen (Nov 3) */
+      else if (state.view !== 'home' && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); history.go(state.view === 'detail' && state.fromList ? -2 : -1); }
     }, true);
 
     root.addEventListener('click', function (e) {

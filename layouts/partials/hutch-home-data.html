@@ -69,13 +69,16 @@
     {{- $def = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 160 -}}
   {{- end -}}
   {{/* ms = up to 4 meanings, for the bigger unfolded screens (Nov 3) */}}
-  {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "ms" (first 4 $senses) "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
+  {{- $ex := "" -}}
+  {{- with findRE `(?s)<(?:p|td|div)\b[^>]*\bclass=["'][^"']*\bdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $c 1 -}}{{- $ex = trim (index . 0 | plainify | htmlUnescape) " \n\t" -}}{{- end -}}
+  {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "ms" (first 4 $senses) "ex" $ex "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
 {{- end -}}{{- end -}}
 
 {{- $photo := dict -}}
+{{- $photos6 := slice -}}{{/* desktop "Latest photos" strip (Nov 3) */}}
 {{- $shots := where (where $site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos") -}}
 {{- range $shots.ByDate.Reverse -}}
-  {{- if not $photo -}}
+  {{- if lt (len $photos6) 6 -}}
   {{- $p := . -}}
   {{- if not (in (lower $p.Content) "credit:") -}}
     {{- $posters := slice -}}
@@ -88,7 +91,9 @@
       {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $srcs = $srcs | append $u -}}{{- end -}}
     {{- end -}}
     {{- if gt (len $srcs) 0 -}}
-      {{- $photo = dict "src" (index $srcs 0) "t" (trim $p.Title " \n\t") "u" $p.RelPermalink "d" ($p.Date.Format "Jan 2") "n" (len $srcs) -}}
+      {{- $one := dict "src" (index $srcs 0) "t" (trim $p.Title " \n\t") "u" $p.RelPermalink "d" ($p.Date.Format "Jan 2") "n" (len $srcs) -}}
+      {{- if not $photo -}}{{- $photo = $one -}}{{- end -}}
+      {{- $photos6 = $photos6 | append $one -}}
     {{- end -}}
   {{- end -}}
   {{- end -}}
@@ -214,4 +219,55 @@
   {{- end -}}
 {{- end -}}
 
-<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>
+{{/* Desktop "From the archive" (Nov 3, Toby): titled posts older than the
+     Blog app's newest 60, Watchlist cards and Word of the Day left out.
+     Up to 80, spread across the years; the page picks two at random and
+     Shuffle picks two more. img = Toby's own upload, never a card poster;
+     x = a short clean line. */}}
+{{- $older := slice -}}
+{{- $seenTl := dict -}}{{- range $tl -}}{{- $seenTl = merge $seenTl (dict .u true) -}}{{- end -}}
+{{- range (where $site.RegularPages "Type" "post").ByDate.Reverse -}}
+  {{- if and .Title (not (index $seenTl .RelPermalink)) (not (in .Params.categories "Word of the Day")) -}}
+    {{- $skip := false -}}
+    {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
+    {{- if findRE `(?i)^\W*(watchlist|on my radar|want to read|currently reading|now watching):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
+    {{- if not $skip -}}{{- $older = $older | append . -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $step := 1 -}}{{- if gt (len $older) 80 -}}{{- $step = div (len $older) 80 -}}{{- end -}}
+{{- $arch := slice -}}
+{{- range $i, $p := $older -}}
+  {{- if and (eq (mod $i $step) 0) (lt (len $arch) 80) -}}
+    {{- $posters := slice -}}
+    {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
+    {{- end -}}
+    {{- $img := "" -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` $p.Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $img = $u -}}{{- end -}}
+    {{- end -}}
+    {{- $x := $p.Summary | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}
+    {{- if or (in $p.Content "review-card") (in $p.Content "movie-card") (in $p.Content "book-card") -}}
+      {{- with findRE `(?s)<[^>]*review-tagline[^>]*>.*?</p>` $p.Content 1 -}}{{- $x = index . 0 | plainify | htmlUnescape -}}{{- else -}}{{- $x = "" -}}{{- end -}}
+    {{- end -}}
+    {{- $x = trim (replaceRE `\s+` " " (replaceRE `[★☆½]+` " " $x)) " " -}}
+    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "x" $x) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* Desktop "Currently" (Nov 3): the first book being read and the first
+     show or movie being watched, from the same data as the Den app
+     (partials/hutch-data/den.html, posts only; Trakt-only shows aren't
+     known until /watching/ is opened). */}}
+{{- $now := dict -}}
+{{- with partial "hutch-data/den.html" $site.Home -}}
+  {{- $j := replaceRE `(?s)^.*?<script[^>]*>(.*)</script>\s*$` "$1" . -}}
+  {{- with transform.Unmarshal $j -}}
+    {{- $w := dict -}}{{- with .watching -}}{{- $w = index . 0 -}}{{- end -}}
+    {{- $r := dict -}}{{- with .reading -}}{{- $r = index . 0 -}}{{- end -}}
+    {{- $now = dict "w" $w "r" $r -}}
+  {{- end -}}
+{{- end -}}
+
+<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "photos" $photos6 "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>

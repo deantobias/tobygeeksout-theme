@@ -921,10 +921,19 @@
       /* Nov 3 (Toby, folded Fold): when the next meaning is a few pixels
          short, the lines and gaps tighten a little, kept only if that
          shows one more meaning */
+      /* lines shown = how much of the meanings can be read; tighter
+         spacing is kept only when it shows more lines (Nov 3, Toby: the
+         second meaning had one line with room for most of another) */
+      var shown = function () {
+        var lh = parseFloat(getComputedStyle(defs).lineHeight) || 17, n = 0;
+        lis.forEach(function (li) { if (li.style.display !== 'none') n += Math.round(li.getBoundingClientRect().height / lh); });
+        return n;
+      };
       wc.classList.remove('snug'); place();
-      if (vis < lis.length) {
-        var v0 = vis; wc.classList.add('snug'); place();
-        if (vis <= v0) { wc.classList.remove('snug'); place(); }
+      var fullAll = vis === lis.length && !lis[vis - 1].style.webkitLineClamp;
+      if (!fullAll) {
+        var n0 = shown(); wc.classList.add('snug'); place();
+        if (shown() <= n0) { wc.classList.remove('snug'); place(); }
       }
       if (more) { var left = total - vis; more.textContent = '+' + left + ' more'; more.style.display = left > 0 ? '' : 'none'; }
     } else if (def) {

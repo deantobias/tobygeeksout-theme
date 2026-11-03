@@ -7,7 +7,8 @@
      as he wrote them in Micro.blog. This only adds the facts the page
      itself doesn't have:
        title   the page title from Micro.blog
-       name, avatar, site   for the About hero (.Site.Author)
+       name, avatar, site   for the About hero (.Site.Author; the face is the
+                            Traditional header's, Nov 3: the profile photo is old)
        posts, since, cats   About facts, counted like the Traditional
                             archive (posts = Type "post"; top 3
                             categories by post count)
@@ -25,19 +26,22 @@
   {{/* "Writes about" = the TOPICS he's been writing about lately (Nov 2,
        Toby: "I post Photos and Appalachian Life recently but they didn't
        show up"). Only the posts that show in Recent Geekouts on the home
-       page count, by the same rules as index.html ($excluded there):
-       no Word of the Day, Reel and Remote, reviews, bookshelf, Micro,
-       Now Watching or Watchlist posts, and untitled posts don't count.
+       page count, by the same rules as index.html ($excluded there),
+       except that Reel and Remote counts (see below): no Word of the Day,
+       bookshelf, Micro or Watchlist posts, and untitled posts don't count.
        Challenge and marker tags (Spotlight, Blaugust, 100DaysToOffload)
        aren't topics either. Window: the last 90 days (counted when the
        site builds; Micro.blog rebuilds on every post); a quiet stretch
        falls back to the newest 20 such posts. */}}
-  {{- $excluded := slice "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" -}}
+  {{/* Nov 2 (Toby): Reel and Remote DOES count, and Movie Reviews / TV
+       Reviews count as Reel and Remote (they overlap), so watching posts
+       show as one topic. Watchlist posts stay out (private). */}}
+  {{- $excluded := slice "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Word of the Day" -}}
   {{- $pool := slice -}}
   {{- range $posts.ByDate.Reverse -}}
     {{- $skip := not .Title -}}
     {{- range .Params.categories -}}{{- if in $excluded . -}}{{- $skip = true -}}{{- end -}}{{- end -}}
-    {{- if findRE `(?i)^\W*(now watching|watchlist):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
+    {{- if findRE `(?i)^\W*watchlist:` .Title 1 -}}{{- $skip = true -}}{{- end -}}
     {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
     {{- if not $skip -}}{{- $pool = $pool | append . -}}{{- end -}}
   {{- end -}}
@@ -50,16 +54,18 @@
   {{- $cats := slice -}}{{- $seen := slice -}}
   {{- range $recent -}}
     {{- range .Params.categories -}}
-      {{- $k := urlize . -}}
-      {{- if and (lt (len $cats) 3) (not (in $seen $k)) (not (findRE `(?i)^(micro|spotlight|blaugust.*|100\s*days\s*to\s*offload|#?100daystooffload)$` . 1)) -}}
+      {{- $name := . -}}
+      {{- if in (slice "Movie Reviews" "TV Reviews") $name -}}{{- $name = "Reel and Remote" -}}{{- end -}}
+      {{- $k := urlize $name -}}
+      {{- if and (lt (len $cats) 3) (not (in $seen $k)) (not (findRE `(?i)^(micro|spotlight|blaugust.*|100\s*days\s*to\s*offload|#?100daystooffload)$` $name 1)) -}}
         {{- $seen = $seen | append $k -}}
         {{- $cp := $.Site.GetPage (printf "/categories/%s" $k) -}}
         {{- $u := printf "/categories/%s/" $k -}}{{- with $cp -}}{{- $u = .RelPermalink -}}{{- end -}}
-        {{- $cats = $cats | append (dict "n" . "u" $u) -}}
+        {{- $cats = $cats | append (dict "n" $name "u" $u) -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
-  {{- $d = merge $d (dict "name" (.Site.Author.name | default "Toby Overstreet") "avatar" .Site.Author.avatar "posts" (len $posts) "since" $since "cats" $cats) -}}
+  {{- $d = merge $d (dict "name" (.Site.Author.name | default "Toby Overstreet") "avatar" "https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png" "posts" (len $posts) "since" $since "cats" $cats) -}}
 {{- else if or (in (slice "/subscribe/" "/follow/") $p) (findRE `(?i)^\s*(subscribe|follow)\b` .Title 1) -}}
   {{- $rss := "" -}}
   {{- with .Site.Home.OutputFormats.Get "rss" -}}{{- $rss = .Permalink -}}{{- else -}}{{- $rss = printf "%sfeed.xml" .Site.BaseURL -}}{{- end -}}

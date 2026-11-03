@@ -34,6 +34,9 @@
   var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var PAGE = J('hutch-page') || {};
+  /* Toby's face: the same picture as the Traditional theme's header and
+     rail (Nov 3, Toby: the Micro.blog profile photo is the old one) */
+  PAGE.avatar = 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
   var HOME = J('hutch-home-data');
   var IDX = null;
   if (HOME) { ls('hutch-index', JSON.stringify({ words: HOME.words || [], cats: HOME.cats || [], recent: HOME.recent || [] })); IDX = HOME; }
@@ -224,11 +227,25 @@
 
   /* ---------- sheets (drawer, search, settings) with Android back ---------- */
   var openSheetEl = null;
+  /* All apps is a short panel from the bottom (Nov 3, Toby: "keep it
+     short, not tall"), so the screen behind it dims; a tap there closes it */
+  var scrim = null;
+  function syncScrim() {
+    var on = !!(openSheetEl && openSheetEl.id === 'hutch-drawer');
+    if (on && !scrim) {
+      scrim = el('<div class="hx-scrim" aria-hidden="true"></div>');
+      document.body.appendChild(scrim);
+      scrim.addEventListener('click', function () { closeSheet(); });
+      void scrim.offsetWidth;
+    }
+    if (scrim) scrim.classList.toggle('on', on);
+  }
   function openSheet(s, focusSel) {
     if (openSheetEl === s) return;
     if (openSheetEl) closeSheet(true);
     openSheetEl = s;
     s.classList.add('open');
+    syncScrim();
     try { history.pushState({ hutchSheet: 1 }, ''); } catch (e) {}
     if (focusSel) setTimeout(function () { var f = s.querySelector(focusSel); if (f) f.focus(); }, 60);
   }
@@ -236,9 +253,10 @@
     if (!openSheetEl) return;
     openSheetEl.classList.remove('open');
     openSheetEl = null;
+    syncScrim();
     if (!viaCode && history.state && history.state.hutchSheet) { try { history.back(); } catch (e) {} }
   }
-  window.addEventListener('popstate', function () { if (openSheetEl) { openSheetEl.classList.remove('open'); openSheetEl = null; } });
+  window.addEventListener('popstate', function () { if (openSheetEl) { openSheetEl.classList.remove('open'); openSheetEl = null; syncScrim(); } });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && openSheetEl) closeSheet(); });
   function swipeDownToClose(s) {
     var y0 = null;
@@ -487,6 +505,20 @@
     homeEl.addEventListener('touchend', function (e) { if (y0 !== null && y0 - e.changedTouches[0].clientY > 60) openDrawer(); y0 = null; }, { passive: true });
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
+    /* Desktop wallpaper mark (Nov 3, Toby): a computer has no launch
+       screen, so the Toby Geeks Out! logo and his face rest low on the
+       left, just above the mountains, the way the rabbit sits on the right
+       peak. Day or night logo to match the sky (70s or modern, like the
+       Traditional header). Clicking it opens About. Desktop only (CSS). */
+    (function () {
+      var is70 = de.classList.contains('fonts-70s'), up = 'https://tobygeeksout.micro.blog/uploads/2026/';
+      var lg = DARK ? (is70 ? up + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : up + 'sunset-toby-geeks-out-new-logo.png')
+                    : (is70 ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png');
+      var av = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
+      var mark = el('<a class="hh-brand" href="' + esc(APPS.about[2] || '/about/') + '" aria-label="About ' + esc(PAGE.site || 'Toby Geeks Out!') + '">' +
+        '<img class="face" src="' + esc(av) + '" alt="" decoding="async" loading="lazy"><img class="logo" src="' + lg + '" alt="' + esc(PAGE.site || 'Toby Geeks Out!') + '" decoding="async" loading="lazy"></a>');
+      homeEl.appendChild(mark);
+    })();
     /* desktop: every app is already on the screen, so no All apps button */
     homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return k !== 'tinkering' && DOCK.indexOf(k) < 0 && DKAPPS.indexOf(k) < 0; }).length === 0);
     fit();
@@ -513,9 +545,29 @@
     var pic = im.naturalWidth / im.naturalHeight, box = r.width / r.height;
     ph.classList.toggle('whole', pic < box * 0.72 || pic > box * 1.6);
   }
+  /* the desktop logo never sits on top of a widget or the dock: smaller
+     if it has to be, gone if there's no free sky for it */
+  function brandFit() {
+    var b = homeEl && homeEl.querySelector('.hh-brand'); if (!b) return;
+    b.classList.remove('sm', 'low', 'off');
+    if (getComputedStyle(b).display === 'none') return;
+    var hit = function () {
+      var r = b.getBoundingClientRect();
+      return [].some.call(homeEl.querySelectorAll('.hh-area > *, .hh-bottom, .hh-handle'), function (c) {
+        var q = c.getBoundingClientRect(); if (!q.width || !q.height) return false;
+        return !(r.right + 12 < q.left || r.left - 12 > q.right || r.bottom + 12 < q.top || r.top - 12 > q.bottom);
+      });
+    };
+    if (hit()) b.classList.add('sm');
+    /* laptops: no free sky above the mountains, so it rests on the
+       mountains beside the dock instead */
+    if (hit()) b.classList.add('low');
+    if (hit()) b.classList.add('off');
+  }
   function fit() {
     if (!homeEl) return;
     setTimeout(photoFit, 0);
+    setTimeout(brandFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2');
     if (innerHeight <= 520) return; /* sideways phone: the area scrolls instead */

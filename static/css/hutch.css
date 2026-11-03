@@ -536,6 +536,13 @@ html.hx-dark .hx-field{background:#222A3B}
 .hx-lab{font:700 12px var(--h-ui);letter-spacing:.07em;color:#6B7280;margin:18px 4px 10px;text-transform:uppercase}
 html.hx-dark .hx-lab{color:#A9B2C3}
 .hx-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;margin:0 -6px;padding:0 6px}
+/* All apps: a short panel from the bottom, only as tall as its apps
+   (grows when more apps are added, up to most of the screen) (Nov 3) */
+#hutch-drawer{top:auto;max-height:88vh;border-radius:28px 28px 0 0;box-shadow:0 -8px 30px rgba(15,23,38,.18)}
+#hutch-drawer .hx-sh-in{flex:0 1 auto;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+#hutch-drawer .hx-scroll{flex:0 1 auto}
+.hx-scrim{position:fixed;inset:0;z-index:9690;background:rgba(10,14,24,.38);opacity:0;pointer-events:none;transition:opacity .25s}
+.hx-scrim.on{opacity:1;pointer-events:auto}
 .hx-dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 4px}
 @media (min-width:600px){.hx-dgrid{grid-template-columns:repeat(6,1fr)}}
 @media (min-width:900px){.hx-dgrid{grid-template-columns:repeat(8,1fr)}}
@@ -717,3 +724,20 @@ html.hx-dark .hbl-right .hx-arr{background:var(--color-bg,#151B2B)}
 html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 @media (hover:none),(pointer:coarse){.hx-arr{display:none !important}}
 @media print{.hx-arr{display:none !important}}
+
+/* ---------- 12. Desktop wallpaper mark (Nov 3) ----------
+   The logo and Toby's face rest low on the left above the mountains
+   (hutch.js buildHome), desktop only. */
+.hh-brand{display:none}
+@media (min-width:1100px) and (min-height:600px){
+  .hh-brand{position:absolute;z-index:1;left:clamp(24px,4vw,72px);bottom:calc(112px + env(safe-area-inset-bottom));
+    display:flex;align-items:center;gap:16px;text-decoration:none !important;opacity:.95;transition:opacity .2s,transform .2s}
+  .hh-brand:hover{opacity:1;transform:translateY(-2px)}
+  .hh-brand .face{width:76px;height:76px;border-radius:50%;object-fit:cover;background:#FBE3D0;box-shadow:0 4px 14px rgba(15,23,38,.18),inset 0 0 0 2px rgba(255,255,255,.6)}
+  .hh-brand .logo{height:clamp(60px,6.5vw,96px);width:auto;max-width:none;filter:drop-shadow(0 3px 10px rgba(15,23,38,.12))}
+  .hh-brand.sm{bottom:calc(104px + env(safe-area-inset-bottom));gap:10px}
+  .hh-brand.sm .face{width:52px;height:52px}
+  .hh-brand.sm .logo{height:50px}
+  .hh-brand.low{bottom:calc(26px + env(safe-area-inset-bottom))}
+  .hh-brand.off{display:none}
+}

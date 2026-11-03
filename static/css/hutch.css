@@ -398,6 +398,9 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 #hutch-home.fit1 .hh-p,#hutch-home.fit1 .hh-handle span{display:none}
 #hutch-home.fit1 .hh-word .def{-webkit-line-clamp:1}
 #hutch-home.fit2 .hh-row:nth-of-type(3){display:none}
+/* recent posts 4 to 8 show only where the card has room for them (fit() adds .on, Nov 3) */
+#hutch-home .hh-row:nth-of-type(n+4){display:none}
+#hutch-home .hh-row.on:nth-of-type(n+4){display:flex}
 /* very short (a phone held sideways): let the widgets scroll, it can't fit */
 @media (max-width:599px) and (max-height:520px),(max-height:379px){
   .hh-area{overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px}

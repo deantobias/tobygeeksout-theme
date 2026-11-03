@@ -18,7 +18,10 @@
      ============================================================ */}}
 {{- $site := .site -}}
 {{- $recent := slice -}}
-{{- range .recent -}}
+{{/* Nov 3 (Toby): up to 8, not 3. The phone shows 3; bigger screens show
+     as many more as fit in the card's empty space (hutch.js fit()). Same
+     order and rules as Recent Geekouts. */}}
+{{- range first 8 .pool -}}
   {{- $posters := slice -}}
   {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
     {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}

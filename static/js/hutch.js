@@ -428,8 +428,8 @@
   function buildHome() {
     var now = new Date();
     var day = now.toLocaleDateString('en-US', { weekday: 'long' }), mon = now.toLocaleDateString('en-US', { month: 'long' });
-    var rows = (HOME.recent || []).map(function (r) {
-      return '<a class="hh-row" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="eager" decoding="async">' : '') +
+    var rows = (HOME.recent || []).map(function (r, i) {
+      return '<a class="hh-row" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
         '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></div></a>';
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
@@ -522,6 +522,20 @@
     function over() { var ab = a.getBoundingClientRect(); return [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab.bottom + 1; }); }
     if (over()) homeEl.classList.add('fit1');
     if (over()) homeEl.classList.add('fit2');
+    /* Recent posts fills its card (Nov 3, Toby): where the card is taller
+       than its three posts (it sits beside the date or Word Nerd), more
+       posts are added one at a time, as long as the card doesn't grow and
+       nothing runs past the screen. */
+    var pc = homeEl.querySelector('.hh-posts'), xr = pc ? [].slice.call(pc.querySelectorAll('.hh-row')).slice(3) : [];
+    xr.forEach(function (r) { r.classList.remove('on'); });
+    if (xr.length && !homeEl.classList.contains('fit2')) {
+      var h0 = pc.getBoundingClientRect().height, padB = parseFloat(getComputedStyle(pc).paddingBottom) || 0;
+      for (var xi = 0; xi < xr.length; xi++) {
+        xr[xi].classList.add('on');
+        var pr = pc.getBoundingClientRect();
+        if (pr.height > h0 + 1 || xr[xi].getBoundingClientRect().bottom > pr.bottom - padB + 1 || over()) { xr[xi].classList.remove('on'); break; }
+      }
+    }
     /* the Word Nerd card: shorten the definition until it fits its card */
     var wc = homeEl.querySelector('.hh-word'), def = wc && wc.querySelector('.def');
     var defs = wc && wc.querySelector('.defs'), wide = defs && getComputedStyle(defs).display !== 'none';

@@ -897,24 +897,25 @@
      A small round up arrow in the bottom right corner (above Surprise me
      on posts), on every app screen that can
      get long (posts, the Blog list, Archive, Den, Word Nerd...). It shows
-     only when you start scrolling back up after going a good way down,
-     hides again when you scroll down or reach the top, and takes you to
+     once you're about a screen down and stays there, scrolling up or
+     down, until you're back near the top (Toby). When Surprise me tucks
+     away while scrolling down, it drops into the corner. It takes you to
      the top of whatever you were scrolling (the page, or a pane that
      scrolls on its own, like the Blog list or a Word Nerd card). */
   function topButton() {
     var b = el('<button type="button" class="hx-top" aria-label="Back to top" title="Back to top">' + ic('up', 2.6) + '</button>');
     document.body.appendChild(b);
-    var last = new WeakMap(), cur = null;
+    var cur = null;
     function y(t) { return t === document || t === de || t === document.body ? (window.scrollY || de.scrollTop) : t.scrollTop; }
     function h(t) { return t === document || t === de || t === document.body ? window.innerHeight : t.clientHeight; }
     document.addEventListener('scroll', function (e) {
       var t = e.target; if (t.nodeType !== 1 && t !== document) return;
       if (t !== document && (t.closest && t.closest('.hx-sheet'))) return;
-      var now = y(t), was = last.has(t) ? last.get(t) : now;
-      last.set(t, now);
-      if (now < h(t) * 1.2) { if (cur === t || !cur) b.classList.remove('on'); return; }
-      if (now < was - 8) { cur = t; b.classList.add('on'); }
-      else if (now > was + 8 && cur === t) b.classList.remove('on');
+      /* Nov 3 (Toby): once you're about a screen down it stays, scrolling
+         up or down, and goes away only back near the top */
+      var now = y(t);
+      if (now > h(t) * 0.9) { cur = t; b.classList.add('on'); }
+      else if (now < h(t) * 0.4 && (cur === t || !cur)) b.classList.remove('on');
     }, { passive: true, capture: true });
     b.addEventListener('click', function () {
       var t = cur || document;
@@ -1043,6 +1044,8 @@
     window.addEventListener('scroll', function () {
       var y = window.scrollY, end = y + window.innerHeight >= document.documentElement.scrollHeight - 140;
       if (end || y < lastY - 6 || y < 80) fab.classList.remove('away'); else if (y > lastY + 6) fab.classList.add('away');
+      /* the back-to-top button drops into the corner while Surprise me is tucked away */
+      de.classList.toggle('hx-fab-away', fab.classList.contains('away'));
       lastY = y;
     }, { passive: true });
 

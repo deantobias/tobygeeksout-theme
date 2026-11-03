@@ -569,3 +569,38 @@ html.hx-dark .hx-card p{color:#A9B2C3}
 
 /* ---------- 7. (Nov 3) The "New posts · Refresh" chip is gone: newer
    copies now load or slide in by themselves (hutch.js, gotFresh). */
+
+/* ---------- 8. Single posts: Surprise me button, swipe peek, nudge (Nov 3) ----------
+   hutch.js postExtras(). */
+.hx-fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:8500;width:56px;height:56px;border-radius:18px;
+  display:grid;place-items:center;background:#D9A441;color:#fff !important;text-decoration:none !important;
+  box-shadow:0 6px 18px rgba(15,23,38,.28);transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s;-webkit-tap-highlight-color:transparent}
+.hx-fab .hx-ic{width:26px;height:26px}
+.hx-fab:active{transform:scale(.94)}
+.hx-fab.away{transform:translateY(calc(100% + 30px));opacity:0;pointer-events:none}
+html.hx-dark .hx-fab{box-shadow:0 6px 18px rgba(0,0,0,.5)}
+html.hutch-embed .hx-fab{display:none}
+@media print{.hx-fab,.hx-peek,.hx-swipetip{display:none !important}}
+
+.hx-peek{position:fixed;top:42%;z-index:8600;display:flex;align-items:center;gap:10px;max-width:min(300px,72vw);padding:12px 14px;
+  background:#1E2D4A;color:#fff;border-radius:18px;box-shadow:0 10px 28px rgba(15,23,38,.3);opacity:0;pointer-events:none;font-family:var(--h-ui)}
+.hx-peek.r{right:0;border-top-right-radius:0;border-bottom-right-radius:0;transform:translateX(110%)}
+.hx-peek.l{left:0;border-top-left-radius:0;border-bottom-left-radius:0;transform:translateX(-110%);flex-direction:row}
+.hx-peek .ar{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);transition:background .2s}
+.hx-peek .ar .hx-ic{width:18px;height:18px}
+.hx-peek.l .ar{order:2} /* the arrow leads, so it shows first as the card slides in */
+.hx-peek .tx{min-width:0}
+.hx-peek small{display:block;font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.hx-peek b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:600 15px/1.3 var(--h-ui)}
+.hx-peek.go .ar{background:var(--color-terra,#C4622D)}
+html.hx-dark .hx-peek{background:#F3EDE4;color:#1E2D4A}
+html.hx-dark .hx-peek .ar{background:rgba(30,45,74,.12)}
+html.hx-dark .hx-peek.go .ar{background:var(--color-terra,#C4622D);color:#fff}
+
+.hx-swipetip{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));z-index:8600;transform:translate(-50%,12px);opacity:0;
+  display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:#1E2D4A;color:#fff;font:600 13.5px var(--h-ui);
+  box-shadow:0 6px 18px rgba(15,23,38,.25);white-space:nowrap;transition:opacity .3s,transform .3s;pointer-events:none}
+.hx-swipetip .hx-ic{width:16px;height:16px}
+.hx-swipetip.on{opacity:1;transform:translate(-50%,0)}
+html.hx-dark .hx-swipetip{background:#F3EDE4;color:#1E2D4A}
+@media (prefers-reduced-motion:reduce){.hx-fab,.hx-peek,.hx-swipetip{transition:none !important}}

@@ -70,6 +70,7 @@
     house: '<path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/>',
     search: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.1-4.1"/>',
     back: '<path d="M19 12H5 M11 18l-6-6 6-6"/>',
+    fwd: '<path d="M5 12h14 M13 6l6 6-6 6"/>',
     up: '<path d="M6 15l6-6 6 6"/>',
     close: '<path d="M6 6l12 12 M18 6L6 18"/>',
     tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>',
@@ -817,6 +818,116 @@
     });
   }
 
+  /* ---------- single posts: swipe for older / newer, Surprise me ----------
+     Nov 3 (Toby). Swipe left = older post, swipe right = newer post
+     (titled posts by date, from partials/hutch-data/post.html).
+       - Only a clear sideways swipe counts: it has to start away from the
+         screen edges (Android's own back swipe lives there) and move
+         mostly sideways. Scrolling never triggers it; photo mosaics,
+         wide tables and code that scroll sideways keep their own swipe.
+       - While dragging, a card peeks in from the side with the post's
+         title. Let go past the line and it opens; let go early and
+         nothing happens.
+       - The first two posts someone opens show a one-time nudge: the
+         older card peeks in and back, with "Swipe for older and newer
+         posts". Never again once they've swiped.
+       - Both neighbours are saved ahead, so they open at once.
+     Surprise me: a round shuffle button, bottom right, in the Surprise
+     app's gold. It tucks away while scrolling down and comes back when
+     scrolling up or at the end of the post. */
+  function postExtras() {
+    var N = J('hutch-app-data') || {}, older = N.o && N.o.u ? N.o : null, newer = N.n && N.n.u ? N.n : null;
+    var W = function () { return window.innerWidth; };
+
+    /* Surprise me */
+    var fab = el('<a class="hx-fab" href="' + (APPS.surprise[2] || '/surprise-me/') + '" aria-label="Surprise me: a random post" title="Surprise me">' + ic('surprise') + '</a>');
+    document.body.appendChild(fab);
+    var lastY = window.scrollY, hideT;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY, end = y + window.innerHeight >= document.documentElement.scrollHeight - 140;
+      if (end || y < lastY - 6 || y < 80) fab.classList.remove('away'); else if (y > lastY + 6) fab.classList.add('away');
+      lastY = y;
+    }, { passive: true });
+
+    if (!older && !newer) return;
+    /* save both neighbours ahead */
+    if (swOK) navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: [older, newer].filter(Boolean).map(function (x) { return x.u; }) }); }).catch(function () {});
+
+    function peekHTML(side, x) {
+      return '<div class="hx-peek ' + side + '" aria-hidden="true"><span class="ar">' + ic(side === 'r' ? 'fwd' : 'back') + '</span><span class="tx"><small>' + (side === 'r' ? 'Older' : 'Newer') + '</small><b>' + esc(x.t) + '</b></span></div>';
+    }
+    var peekR = older ? el(peekHTML('r', older)) : null, peekL = newer ? el(peekHTML('l', newer)) : null;
+    if (peekR) document.body.appendChild(peekR);
+    if (peekL) document.body.appendChild(peekL);
+    function place(pk, px, anim) {
+      if (!pk) return;
+      pk.style.transition = anim ? 'transform .28s cubic-bezier(.2,.8,.2,1), opacity .28s' : 'none';
+      var w = pk.offsetWidth || 260;
+      var shown = Math.min(px, w);
+      pk.style.transform = pk.classList.contains('r') ? 'translateX(' + (w + 24 - shown) + 'px)' : 'translateX(' + (-(w + 24) + shown) + 'px)';
+      pk.style.opacity = px > 4 ? '1' : '0';
+      pk.classList.toggle('go', px >= line());
+    }
+    function line() { return Math.min(150, W() * 0.32); }
+    function scrollsSideways(t) {
+      for (var e = t; e && e !== document.body; e = e.parentElement) {
+        if (e.scrollWidth > e.clientWidth + 4) { var o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') return true; }
+        if (/^(INPUT|TEXTAREA|SELECT|VIDEO|IFRAME)$/.test(e.tagName)) return true;
+      }
+      return false;
+    }
+    var x0 = 0, y0 = 0, mode = null, dx = 0, EDGE = 28;
+    document.addEventListener('touchstart', function (e) {
+      mode = null; dx = 0;
+      if (e.touches.length !== 1 || openSheetEl || de.classList.contains('hx-leaving')) { mode = 'off'; return; }
+      var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
+      if (x0 < EDGE || x0 > W() - EDGE || scrollsSideways(e.target) || (window.getSelection && String(window.getSelection()).length)) mode = 'off';
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (mode === 'off' || mode === 'v') return;
+      var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
+      if (!mode) {
+        if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { mode = 'v'; return; }
+        if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 1.8) mode = 'h'; else return;
+      }
+      dx = mx;
+      var pk = dx < 0 ? peekR : peekL, other = dx < 0 ? peekL : peekR;
+      if (!pk) { dx = 0; return; }
+      e.preventDefault();
+      place(pk, Math.abs(dx) * 0.9, false); place(other, 0, false);
+    }, { passive: false });
+    function end() {
+      if (mode !== 'h') { mode = null; return; }
+      mode = null;
+      var pk = dx < 0 ? peekR : peekL, x = dx < 0 ? older : newer;
+      if (pk && x && Math.abs(dx) * 0.9 >= line()) {
+        ls('hutch-swipe-tip', '9');
+        place(pk, 9999, true); leaving();
+        location.href = x.u;
+      } else { place(peekR, 0, true); place(peekL, 0, true); }
+      dx = 0;
+    }
+    document.addEventListener('touchend', end, { passive: true });
+    document.addEventListener('touchcancel', end, { passive: true });
+    window.addEventListener('pageshow', function () { place(peekR, 0, false); place(peekL, 0, false); });
+
+    /* one-time nudge: first two posts on a touch screen */
+    var n = +(ls('hutch-swipe-tip') || 0), touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+    if (n < 2 && touch && !calm) {
+      ls('hutch-swipe-tip', String(n + 1));
+      var demo = peekR || peekL;
+      setTimeout(function () {
+        if (mode || window.scrollY > 200) return;
+        var tip = el('<div class="hx-swipetip" role="status">' + ic('back') + '<span>Swipe for older and newer posts</span>' + ic('fwd') + '</div>');
+        document.body.appendChild(tip);
+        requestAnimationFrame(function () { tip.classList.add('on'); });
+        place(demo, 70, true);
+        setTimeout(function () { place(demo, 0, true); }, 900);
+        setTimeout(function () { tip.classList.remove('on'); setTimeout(function () { tip.remove(); }, 400); }, 4200);
+      }, 1400);
+    }
+  }
+
   /* (Nov 2) An app-launch animation was tried here and taken out at
      Toby's request; apps simply open. */
 
@@ -826,7 +937,7 @@
      on, asks it to save the home screen's apps ahead of time, and after
      a page opens from a saved copy, quietly fetches the fresh one and
      offers "New posts · Refresh" if anything changed. */
-  var SW_CACHE = 'hutch-pages-v1';
+  var SW_CACHE = 'hutch-pages-v2';
   var swOK = 'serviceWorker' in navigator && 'caches' in window && (location.protocol === 'https:' || location.hostname === 'localhost');
   if (swOK && !de.classList.contains('hutch-embed')) {
     try { navigator.serviceWorker.register('/hutch-sw.js', { scope: '/' }).catch(function () {}); } catch (e) { swOK = false; }
@@ -898,7 +1009,7 @@
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }
-  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); }
+  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
 

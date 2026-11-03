@@ -1464,7 +1464,7 @@ window.HutchApps = window.HutchApps || {};
        over the list (Android back closes it). Newer / Older at the bottom.
      Landscape (840px+ wide): list on the left with a mini Latest card,
        the word card on the right. Each pane scrolls on its own.
-   Random (the dice button) opens any word. Read more opens the post.
+   Read more opens the post. (The Random dice button was taken out Nov 3.)
    Colors follow the sky: light by day, dark at dusk and night.
    ------------------------------------------------------------------ */
 (function () {
@@ -1545,7 +1545,8 @@ window.HutchApps = window.HutchApps || {};
           '<div class="hxw-list"></div>' +
         '</div></div>' +
         '<div class="hxw-detail" aria-live="polite"><div class="hxw-dbody"></div><div class="hxw-pn"></div></div>' +
-        '<button type="button" class="hxw-fab" data-random aria-label="Random word">' + ic('dice') + '<span>Random</span></button>' +
+        /* no Random button (Nov 3, Toby): some posts' cards don't read
+           right on their own, so words are only reached from the list */
       '</div>');
     document.body.appendChild(root);
     ctx.own();
@@ -1602,11 +1603,6 @@ window.HutchApps = window.HutchApps || {};
       open = false; de.classList.remove('hxw-open');
       if (!viaPop && history.state && history.state.hxwCard) { try { history.back(); } catch (e) {} }
     }
-    function random() {
-      if (W.length < 2) return show(0);
-      var i; do { i = Math.floor(Math.random() * W.length); } while (i === sel && (open || two()));
-      show(i);
-    }
 
     window.addEventListener('popstate', function () { if (open) close(true); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) close(); });
@@ -1617,7 +1613,6 @@ window.HutchApps = window.HutchApps || {};
 
     root.addEventListener('click', function (e) {
       var t = e.target;
-      if (t.closest('[data-random]')) { random(); return; }
       var s = t.closest('[data-sort]');
       if (s) { sort = s.getAttribute('data-sort'); ctx.ls('hxw-sort', sort); renderList(); return; }
       if (t.closest('.hxw-clr')) { input.value = ''; q = ''; clr.hidden = true; renderList(); input.focus(); return; }

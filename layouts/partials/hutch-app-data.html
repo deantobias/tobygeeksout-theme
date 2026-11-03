@@ -21,4 +21,5 @@
 {{- else if eq $p "/calendar/" -}}{{ partial "hutch-data/calendar.html" . }}
 {{- else if eq $p "/now/" -}}{{ partial "hutch-data/now.html" . }}
 {{- else if or (in (slice "/about/" "/about-me/" "/contact/" "/uses/" "/use/" "/subscribe/" "/follow/") $p) $inMenu -}}{{ partial "hutch-data/small.html" . }}
+{{- else if and (eq .Type "post") (eq .Kind "page") .Title -}}{{ partial "hutch-data/post.html" . }}
 {{- end -}}

@@ -17,7 +17,11 @@
        the page changed.
      - At most 60 pages are kept; the oldest go first.
    ================================================================== */
-var CACHE = 'hutch-pages-v1';
+/* v2 (Nov 3): Surprise me is never saved (it is a different random post
+   every time; v1 could save one pick and keep showing it), and neither
+   is any page that arrived through a redirect. Bumping the name clears
+   v1's saved pages. */
+var CACHE = 'hutch-pages-v2';
 var MAX = 60;
 
 self.addEventListener('install', function () { self.skipWaiting(); });
@@ -38,6 +42,7 @@ function skip(req) {
   if (u.origin !== self.location.origin) return true;
   if (/[?&](hutch|sky|season|fonts)=/.test(u.search)) return true;
   if (/\.(xml|json|txt|rss)$/i.test(u.pathname)) return true;
+  if (/^\/surprise/i.test(u.pathname)) return true;
   return false;
 }
 function trim(cache) {
@@ -47,7 +52,7 @@ function trim(cache) {
   });
 }
 function save(req, res) {
-  if (!res || !res.ok || res.type !== 'basic' || !/text\/html/i.test(res.headers.get('content-type') || '')) return Promise.resolve();
+  if (!res || !res.ok || res.type !== 'basic' || res.redirected || !/text\/html/i.test(res.headers.get('content-type') || '')) return Promise.resolve();
   var copy = res.clone();
   return caches.open(CACHE).then(function (c) { return c.put(key(req.url), copy).then(function () { return trim(c); }); });
 }
@@ -70,10 +75,11 @@ self.addEventListener('message', function (e) {
     e.waitUntil(caches.open(CACHE).then(function (c) {
       return Promise.all(d.urls.map(function (u) {
         var k = key(new URL(u, self.location.origin).href);
+        if (/\/surprise/i.test(k)) return;
         return c.match(k).then(function (hit) {
           if (hit) return;
           return fetch(k, { credentials: 'same-origin' }).then(function (res) {
-            if (res.ok && /text\/html/i.test(res.headers.get('content-type') || '')) return c.put(k, res);
+            if (res.ok && !res.redirected && /text\/html/i.test(res.headers.get('content-type') || '')) return c.put(k, res);
           }).catch(function () {});
         });
       })).then(function () { return trim(c); });

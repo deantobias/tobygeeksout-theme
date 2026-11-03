@@ -1,0 +1,26 @@
+{{/* ============================================================
+     HUTCH OS single-post swipe (Nov 3, 2026, Toby). The titled posts
+     right before and after this one by date, for swiping: swipe left
+     for older, swipe right for newer. Micros are left out (they're
+     read on the home page), and so are Watchlist / "Want to Watch"
+     cards, same tests as the Blog app timeline.
+     o = older, n = newer, each {t: title, u: address}.
+     ============================================================ */}}
+{{- $me := .RelPermalink -}}
+{{- $list := slice -}}
+{{- range (where site.RegularPages "Type" "post").ByDate -}}
+  {{- if .Title -}}
+    {{- $skip := false -}}
+    {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
+    {{- if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) -}}{{- $skip = true -}}{{- end -}}
+    {{- if or (not $skip) (eq .RelPermalink $me) -}}{{- $list = $list | append . -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $idx := -1 -}}
+{{- range $i, $p := $list -}}{{- if eq $p.RelPermalink $me -}}{{- $idx = $i -}}{{- end -}}{{- end -}}
+{{- $o := dict -}}{{- $n := dict -}}
+{{- if gt $idx 0 -}}{{- with index $list (sub $idx 1) -}}{{- $o = dict "t" (.Title | plainify | htmlUnescape) "u" .RelPermalink -}}{{- end -}}{{- end -}}
+{{- if and (ge $idx 0) (lt (add $idx 1) (len $list)) -}}{{- with index $list (add $idx 1) -}}{{- $n = dict "t" (.Title | plainify | htmlUnescape) "u" .RelPermalink -}}{{- end -}}{{- end -}}
+{{- if ge $idx 0 -}}
+<script type="application/json" id="hutch-app-data">{{ dict "o" $o "n" $n | jsonify | safeJS }}</script>
+{{- end -}}

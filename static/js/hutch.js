@@ -777,6 +777,9 @@
     setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2', 'nostrip', 'noex');
+    /* the upright Fold's short mode, from the height actually visible (Nov 3) */
+    var vh = (window.visualViewport && visualViewport.height) || innerHeight;
+    homeEl.classList.toggle('short', innerWidth >= 600 && innerWidth < 840 && vh < 760);
     /* every pass starts clean (Nov 3, Toby: the photo strip came and went
        on each refresh, because the last pass's trimmed Word Nerd and
        hidden chips changed the next measurement) */
@@ -890,7 +893,8 @@
       for (; vis >= 1; vis--) {
         lis.forEach(function (li, i) { li.style.display = i < vis ? '' : 'none'; li.style.webkitLineClamp = ''; });
         var last = lis[vis - 1], ok = !over();
-        for (var l2 = 3; !ok && l2 >= (vis > 1 ? 2 : 1); l2--) { last.style.webkitLineClamp = String(l2); ok = !over(); }
+        /* the last one may go down to 1 line (…) so a little room still shows it (Nov 3) */
+        for (var l2 = 3; !ok && l2 >= 1; l2--) { last.style.webkitLineClamp = String(l2); ok = !over(); }
         if (ok) break;
       }
       if (vis < 1) { vis = 1; lis.forEach(function (li, i) { li.style.display = i < 1 ? '' : 'none'; }); lis[0].style.webkitLineClamp = '1'; }

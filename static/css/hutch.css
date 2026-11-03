@@ -983,11 +983,17 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* the photo and Word Nerd share whatever height is left (not just Word Nerd's text) */
   #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(150px,1fr);align-content:stretch}
 }
-@media (min-width:600px) and (max-width:839px) and (min-height:380px) and (max-height:760px){
-  #hutch-home:not(.nonow) .hh-s{font-size:34px}
-  #hutch-home:not(.nonow) .hh-g{font-size:18px}
-  #hutch-home:not(.nonow) .hh-p{display:none}
-  #hutch-home:not(.nonow) .hh-photo{min-height:170px}
+/* .short comes from hutch.js (the height you actually see): Brave on
+   Android answers height media queries with the space behind its bars */
+@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+  #hutch-home.short:not(.nonow) .hh-s{font-size:34px}
+  #hutch-home.short:not(.nonow) .hh-g{font-size:18px}
+  #hutch-home.short:not(.nonow) .hh-p{display:none}
+  #hutch-home.short:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(170px,1fr)}
+  #hutch-home.short:not(.nonow) .hh-photo{min-height:170px}
+  /* Recent posts sets the top row's height; Currently fits into it (covers step aside) so the photo row gets the rest */
+  #hutch-home.short:not(.nonow) .hh-now{min-height:0;overflow:hidden}
+  #hutch-home.short:not(.nonow) .hh-now .hh-ntwo{contain:size !important;flex:1 1 0;min-height:0}
 }
 
 /* the bunny on the big desktop sits just past the photo strip's right end,

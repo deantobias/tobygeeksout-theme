@@ -712,10 +712,27 @@
     setTimeout(brandFit, 0);
     setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
-    homeEl.classList.remove('fit1', 'fit2', 'nostrip');
-    /* big desktop: the photo strip only when it fits above the dock; else
-       the big photo comes back in Currently's spot */
+    homeEl.classList.remove('fit1', 'fit2', 'nostrip', 'noex');
     var strip = homeEl.querySelector('.hh-strip');
+    /* Nov 3 (Toby: at 80% zoom his Mac showed everything at once): on a
+       big desktop that's a little short, the cards shrink to fit, never
+       below 85%, the way the browser's zoom does. Big monitors stay 100%. */
+    /* The words stay full size (Toby: "fonts bigger, 100%"): the text
+       blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
+    a.style.zoom = ''; a.style.removeProperty('--tz');
+    var z = 1;
+    if (strip && window.matchMedia && matchMedia('(min-width:1400px) and (min-height:820px)').matches) {
+      strip.style.removeProperty('--sth');
+      var h0 = a.getBoundingClientRect().height;
+      for (var zi = 0; zi < 4; zi++) {
+        a.style.flex = 'none'; a.style.height = 'auto';
+        var need = a.getBoundingClientRect().height;
+        a.style.flex = ''; a.style.height = '';
+        if (need <= h0 + 1 || z <= 0.85) break;
+        z = Math.max(0.85, Math.floor(z * h0 / need * 100) / 100);
+        a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
+      }
+    }
     /* the strip's photos shrink to the room left under the cards (Nov 3,
        Toby: on his Mac there wasn't room for full-size ones, and the
        Photos widget went missing); too little room, no strip */
@@ -730,8 +747,9 @@
         [].forEach.call(a.children, function (c) { if (c !== strip && getComputedStyle(c).display !== 'none') low = Math.max(low, c.getBoundingClientRect().bottom); });
         homeEl.classList.remove('nostrip');
         if (th) {
-          var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0),
-            room = Math.floor(ar.bottom - padB - low - (parseFloat(getComputedStyle(a).rowGap) || 18) - chrome - 2);
+          /* on-screen sizes are shrunk by z; the strip's own sizes are not */
+          var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0) * z,
+            room = Math.floor((ar.bottom - padB * z - low - (parseFloat(getComputedStyle(a).rowGap) || 18) * z - chrome - 2) / z);
           if (room < th.getBoundingClientRect().height) strip.style.setProperty('--sth', Math.max(room, 0) + 'px');
           if (room < 96) homeEl.classList.add('nostrip');
         }
@@ -740,7 +758,25 @@
     if (strip && !homeEl.classList.contains('nostrip') && getComputedStyle(strip).display !== 'none') {
       /* a row squeezed by the grid shows up as a card cut short inside */
       var ab0 = a.getBoundingClientRect();
-      if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
+      /* Top categories just shows fewer chips (below), so it doesn't count */
+      [].forEach.call(homeEl.querySelectorAll('.hh-chips a'), function (x) { x.style.display = ''; });
+      if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && !c.classList.contains('hh-cats') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
+    }
+    /* Top categories: as many chips as fit its card (Nov 3) */
+    var cc = homeEl.querySelector('.hh-area .hh-cats');
+    if (cc && getComputedStyle(cc).display !== 'none') {
+      var chips = [].slice.call(cc.querySelectorAll('.hh-chips a')), cb = cc.getBoundingClientRect().bottom - (parseFloat(getComputedStyle(cc).paddingBottom) || 0) * z;
+      chips.forEach(function (x) { x.style.display = ''; });
+      for (var ci = chips.length - 1; ci > 3 && chips[ci].getBoundingClientRect().bottom > cb + 1; ci--) chips[ci].style.display = 'none';
+    }
+    /* Word Nerd never ends cut in half (Nov 3, Safari draws text a little
+       taller): the example goes first, then meanings from the end */
+    var wd = homeEl.querySelector('.hh-area .hh-word.multi');
+    if (wd && strip && getComputedStyle(strip).display !== 'none' || wd && homeEl.classList.contains('nostrip')) {
+      [].forEach.call(wd.querySelectorAll('.defs li'), function (li) { li.style.display = ''; });
+      if (wd.scrollHeight > wd.clientHeight + 2) homeEl.classList.add('noex');
+      var lis = wd.querySelectorAll('.defs li');
+      for (var k = lis.length - 1; k > 0 && wd.scrollHeight > wd.clientHeight + 2; k--) lis[k].style.display = 'none';
     }
     if (innerHeight <= 520) return; /* sideways phone: the area scrolls instead */
     function over() { var ab = a.getBoundingClientRect(); return [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab.bottom + 1; }); }

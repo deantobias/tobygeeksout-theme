@@ -822,6 +822,9 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-word .wex{display:block;margin:12px 0 0;padding:10px 14px;border-left:3px solid #C4622D;background:rgba(196,98,45,.06);border-radius:0 12px 12px 0;
     font:italic 400 15px/1.5 Georgia,serif;color:#4A5568}
   /* the way into Word Nerd sits top right, like See all and Den (Nov 3, Toby) */
+  #hutch-home.noex .hh-word .wex{display:none}
+  /* shrunk to fit (hutch.js fit): the words zoom back to full size */
+  .hh-row > div,.hh-arow .tx,.hh-afoot > span,.hh-nitem .tx,.hh-word .pos,.hh-word .defs,.hh-word .wex,.hh-chips a,.hh-wtag{zoom:var(--tz,1)}
   .hh-word .wsee{display:inline;color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 10px}
 
   /* the logo and face sit on the dock line here (mockup v48+) */

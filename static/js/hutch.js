@@ -154,6 +154,15 @@
      one of them, the next app in line takes its place) */
   /* Nov 3 (Toby): Settings takes Uses' spot; Uses moves to All apps */
   var QUAD = ['den', 'surprise', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses'].filter(function (k) { return DOCK.indexOf(k) < 0; }).slice(0, 4);
+  /* Desktop (Nov 3, Toby): a big screen has room for every app on the
+     home screen, so all of them sit by the date, Micro.blog before
+     Settings, in place of the four. Up to 18; any beyond that stay in All
+     apps. When nothing is left for All apps, its button goes away. */
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'reading', 'blaugust'];
+  var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
+    .filter(function (k, i, all) { return APPS[k] && k !== 'tinkering' && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
+  var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
+  var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 600px)') : { matches: false };
   function tile(k) { return '<span class="hh-tile" style="background:' + APPS[k][1] + '">' + ic(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
@@ -253,13 +262,15 @@
          on the home screen they are widgets, not icons. Searching still
          finds every app. The Tinkering Log lives in Settings. */
       var onHome = DOCK.concat(QUAD);
+      /* on desktop, the apps already by the date don't repeat here */
       var keys = Object.keys(APPS).filter(function (k) { return k !== 'tinkering'; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { var h = onHome.indexOf(k) > -1; return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (h ? ' data-home style="display:none"' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { var h = onHome.indexOf(k) > -1; return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (h ? ' data-home style="display:none"' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (k === WIDE5 ? ' data-w5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();
+        drawer.classList.toggle('q', !!q);
         drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = q ? (d.getAttribute('data-n').indexOf(q) > -1 ? '' : 'none') : (d.hasAttribute('data-home') ? 'none' : ''); });
       });
       inp.addEventListener('keydown', function (e) {
@@ -447,8 +458,11 @@
       '<svg class="hh-bunny" viewBox="0 0 20 24"><g fill="var(--r2)" opacity=".8" transform="translate(1 1)"><ellipse cx="9" cy="17" rx="8" ry="6.5"/><circle cx="15" cy="10" r="4.6"/><ellipse cx="13" cy="2" rx="1.6" ry="6"/><ellipse cx="17" cy="2" rx="1.6" ry="6"/><circle cx="2" cy="16" r="2.2"/></g></svg></div>';
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
       '<div class="hh-area">' +
-        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br>' + mon + ' ' + ordinal(now.getDate()) + '.</a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
-        '<div class="hh-quad">' + QUAD.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
+        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br><span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
+        /* unfolded and tablets (one row of apps): room for a fifth,
+           Micro.blog before Settings (Nov 3, Toby). Phones keep the four. */
+        '<div class="hh-quad">' + QUAD.map(function (k) { return (k === 'settings' && WIDE5 ? '<span class="hh-w5">' + appIcon(WIDE5) + '</span>' : '') + appIcon(k); }).join('') + '</div>' +
+        '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
         '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
         photo + word +
       '</div>' +
@@ -470,6 +484,8 @@
     homeEl.addEventListener('touchend', function (e) { if (y0 !== null && y0 - e.changedTouches[0].clientY > 60) openDrawer(); y0 = null; }, { passive: true });
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
+    /* desktop: every app is already on the screen, so no All apps button */
+    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return k !== 'tinkering' && DOCK.indexOf(k) < 0 && DKAPPS.indexOf(k) < 0; }).length === 0);
     fit();
     window.addEventListener('resize', fit);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -761,7 +777,8 @@
           ic: ic, esc: esc, el: el, ls: ls, phase: PHASE, dark: DARK, calm: calm,
           own: function () { de.classList.add('hutch-own'); }, /* hide the Traditional page */
           openSheet: openSheet, closeSheet: closeSheet,
-          swipe: addSwipe /* the same older / newer swipe as posts (Nov 3) */
+          swipe: addSwipe, /* the same older / newer swipe as posts (Nov 3) */
+          arrows: addArrows
         });
       } catch (err) { de.classList.remove('hutch-own'); if (window.console) console.error('Hutch app ' + k, err); }
     }
@@ -817,7 +834,25 @@
       bar.classList.remove('titled');
       bar.querySelector('.hb-title').textContent = x.t || (x.d + ' · ' + x.tm);
       bar.querySelector('.hb-prog').style.width = '0';
+      if (typeof paneArrows !== 'undefined' && paneArrows) paneArrows.refresh();
     }
+    /* desktop / unfolded sideways: arrows on the post pane and the ← →
+       keys step through the list (newer / older), the same as the swipe
+       on a phone (Nov 3) */
+    function shown() { return TL.filter(function (x) { return filter === 'all' || (filter === 'micro' ? x.m : !x.m); }); }
+    function nb(d) { var L = shown(), i = -1; for (var j = 0; j < L.length; j++) if (L[j].u === sel) { i = j; break; } return i < 0 ? null : L[i - d] || null; }
+    right.style.position = 'relative';
+    var paneArrows = addArrows({
+      host: right,
+      active: function () { return two(); },
+      has: function (d) { return two() && !!nb(d); },
+      go: function (d) {
+        var x = nb(d); if (!x) return;
+        openInPane(x);
+        var c = list.querySelector('.hbl-it.sel'); if (c) c.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+      },
+      label: function (d) { var x = nb(d); return (d < 0 ? 'Older · ' : 'Newer · ') + (x ? (x.t || (x.d + ' · ' + x.tm)) : ''); }
+    });
     function layout() {
       de.classList.toggle('hbl-two', two());
       if (!two()) { de.classList.remove('hbl-full'); bar.classList.remove('titled'); return; }
@@ -828,6 +863,7 @@
       filter = b.getAttribute('data-f');
       [].forEach.call(this.querySelectorAll('[data-f]'), function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
       render(); left.scrollTop = 0; window.scrollTo(0, 0);
+      if (paneArrows) paneArrows.refresh();
     });
     list.addEventListener('click', function (e) {
       var a = e.target.closest('.hbl-it'); if (!a || !two()) return;
@@ -976,6 +1012,45 @@
       else t.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
       b.classList.remove('on');
     });
+  }
+
+  /* ---------- arrows for older / newer on desktop (Nov 3, Toby) ----------
+     A mouse can't swipe, so on a computer a post gets a quiet arrow on
+     each side, carousel style: left = newer, right = older (the same as
+     the swipe). Hovering shows where it goes ("Older · title"). The ← and
+     → keys do the same anywhere (not while typing). Touch screens keep the
+     swipe and don't get the arrows.
+     opts: has(dir), go(dir), label(dir); dir 1 = newer, -1 = older.
+     host: where the arrows sit (default: the window's edges);
+     buttons: false for keys only; active(): keys count only while yes. */
+  var FINE = !!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches);
+  function addArrows(opts) {
+    var btns = [];
+    if (opts.buttons !== false && FINE) {
+      [['l', 1], ['r', -1]].forEach(function (p) {
+        var b = el('<button type="button" class="hx-arr ' + p[0] + '">' + ic(p[0] === 'l' ? 'back' : 'fwd', 2.4) + '<span class="tip"></span></button>');
+        b.addEventListener('click', function () { if (opts.has(p[1])) opts.go(p[1]); });
+        (opts.host || document.body).appendChild(b);
+        btns.push([b, p[1]]);
+      });
+    }
+    function refresh() {
+      btns.forEach(function (p) {
+        var on = opts.has(p[1]); p[0].hidden = !on;
+        if (on) { var t = opts.label(p[1]); p[0].setAttribute('aria-label', t); p[0].querySelector('.tip').textContent = t; }
+      });
+    }
+    refresh();
+    document.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || openSheetEl) return;
+      var t = e.target;
+      if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+      if (opts.active && !opts.active()) return;
+      var d = e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0;
+      if (!d || !opts.has(d)) return;
+      e.preventDefault(); opts.go(d);
+    });
+    return { refresh: refresh };
   }
 
   /* ---------- swipe for older / newer (posts, Word Nerd cards) ----------
@@ -1129,6 +1204,16 @@
       }
     });
     var place = sw.place, peekR = older ? sw.peekR : null, peekL = newer ? sw.peekL : null, mode = null;
+    /* desktop: the same thing as arrows and the ← → keys */
+    addArrows({
+      has: function (d) { return !!(d < 0 ? older : newer); },
+      go: function (d) {
+        var x = d < 0 ? older : newer; leaving();
+        try { sessionStorage.setItem('hutch-lastpost', x.u); } catch (er) {}
+        location.replace(x.u);
+      },
+      label: function (d) { var x = d < 0 ? older : newer; return (d < 0 ? 'Older · ' : 'Newer · ') + x.t; }
+    });
 
     /* one-time nudge: first two posts on a touch screen */
     var n = +(ls('hutch-swipe-tip') || 0), touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;

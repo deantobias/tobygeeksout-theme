@@ -634,3 +634,68 @@ html.hxp-lock .hx-top{bottom:calc(96px + env(safe-area-inset-bottom))}
 html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba(0,0,0,.45)}
 @media print{.hx-top{display:none !important}}
 @media (prefers-reduced-motion:reduce){.hx-top{transition:none !important}}
+
+/* Micro.blog as a fifth app by the date, unfolded and tablets only (Nov 3) */
+.hh-w5{display:none}
+@media (min-width:600px) and (min-height:380px){
+  .hh-w5{display:contents}
+  .hh-quad{grid-template-columns:repeat(5,80px)}
+  #hutch-drawer:not(.q) [data-w5]{display:none !important}
+}
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape){
+  .hh-quad{grid-template-columns:repeat(5,68px)}
+}
+/* unfolded upright: five apps leave the date room for two lines ("November 3rd." stays together) */
+@media (min-width:600px) and (min-height:380px) and (orientation:portrait){
+  .hh-quad{grid-template-columns:repeat(5,64px);gap:10px 4px}
+  .hh-quad .hh-tile{width:54px;height:54px}
+  .hh-quad .hh-tile .hx-ic{width:24px;height:24px}
+  .hh-quad .hh-ic{font-size:12px}
+  /* the month and day stay on one line; the date shrinks a little if needed */
+  .hh-s{font-size:min(40px,5.7vw)}
+}
+.hh-s .nw{white-space:nowrap}
+
+/* ---------- 10. Desktop home screen (Nov 3) ----------
+   A big screen (1100px wide or more) has room for every app by the date,
+   Micro.blog before Settings, in place of the four (hutch.js DKAPPS).
+   All apps then lists only what didn't fit, and its button goes away
+   when that's nothing (#hutch-home.dk-full). */
+.hh-dkapps{display:none}
+@media (min-width:1100px) and (min-height:600px){
+  .hh-quad{display:none}
+  .hh-dkapps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 6px;margin-top:20px;width:100%;max-width:540px}
+  .hh-dkapps .hh-ic{width:100%;font-size:13px;gap:6px}
+  .hh-dkapps .hh-ic span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .hh-dkapps .hh-tile{width:58px;height:58px}
+  .hh-dkapps .hh-tile .hx-ic{width:26px;height:26px}
+  #hutch-home.dk-full .hh-handle{display:none}
+  #hutch-drawer:not(.q) [data-dk]{display:none !important}
+}
+
+/* ---------- 11. Desktop arrows for older / newer (Nov 3) ----------
+   hutch.js addArrows(): mouse screens only; touch screens swipe. */
+.hx-arr{position:fixed;top:50%;z-index:8400;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;border:0;padding:0;cursor:pointer;
+  background:rgba(30,45,74,.09);color:#1E2D4A;opacity:.75;transform:translateY(-50%);transition:opacity .15s,background-color .15s,color .15s}
+.hx-arr.l{left:16px}
+.hx-arr.r{right:16px}
+.hx-arr .hx-ic{width:22px;height:22px}
+.hx-arr:hover,.hx-arr:focus-visible{opacity:1;background:#1E2D4A;color:#fff;outline:none}
+.hx-arr[hidden]{display:none}
+.hx-arr .tip{position:absolute;top:calc(100% + 8px);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:#1E2D4A;color:#fff;font:600 12.5px/1.2 var(--h-ui);padding:7px 10px;border-radius:10px;box-shadow:0 6px 16px rgba(15,23,38,.22);
+  opacity:0;pointer-events:none;transition:opacity .15s}
+.hx-arr.l .tip{left:0}
+.hx-arr.r .tip{right:0}
+.hx-arr:hover .tip,.hx-arr:focus-visible .tip{opacity:1}
+html.hx-dark .hx-arr{background:rgba(243,237,228,.12);color:#F3EDE4}
+html.hx-dark .hx-arr:hover,html.hx-dark .hx-arr:focus-visible{background:#F3EDE4;color:#1E2D4A}
+html.hx-dark .hx-arr .tip{background:#F3EDE4;color:#1E2D4A}
+/* inside the Blog app's post pane: on the pane's edges, two panes only */
+.hbl-right .hx-arr{position:absolute;width:40px;height:40px;border-radius:14px;background:var(--color-bg,#FAF8F5);box-shadow:0 2px 10px rgba(15,23,38,.12)}
+/* the left one sits on the line between the list and the post, so it never covers the post */
+.hbl-right .hx-arr.l{left:-20px}
+html.hx-dark .hbl-right .hx-arr{background:var(--color-bg,#151B2B)}
+html:not(.hbl-two) .hbl-right .hx-arr{display:none}
+@media (hover:none),(pointer:coarse){.hx-arr{display:none !important}}
+@media print{.hx-arr{display:none !important}}

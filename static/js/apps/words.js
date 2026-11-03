@@ -181,6 +181,15 @@
        Toby: keep it consistent). Finger left = older word, right = newer.
        The Newer / Older buttons stay. Swiping doesn't add back steps, so
        back still closes the card. */
+    /* desktop: the ← → keys step through words too (the card already has
+       Newer / Older buttons, so no extra arrows) */
+    if (ctx.arrows) ctx.arrows({
+      buttons: false,
+      active: function () { return open || two(); },
+      has: function (dir) { return !!W[dir < 0 ? sel + 1 : sel - 1]; },
+      go: function (dir) { show(dir < 0 ? sel + 1 : sel - 1); },
+      label: function () { return ''; }
+    });
     if (ctx.swipe) ctx.swipe({
       active: function (t) { return (open || two()) && !!(t && t.closest && t.closest('.hxw-detail')); },
       has: function (dir) { return !!W[dir < 0 ? sel + 1 : sel - 1]; },

@@ -1016,6 +1016,16 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
   .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){flex-basis:100%}
   .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){flex:1 1 100%;justify-content:center}
 }
+/* Nov 5 (Toby: the bunny button was pushed off the Follow screen on his
+   phone): his page's own styles give the form's label width:100%, and the
+   label is the hidden screen-reader copy, positioned against the whole
+   screen, so it ran past the edge and made the page wider than the phone.
+   The hidden label is locked to 1px and kept inside its card, and his
+   page's all-caps button reads like the rest of the app. */
+.hx-sm .hx-sm-sr{width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;border:0 !important;
+  overflow:hidden !important;clip:rect(0 0 0 0) !important;clip-path:inset(50%) !important;white-space:nowrap !important;left:0 !important;top:0 !important}
+.hx-sm .hx-sm-nl{position:relative}
+.hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){text-transform:none !important;letter-spacing:normal !important;font-weight:600 !important;background:var(--btn) !important;color:#fff !important}
 
 /* ------------------------------------------------------------------
    Word Nerd app (Hutch OS, Nov 2, 2026). Mockup v25. JS: js/apps/words.js

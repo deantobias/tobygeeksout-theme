@@ -21,7 +21,7 @@
     var D = ctx.data;
     if (!D) return;
     var esc = ctx.esc, de = document.documentElement;
-    var READ = D.reading || [], WATCH_POSTS = D.watching || [], HIST = D.history || [];
+    var READ = D.reading || [], WATCH_POSTS = D.watching || [], HIST = D.history || [], QUEUE = D.queue || [], LINKS = D.links || {};
     var grid = document.getElementById('watching-grid');
     /* nothing at all to show: leave the Traditional page alone */
     if (!READ.length && !WATCH_POSTS.length && !HIST.length && !grid) return;
@@ -80,10 +80,11 @@
 
     /* tag each item with its section, so ids and lookups stay simple */
     function tag(list, sec) { list.forEach(function (x) { x.sec = sec; }); return list; }
-    tag(READ, 'reading'); tag(WATCH, 'watching'); tag(HIST, 'history');
+    tag(READ, 'reading'); tag(WATCH, 'watching'); tag(HIST, 'history'); tag(QUEUE, 'queue');
     var SECTIONS = {
       reading: { title: 'Currently reading', items: function () { return READ; }, empty: 'Between books right now.' },
       watching: { title: 'Currently watching', items: function () { return WATCH; }, empty: 'Nothing playing right now.' },
+      queue: { title: 'Waiting for', items: function () { return QUEUE; }, empty: 'Nothing on the list right now.' },
       history: { title: 'History', items: function () { return HIST; }, empty: 'No ratings yet.' }
     };
     function get(id) { var all = READ.concat(WATCH, HIST); for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
@@ -121,17 +122,39 @@
       return '<button type="button" class="it it-hist" data-pick="' + x.id + '">' + art(x) + '<span class="cap">' + stars(x.r) + '<span class="tt">' + esc(x.t) + '</span><span class="tm">' +
         (x.kind === 'TV' && x.season ? 'Season ' + x.season + ' · ' : '') + esc(x.d) + '</span></span></button>';
     }
+    /* Waiting for (Nov 5): The Queue's posters, each with its release
+       badge (Out now, the date, or TBA); a tap opens the post */
+    var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function relShort(x) {
+      if (x.out) return 'Out now';
+      var m = String(x.dk || '').match(/^(\d{4})-(\d{2})-(\d{2})$/), yNow = String(new Date().getFullYear());
+      if (!m || m[1] === '9999') return 'TBA';
+      if (m[2] === '99') return m[1];
+      if (m[3] === '99') return MON[+m[2] - 1] + ' ' + m[1];
+      return MON[+m[2] - 1] + ' ' + (+m[3]) + (m[1] !== yNow ? ', ' + m[1] : '');
+    }
+    function soon(x) { if (x.out) return 'out'; var m = String(x.dk || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m || m[3] === '99') return ''; return (new Date(+m[1], +m[2] - 1, +m[3]) - new Date()) < 45 * 864e5 ? 'soon' : ''; }
+    function queueTile(x) {
+      return '<a class="it it-hist it-q" href="' + esc(x.url) + '"><div class="poster" style="background:' + grad(x) + '"><div class="pn">' + esc(x.t) + '</div>' + img(x.cover) +
+        '<span class="qbadge ' + soon(x) + '">' + esc(relShort(x)) + '</span></div><span class="cap"><span class="tt">' + esc(x.t) + '</span><span class="tm">' +
+        esc(x.out ? 'Out now · ' + x.kind : x.kind + (relShort(x) !== 'TBA' ? ' · ' + relShort(x) : ' · No date yet')) + '</span></span></a>';
+    }
+    /* each row: its title (Waiting for opens The Queue page; the others
+       open their list here) and, on the right, See all for the full page
+       (Nov 5, Toby: like the home screen widgets) */
     function section(key, tiles, count) {
-      var S = SECTIONS[key], items = S.items();
-      return '<section class="sec sec-' + key + '"><button type="button" class="shead" data-open="' + key + '"><h2>' + S.title + '</h2>' + ic('chev') +
-        (count ? '<small>' + items.length + '</small>' : '') + '</button>' +
+      var S = SECTIONS[key], items = S.items(), page = LINKS[key];
+      var head = key === 'queue' && page
+        ? '<a class="shead" href="' + esc(page) + '"><h2>' + S.title + '</h2>' + ic('chev') + (count ? '<small>' + items.length + '</small>' : '') + '</a>'
+        : '<button type="button" class="shead" data-open="' + key + '"><h2>' + S.title + '</h2>' + ic('chev') + (count ? '<small>' + items.length + '</small>' : '') + '</button>';
+      return '<section class="sec sec-' + key + '"><div class="shead-row">' + head + (page ? '<a class="sall" href="' + esc(page) + '">See all ›</a>' : '') + '</div>' +
         (items.length ? '<div class="row">' + items.slice(0, 24).map(tiles).join('') + '</div>' : '<p class="none">' + S.empty + '</p>') + '</section>';
     }
     function renderHome() {
       var y = homeEl.scrollTop;
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
-      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + section('history', histTile, true);
+      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + section('history', histTile, true);
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
       homeEl.scrollTop = y;
     }

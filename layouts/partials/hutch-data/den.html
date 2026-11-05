@@ -249,5 +249,15 @@
       "cover" .poster "url" (index $x "u" | default .url) "d" ((time.AsTime .dateISO).Format "Jan 2") "date" .dateText "at" .date "sum" (index $x "sum" | default "")) -}}
 {{- end -}}
 
-{{- $d := dict "reading" $reading "watching" $watching "history" $history -}}
+{{/* Waiting for (Nov 5, 2026, Toby): The Queue's list, built by the same
+     partial as the /the-queue/ page, soonest first: out now, then by
+     release date, undated last. The Queue page is public, so these are
+     shown (Watchlist posts themselves still never appear elsewhere). */}}
+{{- $queue := slice -}}
+{{- range partial "queue-items.html" site -}}
+  {{- $queue = $queue | append (dict "id" (printf "q%d" (len $queue)) "kind" (cond (eq .kind "tv") "TV" "Movie") "t" .title "cover" .cover "url" (replace .url site.BaseURL "/")
+      "rel" .rel "out" (eq .groupKey "0") "dk" .dateKey "k" (printf "%s|%s" (cond (eq .groupKey "0") "0" "1") .dateKey)) -}}
+{{- end -}}
+{{- $queue = sort $queue "k" -}}
+{{- $d := dict "reading" $reading "watching" $watching "history" $history "queue" $queue "links" (dict "reading" ("/reading/" | relURL) "queue" ("/the-queue/" | relURL) "history" ("/watched/" | relURL)) -}}
 <script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

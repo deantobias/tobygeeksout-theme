@@ -1,0 +1,282 @@
+{{/* QUEUE ITEMS (Nov 5, 2026): which posts are on The Queue, with their
+     release dates, groups and covers. Moved here unchanged from the
+     queue shortcode so the /the-queue/ page and the Hutch Den app's
+     "Waiting for" row always show the same list. Call with the site:
+       partial "queue-items.html" site
+     Returns a slice of dicts: kind relYr url title cover byline stars
+     status added rel groupKey groupLabel dateKey. */}}
+{{ $site := . }}
+{{ $today := now.Format "2006-01-02" }}
+{{ $thisYear := now.Format "2006" }}
+{{ $mNum := dict
+  "January" "01" "February" "02" "March" "03" "April" "04"
+  "May" "05" "June" "06" "July" "07" "August" "08"
+  "September" "09" "October" "10" "November" "11" "December" "12" }}
+
+{{/* ---- ALREADY WATCHED (Oct 4, 2026, Toby: "don't let it show up in
+     the queue because I already saw it"). Collect the title of every
+     review - same test as the Watched page: a star run plus a Movie
+     Reviews / TV Reviews / Reel and Remote category, never a
+     "Want to Watch" card. A queue entry whose title matches one is
+     skipped below. Nothing is deleted; the watchlist post itself is
+     untouched and still lives on the blog. Titles are compared
+     lower-case with everything but letters and digits stripped, so
+     "The Devil's Mouth" matches "the devils mouth". */}}
+{{ $reviewed := slice }}
+{{ range (where $site.Pages "Type" "post") }}
+  {{ if and (findRE `★` .Content 1) (not (findRE `(?i)want to watch` .Content 1)) }}
+    {{ $isRev := false }}
+    {{ range .Params.categories }}
+      {{ if in (slice "Movie Reviews" "TV Reviews" "Reel and Remote") . }}{{ $isRev = true }}{{ end }}
+    {{ end }}
+    {{ if $isRev }}
+      {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+        {{ $reviewed = $reviewed | append (replaceRE `[^\pL\pN]+` "" (lower (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))))) }}
+      {{ end }}
+      {{ $pt := replaceRE `(?i)^\s*(?:finally\s+)?watched:?\s*` "" .Title }}
+      {{ $pt = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $pt }}
+      {{ with replaceRE `[^\pL\pN]+` "" (lower $pt) }}{{ $reviewed = $reviewed | append . }}{{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ $items := slice }}
+{{ range (where $site.Pages "Type" "post").ByDate.Reverse }}
+{{/* Oct 7, 2026: OR a new plain review card whose post title is a
+     Watchlist title ("🎥 Watchlist: Title (Year)", "📺 Watchlist: ...");
+     the plain card itself never says "Want to Watch". */}}
+{{ if or (and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1)) (and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1)) }}
+
+  {{/* ---- Title. The card's own <h3> is the film name and it is
+       present on every card format, titled post or not. The post
+       title is only a fallback, and gets its emoji, "Watchlist:"
+       prefix and trailing year stripped - the page heading and the
+       group header already say all three. Posts themselves are
+       never modified. */}}
+  {{ $t := "" }}
+  {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+    {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if not $t }}
+    {{ $t = .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+    {{ $t = replaceRE `(?i)^\s*(?:watchlist|on my radar):\s*` "" $t }}
+    {{ $t = replaceRE `\s*\((?:19|20)\d{2}\)\s*$` "" $t }}
+  {{ end }}
+
+  {{/* ---- Release date. Priority 1: an element whose ENTIRE text is
+       a full date. Matching on shape rather than class is deliberate -
+       the same date lives in .movie-card-byline on the new cards and
+       in an unclassed <p> on the old ones. Priority 2: an element
+       holding nothing but a year. Priority 3: the "(2026)" in the
+       post title. */}}
+  {{ $relFull := "" }}{{ $relYear := "" }}{{ $relMY := "" }}{{ $altByline := "" }}
+  {{/* Priority 0 (Oct 7, 2026): the plain card's small top label,
+       <p class="review-tag">Out June 15, 2026</p> (or "Premieres ..."),
+       or "Out now" when TMDB has a date that has already passed. */}}
+  {{ $outNow := false }}
+  {{ with findRE `(?s)<p[^>]*review-tag[^>]*>\s*(?:Out|Premieres)\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</p>` .Content 1 }}
+    {{ $relFull = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}` (index . 0) 1) 0 }}
+  {{ end }}
+  {{ if findRE `(?s)<p[^>]*review-tag[^>]*>\s*Out now\s*</p>` .Content 1 }}{{ $outNow = true }}{{ end }}
+  {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+    {{ $relFull = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+  {{ end }}
+  {{/* ---- Priority 1b - the FOURTH card format, right on schedule
+       (July 29): a FULL date and the director sharing one line,
+       "June 26, 2026 · Malcolm D. Lee" - Strung and Kraken, after
+       Toby upgraded their year-only lines to full dates. Same shape
+       as 2b below, full date instead of bare year: the date comes off
+       the front, the remainder is kept as a byline candidate. */}}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*[^<\w\s][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relFull = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{/* ---- Priority 1c (Toby, July 29): month-and-year only,
+       "October 2026" - alone in its element or in front of the
+       director. Groups under that month; a month that has fully
+       passed goes to Out now. */}}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+      {{ $relMY = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if and (not $relFull) (not $relMY) }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*[^<\w\s,][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relMY = index (findRE `(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:19|20)\d{2}\s*</(?:p|span)>` .Content 1 }}
+      {{ $relYear = trim (replaceRE `(?s)<[^>]*>` "" (index . 0)) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{/* Priority 2b — a THIRD card format Toby caught after launch
+       (Kraken, Strung): the year and the director share one line,
+       "2026 · Malcolm D. Lee". The priority-2 rule above wants the
+       element's entire text to be a year, so these fell through to
+       undated and lost their director too. Here the year comes off
+       the front and the remainder is kept as a byline candidate.
+       Lesson: this blog has at least three generations of movie card
+       and the date can be alone, inside .movie-card-byline, or
+       prefixed to the byline. Assume a fourth exists. */}}
+  {{ if and (not $relFull) (not $relYear) }}
+    {{ with findRE `(?s)<(?:p|span)[^>]*>\s*(?:19|20)\d{2}\s*[^<\w\s][^<]*</(?:p|span)>` .Content 1 }}
+      {{ $txt := trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+      {{ $relYear = index (findRE `(?:19|20)\d{2}` $txt 1) 0 }}
+      {{ $altByline = trim (replaceRE `^\s*(?:19|20)\d{2}\s*[^\w\s]\s*` "" $txt) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if and (not $relFull) (not $relYear) }}
+    {{ with findRE `\((?:19|20)\d{2}\)` .Title 1 }}
+      {{ $relYear = replaceRE `[()]` "" (index . 0) }}
+    {{ end }}
+  {{ end }}
+
+  {{/* ---- Sort keys. dateKey orders the cards INSIDE a group;
+       groupKey orders the GROUPS, and its prefixes do all the work, so
+       a plain string sort needs no special-casing:
+         0          Out now
+         1-YYYY     year-only, year already reached (Toby, July 26 - a
+                    2026 card with no month may well be out already,
+                    like Kraken, so it sits next to Out now rather than
+                    after every dated month)
+         2-YYYY-MM  dated months, soonest first
+         3-YYYY     year-only, year still ahead (2027 - definitely not out)
+         4          no date at all */}}
+  {{ $groupKey := "4" }}{{ $groupLabel := "No release date yet" }}
+  {{ $dateKey := "9999-99-99" }}{{ $relLabel := "" }}
+
+  {{ if $relFull }}
+    {{ $bits := split (replaceRE `,` "" $relFull) " " }}
+    {{ $mo := index $bits 0 }}
+    {{ $dy := int (index $bits 1) }}
+    {{ $yr := index $bits 2 }}
+    {{ $mm := index $mNum $mo }}
+    {{ $dateKey = printf "%s-%s-%02d" $yr $mm $dy }}
+    {{ $relLabel = $relFull }}
+    {{ if le $dateKey $today }}
+      {{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}
+    {{ else }}
+      {{ $groupKey = printf "2-%s-%s" $yr $mm }}
+      {{ $groupLabel = printf "%s %s" $mo $yr }}
+    {{ end }}
+  {{ else if $relMY }}
+    {{ $bits := split $relMY " " }}
+    {{ $mo := index $bits 0 }}
+    {{ $yr := index $bits 1 }}
+    {{ $mm := index $mNum $mo }}
+    {{ $dateKey = printf "%s-%s-99" $yr $mm }}
+    {{ $relLabel = $relMY }}
+    {{ if lt (printf "%s-%s" $yr $mm) (substr $today 0 7) }}
+      {{/* the whole month is behind us - it's out */}}
+      {{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}
+    {{ else }}
+      {{ $groupKey = printf "2-%s-%s" $yr $mm }}
+      {{ $groupLabel = printf "%s %s" $mo $yr }}
+    {{ end }}
+  {{ else if $relYear }}
+    {{ $dateKey = printf "%s-99-99" $relYear }}
+    {{ $relLabel = $relYear }}
+    {{ if le $relYear $thisYear }}
+      {{ $groupKey = printf "1-%s" $relYear }}
+    {{ else }}
+      {{ $groupKey = printf "3-%s" $relYear }}
+    {{ end }}
+    {{/* Just the bare year (Toby, July 26). "Sometime in 2026" read as
+         still-to-come, but a year-only card can equally be something
+         already out - Kraken was released in June and its card carries
+         no month. The plain year claims neither. */}}
+    {{ $groupLabel = $relYear }}
+  {{ end }}
+
+  {{/* "Out now" on a plain card with only a year: it IS out. */}}
+  {{ if and $outNow (ne $groupKey "0") }}{{ $groupKey = "0" }}{{ $groupLabel = "Out now" }}{{ end }}
+  {{/* ---- Cover art. Logic lifted verbatim from layouts/index.html
+       (July 25). Priority 1: the image sitting in the card's own
+       poster cell - host-agnostic, and it can never grab a YouTube
+       trailer thumbnail or an avatar, since neither lives in a poster
+       cell. Priority 2: a known poster host anywhere in the post,
+       which is what carries the older cards - their posters sit in a
+       plain <td>. Google Books covers arrive at 128px with a
+       page-curl artifact; both fixed on the way out. */}}
+  {{ $cover := "" }}
+  {{ with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+  {{ end }}
+  {{ if not $cover }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "image.tmdb.org") (in $u "books.google.com") (in $u "cdn.micro.blog/books")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+
+  {{/* ---- Byline. Suppressed when it turns out to BE the release
+       date - on Ebenezer, Hope and Digger the byline slot holds the
+       date, not the director, and printing it twice reads as a bug. */}}
+  {{ $byline := "" }}
+  {{ with findRE `(?s)<p[^>]*movie-card-byline[^>]*>.*?</p>` .Content 1 }}
+    {{ $byline = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{/* ...and a byline that is nothing but a bare year (Scooby-Doo:
+       Origins, July 29 - its byline slot holds "2027" with the
+       director unknown) prints the year twice. Any year-only or
+       month-year-only byline is the date wearing the wrong hat. */}}
+  {{ if or (eq $byline $relFull) (eq $byline $relMY) (eq $byline $relYear) (findRE `^\s*(?:19|20)\d{2}\s*$` $byline 1) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+(?:19|20)\d{2}\s*$` $byline 1) (findRE `^\s*(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s*(?:19|20)\d{2}\s*$` $byline 1) }}
+    {{ $byline = "" }}
+  {{ end }}
+  {{/* The "2026 · Director" cards have no .movie-card-byline at all,
+       so the director recovered above is used when nothing else set one. */}}
+  {{ if not $byline }}{{ $byline = $altByline }}{{ end }}
+  {{/* Oct 7, 2026: plain cards keep the director in a facts row,
+       "Director" (or "Created by" for TV) | name. */}}
+  {{ if not $byline }}
+    {{ with findRE `(?s)review-fact-label[^>]*>\s*(?:Director|Created by)\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 }}
+      {{ $byline = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" }}
+    {{ end }}
+  {{ end }}
+
+  {{/* ---- Production status (Toby, July 29). Going forward a card
+       carries either a full release date OR a year plus a status
+       line ("In Production", "Post Production"). The status shows on
+       the queue ONLY when there is no full date - "2027 · In
+       Production" explains a missing date; on a dated card it's
+       trivia. */}}
+  {{ $status := "" }}
+  {{ if not $relFull }}
+    {{ with findRE `(?s)<p[^>]*movie-card-prodstatus[^>]*>.*?</p>` .Content 1 }}
+      {{ $status = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+    {{ end }}
+  {{ end }}
+
+  {{/* ---- Dormant ratings hook, see the note at the top. */}}
+  {{ $stars := "" }}
+  {{ with findRE `[★☆½]{3,}` .Content 1 }}{{ $stars = index . 0 }}{{ end }}
+
+  {{/* ---- Where-to-watch inputs (Oct 4, 2026, Toby). Movie or TV, and
+       the release year, so Perch's /where-to-watch lookup can find the
+       right title on TMDB. TV = filed under TV Reviews, or the card has
+       a season tag or leads with the TV emoji. */}}
+  {{ $kind := "movie" }}
+  {{ if or (in .Params.categories "TV Reviews") (in .Content "movie-card-eptag") (in .Content "📺") (in .Title "📺") (findRE `review-fact-label[^>]*>\s*Created by` .Content 1) }}{{ $kind = "tv" }}{{ end }}
+  {{ $relYr := "" }}
+  {{ with findRE `^(?:19|20)\d{2}` $dateKey 1 }}{{ $relYr = index . 0 }}{{ end }}
+
+  {{ if not (in $reviewed (replaceRE `[^\pL\pN]+` "" (lower $t))) }}
+  {{ $items = $items | append (dict
+      "kind" $kind "relYr" $relYr
+      "url" .Permalink "title" $t "cover" $cover "byline" $byline
+      "stars" $stars "status" $status "added" (.Date.Format "Jan 2, 2006")
+      "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
+      "dateKey" $dateKey) }}
+  {{ end }}
+{{ end }}
+{{ end }}
+
+{{ return $items }}

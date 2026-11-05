@@ -187,3 +187,15 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 
 /* "5 left · 4h 50m" under the episode in the detail view (Nov 2) */
 .hx-den .prog .pv .left, .hxd .prog .pv .left{display:block;font-size:.85em;font-weight:500;opacity:.75;margin-top:2px}
+
+/* ---- row headers with See all, and the Waiting for row (Nov 5, 2026) ---- */
+.hx-den .shead-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 var(--pad) 10px}
+.hx-den .shead-row .shead{margin:0}
+.hx-den a.shead{color:inherit;text-decoration:none}
+.hx-den .sall{flex:none;font:700 12.5px/1 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);text-decoration:none;padding:8px 2px}
+.hx-den .sall:hover,.hx-den .sall:focus-visible{color:var(--ink)}
+.hx-den a.it{color:inherit;text-decoration:none}
+.hx-den .it-q .poster{position:relative}
+.hx-den .qbadge{position:absolute;top:8px;left:8px;z-index:2;font:800 11px/1 var(--h-ui);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:rgba(0,0,0,.62);color:#F2B544}
+.hx-den .qbadge.soon{background:#C4622D;color:#fff}
+.hx-den .qbadge.out{background:#3E8E5E;color:#fff}

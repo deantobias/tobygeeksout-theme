@@ -94,6 +94,18 @@
       ph = mins < R - 60 || mins >= S + 60 ? 'night' : mins < R ? 'dusk' : mins < R + 100 ? 'dawn' : mins <= S - 90 ? 'day' : mins < S ? 'sunset' : 'dusk';
     }
     de.setAttribute('data-hsky', ph);
+    /* Tap to open (Nov 5, Toby picked B from mockup v67): an app opened
+       from the home screen left a note with its splash (the app's own
+       background and its icon). This page paints the same splash from its
+       very first frame, so there's no blank moment between the two pages;
+       hutch.js fades it once the app is built (hutch.css, "tap to open"). */
+    var sp = JSON.parse(sessionStorage.getItem('hutch-splash') || 'null');
+    sessionStorage.removeItem('hutch-splash');
+    if (sp && Date.now() - sp.t < 10000 && sp.u === location.pathname + location.search && !/[?&]win=1\b/.test(location.search) && window.self === window.top) {
+      de.classList.add('hx-splashing');
+      de.style.setProperty('--hx-sbg', sp.bg);
+      de.style.setProperty('--hx-sic', 'url("' + sp.ic + '")');
+    }
   } catch (e) {}
 })();
 </script>

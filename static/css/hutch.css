@@ -1108,3 +1108,34 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 }
 html.hutch-win{--h-bar:0px}
 html.hutch-win #hutch-bar,html.hutch-win .hx-fab,html.hutch-win .hx-top,html.hutch-win .hx-peek,html.hutch-win .hx-swipetip,html.hutch-win .hb-tip{display:none !important}
+
+/* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
+   Tapping an app on the home screen, the dock or All apps grows the app's
+   own background out of the icon, and the icon glides to the middle, like
+   Android opening an app. It stays until the next page shows, and that page
+   paints the same splash (html.hx-splashing, from head.html) and fades it,
+   so the hand-off is seamless. After half a second a small line slides under
+   the icon so a slow connection still looks busy. Links inside an app get a
+   thin line in the app's color across the top instead (#hx-load). */
+#hx-splash{position:fixed;inset:0;z-index:2147483000;pointer-events:none;
+  clip-path:circle(var(--r0) at var(--cx) var(--cy));transition:clip-path .34s cubic-bezier(.2,0,0,1)}
+#hx-splash.go{clip-path:circle(150vmax at var(--cx) var(--cy))}
+#hx-splash .hx-sic{position:absolute;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.18);transition:left .34s cubic-bezier(.2,0,0,1),top .34s cubic-bezier(.2,0,0,1),width .34s cubic-bezier(.2,0,0,1),height .34s cubic-bezier(.2,0,0,1)}
+#hx-splash .hx-sic svg{width:74%;height:74%}
+#hx-splash.go .hx-sic{left:calc(50% - var(--big) / 2) !important;top:calc(50% - var(--big) / 2) !important;width:var(--big) !important;height:var(--big) !important}
+#hx-splash .hx-swait{position:absolute;left:50%;top:calc(50% + var(--big) / 2 + 26px);width:56px;height:4px;margin-left:-28px;
+  border-radius:2px;overflow:hidden;opacity:0;transition:opacity .25s;background:var(--wt)}
+#hx-splash.slow .hx-swait{opacity:1}
+#hx-splash .hx-swait i{position:absolute;top:0;bottom:0;left:-40%;width:40%;border-radius:2px;background:var(--wi);animation:hxSlide 1s ease-in-out infinite}
+@keyframes hxSlide{to{left:100%}}
+html.hx-splashing::before,html.hx-splashing::after{content:"";position:fixed;z-index:2147483000;pointer-events:none;animation:hxSpGone .3s 4s forwards}
+html.hx-splashing::before{inset:0;background:var(--hx-sbg)}
+html.hx-splashing::after{--b:104px;left:50%;top:50%;width:var(--b);height:var(--b);margin:calc(var(--b) / -2) 0 0 calc(var(--b) / -2);
+  border-radius:50%;background:#fff var(--hx-sic) center / 74% no-repeat;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+@media (min-width:1000px){html.hx-splashing::after,#hx-splash{--b:120px}}
+html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacity .22s ease}
+@keyframes hxSpGone{to{opacity:0;visibility:hidden}}
+#hx-load{position:fixed;left:0;top:0;height:3px;width:0;z-index:2147483000;pointer-events:none;opacity:0;
+  border-radius:0 2px 2px 0;transition:width .35s cubic-bezier(.2,0,0,1),opacity .15s}
+@media (prefers-reduced-motion:reduce){#hx-splash,#hx-splash .hx-sic{transition:none}#hx-splash .hx-swait i{animation-duration:2s}}

@@ -246,7 +246,7 @@
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
     var ext = a[2] && /^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '';
-    return a[2] ? '<a class="hh-ic" href="' + a[2] + '"' + ext + ' aria-label="' + esc(a[0]) + '">' + inner + '</a>'
+    return a[2] ? '<a class="hh-ic" data-app="' + k + '" href="' + a[2] + '"' + ext + ' aria-label="' + esc(a[0]) + '">' + inner + '</a>'
                 : '<button type="button" class="hh-ic" data-sheet="' + k + '" aria-label="' + esc(a[0]) + '">' + inner + '</button>';
   }
 
@@ -544,7 +544,7 @@
     var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && APPS[k][0].toLowerCase().indexOf(ql) > -1) || (k === 'den' && ('watching'.indexOf(ql) === 0 || 'reading'.indexOf(ql) === 0)); });
     if (apps.length) html += '<div class="hx-lab">Apps</div><ul class="hx-res">' + apps.map(function (k) {
       var a = APPS[k], inner = tile(k) + '<span><span class="hx-t">' + hi(a[0], terms) + '</span></span>';
-      return '<li>' + (a[2] ? '<a href="' + a[2] + '">' + inner + '</a>' : '<button type="button" data-sheet="' + k + '">' + inner + '</button>') + '</li>'; }).join('') + '</ul>';
+      return '<li>' + (a[2] ? '<a data-app="' + k + '" href="' + a[2] + '"' + (/^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '') + '>' + inner + '</a>' : '<button type="button" data-sheet="' + k + '">' + inner + '</button>') + '</li>'; }).join('') + '</ul>';
     var words = (IDX.words || []).filter(function (w) { return w.w && w.w.toLowerCase().indexOf(ql) > -1; }).slice(0, 6);
     if (words.length) html += '<div class="hx-lab">Word Nerd Alert</div><ul class="hx-res">' + words.map(function (w) {
       return '<li><a href="' + esc(w.u) + '"><span class="hx-wdot">' + esc(w.w.charAt(0).toUpperCase()) + '</span><span><span class="hx-t">' + hi(w.w, terms) + '</span></span></a></li>'; }).join('') + '</ul>';
@@ -1896,6 +1896,7 @@
     if (!pick) return;
     e.preventDefault();
     try { sessionStorage.setItem('tgo-surprise', String(Date.now())); sessionStorage.setItem('hutch-last-surprise', pick); } catch (er) {}
+    if (a.hasAttribute('data-app')) splashOut('surprise', a, pick); else loadBar(APPS.surprise[1]);
     location.href = pick;
   });
   setTimeout(function () { refreshPosts(false); }, 2500);
@@ -1981,6 +1982,21 @@
   else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); topButton(); if (!(PAGE.type === 'post' && PAGE.kind === 'page')) setTimeout(warmLinks, 600); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
+  /* tap to open: the splash this page painted from its first frame (see
+     head.html) fades once the app is built */
+  if (de.classList.contains('hx-splashing')) requestAnimationFrame(function () { requestAnimationFrame(function () {
+    de.classList.add('hx-splash-out');
+    setTimeout(function () { de.classList.remove('hx-splashing', 'hx-splash-out'); }, 300);
+  }); });
+  /* remember this app's background (it changes with the sky), so the next
+     tap on its icon grows exactly this color */
+  if (!isEmbed && !isWin && (!isHome || isBlogApp)) setTimeout(function () {
+    var c = getComputedStyle(document.body).backgroundColor;
+    if (!c || /rgba\(0, 0, 0, 0\)|transparent/.test(c)) return;
+    var m = {}; try { m = JSON.parse(ls('hutch-bg') || '{}') || {}; } catch (er) {}
+    var key = bgKeyFor(appForPage(), location.pathname);
+    if (m[key] !== c) { m[key] = c; ls('hutch-bg', JSON.stringify(m)); }
+  }, 400);
 
   /* Night safety net (Nov 3, Toby: the Follow page's white signup box had
      white words at night). A page's own boxes can keep a light background
@@ -2011,5 +2027,72 @@
   }
   if (document.readyState === 'complete') setTimeout(freshCheck, 1200);
   else window.addEventListener('load', function () { setTimeout(freshCheck, 1200); });
+  /* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
+     Toby: "i just dont [want] people think that clicking is not working
+     then they would have to click again and again". An app icon tapped on
+     the home screen, the dock, All apps or app search grows the app's own
+     background out of the icon, with the icon gliding to the middle (like
+     Android), and the next page paints the same splash and fades it
+     (head.html). Any other link gets a thin line in the app's color across
+     the top until the next page shows. Back and the desktop windows
+     (Follow, Contact) don't use either: they're already instant. */
+  var HXN = /dusk|night/.test(de.getAttribute('data-hsky') || '');
+  var BGDEF = { den: '#15110E', photos: '#FFFFFF', words: HXN ? '#141A26' : '#FFF9F2' };
+  function bgKeyFor(k, p) { return (isPostURL(p) ? 'post' : k) + (HXN ? '|n' : '|d'); }
+  function bgFor(k, p) {
+    var m = {}; try { m = JSON.parse(ls('hutch-bg') || '{}') || {}; } catch (e) {}
+    return m[bgKeyFor(k, p)] || BGDEF[k] || (HXN ? '#1B2130' : '#F0D7B8');
+  }
+  function isLight(c) {
+    var r, g, b, m;
+    if (/^#/.test(c)) { var h = c.slice(1); if (h.length === 3) h = h.replace(/./g, '$&$&'); r = parseInt(h.substr(0, 2), 16); g = parseInt(h.substr(2, 2), 16); b = parseInt(h.substr(4, 2), 16); }
+    else if ((m = String(c).match(/[\d.]+/g)) && m.length > 2) { r = +m[0]; g = +m[1]; b = +m[2]; }
+    else return true;
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+  }
+  function splashOut(k, a, url) {
+    if (document.getElementById('hx-splash') || !APPS[k]) return;
+    var u; try { u = new URL(url, location.href); } catch (e) { return; }
+    var r = (a.querySelector('.hh-tile') || a).getBoundingClientRect();
+    if (!r.width) return;
+    var bg = bgFor(k, u.pathname), lt = isLight(bg), big = innerWidth >= 1000 ? 120 : 104;
+    var el = document.createElement('div'); el.id = 'hx-splash'; el.setAttribute('aria-hidden', 'true');
+    el.style.cssText = 'background:' + bg + ';--cx:' + (r.left + r.width / 2) + 'px;--cy:' + (r.top + r.height / 2) + 'px;--r0:' + (r.width / 2) + 'px;--big:' + big + 'px;' +
+      '--wt:' + (lt ? 'rgba(30,45,74,.12)' : 'rgba(255,255,255,.18)') + ';--wi:' + (lt ? APPS[k][1] : '#fff');
+    el.innerHTML = '<span class="hx-sic" style="left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px">' + art(k) + '</span><span class="hx-swait"><i></i></span>';
+    document.body.appendChild(el);
+    void el.offsetWidth; el.classList.add('go');
+    setTimeout(function () { el.classList.add('slow'); }, 550);
+    setTimeout(function () { if (el.parentNode) el.remove(); }, 12000);
+    try {
+      sessionStorage.setItem('hutch-splash', JSON.stringify({ t: Date.now(), u: u.pathname + u.search, bg: bg,
+        ic: 'data:image/svg+xml,' + encodeURIComponent(art(k).replace('<svg class="hx-art"', '<svg xmlns="http://www.w3.org/2000/svg"')) }));
+    } catch (e) {}
+  }
+  function loadBar(color) {
+    if (document.getElementById('hx-load')) return;
+    var b = document.createElement('div'); b.id = 'hx-load'; b.style.background = color;
+    document.body.appendChild(b);
+    void b.offsetWidth; b.style.opacity = '1'; b.style.width = '62%';
+    setTimeout(function () { b.style.transition = 'width 6s cubic-bezier(.1,.6,.3,1)'; b.style.width = '90%'; }, 380);
+    setTimeout(function () { if (b.parentNode) b.remove(); }, 12000);
+  }
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button || isEmbed || isWin) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+    var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
+    if (/\.(xml|json|rss|pdf|jpe?g|png|gif|webp|zip)$/i.test(u.pathname)) return;
+    var k = a.getAttribute('data-app');
+    if (k && APPS[k]) splashOut(k, a, a.href);
+    else loadBar((APPS[appForPage()] || APPS.blog)[1]);
+  });
+  /* coming back to a page from the browser's memory: no leftovers */
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    ['hx-splash', 'hx-load'].forEach(function (id) { var x = document.getElementById(id); if (x) x.remove(); });
+  });
+
   window.hutch = { openSearch: openSearch, openDrawer: openDrawer, openSettings: openSettings, phase: PHASE, boot: function () { boot(true); } };
 })();

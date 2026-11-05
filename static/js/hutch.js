@@ -82,6 +82,64 @@
     shrink: '<path d="M4 14h6v6 M20 10h-6V4 M14 10l7-7 M3 21l7-7"/>'
   };
   function ic(k, w) { return '<svg class="hx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[k] || IC.blog) + '</svg>'; }
+  /* Full color app icons (Nov 5, Toby picked B from mockup v63): a white
+     circle with a small colored picture inside, like Google's own apps.
+     48 x 48 drawings. Calendar shows today's date and Now shows the time
+     (data-live, kept current by liveIcons() below). */
+  function svgPath(str) { var m = str.match(/d="([^"]+)"\/>$/); return m ? m[1] : ''; }
+  var ART = {
+    blog: '<rect x="11" y="8" width="23" height="31" rx="3.5" fill="#C4622D"/><path d="M16 16h13M16 21h13M16 26h8" stroke="#FFE7D6" stroke-width="2.6" stroke-linecap="round"/><path d="M29 38.5l1-4.5 9.5-9.5 3.5 3.5-9.5 9.5z" fill="#F2B544"/><path d="M38 26l3.5 3.5" stroke="#1E2D4A" stroke-width="2.2"/>',
+    archive: '<rect x="8" y="11" width="32" height="9" rx="2.5" fill="#B08A66"/><path d="M10.5 20h27v15a3 3 0 0 1-3 3h-21a3 3 0 0 1-3-3z" fill="#8C6A4F"/><rect x="19" y="25" width="10" height="4" rx="2" fill="#F6E6D2"/>',
+    about: '<circle cx="24" cy="24" r="17" fill="#F3D6BD"/><circle cx="24" cy="20" r="7" fill="#1E2D4A"/><path d="M11.5 36.5c2-6 7-9 12.5-9s10.5 3 12.5 9a17 17 0 0 1-25 0z" fill="#1E2D4A"/><circle cx="24" cy="24" r="17" fill="none" stroke="#C4622D" stroke-width="2.4"/>',
+    now: '<circle cx="24" cy="24" r="17" fill="#7A8F6A"/><circle cx="24" cy="24" r="13.5" fill="#F4F6EE"/><path d="M24 12.5v2M24 33.5v2M12.5 24h2M33.5 24h2" stroke="#7A8F6A" stroke-width="1.6" stroke-linecap="round"/><path data-live="h" d="M24 24V17" stroke="#1E2D4A" stroke-width="2.8" stroke-linecap="round"/><path data-live="m" d="M24 24V13.5" stroke="#1E2D4A" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="24" r="2" fill="#C4622D"/>',
+    contact: '<rect x="7" y="12" width="34" height="24" rx="4" fill="#3E7C7A"/><path d="M8.5 14.5 24 26l15.5-11.5" fill="none" stroke="#E4F2F0" stroke-width="2.8" stroke-linejoin="round"/><rect x="31" y="15" width="6" height="7" rx="1" fill="#F2B544"/>',
+    den: '<rect x="6" y="9" width="36" height="25" rx="5" fill="#7C5A7A"/><rect x="9" y="12" width="30" height="19" rx="3" fill="#9C789A"/><path d="M21 16.5v10.5a.8.8 0 0 0 1.2.7l8.4-5.2a.8.8 0 0 0 0-1.4l-8.4-5.2a.8.8 0 0 0-1.2.6z" fill="#fff"/><path d="M17 39h14" stroke="#7C5A7A" stroke-width="3.2" stroke-linecap="round"/>',
+    surprise: '<g transform="rotate(-14 17 23)"><rect x="7" y="13" width="20" height="20" rx="5" fill="#D9A441"/><circle cx="12.5" cy="18.5" r="2" fill="#fff"/><circle cx="17" cy="23" r="2" fill="#fff"/><circle cx="21.5" cy="27.5" r="2" fill="#fff"/></g><g transform="rotate(12 31 27)"><rect x="21" y="17" width="20" height="20" rx="5" fill="#C4622D"/><circle cx="26.5" cy="22.5" r="2" fill="#fff"/><circle cx="35.5" cy="22.5" r="2" fill="#fff"/><circle cx="26.5" cy="31.5" r="2" fill="#fff"/><circle cx="35.5" cy="31.5" r="2" fill="#fff"/></g>',
+    photos: '<rect x="7" y="10" width="34" height="28" rx="5" fill="#8FC0E6"/><circle cx="32" cy="18.5" r="4.2" fill="#FCE7B0"/><path d="M7 31l10-11 8 8 5-5 11 11v.5a4.5 4.5 0 0 1-4.5 4.5h-25A4.5 4.5 0 0 1 7 34.5z" fill="#1E2D4A"/><path d="M7 33.5l10-8 8 6.5 5-4 11 8.5v.5a4.5 4.5 0 0 1-4.5 3h-25A4.5 4.5 0 0 1 7 35.5z" fill="#3F7FA6"/>',
+    words: '<rect x="11" y="7" width="26" height="34" rx="3.5" fill="#B07A1E"/><path d="M11 34h26v3.5a3.5 3.5 0 0 1-3.5 3.5h-19A3.5 3.5 0 0 1 11 37.5z" fill="#F6E6C8"/><text x="24" y="27" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="15" fill="#FFF6E3">Aa</text>',
+    calendar: '<rect x="8" y="9" width="32" height="31" rx="5" fill="#fff" stroke="#E7DED5" stroke-width="1.5"/><path d="M8 14a5 5 0 0 1 5-5h22a5 5 0 0 1 5 5v5H8z" fill="#CF5C4A"/><path d="M16 6.5v5M32 6.5v5" stroke="#1E2D4A" stroke-width="2.6" stroke-linecap="round"/><text data-live="d" x="24" y="35.5" text-anchor="middle" font-family="Roboto,system-ui,sans-serif" font-weight="700" font-size="15" fill="#1E2D4A"></text>',
+    follow: '<rect x="9" y="9" width="30" height="30" rx="8" fill="#E08A3C"/><circle cx="16.5" cy="31.5" r="2.8" fill="#fff"/><path d="M14 23a11 11 0 0 1 11 11M14 15.5a18.5 18.5 0 0 1 18.5 18.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>',
+    uses: '<rect x="10" y="11" width="28" height="19" rx="2.5" fill="#5B7A8C"/><rect x="13" y="14" width="22" height="13" rx="1.2" fill="#CFE0EA"/><path d="M16 18h10M16 21.5h14" stroke="#5B7A8C" stroke-width="1.8" stroke-linecap="round"/><path d="M6 32h36l-2.5 4.5a2 2 0 0 1-1.8 1H10.3a2 2 0 0 1-1.8-1z" fill="#3F5664"/>',
+    pulse: '<rect x="7" y="10" width="34" height="28" rx="6" fill="#C44D58"/><path d="M10.5 25h7l3-7.5 5 14 3-6.5h9" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    reading: '<path d="M24 15c-4-3.2-9-4.3-16-4.3v25c7 0 12 1 16 4.3z" fill="#6E8B4A"/><path d="M24 15c4-3.2 9-4.3 16-4.3v25c-7 0-12 1-16 4.3z" fill="#89A863"/><path d="M12 17.5c3.5 0 6 .6 8.5 2M12 22.5c3.5 0 6 .6 8.5 2M27.5 19.5c2.5-1.4 5-2 8.5-2M27.5 24.5c2.5-1.4 5-2 8.5-2" stroke="#EEF4E4" stroke-width="1.8" stroke-linecap="round" fill="none"/>',
+    /* a galaxy B, like the "BLAUGUST" letters on Toby's 2026 Blaugust
+       banner, with a little gold constellation (Nov 5). %ID% is made
+       unique for each icon by art(). */
+    blaugust: '<defs><linearGradient id="%ID%g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5B47D6"/><stop offset=".45" stop-color="#22318A"/><stop offset="1" stop-color="#8A3274"/></linearGradient>' +
+      '<clipPath id="%ID%c"><text x="22" y="41" text-anchor="middle" font-family="Arial Black,Roboto,system-ui,sans-serif" font-weight="900" font-style="italic" font-size="41">B</text></clipPath></defs>' +
+      '<path d="M37 6.5l4.5 3.5-1 5 3 3.5" stroke="#E0A640" stroke-width=".9" fill="none"/><circle cx="37" cy="6.5" r="1.2" fill="#F2B544"/><circle cx="41.5" cy="10" r="1" fill="#F2B544"/><circle cx="40.5" cy="15" r="1.1" fill="#F2B544"/><circle cx="43.5" cy="18.5" r=".9" fill="#F2B544"/>' +
+      '<text x="22" y="41" text-anchor="middle" font-family="Arial Black,Roboto,system-ui,sans-serif" font-weight="900" font-style="italic" font-size="41" fill="url(#%ID%g)" stroke="#14121F" stroke-width="3" stroke-linejoin="round" paint-order="stroke">B</text>' +
+      '<g clip-path="url(#%ID%c)" fill="#fff"><circle cx="27" cy="20" r="7" fill="#7B6CF0" opacity=".35"/><circle cx="14" cy="33" r="6" fill="#B04E9A" opacity=".3"/><circle cx="15" cy="17" r="1"/><circle cx="33" cy="18" r=".8"/><circle cx="31" cy="35" r=".9"/><circle cx="10" cy="20" r=".7"/><circle cx="21" cy="22" r=".7"/><circle cx="27" cy="15" r=".8"/><circle cx="18" cy="30" r="1.1"/><circle cx="25" cy="33" r=".7"/><circle cx="30" cy="24" r="1"/><circle cx="13" cy="25" r=".6"/><circle cx="22" cy="12.5" r=".6"/><circle cx="29" cy="30" r=".6"/><circle cx="16" cy="36" r=".7"/><circle cx="24" cy="27" r=".5"/></g>',
+    /* the real Micro.blog logo, the one on the post Share buttons (Nov 5, Toby) */
+    mb: '<g transform="translate(7 7.5) scale(1.42)"><path d="M12 0C5.4 0 0 4.9 0 10.95 0 17 5.4 21.9 12 21.9c1.4 0 2.85-.25 4.2-.7.15-.05.35 0 .45.1 1 1.35 2.55 2.3 4.25 2.7l.25-.1v-.3a4.65 4.65 0 01.2-5.9C22.9 15.85 24 13.5 24 10.95 24 4.9 18.55 0 12 0zm-.05 5.2c.15 0 .3.1.35.25L13.55 9l3.85.1c.15 0 .3.1.35.2.05.15 0 .3-.15.4L14.55 12l1.1 3.6c.05.15 0 .3-.15.4h-.4l-3.15-2.15L8.8 16h-.4c-.15-.1-.2-.25-.15-.4l1.1-3.6L6.3 9.7c-.15-.1-.2-.25-.15-.4.05-.1.2-.2.35-.2l3.85-.1 1.25-3.55c.05-.15.2-.25.35-.25z" fill="#FF8800"/></g>',
+    tinkering: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.tinkering) + '" fill="#5B6B7A"/></g><circle cx="12" cy="36" r="2" fill="#F2B544"/>',
+    settings: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.settings) + '" fill="#6B7280"/><circle cx="12" cy="12" r="3.3" fill="#FFFDF8"/></g>'
+  };
+  var artN = 0;
+  function art(k) {
+    var a = ART[k];
+    if (!a) return ic(k);
+    if (k === 'calendar' || k === 'now') {
+      var d = new Date(), h = (d.getHours() % 12 + d.getMinutes() / 60) * 30, m = d.getMinutes() * 6;
+      a = a.replace('></text>', '>' + d.getDate() + '</text>')
+        .replace('data-live="h"', 'data-live="h" transform="rotate(' + h + ' 24 24)"')
+        .replace('data-live="m"', 'data-live="m" transform="rotate(' + m + ' 24 24)"');
+    }
+    if (a.indexOf('%ID%') > -1) a = a.replace(/%ID%/g, 'hxa' + (++artN));
+    return '<svg class="hx-art" viewBox="0 0 48 48" aria-hidden="true">' + a + '</svg>';
+  }
+  /* Calendar's date and Now's clock hands, on every icon on the page */
+  function liveIcons(root) {
+    var d = new Date(), h = (d.getHours() % 12 + d.getMinutes() / 60) * 30, m = d.getMinutes() * 6;
+    [].forEach.call((root || document).querySelectorAll('.hx-art [data-live]'), function (x) {
+      var k = x.getAttribute('data-live');
+      if (k === 'd') { if (x.textContent !== String(d.getDate())) x.textContent = d.getDate(); }
+      else x.setAttribute('transform', 'rotate(' + (k === 'h' ? h : m) + ' 24 24)');
+    });
+  }
+  setInterval(function () { liveIcons(); }, 30000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) liveIcons(); });
+
   /* Toby's own rabbit, the one that says "Hey!" on the Traditional home page */
   var RABBIT = '<img class="hx-rabimg" src="https://tobygeeksout.micro.blog/uploads/2026/fb54b5e64c.png" alt="" width="344" height="688" decoding="async">';
 
@@ -167,7 +225,7 @@
     .filter(function (k, i, all) { return APPS[k] && k !== 'tinkering' && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
   var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 600px)') : { matches: false };
-  function tile(k) { return '<span class="hh-tile" style="background:' + APPS[k][1] + '">' + ic(k) + '</span>'; }
+  function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
     var ext = a[2] && /^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '';
@@ -338,8 +396,8 @@
           var on = (o[0] === 'modern') === (ls('tgo-look') === 'modern');
           return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div>' +
         '<button type="button" class="hx-btn hx-go" data-classic>Switch to ' + esc(ORIGINAL) + '</button></div></div>' +
-        '<a class="hx-card hx-upd" href="/changelog/"><span class="hh-tile" style="background:' + APPS.tinkering[1] + '">' + ic('tinkering') + '</span><span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
-        '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
+        '<a class="hx-card hx-upd" href="/changelog/">' + tile('tinkering') + '<span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
+        '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens on a phone or tablet.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
         '</div>');
       settings.addEventListener('click', function (e) {
@@ -392,7 +450,7 @@
     var box = search.querySelector('.hx-results');
     q = q.trim();
     if (!q) {
-      var rec = (IDX.recent || []).map(function (r) { return '<li><a href="' + esc(r.u) + '"><span class="hh-tile" style="background:#C4622D">' + ic('blog') + '</span><span><span class="hx-t">' + esc(r.t) + '</span></span><span class="hx-d">' + esc(r.d) + '</span></a></li>'; }).join('');
+      var rec = (IDX.recent || []).map(function (r) { return '<li><a href="' + esc(r.u) + '">' + tile('blog') + '<span><span class="hx-t">' + esc(r.t) + '</span></span><span class="hx-d">' + esc(r.d) + '</span></a></li>'; }).join('');
       var cats = (IDX.cats || []).slice(0, 12).map(function (c) { return '<a class="hx-chip" href="' + esc(c.u) + '">' + esc(c.n) + '</a>'; }).join('');
       box.innerHTML = (rec ? '<div class="hx-lab">Recent posts</div><ul class="hx-res">' + rec + '</ul>' : '') +
         (cats ? '<div class="hx-lab">Browse categories</div><div class="hx-chip-row">' + cats + '</div>' : '') +
@@ -982,6 +1040,9 @@
          screen, so Hutch skips its boot screen there (Settings > Show it
          again still plays it). */
       if (window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen)').matches) return;
+      /* Nov 5 (Toby): the desktop doesn't need a boot screen, only phones
+         and the Fold do. Desktop = a mouse or trackpad on a wide screen. */
+      if (window.matchMedia && matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1000px)').matches) return;
       ls('hutch-boot-day', today);
     }
     var avatar = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
@@ -1070,7 +1131,7 @@
     var bar = el('<header id="hutch-bar" role="banner">' +
       '<button type="button" class="hb-btn hb-back" aria-label="Back">' + ic('back') + '</button>' +
       (appHome ? '<a class="hb-app" href="' + esc(appHome) + '" aria-label="' + esc(a[0]) + ': main screen">' : '<div class="hb-app">') +
-        '<span class="hb-tile" style="background:' + a[1] + '">' + ic(k) + '</span><div class="hb-names"><span class="hb-name">' + esc(name) + '</span>' +
+        '<span class="hb-tile hx-full">' + art(k) + '</span><div class="hb-names"><span class="hb-name">' + esc(name) + '</span>' +
         (hasTitle ? '<span class="hb-title">' + esc(isPost ? PAGE.title || '' : '') + '</span>' : '') + '</div>' + (appHome ? '</a>' : '</div>') +
       (hasTitle ? '<span class="hb-pct">0%</span>' : '') +
       (isBlogApp ? '<button type="button" class="hb-btn hb-expand" aria-label="Full screen" title="Full screen">' + ic('expand') + '</button>' : '') +

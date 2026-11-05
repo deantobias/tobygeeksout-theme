@@ -245,6 +245,13 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-tile .hx-ic{width:23px;height:23px}
 .hh-ic:active .hh-tile{transform:scale(.92)}
 #hutch-home[data-sky="night"] .hh-tile,#hutch-home[data-sky="dusk"] .hh-tile{box-shadow:0 0 0 2px rgba(243,238,231,.22),0 4px 10px rgba(0,0,0,.3)}
+/* Full color app icons (Nov 5, mockup v63 B): a white circle with a small
+   picture inside, the same everywhere an app shows */
+.hx-full.hx-full{background:#FFFDF8;box-shadow:0 2px 6px rgba(15,23,38,.18),inset 0 0 0 1px rgba(30,45,74,.06)}
+.hx-full .hx-art{width:86%;height:86%;display:block;overflow:visible}
+#hutch-home:is([data-sky="night"],[data-sky="dusk"]) .hx-full.hx-full{background:#F4F1EA;box-shadow:0 0 0 2px rgba(243,238,231,.16),0 4px 10px rgba(0,0,0,.3)}
+#hutch-bar .hb-tile.hx-full{box-shadow:0 1px 3px rgba(15,23,38,.2),inset 0 0 0 1px rgba(30,45,74,.08)}
+#hutch-bar .hb-tile .hx-art{width:88%;height:88%}
 
 .hh-wg{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:26px;
   box-shadow:0 8px 24px rgba(15,23,38,.12);color:#1E2D4A;overflow:hidden;min-height:0;display:block}

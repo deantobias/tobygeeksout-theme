@@ -554,6 +554,15 @@ html.hx-dark .hx-lab{color:#A9B2C3}
 #hutch-drawer{top:auto;max-height:88vh;border-radius:28px 28px 0 0;box-shadow:0 -8px 30px rgba(15,23,38,.18)}
 #hutch-drawer .hx-sh-in{flex:0 1 auto;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
 #hutch-drawer .hx-scroll{flex:0 1 auto}
+/* Settings: the same short panel, only as tall as its cards (Nov 5,
+   Toby: "there is nothing on the bottom"); on wide screens a centered
+   panel instead of the full width */
+#hutch-settings{top:auto;max-height:92vh;max-height:92dvh;border-radius:28px 28px 0 0;box-shadow:0 -8px 30px rgba(15,23,38,.18)}
+#hutch-settings .hx-sh-in{flex:0 1 auto;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+#hutch-settings .hx-scroll{flex:0 1 auto}
+@media (min-width:700px){
+  #hutch-settings{left:0;right:0;width:min(620px,100%);margin:0 auto}
+}
 .hx-scrim{position:fixed;inset:0;z-index:9690;background:rgba(10,14,24,.38);opacity:0;pointer-events:none;transition:opacity .25s}
 .hx-scrim.on{opacity:1;pointer-events:auto}
 .hx-dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 4px}

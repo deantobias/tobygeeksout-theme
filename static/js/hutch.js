@@ -297,7 +297,7 @@
      short, not tall"), so the screen behind it dims; a tap there closes it */
   var scrim = null;
   function syncScrim() {
-    var on = !!(openSheetEl && openSheetEl.id === 'hutch-drawer');
+    var on = !!(openSheetEl && (openSheetEl.id === 'hutch-drawer' || openSheetEl.id === 'hutch-settings')); /* Settings is a short panel too (Nov 5) */
     if (on && !scrim) {
       scrim = el('<div class="hx-scrim" aria-hidden="true"></div>');
       document.body.appendChild(scrim);

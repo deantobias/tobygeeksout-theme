@@ -342,6 +342,41 @@
     return s;
   }
 
+  /* Desktop windows for the short apps (Nov 5, Toby: Follow and Contact
+     open over the home screen like Settings, on the desktop only). The
+     page runs inside the window with ?win=1: the app itself, no app bar,
+     as tall as its content (up to most of the screen, then it scrolls). */
+  var WINAPPS = { follow: 980, contact: 900 }, winSheet = null;
+  function openWin(k) {
+    var a = APPS[k]; if (!a || !a[2]) return false;
+    if (!winSheet) winSheet = sheet('hutch-win', '<h2 class="hx-wtitle"></h2><iframe class="hx-wframe" title=""></iframe>');
+    var fr = winSheet.querySelector('.hx-wframe');
+    winSheet.querySelector('.hx-wtitle').textContent = a[0];
+    winSheet.style.setProperty('--ww', WINAPPS[k] + 'px');
+    fr.title = a[0];
+    fr.style.height = '320px';
+    fr.onload = function () {
+      try {
+        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.86) - 70) + 'px'; };
+        fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
+        if (window.ResizeObserver) new ResizeObserver(fit).observe(d.body);
+      } catch (e) {}
+    };
+    var u = a[2] + (a[2].indexOf('?') < 0 ? '?' : '&') + 'win=1';
+    if (fr.getAttribute('src') !== u) fr.setAttribute('src', u);
+    openSheet(winSheet);
+    return true;
+  }
+  document.addEventListener('click', function (e) {
+    if (!DESK.matches || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    var t = e.target.closest('a[href]'); if (!t || t.closest('.hx-sheet#hutch-win')) return;
+    for (var k in WINAPPS) {
+      var a = APPS[k]; if (!a || !a[2]) continue;
+      var h; try { h = new URL(t.href, location.href); } catch (er) { continue; }
+      if (h.origin === location.origin && h.pathname === a[2] && t.closest('.hh-ic, .hx-dgrid, .hh-dkapps, #hutch-search')) { e.preventDefault(); openWin(k); return; }
+    }
+  }, true);
+
   /* All apps */
   var drawer = null;
   function openDrawer() {
@@ -1845,6 +1880,14 @@
 
   /* ---------- go ---------- */
   var isEmbed = de.classList.contains('hutch-embed');
+  var isWin = de.classList.contains('hutch-win');
+  /* inside a desktop window, links open in the full window (closing it) */
+  if (isWin) document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href]'); if (!a || a.target || /^(mailto|tel):/i.test(a.getAttribute('href') || '')) return;
+    e.preventDefault(); try { window.top.location.href = a.href; } catch (er) { location.href = a.href; }
+  });
+  /* a form sent from the window (the newsletter signup) answers in the full window too */
+  if (isWin) document.addEventListener('submit', function (e) { if (e.target && e.target.tagName === 'FORM' && !e.target.target) e.target.target = '_top'; }, true);
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }

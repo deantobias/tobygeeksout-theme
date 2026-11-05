@@ -257,3 +257,13 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
   overflow:hidden !important;clip:rect(0 0 0 0) !important;clip-path:inset(50%) !important;white-space:nowrap !important;left:0 !important;top:0 !important}
 .hx-sm .hx-sm-nl{position:relative}
 .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){text-transform:none !important;letter-spacing:normal !important;font-weight:600 !important;background:var(--btn) !important;color:#fff !important}
+
+/* inside a desktop window (Nov 5): no full-screen heights, no fixed panes;
+   the content sets the height and the window around it scrolls */
+html.hutch-win .hx-sm{min-height:0;padding-top:0}
+html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{min-height:0;padding:6px 26px 26px;justify-content:flex-start}
+html.hutch-win .hx-sm.hx-fl-on .hx-sm-title{font-size:38px}
+html.hutch-win.hx-sm-two .hx-sm-split{position:static}
+html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-panes{height:auto;padding:0 10px 10px}
+html.hutch-win.hx-sm-two .hx-sm-split :is(.hx-sm-side,.hx-sm-main){overflow:visible}
+html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-main{padding:8px 26px 26px}

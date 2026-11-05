@@ -1027,6 +1027,16 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
 .hx-sm .hx-sm-nl{position:relative}
 .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){text-transform:none !important;letter-spacing:normal !important;font-weight:600 !important;background:var(--btn) !important;color:#fff !important}
 
+/* inside a desktop window (Nov 5): no full-screen heights, no fixed panes;
+   the content sets the height and the window around it scrolls */
+html.hutch-win .hx-sm{min-height:0;padding-top:0}
+html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{min-height:0;padding:6px 26px 26px;justify-content:flex-start}
+html.hutch-win .hx-sm.hx-fl-on .hx-sm-title{font-size:38px}
+html.hutch-win.hx-sm-two .hx-sm-split{position:static}
+html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-panes{height:auto;padding:0 10px 10px}
+html.hutch-win.hx-sm-two .hx-sm-split :is(.hx-sm-side,.hx-sm-main){overflow:visible}
+html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-main{padding:8px 26px 26px}
+
 /* ------------------------------------------------------------------
    Word Nerd app (Hutch OS, Nov 2, 2026). Mockup v25. JS: js/apps/words.js
    Everything is scoped to html.hxw-on (set only by the Word Nerd app)

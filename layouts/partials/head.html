@@ -66,7 +66,9 @@
        open inside the Hutch app frame */
     var hs = (location.pathname === '/' || location.pathname === '/index.html') && !/[?&]app=blog\b/.test(location.search);
     /* inside the Blog app's post pane (landscape): no app bar of its own */
-    if (window.self !== window.top) { de.classList.add('hutch-embed'); hs = false; }
+    /* inside a desktop window (Follow, Contact, Nov 5): the app itself, no app bar */
+    if (window.self !== window.top && /[?&]win=1\b/.test(location.search)) { de.classList.add('hutch-win'); hs = false; }
+    else if (window.self !== window.top) { de.classList.add('hutch-embed'); hs = false; }
     de.classList.add(hs ? 'hutch-hs' : 'hutch-app');
     /* Paint the right color from the very first frame (Nov 2, Toby: apps
        flashed the Traditional beige before the app showed). Which app this

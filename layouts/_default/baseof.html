@@ -58,8 +58,21 @@
   <!-- Micro.blog: custom footer partial (plugins inject content here) -->
   {{ partial "custom_footer.html" . }}
   <!-- Micro.blog: plugin JavaScript -->
-  {{ range .Site.Params.plugins_js }}
-    <script src="{{ . }}"></script>
+  {{/* Nov 5, 2026 (speed): Classic loads the plugin scripts exactly as
+       before. Hutch loads them without holding up the page, and skips the
+       video ones (hls, studio) on pages that have no video. */}}
+  {{ with .Site.Params.plugins_js }}
+  <script>
+  (function () {
+    var L = {{ . | jsonify | safeJS }}, H = document.documentElement.classList.contains('hutch');
+    var vid = document.querySelector('video, source[src*=".m3u8"], [data-src*=".m3u8"]');
+    L.forEach(function (u) {
+      if (!H) { document.write('<script src="' + u + '"><\/script>'); return; }
+      if (/hls|studio/i.test(u) && !vid) return;
+      var sc = document.createElement('script'); sc.src = u; sc.async = false; document.body.appendChild(sc);
+    });
+  })();
+  </script>
   {{ end }}
   <!-- Scroll progress bar -->
   <script>
@@ -83,7 +96,8 @@
   {{ partial "hutch-app-data.html" . }}
   <script type="application/json" id="hutch-page">{{ $hmenu := slice }}{{ range .Site.Menus.main }}{{ $hmenu = $hmenu | append (dict "n" .Name "u" .URL) }}{{ end }}{{ dict "menu" $hmenu "kind" .Kind "type" .Type "title" .Title "path" .RelPermalink "cats" .Params.categories "date" (.Date.Format "Jan 2, 2006") "min" .ReadingTime "words" .WordCount "avatar" .Site.Author.avatar "mbuser" .Site.Author.username "site" .Site.Title | jsonify | safeJS }}</script>
   <script>
-  if (document.documentElement.classList.contains('hutch')) document.write('<script src="{{ "js/hutch-apps.js" | relURL }}?{{ partial "hutch-ver.html" . | chomp }}"><\/script><script src="{{ "js/hutch.js" | relURL }}?{{ partial "hutch-ver.html" . | chomp }}"><\/script>');
+  /* Nov 5 (speed): the current app's own part (from head.html's hxMod), then the compact core */
+  if (document.documentElement.classList.contains('hutch')) { var hxm = window.hxMod ? window.hxMod(location.pathname) : ''; document.write((hxm ? '<script src="' + window.hxBase + 'js/hx/' + hxm + '.js?' + window.hxVer + '"><\/script>' : '') + '<script src="{{ "js/hutch.min.js" | relURL }}?{{ partial "hutch-ver.html" . | chomp }}"><\/script>'); }
   </script>
   <!-- Render-blocking anchor: pairs with <link rel="expect" href="#page-end"
        blocking="render"> in head.html. Parser reaching this element means all

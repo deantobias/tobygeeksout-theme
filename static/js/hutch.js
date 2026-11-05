@@ -1349,8 +1349,12 @@
       .observe(de, { attributes: true, attributeFilter: ['class', 'style'] });
     bar.addEventListener('transitionend', syncBar);
 
-    var mod = window.HutchApps && window.HutchApps[k];
-    if (mod && !isBlogApp) {
+    /* Each app's code and styles load only on its own page (Nov 5, Toby:
+       speed). head.html and baseof.html load the right ones from the
+       address; an app found another way (a renamed About page from the
+       menu) fetches its part here first. */
+    var MODFILE = { den: 'den', photos: 'photos', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', uses: 'small', follow: 'small' };
+    function runApp(mod) {
       try {
         mod({
           key: k, app: a, bar: bar, page: PAGE, data: J('hutch-app-data'), path: path,
@@ -1361,6 +1365,17 @@
           arrows: addArrows
         });
       } catch (err) { de.classList.remove('hutch-own'); if (window.console) console.error('Hutch app ' + k, err); }
+    }
+    var mod = window.HutchApps && window.HutchApps[k];
+    if (!isBlogApp) {
+      if (mod) runApp(mod);
+      else if (MODFILE[k]) {
+        var mf = MODFILE[k], base = (window.hxBase || '/'), v = window.hxVer || '';
+        if (!document.querySelector('link[data-hxmod="' + mf + '"]')) document.head.appendChild(el('<link rel="stylesheet" data-hxmod="' + mf + '" href="' + base + 'css/hx/' + mf + '.css?' + v + '">'));
+        var sc = document.createElement('script'); sc.src = base + 'js/hx/' + mf + '.js?' + v;
+        sc.onload = function () { var m2 = window.HutchApps && window.HutchApps[k]; if (m2) runApp(m2); };
+        document.head.appendChild(sc);
+      }
     }
   }
 

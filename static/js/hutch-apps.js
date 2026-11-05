@@ -429,7 +429,7 @@ window.HutchApps = window.HutchApps || {};
     var D = ctx.data;
     if (!D) return;
     var esc = ctx.esc, de = document.documentElement;
-    var READ = D.reading || [], WATCH_POSTS = D.watching || [], HIST = D.history || [], QUEUE = D.queue || [], LINKS = D.links || {};
+    var READ = D.reading || [], WATCH_POSTS = D.watching || [], HIST = D.history || [], QUEUE_ALL = D.queue || [], QUEUE = QUEUE_ALL, LINKS = D.links || {};
     var grid = document.getElementById('watching-grid');
     /* nothing at all to show: leave the Traditional page alone */
     if (!READ.length && !WATCH_POSTS.length && !HIST.length && !grid) return;
@@ -488,7 +488,7 @@ window.HutchApps = window.HutchApps || {};
 
     /* tag each item with its section, so ids and lookups stay simple */
     function tag(list, sec) { list.forEach(function (x) { x.sec = sec; }); return list; }
-    tag(READ, 'reading'); tag(WATCH, 'watching'); tag(HIST, 'history'); tag(QUEUE, 'queue');
+    tag(READ, 'reading'); tag(WATCH, 'watching'); tag(HIST, 'history'); tag(QUEUE_ALL, 'queue');
     var SECTIONS = {
       reading: { title: 'Currently reading', items: function () { return READ; }, empty: 'Between books right now.' },
       watching: { title: 'Currently watching', items: function () { return WATCH; }, empty: 'Nothing playing right now.' },
@@ -562,6 +562,10 @@ window.HutchApps = window.HutchApps || {};
       var y = homeEl.scrollTop;
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
+      /* anything in Currently watching right now (Trakt too) isn't "waiting" (Nov 5) */
+      var nowN = {}; WATCH.forEach(function (x) { nowN[x.n || norm(x.t)] = 1; });
+      var qnorm = function (t) { return norm(String(t || '').replace(/\s*,?\s*(?:Season\s+\d+|S\d+)\s*$/i, '')); };
+      QUEUE = QUEUE_ALL.filter(function (x) { return !nowN[qnorm(x.t)]; });
       homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + section('history', histTile, true);
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
       homeEl.scrollTop = y;

@@ -302,8 +302,32 @@
      top, alongside the styles, instead of after the whole page has been
      read (baseof.html runs them at the end, from the same addresses). */}}
 {{ $hv := partial "hutch-ver.html" . | chomp }}
+{{/* Nov 5, 2026 (speed, part 2): compact copies of Hutch's files
+     (hutch.min.*, made from the readable hutch.js / hutch.css by the
+     build step), only the current app's own part (js/hx/, css/hx/;
+     hxMod picks it from the address, hutch.js fetches it itself for an
+     app it finds another way), and no Google Roboto: the device's own
+     font (Android's is Roboto anyway). The core file's address is
+     written out in full so the Hutch page helper (hutch-sw.js) can
+     point saved pages at the newest version; the app parts take their
+     version from it. */}}
 <script>
-if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ $hv }}"><link rel="stylesheet" href="{{ "css/hutch-apps.css" | relURL }}?{{ $hv }}"><link rel="preload" as="script" href="{{ "js/hutch-apps.js" | relURL }}?{{ $hv }}"><link rel="preload" as="script" href="{{ "js/hutch.js" | relURL }}?{{ $hv }}">');
+(function () {
+  var core = '{{ "js/hutch.min.js" | relURL }}?{{ $hv }}';
+  window.hxBase = '{{ "" | relURL }}'; window.hxVer = core.split('?')[1];
+  window.hxMod = function (p) {
+    var m = [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/archive/', 'archive'], ['/now/', 'now'],
+      ['/about', 'small'], ['/contact', 'small'], ['/uses/', 'small'], ['/use/', 'small'], ['/subscribe/', 'small'], ['/follow/', 'small']];
+    for (var i = 0; i < m.length; i++) if (p.indexOf(m[i][0]) === 0) return m[i][1];
+    return '';
+  };
+  if (!document.documentElement.classList.contains('hutch')) return;
+  var mm = window.hxMod(location.pathname), b = window.hxBase, v = window.hxVer;
+  document.write('<link rel="stylesheet" href="{{ "css/hutch.min.css" | relURL }}?{{ $hv }}">' +
+    (mm ? '<link rel="stylesheet" data-hxmod="' + mm + '" href="' + b + 'css/hx/' + mm + '.css?' + v + '">' : '') +
+    (mm ? '<link rel="preload" as="script" href="' + b + 'js/hx/' + mm + '.js?' + v + '">' : '') +
+    '<link rel="preload" as="script" href="' + core + '">');
+})();
 </script>
 
 <!-- Hold first paint until the whole page (incl. end-of-body scripts) is

@@ -296,8 +296,10 @@
   /* All apps is a short panel from the bottom (Nov 3, Toby: "keep it
      short, not tall"), so the screen behind it dims; a tap there closes it */
   var scrim = null;
+  /* the desktop: a mouse or trackpad on a wide screen (same test as the boot screen) */
+  var DESK = window.matchMedia ? matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1000px)') : { matches: false };
   function syncScrim() {
-    var on = !!(openSheetEl && (openSheetEl.id === 'hutch-drawer' || openSheetEl.id === 'hutch-settings')); /* Settings is a short panel too (Nov 5) */
+    var on = !!(openSheetEl && (openSheetEl.id === 'hutch-drawer' || openSheetEl.id === 'hutch-settings' || DESK.matches)); /* Settings is a short panel too (Nov 5) */
     if (on && !scrim) {
       scrim = el('<div class="hx-scrim" aria-hidden="true"></div>');
       document.body.appendChild(scrim);
@@ -330,8 +332,11 @@
     s.addEventListener('touchend', function (e) { if (y0 !== null && e.changedTouches[0].clientY - y0 > 90) closeSheet(); y0 = null; }, { passive: true });
   }
   function sheet(id, inner) {
-    var s = el('<div class="hx-sheet" id="' + id + '" role="dialog" aria-modal="true"><button type="button" class="hx-grab" aria-label="Close"><i></i></button><div class="hx-sh-in">' + inner + '</div></div>');
+    /* Nov 5 (Toby): a desktop has no swipe, so it gets a plain ✕ button
+       (shown only with a mouse or trackpad, hutch.css) */
+    var s = el('<div class="hx-sheet" id="' + id + '" role="dialog" aria-modal="true"><button type="button" class="hx-grab" aria-label="Close"><i></i></button><button type="button" class="hx-close" aria-label="Close" title="Close (Esc)">' + ic('close') + '</button><div class="hx-sh-in">' + inner + '</div></div>');
     s.querySelector('.hx-grab').addEventListener('click', function () { closeSheet(); });
+    s.querySelector('.hx-close').addEventListener('click', function () { closeSheet(); });
     swipeDownToClose(s);
     document.body.appendChild(s);
     return s;

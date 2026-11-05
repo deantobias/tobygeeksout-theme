@@ -1055,3 +1055,36 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home[data-sky="night"] .hh-posts .hh-row.feat .x,#hutch-home[data-sky="dusk"] .hh-posts .hh-row.feat .x{color:inherit;opacity:.8}
   #hutch-home .hh-cats .hh-chips a{font-size:16.5px;padding:8px 13px}
 }
+
+/* Desktop windows (Nov 5, Toby: on a computer nobody knows to drag the
+   little bar). With a mouse or trackpad on a wide screen, Settings, All
+   apps and Search open as a centered window with a ✕ in the corner; a
+   click outside or Esc closes it too. Phones and the Fold keep the
+   sheets that slide up from the bottom. */
+.hx-close{display:none}
+@media (hover:hover) and (pointer:fine) and (min-width:1000px){
+  .hx-sheet,#hutch-drawer,#hutch-settings{inset:0;margin:auto;width:min(720px,calc(100% - 48px));height:fit-content;max-height:min(86vh,860px);
+    border-radius:24px;box-shadow:0 24px 60px rgba(15,23,38,.28);padding-bottom:0;
+    transform:translateY(16px) scale(.98);opacity:0;transition:transform .22s ease,opacity .18s ease,visibility 0s .22s}
+  #hutch-settings{width:min(600px,calc(100% - 48px))}
+  #hutch-drawer{width:min(760px,calc(100% - 48px))}
+  .hx-sheet.open,#hutch-drawer.open,#hutch-settings.open{transform:none;opacity:1;transition:transform .22s ease,opacity .18s ease}
+  /* Search: the window's ✕ closes it, so the box's own clear ✕ steps aside
+     (one ✕, not two side by side); the keyboard clears the box */
+  #hutch-search .hx-field .hx-x{display:none}
+  .hx-sheet .hx-grab{display:none}
+  .hx-sheet .hx-sh-in{flex:0 1 auto;padding:22px 26px 26px}
+  .hx-sheet .hx-scroll{flex:0 1 auto}
+  .hx-close{display:grid;place-items:center;position:absolute;top:14px;right:14px;z-index:2;width:40px;height:40px;border:0;border-radius:50%;
+    background:#F2ECE5;color:inherit;cursor:pointer;transition:background .15s}
+  .hx-close:hover{background:#E6DDD2}
+  .hx-close:focus-visible{outline:3px solid #C4622D;outline-offset:2px}
+  .hx-close .hx-ic{width:20px;height:20px}
+  html.hx-dark .hx-close{background:#222A3B}
+  html.hx-dark .hx-close:hover{background:#2E374B}
+  /* keep the window's title clear of the ✕ */
+  .hx-sheet .hx-sh-in > :first-child{margin-right:48px}
+}
+@media (hover:hover) and (pointer:fine) and (min-width:1000px) and (prefers-reduced-motion:reduce){
+  .hx-sheet,.hx-sheet.open{transition:none}
+}

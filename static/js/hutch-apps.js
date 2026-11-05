@@ -866,8 +866,11 @@ window.HutchApps = window.HutchApps || {};
 
 /* ---------- Photos app (/photo/), Hutch OS v32 mockup, Nov 2, 2026 ----------
    Always light, like a gallery wall (ignores the sky).
-   Home: profile header + a square grid of every photo post's first
-   photo, "+N" when the post holds more. 3 across on the phone, 4 on the
+   Home: profile header, then the newest photo post big in its own card
+   (Nov 5, mockup v62: "Newest" chip, how long ago, swipe through its
+   photos, Read more; wide screens put the words beside the photo), then
+   "More photos": a square grid of every older photo post's first photo,
+   "+N" when the post holds more. 3 across on the phone, 4 on the
    unfolded screen upright, 6 when the screen is wide.
    Tap a square:
      phone / unfolded upright  a scrolling feed starting at that post:
@@ -913,15 +916,42 @@ window.HutchApps = window.HutchApps || {};
     /* ---------- home: profile + grid ---------- */
     var face = ctx.page && ctx.page.avatar ? '<img src="' + esc(ctx.page.avatar) + '" alt="">' : 'T';
     var tiles = P.map(function (p, i) {
+      if (!i) return ''; /* the newest one has its own card */
       var n = p.ph.length;
       return '<a class="hxp-tile" href="' + esc(p.u) + '" data-i="' + i + '" aria-label="' + esc(p.l + ', ' + p.dl + (n > 1 ? ', ' + n + ' photos' : '')) + '">' +
         img(p.ph[0], 400, '', i > 11) + (n > 1 ? '<span class="hxp-plus" aria-hidden="true">+' + (n - 1) + '</span>' : '') + '</a>';
     }).join('');
+    /* ---------- the newest photo post, big (Nov 5, mockup v62) ---------- */
+    function ago(p) {
+      var t = Date.parse(p.ts || ''), s = t ? (Date.now() - t) / 1000 : -1;
+      if (s < 0) return '';
+      var n = function (v, u) { v = Math.max(1, Math.floor(v)); return v + ' ' + u + (v === 1 ? '' : 's') + ' ago'; };
+      if (s < 3600) return n(s / 60, 'minute');
+      if (s < 86400) return n(s / 3600, 'hour');
+      if (s < 172800) return 'Yesterday';
+      if (s < 604800) return n(s / 86400, 'day');
+      if (s < 2592000) return n(s / 604800, 'week');
+      if (s < 31536000) return n(s / 2592000, 'month');
+      return '';
+    }
+    var N = P[0], NN = N.ph.length, NA = ago(N);
+    var newest = '<section class="hxp-new" aria-label="Newest photo">' +
+      '<div class="hxp-nhead"><span class="hxp-chip"><i aria-hidden="true"></i>Newest</span>' + (NA ? '<time class="hxp-ago" datetime="' + esc(N.ts) + '">' + esc(NA) + '</time>' : '') + '</div>' +
+      '<div class="hxp-ncard">' +
+        '<div class="hxp-nshot" role="link" tabindex="0" aria-label="' + esc('Open ' + N.l + (NN > 1 ? ', ' + NN + ' photos' : '')) + '"><div class="hxp-car">' +
+          N.ph.map(function (ph, k) { return '<figure>' + img(ph, M === 'phone' ? 800 : 1200, alt(N, k), k > 0) + '</figure>'; }).join('') + '</div>' + more(NN) + dots(NN) + '</div>' +
+        '<div class="hxp-nwords"><time class="hxp-date" datetime="' + esc(N.d) + '">' + esc(N.dl) + '</time>' +
+          (N.t ? '<h2 class="hxp-title">' + esc(N.t) + '</h2>' : '') + (N.c ? '<p class="hxp-cap">' + esc(N.c) + '</p>' : '') +
+          (NN > 1 ? '<div class="hxp-thumbs hxp-nthumbs">' + N.ph.map(function (ph, j) { return '<button type="button" data-nk="' + j + '"' + (j ? '' : ' class="on" aria-current="true"') + ' aria-label="Photo ' + (j + 1) + ' of ' + NN + '">' + img(ph, 400, '', true) + '</button>'; }).join('') + '</div>' : '') +
+          '<div class="hxp-nact">' + readMore(N) + '</div></div>' +
+      '</div></section>';
+    var older = P.slice(1), olderPh = older.reduce(function (s, p) { return s + p.ph.length; }, 0);
+    var moreHead = older.length ? '<div class="hxp-mhead"><h2>More photos</h2><span>' + older.length + (older.length === 1 ? ' post' : ' posts') + ' · ' + olderPh + (olderPh === 1 ? ' photo' : ' photos') + '</span></div>' : '';
     var counts = '<div class="hxp-counts"><span><strong>' + P.length + '</strong>' + (P.length === 1 ? 'post' : 'posts') + '</span><span><strong>' + D.photos + '</strong>' + (D.photos === 1 ? 'photo' : 'photos') + '</span></div>';
     var root = ctx.el('<div class="hx-photos" data-mode="' + M + '">' +
       '<main class="hxp-home" aria-label="Photos">' +
         '<header class="hxp-prof"><div class="hxp-face">' + face + '</div><div class="hxp-info"><h1>' + esc((ctx.page && ctx.page.site) || 'Toby Geeks Out!') + '</h1><p class="hxp-bio">' + esc(D.bio || '') + '</p></div>' + counts + '</header>' +
-        '<div class="hxp-grid">' + tiles + '</div>' +
+        newest + moreHead + (older.length ? '<div class="hxp-grid">' + tiles + '</div>' : '') +
       '</main>' +
       '<section class="hxp-det" aria-label="Photo post" aria-hidden="true"></section></div>');
     var det = root.querySelector('.hxp-det');
@@ -934,6 +964,27 @@ window.HutchApps = window.HutchApps || {};
     document.body.appendChild(root);
     de.classList.add('hxp-on');
     ctx.own();
+
+    /* the newest card: swipe through its photos (the pill, dots and, on
+       wide screens, the thumbnails follow); a tap opens the photo feed
+       at the photo showing */
+    var nshot = root.querySelector('.hxp-nshot'), ncar = nshot.querySelector('.hxp-car');
+    if (NN > 1) {
+      var npill = nshot.querySelector('.hxp-pill span'), ndots = nshot.querySelectorAll('.hxp-dots i'), nlast = 0, nraf = 0;
+      ncar.addEventListener('scroll', function () {
+        if (nraf) return;
+        nraf = requestAnimationFrame(function () {
+          nraf = 0;
+          var k = Math.max(0, Math.min(NN - 1, at(ncar)));
+          if (k === nlast) return;
+          nlast = k;
+          if (npill) npill.textContent = k ? (k + 1) + ' / ' + NN : '+' + (NN - 1) + ' more';
+          [].forEach.call(ndots, function (d, j) { d.classList.toggle('on', j === k); });
+          [].forEach.call(root.querySelectorAll('[data-nk]'), function (b, j) { b.classList.toggle('on', j === k); if (j === k) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+          var nx = ncar.querySelectorAll('img')[k + 1]; if (nx) nx.removeAttribute('loading');
+        });
+      }, { passive: true });
+    }
 
     /* a resized photo that will not load falls back to the original */
     root.addEventListener('error', function (e) {
@@ -1016,14 +1067,18 @@ window.HutchApps = window.HutchApps || {};
       if (j >= 0 && j < P.length) showSplit(j, d < 0 ? P[j].ph.length - 1 : 0);
     }
 
-    function openPost(i, push) {
-      cur = i;
-      if (M === 'land') showSplit(i, 0);
+    function openPost(i, push, k) {
+      cur = i; k = k || 0;
+      if (M === 'land') showSplit(i, k);
       else {
         if (built !== 'feed') buildFeed();
         var a = det.querySelector('.hxp-post[data-i="' + i + '"]');
         det.scrollTop = a ? a.offsetTop : 0;
-        if (a) { var im = a.querySelector('img'); if (im) im.removeAttribute('loading'); }
+        if (a) {
+          var ims = a.querySelectorAll('img'), im = ims[k] || ims[0]; if (im) im.removeAttribute('loading');
+          /* from the newest card: the feed starts on the photo that was showing */
+          var fc = k && a.querySelector('.hxp-car'); if (fc) requestAnimationFrame(function () { goPhoto(fc, k, false); });
+        }
       }
       if (!open && push !== false) try { history.pushState({ hxp: 1, i: i }, ''); } catch (e) {}
       open = true;
@@ -1044,7 +1099,7 @@ window.HutchApps = window.HutchApps || {};
       det.classList.remove('on');
       det.setAttribute('aria-hidden', 'true');
       de.classList.remove('hxp-lock');
-      var t = root.querySelector('.hxp-tile[data-i="' + cur + '"]');
+      var t = cur ? root.querySelector('.hxp-tile[data-i="' + cur + '"]') : nshot;
       if (t) {
         var r = t.getBoundingClientRect();
         if (r.top < 56 || r.bottom > innerHeight) window.scrollTo(0, Math.max(0, window.scrollY + r.top - innerHeight / 3));
@@ -1078,13 +1133,15 @@ window.HutchApps = window.HutchApps || {};
     root.addEventListener('click', function (e) {
       var t = e.target.closest('.hxp-tile');
       if (t && !(e.metaKey || e.ctrlKey || e.shiftKey)) { e.preventDefault(); openPost(+t.getAttribute('data-i')); return; }
+      if (e.target.closest('.hxp-nshot')) { openPost(0, undefined, NN > 1 ? at(ncar) : 0); return; }
+      var nk = e.target.closest('[data-nk]'); if (nk) { goPhoto(ncar, +nk.getAttribute('data-nk'), true); return; }
       var s = e.target.closest('[data-step]'); if (s) { step(+s.getAttribute('data-step')); return; }
       if (e.target.closest('[data-gallery]')) { toGallery(); return; }
       var g = e.target.closest('[data-go]'); if (g) { var j = cur + +g.getAttribute('data-go'); if (j >= 0 && j < P.length) showSplit(j, 0); return; }
       var k = e.target.closest('[data-k]'); if (k) { var car = det.querySelector('.hxp-car'); if (car) goPhoto(car, +k.getAttribute('data-k'), true); }
     });
     root.addEventListener('keydown', function (e) {
-      if (e.target.classList && e.target.classList.contains('hxp-car') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); }
+      if (e.target.classList && (e.target.classList.contains('hxp-car') || e.target.classList.contains('hxp-nshot')) && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); }
     });
     document.addEventListener('keydown', function (e) {
       if (!open || document.querySelector('.hx-sheet.open')) return;

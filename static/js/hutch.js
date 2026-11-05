@@ -787,6 +787,22 @@
   /* once fonts and images are in, every card is measured again (fit() runs nitemFit too) */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(function () { if (homeEl) fit(); }, 50); });
   window.addEventListener('load', function () { setTimeout(function () { if (homeEl) fit(); }, 50); });
+  /* Word Nerd's word never breaks in the middle (Nov 5, Toby: "Rhadamanthine"
+     split as "Rhadamanthi / ne" on the Pixel 11 Pro XL): a long word shrinks
+     until its longest part fits the card's width, down to 60% of its size.
+     Two-word phrases still wrap between the words. */
+  function wordFit() {
+    var w = homeEl.querySelector('.hh-word .w');
+    if (!w) return;
+    w.style.fontSize = ''; w.style.overflowWrap = 'normal';
+    /* measured to the fraction of a pixel, with a pixel to spare, since a
+       word a hair too wide still breaks */
+    var fs = parseFloat(getComputedStyle(w).fontSize) || 24, min = Math.max(15, fs * 0.6), rg = document.createRange();
+    rg.selectNodeContents(w);
+    var room = function () { return w.getBoundingClientRect().width - 1; };
+    while (rg.getBoundingClientRect().width > room() && fs > min) { fs -= 0.5; w.style.fontSize = fs + 'px'; }
+    w.style.overflowWrap = '';
+  }
   function fit() {
     if (!homeEl) return;
     setTimeout(photoFit, 0);
@@ -802,6 +818,7 @@
        hidden chips changed the next measurement) */
     [].forEach.call(homeEl.querySelectorAll('.hh-word .defs li, .hh-chips a'), function (x) { x.style.display = ''; x.style.webkitLineClamp = ''; });
     [].forEach.call(homeEl.querySelectorAll('.hh-posts .hh-row.on'), function (x) { x.classList.remove('on'); });
+    wordFit();
     var strip = homeEl.querySelector('.hh-strip');
     /* Nov 3 (Toby: at 80% zoom his Mac showed everything at once): on a
        big desktop that's a little short, the cards shrink to fit, never

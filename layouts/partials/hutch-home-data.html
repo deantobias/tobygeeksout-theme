@@ -119,9 +119,20 @@
      tests as the home feed. img = first of Toby's own uploads (never a
      card poster); x = a short plain-text excerpt; m = micro (no title). */}}
 {{- $tl := slice -}}
-{{- range first 150 (where $site.RegularPages.ByDate.Reverse "Type" "post") -}}
+{{/* Nov 5 (Toby): reviews, watching and reading posts, Watch Logs and
+     Word of the Day live in the Den and Word Nerd apps, so the Blog app leaves them out
+     on every tab (All, Posts, Micros). Archive still shows everything.
+     $tlOut remembers them so "From the archive" doesn't pick up a
+     recent one either. */}}
+{{- $tlCats := slice "reel and remote" "movie reviews" "tv reviews" "currently watching" "currently reading" "reading" "word of the day" -}}
+{{- $tlOut := slice -}}
+{{- range first 200 (where $site.RegularPages.ByDate.Reverse "Type" "post") -}}
   {{- if lt (len $tl) 60 -}}
   {{- $skip := false -}}
+  {{- range .Params.categories -}}{{- if in $tlCats (lower .) -}}{{- $skip = true -}}{{- end -}}{{- end -}}
+  {{- if findRE `(?i)^\W*(now watching|currently watching|currently reading):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
+  {{- if in .Content "watch-log" -}}{{- $skip = true -}}{{- end -}}{{/* Watch Log posts too (Nov 5, Toby) */}}
+  {{- if $skip -}}{{- $tlOut = $tlOut | append .RelPermalink -}}{{- end -}}
   {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
   {{- if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) -}}{{- $skip = true -}}{{- end -}}
   {{- if not $skip -}}
@@ -225,7 +236,7 @@
      Shuffle picks two more. img = Toby's own upload, never a card poster;
      x = a short clean line. */}}
 {{- $older := slice -}}
-{{- $seenTl := dict -}}{{- range $tl -}}{{- $seenTl = merge $seenTl (dict .u true) -}}{{- end -}}
+{{- $seenTl := dict -}}{{- range $tl -}}{{- $seenTl = merge $seenTl (dict .u true) -}}{{- end -}}{{- range $tlOut -}}{{- $seenTl = merge $seenTl (dict . true) -}}{{- end -}}
 {{- range (where $site.RegularPages "Type" "post").ByDate.Reverse -}}
   {{- if and .Title (not (index $seenTl .RelPermalink)) (not (in .Params.categories "Word of the Day")) -}}
     {{- $skip := false -}}

@@ -1134,8 +1134,12 @@
       ls('hutch-boot-day', today);
     }
     var avatar = PAGE.avatar || 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
-    var logo = DARK ? 'https://tobygeeksout.micro.blog/uploads/2026/night-v2-toby-geeks-out-new-logo-1500-x-600-px.png'
-                    : 'https://tobygeeksout.micro.blog/uploads/2026/toby-geeks-out-newest-v2-logo-1500-x-600-px.png';
+    /* 70s or Modern logo, day or night, the same as the desktop home
+       screen and the Classic header (Nov 5, Toby: "Boot screen should use
+       if it is 70 or modern") */
+    var is70 = de.classList.contains('fonts-70s'), up = 'https://tobygeeksout.micro.blog/uploads/2026/';
+    var logo = DARK ? (is70 ? up + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : up + 'sunset-toby-geeks-out-new-logo.png')
+                    : (is70 ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png');
     var b = el('<div id="hutch-boot" aria-hidden="true"><img class="face" src="' + esc(avatar) + '" alt=""><img class="logo" src="' + logo + '" alt=""><div class="os">Hutch OS</div><div class="bar"><i></i></div></div>');
     if (homeEl) { var cs = getComputedStyle(homeEl); ['--sky1', '--sky2', '--ht'].forEach(function (v) { b.style.setProperty(v, cs.getPropertyValue(v)); }); }
     document.body.appendChild(b);

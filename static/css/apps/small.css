@@ -186,3 +186,64 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
   html.hx-sm-two .hx-sm-split .hx-sm-hero h2{margin-top:12px}
   html.hx-sm-two .hx-sm-split .hx-sm-facts{margin-top:14px}
 }
+
+/* ---- Follow, sized to the screen (Nov 5, mockup v65) ----
+   One column on phones and the Fold upright; on wide screens the
+   newsletter sits left and Feeds + Elsewhere right, the pair centered
+   on the screen. Icons are the full color drawings (.ai). */
+.hx-sm .ai{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#FFFDF8;
+  box-shadow:0 2px 6px rgba(15,23,38,.15),inset 0 0 0 1px rgba(30,45,74,.06)}
+.hx-sm .ai .hx-art{width:86%;height:86%}
+.hx-sm.dark .ai{background:#F4F1EA}
+.hx-sm.hx-fl-on .hx-sm-intro p{font-size:16.5px;color:var(--sub);margin:-6px 0 18px}
+.hx-sm .hx-sm-nl{display:block;padding:18px;border-radius:22px}
+.hx-sm .hx-sm-nl .hd{display:flex;align-items:center;gap:14px}
+.hx-sm .hx-sm-nl .hd .ai{width:52px;height:52px}
+.hx-sm .hx-sm-nl .hd b{font:700 21px/1.2 var(--h-ui)}
+.hx-sm .hx-sm-nl .hd small{font-size:13.5px;margin-top:2px}
+.hx-sm .hx-sm-nl .pitch{font:400 16.5px/1.5 var(--h-ui) !important;color:var(--ink);margin:14px 0 14px !important}
+.hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform{margin-top:2px;gap:10px}
+.hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){height:52px !important;min-height:52px !important;font-size:17px !important;border-radius:14px !important}
+.hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){min-height:52px;font-size:17px !important;border-radius:14px !important;padding:0 22px !important}
+.hx-sm .hx-sm-nl .hx-sm-nlnote{margin-top:10px;font-size:13.5px}
+.hx-sm .hx-fl-sec{font:700 12.5px/1 var(--h-ui) !important;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:24px 2px 10px !important}
+.hx-sm .hx-fl-rows{display:flex;flex-direction:column;gap:10px}
+.hx-sm.hx-fl-on .hx-sm-follow{margin:0}
+.hx-sm.hx-fl-on .hx-sm-row b{font-size:17.5px}
+.hx-sm.hx-fl-on .hx-sm-row small{font-size:14.5px}
+.hx-sm.hx-fl-on .hx-sm-row .go{font-size:14.5px;background:color-mix(in srgb,var(--btn) 12%,transparent);border-radius:999px;padding:8px 14px}
+.hx-sm .hx-fl-socs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hx-sm .hx-fl-soc{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px 14px;text-align:center;background:var(--surf);
+  border:1px solid var(--ln);border-radius:18px;color:var(--ink) !important;text-decoration:none !important;transition:border-color .15s}
+.hx-sm .hx-fl-soc:hover,.hx-sm .hx-fl-soc:focus-visible{border-color:var(--btn)}
+.hx-sm .hx-fl-soc .ai{width:50px;height:50px}
+.hx-sm .hx-fl-soc b{font:600 15.5px/1.2 var(--h-ui)}
+.hx-sm .hx-fl-soc small{font:400 12.5px/1.2 var(--h-ui);color:var(--sub);margin-top:-4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Fold upright: the form on one line */
+@media (min-width:600px){
+  .hx-sm.hx-fl-on .hx-sm-panes{max-width:660px;padding-top:18px}
+  .hx-sm.hx-fl-on .hx-sm-title{font-size:40px}
+}
+/* wide: two columns, centered on the screen */
+@media (min-width:840px) and (orientation:landscape){
+  .hx-sm.hx-fl-on .hx-sm-panes{max-width:1080px;min-height:calc(100dvh - var(--h-bar));display:flex;flex-direction:column;justify-content:center;padding:24px 40px 40px}
+  .hx-sm.hx-fl-on .hx-fl{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+  .hx-sm.hx-fl-on .hx-sm-title{font-size:46px;margin-top:0}
+  .hx-sm.hx-fl-on .hx-sm-intro p{font-size:17.5px}
+  .hx-sm .hx-sm-nl{padding:26px}
+  .hx-sm .hx-sm-nl .hd b{font-size:24px}
+  .hx-sm .hx-sm-nl .hd .ai{width:56px;height:56px}
+  .hx-sm .hx-sm-nl .pitch{font-size:17.5px !important}
+  .hx-sm.hx-fl-on .hx-fl-r .hx-fl-sec:first-child{margin-top:6px !important}
+}
+@media (min-width:840px) and (orientation:landscape) and (max-height:560px){
+  .hx-sm.hx-fl-on .hx-sm-panes{justify-content:flex-start}
+  .hx-sm.hx-fl-on .hx-sm-title{font-size:36px}
+}
+/* the older two-up grid for the rows doesn't apply to the new layout */
+.hx-sm.hx-fl-on .hx-sm-follow{display:block !important;grid-template-columns:none !important}
+/* phones: the Subscribe button runs the full width, like the mockup */
+@media (max-width:599px){
+  .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){flex-basis:100%}
+  .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){flex:1 1 100%;justify-content:center}
+}

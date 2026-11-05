@@ -1024,11 +1024,25 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-bunny{left:calc(96% - 11px);bottom:52.5%}
 }
 
-/* Recent posts a bit bigger on the desktop (Nov 5, Toby: on a 15" or 16"
-   screen the titles can be larger). Phones and the Fold keep their sizes. */
+/* Recent posts (Nov 5, mockup v64, Toby: "pop and bigger"): the newest
+   post is featured with a bigger title on every screen; the desktop adds
+   its first lines and a big photo on the right, and the rest step up a
+   size there too. Top categories go up a size on the desktop. */
+#hutch-home .hh-posts .hh-row .x{display:none}
+#hutch-home .hh-posts .hh-row.feat .t.t{font-size:1.3em;line-height:1.18;letter-spacing:-.01em;-webkit-line-clamp:2}
+#hutch-home .hh-posts .hh-row.feat{font-size:15px}
+@media (max-width:599px) and (min-height:740px){ #hutch-home .hh-posts .hh-row.feat{font-size:16px} }
+@media (min-width:600px) and (min-height:380px){ #hutch-home .hh-posts .hh-row.feat{font-size:16.5px} }
+@media (min-width:600px) and (min-height:640px) and (orientation:portrait){ #hutch-home .hh-posts .hh-row.feat{font-size:17.5px} }
 @media (min-width:1100px) and (min-height:600px){
-  #hutch-home .hh-posts .hh-row{padding:10px 0;gap:16px}
-  #hutch-home .hh-posts .hh-row img{width:64px;height:64px;border-radius:16px}
-  #hutch-home .hh-posts .hh-row .t{font-size:19.5px;line-height:1.25}
+  #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
+  #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
+  #hutch-home .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25}
   #hutch-home .hh-posts .hh-row .d{font-size:12.5px;margin-top:4px}
+  #hutch-home .hh-posts .hh-row.feat{font-size:20px;align-items:flex-start;padding:4px 0 14px}
+  #hutch-home .hh-posts .hh-row.feat .d{font-size:13px;margin-top:6px}
+  #hutch-home .hh-posts .hh-row.feat img{width:104px;height:104px;border-radius:20px;order:2}
+  #hutch-home .hh-posts .hh-row.feat .x{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 16px/1.45 var(--h-ui);color:#4A5468;margin-top:6px}
+  #hutch-home[data-sky="night"] .hh-posts .hh-row.feat .x,#hutch-home[data-sky="dusk"] .hh-posts .hh-row.feat .x{color:inherit;opacity:.8}
+  #hutch-home .hh-cats .hh-chips a{font-size:16.5px;padding:8px 13px}
 }

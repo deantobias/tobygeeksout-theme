@@ -31,7 +31,9 @@
     {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
     {{- if and (not $thumb) (in $u "cdn.uploads.micro.blog") (not (in $posters $u)) -}}{{- $thumb = $u -}}{{- end -}}
   {{- end -}}
-  {{- $recent = $recent | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "img" $thumb) -}}
+  {{/* Nov 5 (v64): the newest post is featured, with its first lines (x) */}}
+  {{- $x := "" -}}{{- if eq (len $recent) 0 -}}{{- $x = partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 220 -}}{{- end -}}
+  {{- $recent = $recent | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "img" $thumb "x" (trim $x " ")) -}}
 {{- end -}}
 
 {{- $word := dict -}}

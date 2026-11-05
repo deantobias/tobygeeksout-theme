@@ -233,6 +233,8 @@
     var root = shell(ctx); if (!root) return;
     var doc = root.doc, d = ctx.data || {}, used = [];
     var links = [].slice.call(doc.querySelectorAll('a[href]'));
+    /* Nov 5 (v65): the full color drawings, the same as the app icons */
+    function icon(k, ic, col) { return ctx.art ? '<span class="ai">' + ctx.art(k) + '</span>' : '<span class="ri" style="background:' + col + '">' + svg(ic) + '</span>'; }
     function find(kind) { for (var i = 0; i < links.length; i++) if (used.indexOf(links[i]) < 0 && kindOf(links[i])[0] === kind && !links[i].closest('form')) { used.push(links[i]); return links[i]; } return null; }
     var rows = [];
 
@@ -260,7 +262,9 @@
         if (pitch) sub = pitch;
       }
       if (form) {
-        var row = ctx.el('<div class="hx-sm-row hx-sm-nl"><span class="ri" style="background:#C4622D">' + svg('mail') + '</span><span class="m"><b>Email newsletter</b><small>' + ctx.esc(sub) + '</small></span></div>');
+        /* Nov 5 (v65): a heading (icon, title, one line), then the pitch, the form and the note */
+        var row = ctx.el('<div class="hx-sm-row hx-sm-nl"><div class="hd">' + icon('mail', 'mail', '#C4622D') + '<span class="m"><b>Email newsletter</b><small>New posts in your inbox</small></span></div>' +
+          (sub && sub !== 'New posts in your inbox' ? '<p class="pitch">' + ctx.esc(sub) + '</p>' : '') + '</div>');
         form.classList.add('hx-sm-subform');
         /* a visible label would repeat the row title; keep it for screen readers */
         [].forEach.call(form.querySelectorAll('label'), function (l) { l.classList.add('hx-sm-sr'); });
@@ -270,25 +274,29 @@
         if (note) row.appendChild(ctx.el('<p class="hx-sm-nlnote">' + ctx.esc(note) + '</p>'));
         if (box && box !== form && box.parentNode && !box.querySelector('a[href], form, input, img, iframe, video')) box.remove();
         rows.push(row);
-      } else rows.push(rowA(nlLink.getAttribute('href'), 'mail', '#C4622D', 'Email newsletter', sub, 'Sign up', true));
+      } else rows.push(rowA(nlLink.getAttribute('href'), 'mail', 'mail', '#C4622D', 'Email newsletter', sub, 'Sign up', true));
     }
 
     /* 2. feeds: the page's own links if it has them, else the theme's (same as the side rail) */
     var rss = find('rss'), json = find('json');
     var rssU = rss ? rss.href : d.rss, jsonU = json ? json.href : d.json;
-    if (rssU) rows.push(rowCopy(rssU, 'rss', '#E08A3C', 'RSS feed', 'For your feed reader'));
-    if (jsonU) rows.push(rowCopy(jsonU, 'json', '#7A8F6A', 'JSON feed', 'For readers that speak JSON Feed'));
+    var nlRows = rows; rows = []; /* the newsletter goes on its own; feeds and Elsewhere get groups (Nov 5, v65) */
+    var feeds = [], socs = [];
+    if (rssU) feeds.push(rowCopy(rssU, 'follow', 'rss', '#E08A3C', 'RSS feed', 'For your feed reader'));
+    if (jsonU) feeds.push(rowCopy(jsonU, 'json', 'json', '#7A8F6A', 'JSON feed', 'For readers that speak JSON Feed'));
 
-    /* 3. social: only what the page itself links to */
+    /* 3. past newsletters (the side rail's "Browse past newsletters" link), with the feeds */
+    if (d.past && (form || nlLink)) feeds.push(rowA(d.past, 'archive', 'archive', '#8C6A4F', 'Past newsletters', 'Read the ones you missed', 'Open', false, true));
+
+    /* 4. Elsewhere: the page's own links, else the same ones as the
+       Connect & Share box on posts (Nov 5, Toby: v65) */
     var mb = find('mb'), bs = find('bsky'), ma = find('masto');
-    if (mb) rows.push(rowA(mb.getAttribute('href'), 'mb', '#5B7A8C', 'Micro.blog', 'Follow on the timeline', 'Follow'));
-    if (bs) rows.push(rowA(bs.getAttribute('href'), 'bsky', '#3F7FA6', 'Bluesky', handle(bs), 'Follow'));
-    if (ma) rows.push(rowA(ma.getAttribute('href'), 'masto', '#6B5CA5', 'Mastodon', handle(ma), 'Follow'));
+    var mbU = mb ? mb.getAttribute('href') : d.mb, bsU = bs ? bs.getAttribute('href') : d.bsky, maU = ma ? ma.getAttribute('href') : d.masto;
+    if (mbU) socs.push(soc(mbU, 'mb', 'Micro.blog'));
+    if (bsU) socs.push(soc(bsU, 'bsky', 'Bluesky'));
+    if (maU) socs.push(soc(maU, 'masto', 'Mastodon'));
 
-    /* 4. past newsletters (the side rail's "Browse past newsletters" link) */
-    if (d.past && (form || nlLink)) rows.push(rowA(d.past, 'archive', '#8C6A4F', 'Past newsletters', 'Read the ones you missed', 'Open', false, true));
-
-    if (!rows.length) { finish(ctx, root, false); tidy(doc, ctx); return; }
+    if (!nlRows.length && !feeds.length && !socs.length) { finish(ctx, root, false); tidy(doc, ctx); return; }
 
     /* take what moved into rows out of the page text, then drop headings left with nothing under them */
     used.forEach(function (a) {
@@ -306,11 +314,20 @@
     while (doc.firstElementChild && !/^H[1-4]$/.test(doc.firstElementChild.tagName)) intro.appendChild(doc.firstElementChild);
     var rest = doc.innerHTML.trim() ? [].slice.call(doc.childNodes) : [];
     doc.innerHTML = '';
-    if (root.title) doc.insertAdjacentHTML('beforeend', titleHTML(ctx, root));
-    doc.appendChild(intro);
+    /* Nov 5 (v65, Toby: "a lot of wasted space"): the newsletter on the
+       left, Feeds and Elsewhere on the right on wide screens, the pair
+       centered on the screen; one column on phones and the Fold upright */
+    if (!intro.textContent.trim()) intro.innerHTML = '<p>Get new posts the way you like to read.</p>';
+    var fl = ctx.el('<div class="hx-fl"><div class="hx-fl-l"></div><div class="hx-fl-r"></div></div>'), fL = fl.firstChild, fR = fl.lastChild;
+    if (root.title) fL.insertAdjacentHTML('beforeend', titleHTML(ctx, root));
+    fL.appendChild(intro);
+    nlRows.forEach(function (r) { fL.appendChild(r); });
     var list = document.createElement('div'); list.className = 'hx-sm-follow';
-    rows.forEach(function (r) { list.appendChild(r); });
-    doc.appendChild(list);
+    if (feeds.length) { list.insertAdjacentHTML('beforeend', '<h2 class="hx-fl-sec">Feeds</h2>'); var fg = document.createElement('div'); fg.className = 'hx-fl-rows'; feeds.forEach(function (r) { fg.appendChild(r); }); list.appendChild(fg); }
+    if (socs.length) { list.insertAdjacentHTML('beforeend', '<h2 class="hx-fl-sec">Elsewhere</h2>'); var sg = document.createElement('div'); sg.className = 'hx-fl-socs'; socs.forEach(function (r) { sg.appendChild(r); }); list.appendChild(sg); }
+    fR.appendChild(list);
+    doc.appendChild(fl);
+    root.classList.add('hx-fl-on');
     if (rest.length) { var more = document.createElement('div'); more.className = 'hx-sm-more'; rest.forEach(function (n) { more.appendChild(n); }); doc.appendChild(more); }
     tidy(doc, ctx);
     list.addEventListener('click', function (e) {
@@ -327,12 +344,17 @@
     function handle(a) {
       try { var u = new URL(a.href); var h = u.pathname.replace(/^\/(profile\/)?/, '').replace(/\/$/, ''); return h ? (h.charAt(0) === '@' ? h : '@' + h) + (u.hostname === 'bsky.app' ? '' : ' · ' + u.hostname) : u.hostname; } catch (e) { return ''; }
     }
-    function rowA(href, ic, col, t, s, go, ext, same) {
+    function rowA(href, art, ic, col, t, s, go, ext, same) {
       var out = !same && !/^\//.test(href) && href.indexOf(location.origin) !== 0;
-      return ctx.el('<a class="hx-sm-row" href="' + ctx.esc(href) + '"' + (out ? ' target="_blank" rel="me noopener"' : '') + '><span class="ri" style="background:' + col + '">' + svg(ic) + '</span><span class="m"><b>' + ctx.esc(t) + '</b><small>' + ctx.esc(s) + '</small></span><span class="go">' + ctx.esc(go) + '</span></a>');
+      return ctx.el('<a class="hx-sm-row" href="' + ctx.esc(href) + '"' + (out ? ' target="_blank" rel="me noopener"' : '') + '>' + icon(art, ic, col) + '<span class="m"><b>' + ctx.esc(t) + '</b><small>' + ctx.esc(s) + '</small></span><span class="go">' + ctx.esc(go) + '</span></a>');
     }
-    function rowCopy(u, ic, col, t, s) {
-      return ctx.el('<button type="button" class="hx-sm-row" data-copy="' + ctx.esc(u) + '" aria-label="Copy the ' + ctx.esc(t) + ' link"><span class="ri" style="background:' + col + '">' + svg(ic) + '</span><span class="m"><b>' + ctx.esc(t) + '</b><small>' + ctx.esc(s) + '</small></span><span class="go">Copy</span></button>');
+    function rowCopy(u, art, ic, col, t, s) {
+      return ctx.el('<button type="button" class="hx-sm-row" data-copy="' + ctx.esc(u) + '" aria-label="Copy the ' + ctx.esc(t) + ' link">' + icon(art, ic, col) + '<span class="m"><b>' + ctx.esc(t) + '</b><small>' + ctx.esc(s) + '</small></span><span class="go">Copy</span></button>');
+    }
+    /* an Elsewhere tile: icon, name, handle */
+    function soc(href, k, t) {
+      var a = document.createElement('a'); a.href = href;
+      return ctx.el('<a class="hx-fl-soc" href="' + ctx.esc(href) + '" target="_blank" rel="me noopener" aria-label="Follow on ' + ctx.esc(t) + '">' + icon(k, k, '#6B7280') + '<b>' + ctx.esc(t) + '</b><small>' + ctx.esc(handle(a).replace(/\.bsky\.social$/, '').replace(/ · .*$/, '')) + '</small></a>');
     }
   };
 })();

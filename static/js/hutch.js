@@ -115,7 +115,12 @@
     mb: '<defs><linearGradient id="%ID%m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6C649"/><stop offset="1" stop-color="#F09434"/></linearGradient></defs>' +
       '<g transform="translate(7 7.5) scale(1.42)"><circle cx="12" cy="10.6" r="4.6" fill="#FFFAB0"/><path d="M12 0C5.4 0 0 4.9 0 10.95 0 17 5.4 21.9 12 21.9c1.4 0 2.85-.25 4.2-.7.15-.05.35 0 .45.1 1 1.35 2.55 2.3 4.25 2.7l.25-.1v-.3a4.65 4.65 0 01.2-5.9C22.9 15.85 24 13.5 24 10.95 24 4.9 18.55 0 12 0zm-.05 5.2c.15 0 .3.1.35.25L13.55 9l3.85.1c.15 0 .3.1.35.2.05.15 0 .3-.15.4L14.55 12l1.1 3.6c.05.15 0 .3-.15.4h-.4l-3.15-2.15L8.8 16h-.4c-.15-.1-.2-.25-.15-.4l1.1-3.6L6.3 9.7c-.15-.1-.2-.25-.15-.4.05-.1.2-.2.35-.2l3.85-.1 1.25-3.55c.05-.15.2-.25.35-.25z" fill="url(#%ID%m)"/></g>',
     tinkering: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.tinkering) + '" fill="#5B6B7A"/></g><circle cx="12" cy="36" r="2" fill="#F2B544"/>',
-    settings: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.settings) + '" fill="#6B7280"/><circle cx="12" cy="12" r="3.3" fill="#FFFDF8"/></g>'
+    settings: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.settings) + '" fill="#6B7280"/><circle cx="12" cy="12" r="3.3" fill="#FFFDF8"/></g>',
+    /* not apps, but drawn the same way for the Follow app (Nov 5, v65) */
+    mail: '<rect x="7" y="12" width="34" height="24" rx="4" fill="#C4622D"/><path d="M8.5 14.5 24 26l15.5-11.5" fill="none" stroke="#FCE9DC" stroke-width="2.8" stroke-linejoin="round"/>',
+    json: '<rect x="9" y="9" width="30" height="30" rx="8" fill="#7A8F6A"/><path d="M20 15c-3 0-3.5 1.5-3.5 4v2.5c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5V29c0 2.5.5 4 3.5 4M28 15c3 0 3.5 1.5 3.5 4v2.5c0 1.5 1 2.5 2.5 2.5-1.5 0-2.5 1-2.5 2.5V29c0 2.5-.5 4-3.5 4" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    bsky: '<g transform="translate(9 10) scale(1.25)"><path d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.97-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026" fill="#1185FE"/></g>',
+    masto: '<g transform="translate(9 9) scale(1.25)"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 0 0 .023-.043v-1.809a.052.052 0 0 0-.02-.041.053.053 0 0 0-.046-.01 20.282 20.282 0 0 1-4.709.545c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 0 1-.319-1.433.053.053 0 0 1 .066-.054c1.517.363 3.072.546 4.632.546.376 0 .75 0 1.125-.01 1.57-.044 3.224-.124 4.768-.422.038-.008.077-.015.11-.024 2.435-.464 4.753-1.92 4.989-5.604.008-.145.03-1.52.03-1.67.002-.512.167-3.63-.024-5.545zm-3.748 9.195h-2.561V8.29c0-1.309-.55-1.976-1.67-1.976-1.23 0-1.846.79-1.846 2.35v3.403h-2.546V8.663c0-1.56-.617-2.35-1.848-2.35-1.112 0-1.668.668-1.67 1.977v6.218H4.822V8.102c0-1.31.337-2.35 1.011-3.12.696-.77 1.608-1.164 2.74-1.164 1.311 0 2.302.5 2.962 1.498l.638 1.06.638-1.06c.66-.999 1.65-1.498 2.96-1.498 1.13 0 2.043.395 2.74 1.164.675.77 1.012 1.81 1.012 3.12z" fill="#6364FF"/></g>'
   };
   var artN = 0;
   function art(k) {
@@ -684,9 +689,14 @@
   function buildHome() {
     var now = new Date();
     var day = now.toLocaleDateString('en-US', { weekday: 'long' }), mon = now.toLocaleDateString('en-US', { month: 'long' });
+    /* the featured post's first lines: the Blog list's clean excerpt when it has this post */
+    var feat0 = HOME.recent && HOME.recent[0], tlx = feat0 && (HOME.tl || []).filter(function (t) { return t.u === feat0.u; })[0];
+    if (feat0 && tlx && tlx.x && !(tlx.wl && tlx.wl.it)) feat0.x = tlx.x;
     var rows = (HOME.recent || []).map(function (r, i) {
-      return '<a class="hh-row" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
-        '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></div></a>';
+      /* Nov 5 (v64, Toby): the newest post is featured, its title bigger
+         than the rest on every screen; the desktop adds its first lines */
+      return '<a class="hh-row' + (i ? '' : ' feat') + '" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
+        '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div>' + (!i && r.x ? '<div class="x">' + esc(r.x) + '</div>' : '') + '</div></a>';
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
     var photo = p.src
@@ -1278,7 +1288,7 @@
       try {
         mod({
           key: k, app: a, bar: bar, page: PAGE, data: J('hutch-app-data'), path: path,
-          ic: ic, esc: esc, el: el, ls: ls, phase: PHASE, dark: DARK, calm: calm,
+          ic: ic, art: art, esc: esc, el: el, ls: ls, phase: PHASE, dark: DARK, calm: calm,
           own: function () { de.classList.add('hutch-own'); }, /* hide the Traditional page */
           openSheet: openSheet, closeSheet: closeSheet,
           swipe: addSwipe, /* the same older / newer swipe as posts (Nov 3) */

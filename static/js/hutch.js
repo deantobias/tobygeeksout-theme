@@ -167,7 +167,11 @@
     pulse: ['The Pulse', '#C44D58', '/the-pulse/'],
     reading: ['Reading', '#6E8B4A', '/reading/'],
     blaugust: ['Blaugust', '#D98E3C', '/blaugust/'],
-    mb: ['Micro.blog', '#4A6FA5', 'https://micro.blog/' + (PAGE.mbuser || 'technogeek75')],
+    /* Nov 5 (Toby: "should microblog go straight to timeline not
+       profile?"): the profile only repeats the blog. micro.blog/ is the
+       Timeline when signed in, and Micro.blog's own welcome page for
+       anyone who isn't. The profile stays in the Follow app. */
+    mb: ['Micro.blog', '#4A6FA5', 'https://micro.blog/'],
     tinkering: ['Tinkering Log', '#5B6B7A', '/changelog/'],
     settings: ['Settings', '#6B7280', null]
   };

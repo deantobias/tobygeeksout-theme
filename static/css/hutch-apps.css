@@ -1039,7 +1039,7 @@ html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-main{padding:8px 26px 26px}
 
 /* Contact in a desktop window (Nov 5, Toby: "why do I have to scroll for
    the form?"): one column, a little tighter, so the whole note fits */
-html.hutch-win .hx-sm--contact .hx-sm-panes{padding:4px 28px 24px;max-width:none}
+html.hutch-win .hx-sm--contact .hx-sm-panes{padding:2px 28px 12px;max-width:none}
 html.hutch-win .hx-sm--contact .hx-sm-side{margin-bottom:6px}
 html.hutch-win .hx-sm--contact .hx-sm-side p{margin-bottom:12px}
 html.hutch-win .hx-sm--contact .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){margin:18px 0 8px}
@@ -1051,6 +1051,14 @@ html.hutch-win .hx-sm--contact .hx-sm-pairs{display:grid;grid-template-columns:1
 html.hutch-win .hx-sm--contact .hx-sm-pair label{margin-top:0}
 html.hutch-win .hx-sm--contact .hx-sm-card{padding:14px 16px}
 html.hutch-win .hx-sm--contact .hx-sm-doc :is(ul,ol) > li{padding-top:10px;padding-bottom:10px}
+/* Nov 5 (Toby: "contact still shows the form scroll"): his real form is a
+   Letterbird box. On the full page Letterbird sets its height (435px), but
+   inside the desktop window that message never comes back, so the box
+   stayed at the browser's default 150px with its own scrollbar. In the
+   window it gets the full height; the window grows to fit it. */
+html.hutch-win .hx-sm-doc iframe[src*="letterbird"]{display:block;width:100%;min-height:436px;border:0}
+/* the window's ✕ sits over the top corner on short screens: the first lines stay clear of it */
+html.hutch-win .hx-sm-intro p:first-child,html.hutch-win .hx-sm-side > :first-child{padding-right:46px}
 
 /* ------------------------------------------------------------------
    Word Nerd app (Hutch OS, Nov 2, 2026). Mockup v25. JS: js/apps/words.js

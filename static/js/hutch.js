@@ -357,7 +357,7 @@
     fr.style.height = '320px';
     fr.onload = function () {
       try {
-        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.92) - 56) + 'px'; };
+        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.94) - (winSheet.offsetHeight - fr.offsetHeight)) + 'px'; };
         fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
         if (window.ResizeObserver) new ResizeObserver(fit).observe(d.body);
       } catch (e) {}

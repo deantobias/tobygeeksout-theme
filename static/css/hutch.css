@@ -1102,6 +1102,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-win .hx-sh-in{padding:20px 0 0;max-width:none}
   #hutch-win .hx-sh-in > .hx-wtitle{font:500 26px/40px var(--h-ui) !important;margin:0 70px 4px 30px;color:inherit}
   #hutch-win .hx-wframe{display:block;width:100%;border:0;background:transparent;border-radius:0 0 24px 24px}
+  #hutch-win .hx-wframe[hidden]{display:none}
   /* short screens (the Windows laptop): no label line, the ✕ floats over the corner */
   @media (max-height:760px){ #hutch-win .hx-sh-in{padding-top:14px} #hutch-win .hx-sh-in > .hx-wtitle{margin-bottom:0} }
 }

@@ -353,14 +353,18 @@
      second time) */
   var WINH = { follow: 470, contact: 600 };
   try { var wh = JSON.parse(ls('hutch-winh') || '{}'); for (var wk in wh) if (wh[wk] > 120) WINH[wk] = wh[wk]; } catch (e) {}
+  /* Each app keeps its own frame in the window, loaded once (Nov 5, Toby:
+     after a few clicks the Contact window showed Follow). Changing one
+     frame's page added a step to the browser's back list, and closing the
+     window steps back, which sent the frame back to the other page. A
+     frame that is created with its page and never changed adds no step. */
+  var winFrames = {};
   function openWin(k) {
     var a = APPS[k]; if (!a || !a[2]) return false;
-    if (!winSheet) winSheet = sheet('hutch-win', '<h2 class="hx-wtitle"></h2><iframe class="hx-wframe" title=""></iframe>');
-    var fr = winSheet.querySelector('.hx-wframe');
+    if (!winSheet) winSheet = sheet('hutch-win', '<h2 class="hx-wtitle"></h2><div class="hx-wframes"></div>');
     winSheet.querySelector('.hx-wtitle').textContent = a[0];
     winSheet.style.setProperty('--ww', WINAPPS[k] + 'px');
-    fr.title = a[0];
-    var u = a[2] + (a[2].indexOf('?') < 0 ? '?' : '&') + 'win=1';
+    var fr = winFrames[k];
     var room = function () { return Math.round(innerHeight * 0.94) - (winSheet.offsetHeight - fr.offsetHeight); };
     var fit = function () {
       try {
@@ -372,14 +376,18 @@
         if (Math.abs((WINH[k] || 0) - h) > 4) { WINH[k] = h; ls('hutch-winh', JSON.stringify(WINH)); }
       } catch (e) {}
     };
-    if (fr.getAttribute('src') !== u) {
+    if (!fr) {
+      fr = winFrames[k] = document.createElement('iframe');
+      fr.className = 'hx-wframe'; fr.title = a[0];
       fr.style.height = Math.min(WINH[k] || 480, Math.round(innerHeight * 0.94) - 60) + 'px';
       fr.onload = function () {
         fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
-        try { if (window.ResizeObserver) new ResizeObserver(fit).observe(fr.contentDocument.body); } catch (e) {}
+        try { if (window.ResizeObserver) new ResizeObserver(function () { if (!fr.hidden) fit(); }).observe(fr.contentDocument.body); } catch (e) {}
       };
-      fr.setAttribute('src', u);
+      fr.src = a[2] + (a[2].indexOf('?') < 0 ? '?' : '&') + 'win=1';
+      winSheet.querySelector('.hx-wframes').appendChild(fr);
     }
+    for (var o in winFrames) winFrames[o].hidden = o !== k;
     openSheet(winSheet);
     /* already loaded (opened before): measure again now that it shows */
     requestAnimationFrame(fit); setTimeout(fit, 250);

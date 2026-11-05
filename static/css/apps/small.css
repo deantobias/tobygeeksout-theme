@@ -270,7 +270,7 @@ html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-main{padding:8px 26px 26px}
 
 /* Contact in a desktop window (Nov 5, Toby: "why do I have to scroll for
    the form?"): one column, a little tighter, so the whole note fits */
-html.hutch-win .hx-sm--contact .hx-sm-panes{padding:2px 28px 12px;max-width:none}
+html.hutch-win .hx-sm--contact .hx-sm-panes{padding:0 30px 0;max-width:none}
 html.hutch-win .hx-sm--contact .hx-sm-side{margin-bottom:6px}
 html.hutch-win .hx-sm--contact .hx-sm-side p{margin-bottom:12px}
 html.hutch-win .hx-sm--contact .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){margin:18px 0 8px}
@@ -289,4 +289,10 @@ html.hutch-win .hx-sm--contact .hx-sm-doc :is(ul,ol) > li{padding-top:10px;paddi
    window it gets the full height; the window grows to fit it. */
 html.hutch-win .hx-sm-doc iframe[src*="letterbird"]{display:block;width:100%;min-height:436px;border:0}
 /* the window's ✕ sits over the top corner on short screens: the first lines stay clear of it */
-html.hutch-win .hx-sm-intro p:first-child,html.hutch-win .hx-sm-side > :first-child{padding-right:46px}
+/* (the window now has its own title row for the ✕) */
+/* in the window: the window's white, and its title instead of the page's own big title */
+html.hutch-win,html.hutch-win body{background:transparent !important}
+html.hutch-win .hx-sm{--bg:#FFFFFF;background:transparent}
+html.hutch-win .hx-sm.dark{--bg:#141A26}
+html.hutch-win .hx-sm .hx-sm-title{display:none}
+html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{padding-top:0}

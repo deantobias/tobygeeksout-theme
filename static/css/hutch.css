@@ -1082,8 +1082,12 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hx-close .hx-ic{width:20px;height:20px}
   html.hx-dark .hx-close{background:#222A3B}
   html.hx-dark .hx-close:hover{background:#2E374B}
-  /* keep the window's title clear of the ✕ */
-  .hx-sheet .hx-sh-in > :first-child{margin-right:48px}
+  /* the ✕ lines up with the window's title row; only that row keeps clear
+     of it, the cards below use the full width (Nov 5, Toby: an empty gap
+     on the right of Settings) */
+  .hx-close{top:20px;right:20px}
+  .hx-set h2,#hutch-win .hx-wtitle{margin:0 48px 14px 4px;line-height:40px}
+  #hutch-search .hx-field{margin-right:52px}
 }
 @media (hover:hover) and (pointer:fine) and (min-width:1000px) and (prefers-reduced-motion:reduce){
   .hx-sheet,.hx-sheet.open{transition:none}
@@ -1094,11 +1098,12 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 #hutch-win{display:none}
 @media (hover:hover) and (pointer:fine) and (min-width:1000px){
   #hutch-win{display:flex;width:min(var(--ww,900px),calc(100% - 48px));max-height:94vh}
-  #hutch-win .hx-sh-in{padding:16px 0 0;max-width:none}
-  #hutch-win .hx-sh-in > .hx-wtitle{margin:0 70px 8px 26px;font:700 13px/1.2 var(--h-ui) !important;letter-spacing:.08em;text-transform:uppercase;color:#6B7280}
+  /* the same title as Settings, on one white window (Nov 5, Toby) */
+  #hutch-win .hx-sh-in{padding:20px 0 0;max-width:none}
+  #hutch-win .hx-sh-in > .hx-wtitle{font:500 26px/40px var(--h-ui) !important;margin:0 70px 4px 30px;color:inherit}
   #hutch-win .hx-wframe{display:block;width:100%;border:0;background:transparent;border-radius:0 0 24px 24px}
   /* short screens (the Windows laptop): no label line, the ✕ floats over the corner */
-  @media (max-height:760px){ #hutch-win .hx-sh-in > .hx-wtitle{display:none} #hutch-win .hx-sh-in{padding-top:8px} }
+  @media (max-height:760px){ #hutch-win .hx-sh-in{padding-top:14px} #hutch-win .hx-sh-in > .hx-wtitle{margin-bottom:0} }
 }
 html.hutch-win{--h-bar:0px}
 html.hutch-win #hutch-bar,html.hutch-win .hx-fab,html.hutch-win .hx-top,html.hutch-win .hx-peek,html.hutch-win .hx-swipetip,html.hutch-win .hb-tip{display:none !important}

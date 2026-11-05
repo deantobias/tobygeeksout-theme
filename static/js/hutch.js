@@ -351,7 +351,7 @@
      short and then jump); after that, the last measured size is kept
      (Nov 5, Toby: Contact opened short, grew, then stayed short the
      second time) */
-  var WINH = { follow: 480, contact: 650 };
+  var WINH = { follow: 470, contact: 600 };
   try { var wh = JSON.parse(ls('hutch-winh') || '{}'); for (var wk in wh) if (wh[wk] > 120) WINH[wk] = wh[wk]; } catch (e) {}
   function openWin(k) {
     var a = APPS[k]; if (!a || !a[2]) return false;

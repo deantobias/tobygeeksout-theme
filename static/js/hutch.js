@@ -1896,7 +1896,9 @@
     if (!pick) return;
     e.preventDefault();
     try { sessionStorage.setItem('tgo-surprise', String(Date.now())); sessionStorage.setItem('hutch-last-surprise', pick); } catch (er) {}
-    if (a.hasAttribute('data-app')) splashOut('surprise', a, pick); else loadBar(APPS.surprise[1]);
+    if (a.hasAttribute('data-app') && !DESK.matches) { splashOut('surprise', a, pick); setTimeout(function () { location.href = pick; }, SPLASH_MS); return; }
+    if (a.hasAttribute('data-app')) pressIcon(a);
+    loadBar(APPS.surprise[1]);
     location.href = pick;
   });
   setTimeout(function () { refreshPosts(false); }, 2500);
@@ -2028,6 +2030,7 @@
   if (document.readyState === 'complete') setTimeout(freshCheck, 1200);
   else window.addEventListener('load', function () { setTimeout(freshCheck, 1200); });
   /* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
+     Phone and Fold only; laptops get the line (see pressIcon below).
      Toby: "i just dont [want] people think that clicking is not working
      then they would have to click again and again". An app icon tapped on
      the home screen, the dock, All apps or app search grows the app's own
@@ -2069,6 +2072,10 @@
         ic: 'data:image/svg+xml,' + encodeURIComponent(art(k).replace('<svg class="hx-art"', '<svg xmlns="http://www.w3.org/2000/svg"')) }));
     } catch (e) {}
   }
+  /* laptops (Nov 5, Toby picked "line only"): a big screen gets no splash,
+     just a quick press on the icon and the line across the top */
+  var SPLASH_MS = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 290;
+  function pressIcon(a) { a.classList.remove('hx-press'); void a.offsetWidth; a.classList.add('hx-press'); }
   function loadBar(color) {
     if (document.getElementById('hx-load')) return;
     var b = document.createElement('div'); b.id = 'hx-load'; b.style.background = color;
@@ -2085,7 +2092,14 @@
     if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
     if (/\.(xml|json|rss|pdf|jpe?g|png|gif|webp|zip)$/i.test(u.pathname)) return;
     var k = a.getAttribute('data-app');
-    if (k && APPS[k]) splashOut(k, a, a.href);
+    if (k && APPS[k] && !DESK.matches) {
+      /* the splash finishes growing before the page changes (Nov 5, Toby:
+         pages now open so fast that the circle was cut off halfway) */
+      e.preventDefault();
+      if (document.getElementById('hx-splash')) return;
+      splashOut(k, a, a.href);
+      setTimeout(function () { location.href = a.href; }, SPLASH_MS);
+    } else if (k && APPS[k]) { pressIcon(a); loadBar(APPS[k][1]); }
     else loadBar((APPS[appForPage()] || APPS.blog)[1]);
   });
   /* coming back to a page from the browser's memory: no leftovers */

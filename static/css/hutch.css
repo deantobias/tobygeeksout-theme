@@ -1110,7 +1110,7 @@ html.hutch-win{--h-bar:0px}
 html.hutch-win #hutch-bar,html.hutch-win .hx-fab,html.hutch-win .hx-top,html.hutch-win .hx-peek,html.hutch-win .hx-swipetip,html.hutch-win .hb-tip{display:none !important}
 
 /* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
-   Tapping an app on the home screen, the dock or All apps grows the app's
+   On the phone and Fold, tapping an app on the home screen, the dock or All apps grows the app's
    own background out of the icon, and the icon glides to the middle, like
    Android opening an app. It stays until the next page shows, and that page
    paints the same splash (html.hx-splashing, from head.html) and fades it,
@@ -1118,10 +1118,10 @@ html.hutch-win #hutch-bar,html.hutch-win .hx-fab,html.hutch-win .hx-top,html.hut
    the icon so a slow connection still looks busy. Links inside an app get a
    thin line in the app's color across the top instead (#hx-load). */
 #hx-splash{position:fixed;inset:0;z-index:2147483000;pointer-events:none;
-  clip-path:circle(var(--r0) at var(--cx) var(--cy));transition:clip-path .34s cubic-bezier(.2,0,0,1)}
+  clip-path:circle(var(--r0) at var(--cx) var(--cy));transition:clip-path .28s cubic-bezier(.2,0,0,1)}
 #hx-splash.go{clip-path:circle(150vmax at var(--cx) var(--cy))}
 #hx-splash .hx-sic{position:absolute;border-radius:50%;background:#fff;display:grid;place-items:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.18);transition:left .34s cubic-bezier(.2,0,0,1),top .34s cubic-bezier(.2,0,0,1),width .34s cubic-bezier(.2,0,0,1),height .34s cubic-bezier(.2,0,0,1)}
+  box-shadow:0 6px 18px rgba(0,0,0,.18);transition:left .28s cubic-bezier(.2,0,0,1),top .28s cubic-bezier(.2,0,0,1),width .28s cubic-bezier(.2,0,0,1),height .28s cubic-bezier(.2,0,0,1)}
 #hx-splash .hx-sic svg{width:74%;height:74%}
 #hx-splash.go .hx-sic{left:calc(50% - var(--big) / 2) !important;top:calc(50% - var(--big) / 2) !important;width:var(--big) !important;height:var(--big) !important}
 #hx-splash .hx-swait{position:absolute;left:50%;top:calc(50% + var(--big) / 2 + 26px);width:56px;height:4px;margin-left:-28px;
@@ -1138,4 +1138,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 @keyframes hxSpGone{to{opacity:0;visibility:hidden}}
 #hx-load{position:fixed;left:0;top:0;height:3px;width:0;z-index:2147483000;pointer-events:none;opacity:0;
   border-radius:0 2px 2px 0;transition:width .35s cubic-bezier(.2,0,0,1),opacity .15s}
-@media (prefers-reduced-motion:reduce){#hx-splash,#hx-splash .hx-sic{transition:none}#hx-splash .hx-swait i{animation-duration:2s}}
+/* laptops: a quick press on the icon instead of the splash (Nov 5) */
+.hh-ic.hx-press .hh-tile{animation:hxPress .32s cubic-bezier(.2,0,0,1)}
+@keyframes hxPress{40%{transform:scale(.88)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){#hx-splash,#hx-splash .hx-sic{transition:none}.hh-ic.hx-press .hh-tile{animation:none}#hx-splash .hx-swait i{animation-duration:2s}}

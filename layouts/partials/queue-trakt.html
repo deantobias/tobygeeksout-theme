@@ -1,0 +1,35 @@
+{{/* QUEUE + TRAKT (Nov 5, 2026, Toby: "trakt should be the primary to
+     check"). What Toby has started watching, straight from his public
+     Trakt history: TV episodes and movies watched since a given time.
+     The Queue page and the Hutch Den app's "Waiting for" row call it and
+     drop anything he watched AFTER he queued it. The "Now watching:"
+     posts check in partials/queue-items.html stays as the backup, so if
+     Trakt can't be reached the pages show exactly what they did before.
+     Cached in the browser for 30 minutes (like the Watching page).
+       window.tgoQueueStarted(sinceMs) -> Promise of { normTitle: lastWatchedMs }
+     Titles are compared lower-case with everything but letters and
+     digits stripped, the same way as the Watching page. */}}
+<script>
+window.tgoQueueStarted = window.tgoQueueStarted || function (since) {
+  var USER = "technogeek75", KEY = "tgo_queue_trakt_v1", TTL = 30 * 60 * 1000;
+  var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
+  try { var c = JSON.parse(localStorage.getItem(KEY) || "null"); if (c && Date.now() - c.t < TTL && c.since <= since) return Promise.resolve(c.m); } catch (e) {}
+  function norm(s) { return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ""); }
+  function get(p) {
+    return fetch("https://api.trakt.tv/users/" + encodeURIComponent(USER) + p, { headers: { "trakt-api-version": "2", "trakt-api-key": CLIENT_ID } })
+      .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
+  }
+  var from = encodeURIComponent(new Date(since).toISOString());
+  return Promise.all([
+    get("/history/episodes?limit=1000&start_at=" + from),
+    get("/history/movies?limit=1000&start_at=" + from).catch(function () { return []; })
+  ]).then(function (r) {
+    var m = {};
+    function add(title, at) { var n = norm(title), t = Date.parse(at) || 0; if (n && !(m[n] >= t)) m[n] = t; }
+    r[0].forEach(function (h) { if (h.show) add(h.show.title, h.watched_at); });
+    r[1].forEach(function (h) { if (h.movie) add(h.movie.title, h.watched_at); });
+    try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), since: since, m: m })); } catch (e) {}
+    return m;
+  });
+};
+</script>

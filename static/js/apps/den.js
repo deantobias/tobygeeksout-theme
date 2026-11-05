@@ -150,14 +150,32 @@
       return '<section class="sec sec-' + key + '"><div class="shead-row">' + head + (page ? '<a class="sall" href="' + esc(page) + '">See all ›</a>' : '') + '</div>' +
         (items.length ? '<div class="row">' + items.slice(0, 24).map(tiles).join('') + '</div>' : '<p class="none">' + S.empty + '</p>') + '</section>';
     }
+    /* Waiting for leaves out what Toby has started (Nov 5): anything
+       watched on Trakt after it was queued (partials/queue-trakt.html), or
+       with a "Now watching:" post newer than the queue post (checked when
+       the site was built, partials/queue-items.html). */
+    var STARTED = {};
+    function qnorm(t) { return norm(String(t || '').replace(/\s*,?\s*(?:Season\s+\d+|S\d+)\s*$/i, '')); }
+    function applyQueue() {
+      /* exactly the same two rules as the /the-queue/ page (Nov 5, Toby:
+         "i want den and queue get the same behavior"): the posts check was
+         done when the site was built, this is the Trakt one */
+      QUEUE = QUEUE_ALL.filter(function (x) {
+        var t = STARTED[x.qn || qnorm(x.t)];
+        return !(t && t > (x.at || 0) * 1000);
+      });
+    }
+    if (window.tgoQueueStarted && QUEUE_ALL.length) {
+      window.tgoQueueStarted(Math.min.apply(null, QUEUE_ALL.map(function (x) { return (x.at || 0) * 1000; }))).then(function (m) {
+        STARTED = m || {}; var before = QUEUE.length; applyQueue();
+        if (QUEUE.length !== before && state.view === 'home') renderHome();
+      }).catch(function () {});
+    }
     function renderHome() {
       var y = homeEl.scrollTop;
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
-      /* anything in Currently watching right now (Trakt too) isn't "waiting" (Nov 5) */
-      var nowN = {}; WATCH.forEach(function (x) { nowN[x.n || norm(x.t)] = 1; });
-      var qnorm = function (t) { return norm(String(t || '').replace(/\s*,?\s*(?:Season\s+\d+|S\d+)\s*$/i, '')); };
-      QUEUE = QUEUE_ALL.filter(function (x) { return !nowN[qnorm(x.t)]; });
+      applyQueue();
       homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + section('history', histTile, true);
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
       homeEl.scrollTop = y;
@@ -298,6 +316,9 @@
         var dt = new Date(dtx), d = isNaN(dt) ? '' : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         var im = card.querySelector('img.wr-cover'), cover = im ? im.getAttribute('src') : '';
         var p = byNorm[n];
+        /* newest wins (Nov 5): the Watching page links the card to Trakt
+           when Trakt is newer than the post, so the post isn't used here */
+        if (p && p.url) { try { if (new URL(href, location.href).pathname !== new URL(p.url, location.href).pathname) p = null; } catch (er) {} }
         /* Trakt's latest episode, number, name and season size (data-* on the card) */
         var tep = +(card.getAttribute('data-ep') || 0), tepn = card.getAttribute('data-epn') || '', teps = +(card.getAttribute('data-eps') || 0), trt = +(card.getAttribute('data-rt') || 0);
         if (p) {

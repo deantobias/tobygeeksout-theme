@@ -59,6 +59,9 @@
   <p class="watching-foot"><a href="{{ "/watched/" | absURL }}">Watched →</a> <a href="{{ "/the-queue/" | absURL }}">The Queue →</a></p>
 </div>
 
+{{/* Nov 5, 2026: Trakt check for The Queue, used by the Hutch Den app's
+     "Waiting for" row on this page (partials/queue-trakt.html) */}}
+{{ partial "queue-trakt.html" . }}
 <script>
 (function () {
   var USER = {{ $user }};
@@ -131,6 +134,12 @@
   }
 
   // Merge: posts show at once; Trakt wins on season/date when it has the same title.
+  // Nov 5, 2026 (Toby): NEWEST WINS. A post is used for a show (its link,
+  // season, date) only while it is at least as new as his latest Trakt
+  // watch. Once Trakt is newer (he watched more without posting), the card
+  // shows Trakt's season and episode and links to the show on Trakt; the
+  // old post isn't linked again until he writes a newer one. Same rule on
+  // the home page card, the Now page and the Hutch Den app.
   function merge(data) {
     var trakt = data.list || [], rated = data.rated || {};
     var posts = POSTS.filter(function (p) { return HIDE.indexOf(p.norm) < 0 && !ratedSince(rated, p.norm, p.season, p.date); });
@@ -140,11 +149,12 @@
     var out = trakt.map(function (t) {
       var n = norm(t.title), p = byNorm[n];
       if (p) used[n] = 1;
-      var tSeason = p ? Math.max(t.season, p.season || 0) : t.season;
+      if (p && p.date < t.last) p = null; /* Trakt is newer: the post is old news */
+      var tSeason = p && p.season ? p.season : t.season;
       return {
         title: t.title, kind: "tv", season: tSeason, tmdb: t.tmdb, slug: t.slug || "",
         ep: tSeason === t.season ? (t.ep || 0) : 0, epn: tSeason === t.season ? (t.epn || "") : "",
-        last: p ? Math.max(t.last, p.date) : t.last,
+        last: p ? p.date : t.last,
         poster: p ? p.poster : "",
         url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""),
         external: !p

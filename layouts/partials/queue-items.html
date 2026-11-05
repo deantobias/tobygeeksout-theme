@@ -4,7 +4,9 @@
      "Waiting for" row always show the same list. Call with the site:
        partial "queue-items.html" site
      Returns a slice of dicts: kind relYr url title cover byline stars
-     status added rel groupKey groupLabel dateKey. */}}
+     status added rel groupKey groupLabel dateKey, plus qn (the title as
+     compared, season taken off) and at (when it was queued) for the
+     Trakt check in partials/queue-trakt.html. */}}
 {{ $site := . }}
 {{ $today := now.Format "2006-01-02" }}
 {{ $thisYear := now.Format "2006" }}
@@ -298,7 +300,7 @@
       "url" .Permalink "title" $t "cover" $cover "byline" $byline
       "stars" $stars "status" $status "added" (.Date.Format "Jan 2, 2006")
       "rel" $relLabel "groupKey" $groupKey "groupLabel" $groupLabel
-      "dateKey" $dateKey) }}
+      "dateKey" $dateKey "qn" $qn "at" .Date.Unix) }}
   {{ end }}
 {{ end }}
 {{ end }}

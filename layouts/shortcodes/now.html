@@ -435,11 +435,15 @@
     var posts = POSTS.filter(function (p) { return !ratedSince(rated, p.norm, p.season, p.date); });
     var byNorm = {}, used = {};
     posts.forEach(function (p) { byNorm[p.norm] = p; });
+    /* Nov 5, 2026 (Toby): newest wins, like the Watching page. A post is
+       used for a show only while it's at least as new as his latest Trakt
+       watch; once Trakt is newer the card follows Trakt and links there. */
     var out = trakt.map(function (t) {
       var n = norm(t.title), p = byNorm[n];
       if (p) used[n] = 1;
-      return { title: t.title, kind: "tv", season: p ? Math.max(t.season, p.season || 0) : t.season, tmdb: t.tmdb,
-        last: p ? Math.max(t.last, p.date) : t.last, poster: p ? p.poster : "",
+      if (p && p.date < t.last) p = null;
+      return { title: t.title, kind: "tv", season: p && p.season ? p.season : t.season, tmdb: t.tmdb,
+        last: p ? p.date : t.last, poster: p ? p.poster : "",
         url: p ? p.url : (t.slug ? "https://trakt.tv/shows/" + encodeURIComponent(t.slug) : ""), external: !p };
     });
     posts.forEach(function (p) {

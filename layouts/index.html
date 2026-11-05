@@ -874,12 +874,15 @@
         var hit = null;
         items.forEach(function (i) { if (i.norm === p.norm) hit = i; });
         if (hit) {
-          hit.season = Math.max(hit.season, p.season || 0);
-          hit.url = p.url; hit.poster = p.poster || "";
-          // Oct 10: the date stays Trakt's (when he watched) UNLESS the post
-          // is newer: Trakt can take hours to log a new episode, so until it
-          // catches up the card follows the post's date (same as /watching/).
-          if (p.date > hit.last) hit.last = p.date;
+          // Nov 5, 2026 (Toby): newest wins. The post gives the card its
+          // link, season and date only while it's at least as new as his
+          // latest Trakt watch (Trakt can take hours to log an episode).
+          // Once Trakt is newer, the card stays on Trakt's season and the
+          // old post isn't linked until he writes a newer one.
+          if (p.date >= hit.last) {
+            if (p.season) hit.season = p.season;
+            hit.url = p.url; hit.poster = p.poster || ""; hit.last = p.date;
+          }
         } else {
           items.push({ title: p.title, norm: p.norm, kind: p.kind, season: p.season, tmdb: 0, last: p.date, poster: p.poster || "", url: p.url, postOnly: true });
         }

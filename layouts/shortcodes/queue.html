@@ -96,7 +96,7 @@
     <h2 class="queue-heading">{{ (index $group 0).groupLabel }}</h2>
     <div class="queue-grid">
       {{ range $group }}
-      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url"{{ if or (eq .groupKey "0") .status }} data-wtw-title="{{ .title }}" data-wtw-year="{{ .relYr }}" data-wtw-type="{{ .kind }}"{{ if .status }} data-wtw-prod="1"{{ end }}{{ end }}>
+      <a href="{{ .url }}" class="queue-card{{ if .cover }} queue-card--cover{{ end }} u-url" data-qn="{{ .qn }}" data-qt="{{ .at }}"{{ if or (eq .groupKey "0") .status }} data-wtw-title="{{ .title }}" data-wtw-year="{{ .relYr }}" data-wtw-type="{{ .kind }}"{{ if .status }} data-wtw-prod="1"{{ end }}{{ end }}>
         {{ if .cover }}
         <img class="queue-cover" src="{{ .cover | safeURL }}" alt="" loading="lazy" decoding="async" width="150" height="225">
         {{ else }}
@@ -208,4 +208,32 @@
 
 {{ else }}
 <p class="queue-empty">Nothing in the queue yet.</p>
+{{ end }}
+
+{{/* ---- TRAKT FIRST (Nov 5, 2026, Toby: "trakt should be the primary to
+     check"). Anything Toby watched on Trakt after he queued it (a show he
+     started, a movie he saw) comes off the page here, in the reader's
+     browser; the "Now watching:" posts check in queue-items.html is the
+     backup. Empty month groups go too and the count is redone. If Trakt
+     can't be reached, nothing changes. */}}
+{{ if $items }}
+{{ partial "queue-trakt.html" . }}
+<script>
+(function () {
+  var cards = [].slice.call(document.querySelectorAll(".queue-card[data-qn]"));
+  if (!cards.length || !window.tgoQueueStarted) return;
+  var since = Math.min.apply(null, cards.map(function (c) { return (+c.getAttribute("data-qt") || 0) * 1000; }));
+  window.tgoQueueStarted(since).then(function (m) {
+    var gone = 0;
+    cards.forEach(function (c) {
+      var t = m[c.getAttribute("data-qn")];
+      if (t && t > (+c.getAttribute("data-qt") || 0) * 1000) { c.remove(); gone++; }
+    });
+    if (!gone) return;
+    [].forEach.call(document.querySelectorAll(".queue-group"), function (g) { if (!g.querySelector(".queue-card")) g.remove(); });
+    var n = document.querySelectorAll(".queue-card").length, cnt = document.querySelector(".queue-count");
+    if (cnt) cnt.textContent = n + " title" + (n === 1 ? "" : "s") + " in the queue";
+  }).catch(function () {});
+})();
+</script>
 {{ end }}

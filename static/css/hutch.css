@@ -1093,8 +1093,8 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    with ?win=1 (html.hutch-win): no app bar, no extras, its own height */
 #hutch-win{display:none}
 @media (hover:hover) and (pointer:fine) and (min-width:1000px){
-  #hutch-win{display:flex;width:min(var(--ww,900px),calc(100% - 48px))}
-  #hutch-win .hx-sh-in{padding:18px 0 0;max-width:none}
+  #hutch-win{display:flex;width:min(var(--ww,900px),calc(100% - 48px));max-height:92vh}
+  #hutch-win .hx-sh-in{padding:16px 0 0;max-width:none}
   #hutch-win .hx-sh-in > .hx-wtitle{margin:0 70px 8px 26px;font:700 13px/1.2 var(--h-ui) !important;letter-spacing:.08em;text-transform:uppercase;color:#6B7280}
   #hutch-win .hx-wframe{display:block;width:100%;border:0;background:transparent;border-radius:0 0 24px 24px}
 }

@@ -1037,6 +1037,21 @@ html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-panes{height:auto;padding:0 10px 10
 html.hutch-win.hx-sm-two .hx-sm-split :is(.hx-sm-side,.hx-sm-main){overflow:visible}
 html.hutch-win.hx-sm-two .hx-sm-split .hx-sm-main{padding:8px 26px 26px}
 
+/* Contact in a desktop window (Nov 5, Toby: "why do I have to scroll for
+   the form?"): one column, a little tighter, so the whole note fits */
+html.hutch-win .hx-sm--contact .hx-sm-panes{padding:4px 28px 24px;max-width:none}
+html.hutch-win .hx-sm--contact .hx-sm-side{margin-bottom:6px}
+html.hutch-win .hx-sm--contact .hx-sm-side p{margin-bottom:12px}
+html.hutch-win .hx-sm--contact .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){margin:18px 0 8px}
+html.hutch-win .hx-sm--contact .hx-sm-form label{margin:8px 0 4px}
+html.hutch-win .hx-sm--contact .hx-sm-form textarea{min-height:96px}
+html.hutch-win .hx-sm--contact .hx-sm-bigs{display:flex;gap:10px}
+html.hutch-win .hx-sm--contact .hx-sm-bigs .hx-sm-big{flex:1;margin:0}
+html.hutch-win .hx-sm--contact .hx-sm-pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+html.hutch-win .hx-sm--contact .hx-sm-pair label{margin-top:0}
+html.hutch-win .hx-sm--contact .hx-sm-card{padding:14px 16px}
+html.hutch-win .hx-sm--contact .hx-sm-doc :is(ul,ol) > li{padding-top:10px;padding-bottom:10px}
+
 /* ------------------------------------------------------------------
    Word Nerd app (Hutch OS, Nov 2, 2026). Mockup v25. JS: js/apps/words.js
    Everything is scoped to html.hxw-on (set only by the Word Nerd app)

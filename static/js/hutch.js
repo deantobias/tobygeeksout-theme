@@ -346,7 +346,7 @@
      open over the home screen like Settings, on the desktop only). The
      page runs inside the window with ?win=1: the app itself, no app bar,
      as tall as its content (up to most of the screen, then it scrolls). */
-  var WINAPPS = { follow: 980, contact: 900 }, winSheet = null;
+  var WINAPPS = { follow: 980, contact: 740 }, winSheet = null;
   function openWin(k) {
     var a = APPS[k]; if (!a || !a[2]) return false;
     if (!winSheet) winSheet = sheet('hutch-win', '<h2 class="hx-wtitle"></h2><iframe class="hx-wframe" title=""></iframe>');
@@ -357,7 +357,7 @@
     fr.style.height = '320px';
     fr.onload = function () {
       try {
-        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.86) - 70) + 'px'; };
+        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.92) - 56) + 'px'; };
         fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
         if (window.ResizeObserver) new ResizeObserver(fit).observe(d.body);
       } catch (e) {}

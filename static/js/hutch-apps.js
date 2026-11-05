@@ -1322,6 +1322,8 @@ window.HutchApps = window.HutchApps || {};
     return root;
   }
   function finish(ctx, root, two) {
+    /* inside a desktop window: always one column (Nov 5, Toby: no two panes there) */
+    if (document.documentElement.classList.contains('hutch-win')) two = false;
     if (two) root.classList.add('hx-sm-split');
     document.body.appendChild(root);
     ctx.own();
@@ -1376,6 +1378,20 @@ window.HutchApps = window.HutchApps || {};
     tidy(doc, ctx);
     [].forEach.call(doc.querySelectorAll('form'), function (f) {
       if (!f.parentNode.classList.contains('hx-sm-card')) { var c = document.createElement('div'); c.className = 'hx-sm-card'; f.parentNode.insertBefore(c, f); c.appendChild(f); }
+      /* in a desktop window (Nov 5): name and email side by side, so the
+         whole note fits without scrolling. The same fields, only grouped. */
+      if (document.documentElement.classList.contains('hutch-win')) {
+        var ins = [].filter.call(f.querySelectorAll('input'), function (i) { return /^(text|email|)$/i.test(i.getAttribute('type') || ''); }).slice(0, 2);
+        if (ins.length === 2) {
+          var row = document.createElement('div'); row.className = 'hx-sm-pairs';
+          ins[0].parentNode.insertBefore(row, ins[0].previousElementSibling && ins[0].previousElementSibling.tagName === 'LABEL' ? ins[0].previousElementSibling : ins[0]);
+          ins.forEach(function (i) {
+            var lab = (i.id && f.querySelector('label[for="' + i.id + '"]')) || (i.previousElementSibling && i.previousElementSibling.tagName === 'LABEL' ? i.previousElementSibling : null);
+            var pr = document.createElement('div'); pr.className = 'hx-sm-pair';
+            if (lab) pr.appendChild(lab); pr.appendChild(i); row.appendChild(pr);
+          });
+        }
+      }
     });
     finish(ctx, root, true);
   };

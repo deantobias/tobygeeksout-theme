@@ -294,8 +294,16 @@
      Update Design), so a fresh stylesheet URL ships with every build. */}}
 <link rel="stylesheet" href="{{ "css/custom.css" | relURL }}?{{ now.Unix }}">
 <!-- HUTCH OS stylesheet + Roboto (Nov 2, 2026): only when the switch above is on. -->
+{{/* Nov 5, 2026 (Toby: "with the same URL it opens quicker in Classic than
+     Hutch"): Hutch's files carry their own version number from
+     partials/hutch-ver.html instead of now.Unix, so a new post no longer
+     makes every browser download them again; it only changes when Hutch
+     itself changes. And the two scripts start downloading here, at the
+     top, alongside the styles, instead of after the whole page has been
+     read (baseof.html runs them at the end, from the same addresses). */}}
+{{ $hv := partial "hutch-ver.html" . | chomp }}
 <script>
-if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ now.Unix }}"><link rel="stylesheet" href="{{ "css/hutch-apps.css" | relURL }}?{{ now.Unix }}">');
+if (document.documentElement.classList.contains('hutch')) document.write('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..900&display=swap"><link rel="stylesheet" href="{{ "css/hutch.css" | relURL }}?{{ $hv }}"><link rel="stylesheet" href="{{ "css/hutch-apps.css" | relURL }}?{{ $hv }}"><link rel="preload" as="script" href="{{ "js/hutch-apps.js" | relURL }}?{{ $hv }}"><link rel="preload" as="script" href="{{ "js/hutch.js" | relURL }}?{{ $hv }}">');
 </script>
 
 <!-- Hold first paint until the whole page (incl. end-of-body scripts) is

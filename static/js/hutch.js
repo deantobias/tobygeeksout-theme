@@ -1839,6 +1839,42 @@
   if (swOK && !de.classList.contains('hutch-embed')) {
     try { navigator.serviceWorker.register('/hutch-sw.js', { scope: '/' }).catch(function () {}); } catch (e) { swOK = false; }
   }
+  /* Surprise me, straight to a post (Nov 5, Toby: "Surprise me takes too
+     long to open a single post"). The /surprise-me/ page can't be saved
+     on the phone (it's a different post every time), so a tap waited for
+     that page and then for the post. Hutch keeps the list of every post
+     (from the Archive app's page, refreshed twice a day in the
+     background) and goes straight to a random one. With no list yet, the
+     link works as before. Watchlist posts stay out (private). */
+  var POSTS_KEY = 'hutch-posts';
+  function postList() { try { var o = JSON.parse(ls(POSTS_KEY) || 'null'); return o && o.u && o.u.length ? o : null; } catch (e) { return null; } }
+  function refreshPosts(force) {
+    if (de.classList.contains('hutch-embed') || de.classList.contains('hutch-win')) return;
+    var o = postList();
+    if (!force && o && Date.now() - o.t < 12 * 3600e3) return;
+    fetch('/archive/', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      var m = t.match(/<script[^>]*id="hutch-app-data"[^>]*>([\s\S]*?)<\/script>/); if (!m) return;
+      var d = JSON.parse(m[1]), u = [];
+      (d.years || []).forEach(function (y) { (y.months || []).forEach(function (mo) { (mo.p || []).forEach(function (p) {
+        if (p.u && !/^\W*(watchlist|on my radar|want to (watch|read))\b/i.test(p.t || '')) u.push(p.u);
+      }); }); });
+      if (u.length > 10) ls(POSTS_KEY, JSON.stringify({ t: Date.now(), u: u }));
+    }).catch(function () {});
+  }
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    var a = e.target.closest && e.target.closest('a[href*="/surprise-me"]'); if (!a || a.target === '_blank') return;
+    var o = postList(); if (!o) return; /* no list yet: the normal page */
+    var here = location.pathname, last = ''; try { last = sessionStorage.getItem('hutch-last-surprise') || ''; } catch (er) {}
+    var pick = '', tries = 0;
+    while (tries++ < 8) { pick = o.u[Math.floor(Math.random() * o.u.length)]; if (pick !== here && pick !== last) break; }
+    if (!pick) return;
+    e.preventDefault();
+    try { sessionStorage.setItem('tgo-surprise', String(Date.now())); sessionStorage.setItem('hutch-last-surprise', pick); } catch (er) {}
+    location.href = pick;
+  });
+  setTimeout(function () { refreshPosts(false); }, 2500);
+
   function preload() {
     if (!swOK || !homeEl) return;
     var urls = [].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })

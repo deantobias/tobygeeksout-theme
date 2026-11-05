@@ -347,6 +347,12 @@
      page runs inside the window with ?win=1: the app itself, no app bar,
      as tall as its content (up to most of the screen, then it scrolls). */
   var WINAPPS = { follow: 980, contact: 740 }, winSheet = null;
+  /* first guess for each window (close to the real size, so it doesn't open
+     short and then jump); after that, the last measured size is kept
+     (Nov 5, Toby: Contact opened short, grew, then stayed short the
+     second time) */
+  var WINH = { follow: 480, contact: 650 };
+  try { var wh = JSON.parse(ls('hutch-winh') || '{}'); for (var wk in wh) if (wh[wk] > 120) WINH[wk] = wh[wk]; } catch (e) {}
   function openWin(k) {
     var a = APPS[k]; if (!a || !a[2]) return false;
     if (!winSheet) winSheet = sheet('hutch-win', '<h2 class="hx-wtitle"></h2><iframe class="hx-wframe" title=""></iframe>');
@@ -354,17 +360,29 @@
     winSheet.querySelector('.hx-wtitle').textContent = a[0];
     winSheet.style.setProperty('--ww', WINAPPS[k] + 'px');
     fr.title = a[0];
-    fr.style.height = '320px';
-    fr.onload = function () {
+    var u = a[2] + (a[2].indexOf('?') < 0 ? '?' : '&') + 'win=1';
+    var room = function () { return Math.round(innerHeight * 0.94) - (winSheet.offsetHeight - fr.offsetHeight); };
+    var fit = function () {
       try {
-        var d = fr.contentDocument, fit = function () { var h = d.documentElement.scrollHeight; if (h) fr.style.height = Math.min(h, Math.round(innerHeight * 0.94) - (winSheet.offsetHeight - fr.offsetHeight)) + 'px'; };
-        fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
-        if (window.ResizeObserver) new ResizeObserver(fit).observe(d.body);
+        /* the content's own height (the page's scroll height never drops below the window) */
+        var d = fr.contentDocument, app = d.querySelector('.hx-sm, .hx-photos, .hx-den') || d.body;
+        var h = Math.ceil(app.getBoundingClientRect().height + (parseFloat(d.defaultView.getComputedStyle(d.body).marginBottom) || 0));
+        if (!h) return;
+        fr.style.height = Math.min(h, room()) + 'px';
+        if (Math.abs((WINH[k] || 0) - h) > 4) { WINH[k] = h; ls('hutch-winh', JSON.stringify(WINH)); }
       } catch (e) {}
     };
-    var u = a[2] + (a[2].indexOf('?') < 0 ? '?' : '&') + 'win=1';
-    if (fr.getAttribute('src') !== u) fr.setAttribute('src', u);
+    if (fr.getAttribute('src') !== u) {
+      fr.style.height = Math.min(WINH[k] || 480, Math.round(innerHeight * 0.94) - 60) + 'px';
+      fr.onload = function () {
+        fit(); setTimeout(fit, 300); setTimeout(fit, 1200);
+        try { if (window.ResizeObserver) new ResizeObserver(fit).observe(fr.contentDocument.body); } catch (e) {}
+      };
+      fr.setAttribute('src', u);
+    }
     openSheet(winSheet);
+    /* already loaded (opened before): measure again now that it shows */
+    requestAnimationFrame(fit); setTimeout(fit, 250);
     return true;
   }
   document.addEventListener('click', function (e) {

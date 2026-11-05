@@ -227,9 +227,15 @@
      home screen, so all of them sit by the date, Micro.blog before
      Settings, in place of the four. Up to 18; any beyond that stay in All
      apps. When nothing is left for All apps, its button goes away. */
-  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'reading', 'blaugust'];
+  /* Nov 5 (Toby: "i dont think i need reading app on home page since it
+     is live in den"): Reading stays an app for its own page (/reading/
+     keeps its title and icon) but isn't shown on the home screen, in All
+     apps or in app search; Den's Currently reading row and its "See all"
+     lead there. Searching "reading" finds Den. */
+  var NOHOME = { tinkering: 1, reading: 1 };
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'blaugust'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
-    .filter(function (k, i, all) { return APPS[k] && k !== 'tinkering' && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
+    .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
   var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 600px)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
@@ -413,7 +419,7 @@
          finds every app. The Tinkering Log lives in Settings. */
       var onHome = DOCK.concat(QUAD);
       /* on desktop, the apps already by the date don't repeat here */
-      var keys = Object.keys(APPS).filter(function (k) { return k !== 'tinkering'; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
+      var keys = Object.keys(APPS).filter(function (k) { return !NOHOME[k]; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
         '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { var h = onHome.indexOf(k) > -1; return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (h ? ' data-home style="display:none"' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (k === WIDE5 ? ' data-w5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
@@ -531,7 +537,7 @@
       return;
     }
     var ql = q.toLowerCase(), terms = ql.split(/\s+/).filter(Boolean), html = '';
-    var apps = Object.keys(APPS).filter(function (k) { return APPS[k][0].toLowerCase().indexOf(ql) > -1 || (k === 'den' && 'watching'.indexOf(ql) === 0); });
+    var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && APPS[k][0].toLowerCase().indexOf(ql) > -1) || (k === 'den' && ('watching'.indexOf(ql) === 0 || 'reading'.indexOf(ql) === 0)); });
     if (apps.length) html += '<div class="hx-lab">Apps</div><ul class="hx-res">' + apps.map(function (k) {
       var a = APPS[k], inner = tile(k) + '<span><span class="hx-t">' + hi(a[0], terms) + '</span></span>';
       return '<li>' + (a[2] ? '<a href="' + a[2] + '">' + inner + '</a>' : '<button type="button" data-sheet="' + k + '">' + inner + '</button>') + '</li>'; }).join('') + '</ul>';
@@ -863,7 +869,7 @@
       homeEl.appendChild(mark);
     })();
     /* desktop: every app is already on the screen, so no All apps button */
-    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return k !== 'tinkering' && DOCK.indexOf(k) < 0 && DKAPPS.indexOf(k) < 0; }).length === 0);
+    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && DKAPPS.indexOf(k) < 0; }).length === 0);
     fit();
     window.addEventListener('resize', fit);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);

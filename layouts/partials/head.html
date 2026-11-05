@@ -230,6 +230,33 @@
   <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}">
 {{- end }}
 
+{{/* Nov 5, 2026 (speed, part 3; Toby: "make sure they are close as it
+     gets"): Hutch's files start downloading here, before any stylesheet.
+     A script that comes after a stylesheet has to wait for it, so when
+     this lived below custom.css, Hutch's files only started once
+     custom.css had fully arrived (about 0.2s later on a phone). Here they
+     download alongside custom.css; the stylesheet links themselves are
+     still written below custom.css so Hutch's rules keep winning. */}}
+{{ $hv := partial "hutch-ver.html" . | chomp }}
+<script>
+(function () {
+  var core = '{{ "js/hutch.min.js" | relURL }}?{{ $hv }}';
+  window.hxBase = '{{ "" | relURL }}'; window.hxVer = core.split('?')[1];
+  window.hxMod = function (p) {
+    var m = [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/archive/', 'archive'], ['/now/', 'now'],
+      ['/about', 'small'], ['/contact', 'small'], ['/uses/', 'small'], ['/use/', 'small'], ['/subscribe/', 'small'], ['/follow/', 'small']];
+    for (var i = 0; i < m.length; i++) if (p.indexOf(m[i][0]) === 0) return m[i][1];
+    return '';
+  };
+  if (!document.documentElement.classList.contains('hutch')) return;
+  var mm = window.hxMod(location.pathname), b = window.hxBase, v = window.hxVer;
+  document.write('<link rel="preload" as="style" href="{{ "css/hutch.min.css" | relURL }}?{{ $hv }}">' +
+    (mm ? '<link rel="preload" as="style" href="' + b + 'css/hx/' + mm + '.css?' + v + '">' : '') +
+    (mm ? '<link rel="preload" as="script" href="' + b + 'js/hx/' + mm + '.js?' + v + '">' : '') +
+    '<link rel="preload" as="script" href="' + core + '">');
+})();
+</script>
+
 <!-- Google Fonts — Inter (UI), Bricolage Grotesque (display), Lora (reading text, July 22 2026) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -301,7 +328,6 @@
      itself changes. And the two scripts start downloading here, at the
      top, alongside the styles, instead of after the whole page has been
      read (baseof.html runs them at the end, from the same addresses). */}}
-{{ $hv := partial "hutch-ver.html" . | chomp }}
 {{/* Nov 5, 2026 (speed, part 2): compact copies of Hutch's files
      (hutch.min.*, made from the readable hutch.js / hutch.css by the
      build step), only the current app's own part (js/hx/, css/hx/;
@@ -310,23 +336,15 @@
      font (Android's is Roboto anyway). The core file's address is
      written out in full so the Hutch page helper (hutch-sw.js) can
      point saved pages at the newest version; the app parts take their
-     version from it. */}}
+     version from it. hxMod and the downloads start above, before the
+     fonts (speed, part 3); this only adds the stylesheets, after
+     custom.css. */}}
 <script>
 (function () {
-  var core = '{{ "js/hutch.min.js" | relURL }}?{{ $hv }}';
-  window.hxBase = '{{ "" | relURL }}'; window.hxVer = core.split('?')[1];
-  window.hxMod = function (p) {
-    var m = [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/archive/', 'archive'], ['/now/', 'now'],
-      ['/about', 'small'], ['/contact', 'small'], ['/uses/', 'small'], ['/use/', 'small'], ['/subscribe/', 'small'], ['/follow/', 'small']];
-    for (var i = 0; i < m.length; i++) if (p.indexOf(m[i][0]) === 0) return m[i][1];
-    return '';
-  };
   if (!document.documentElement.classList.contains('hutch')) return;
   var mm = window.hxMod(location.pathname), b = window.hxBase, v = window.hxVer;
   document.write('<link rel="stylesheet" href="{{ "css/hutch.min.css" | relURL }}?{{ $hv }}">' +
-    (mm ? '<link rel="stylesheet" data-hxmod="' + mm + '" href="' + b + 'css/hx/' + mm + '.css?' + v + '">' : '') +
-    (mm ? '<link rel="preload" as="script" href="' + b + 'js/hx/' + mm + '.js?' + v + '">' : '') +
-    '<link rel="preload" as="script" href="' + core + '">');
+    (mm ? '<link rel="stylesheet" data-hxmod="' + mm + '" href="' + b + 'css/hx/' + mm + '.css?' + v + '">' : ''));
 })();
 </script>
 

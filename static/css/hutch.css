@@ -729,7 +729,7 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
 .hh-dkapps{display:none}
 /* the full app grid: laptops and big screens (Nov 6); on the three-column
    tablet layout it made the left column so tall the photo and Word Nerd shrank */
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-quad{display:none}
   .hh-dkapps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 6px;margin-top:20px;width:100%;max-width:540px}
   .hh-dkapps .hh-ic{width:100%;font-size:13px;gap:6px}
@@ -771,7 +771,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    The logo and Toby's face rest low on the left above the mountains
    (hutch.js buildHome), desktop only. */
 .hh-brand{display:none}
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-brand{position:absolute;z-index:1;left:clamp(24px,4vw,72px);bottom:calc(112px + env(safe-area-inset-bottom));
     display:flex;align-items:center;gap:16px;text-decoration:none !important;opacity:.95;transition:opacity .2s,transform .2s}
   .hh-brand:hover{opacity:1;transform:translateY(-2px)}
@@ -791,7 +791,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* Word Nerd's way in, top right like See all and Den (Nov 3, Toby: every layout) */
 .hh-word .wsee{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px;flex:none;white-space:nowrap}
 @media (max-width:599px){ .hh-word .wsee .wl{display:none} }
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-area{max-width:1720px;grid-template-columns:1fr 1.15fr .95fr;grid-template-areas:"hello posts arch" "now word cats" "strip strip strip";
     grid-template-rows:auto auto auto;align-content:start;column-gap:20px;row-gap:18px}
   /* Currently always keeps its spot (Nov 3, Toby: on his Mac the strip
@@ -915,7 +915,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    sideways (every laptop, and tablets like the iPad mini and Galaxy Tab)
    gets the desktop layout instead, whatever its size (Toby: "all laptop
    should be identified the same", and tablets sideways like the laptops). */
-@media (min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
+@media (min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
   /* the apps stay right under the date, even when Recent posts makes the row taller (Nov 3, Toby) */
   #hutch-home:not(.nonow) .hh-tx{flex:none}
@@ -967,7 +967,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* sideways with height to spare: the bigger date, like upright (Nov 3, Toby:
    "I love how the date gets bigger"); the short Brave view keeps the smaller
    one so Word Nerd keeps its second meaning */
-@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-s{font-size:44px}
   #hutch-home:not(.nonow) .hh-g{font-size:20px}
 }
@@ -980,7 +980,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    at the top. The date is bigger here and the apps sit level with the
    bottom of the date block, spread across their side, so the two read
    as one row (Toby: they felt far apart). */
-@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-area{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);grid-template-areas:"hello hello" "posts now" "photo word";grid-template-rows:auto auto minmax(0,1fr);align-content:stretch;row-gap:12px;column-gap:14px}
   #hutch-home:not(.nonow) .hh-hello{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:2px}
   #hutch-home:not(.nonow) .hh-s{font-size:min(46px,6.5vw)}
@@ -1004,7 +1004,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    Upright: about 1-1.5px up everywhere. Sideways with height to spare:
    about 1px. The short sideways Brave view keeps its sizes so Word Nerd
    and Currently keep what they show. */
-@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-wtag{font-size:12px}
   #hutch-home:not(.nonow) .hh-row .t{font-size:16.5px}
   #hutch-home:not(.nonow) .hh-row .d{font-size:12px}
@@ -1016,7 +1016,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
   #hutch-home:not(.nonow) .hh-photo .cap b{font-size:17px}
 }
-@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-row .t{font-size:15px}
   #hutch-home:not(.nonow) .hh-row .d{font-size:11.5px}
   #hutch-home:not(.nonow) .hh-word .w{font-size:24px}
@@ -1030,7 +1030,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    photo). On the short upright screen (Brave's bars showing) the date is
    34px, "N posts this week" steps aside, and the photo keeps at least
    170px; Currently drops its covers there instead (hutch.js). */
-@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-s{font-size:40px}
   #hutch-home:not(.nonow) .hh-g{font-size:20px}
   /* the photo and Word Nerd share whatever height is left (not just Word Nerd's text) */
@@ -1038,7 +1038,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 }
 /* .short comes from hutch.js (the height you actually see): Brave on
    Android answers height media queries with the space behind its bars */
-@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home.short:not(.nonow) .hh-s{font-size:34px}
   #hutch-home.short:not(.nonow) .hh-g{font-size:18px}
   #hutch-home.short:not(.nonow) .hh-p{display:none}
@@ -1069,7 +1069,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* the bunny on the big desktop sits just past the photo strip's right end,
    on the ridge's last rise, so the strip never hides it (Nov 3, Toby: on
    Windows it was behind the strip) */
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-bunny{left:calc(96% - 11px);bottom:52.5%}
 }
 
@@ -1083,7 +1083,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 @media (max-width:599px) and (min-height:740px){ #hutch-home .hh-posts .hh-row.feat{font-size:16px} }
 @media (min-width:600px) and (min-height:380px){ #hutch-home .hh-posts .hh-row.feat{font-size:16.5px} }
 @media (min-width:600px) and (min-height:640px) and (orientation:portrait){ #hutch-home .hh-posts .hh-row.feat{font-size:17.5px} }
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
   #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
   #hutch-home .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25}
@@ -1189,7 +1189,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
    "galaxy tab can add a widget for categories on the bottom" instead of a
    huge photo and Word Nerd): Top categories runs across the bottom, and
    shows as many chips as fit (hutch.js). */
-@media (min-width:600px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   /* the photo and Word Nerd stop at a comfortable height; any room left
      stays at the bottom (Nov 6, Toby: on a Galaxy Tab upright they got too tall) */
   #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats";grid-template-rows:auto auto minmax(0,320px) auto;align-content:start}
@@ -1226,12 +1226,12 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 }
 /* From the archive matches Recent posts' second and third rows on every
    laptop (Nov 6, Toby): the same title and date sizes */
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   #hutch-home .hh-arow b{font-size:18.5px;line-height:1.25}
   #hutch-home .hh-arow small{font-size:12.5px}
 }
 /* the dock's icons are the same size as the apps above (Nov 6; hutch.js sets --dockt) */
-@media (min-width:1100px) and (min-height:540px) and (orientation:landscape), (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   #hutch-home .hh-dock .hh-tile{width:var(--dockt,54px);height:var(--dockt,54px)}
   #hutch-home .hh-dock .hh-tile .hx-ic{width:calc(var(--dockt,54px) * .45);height:calc(var(--dockt,54px) * .45)}
 }
@@ -1244,7 +1244,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 /* Tall tablets upright (Galaxy Tab, iPad Air; 1050+ tall) get From the
    archive beside Top categories at the bottom (Nov 6, Toby); the iPad
    mini is too short for it, so it keeps just Top categories */
-@media (min-width:600px) and (max-width:1399px) and (min-height:1050px) and (orientation:portrait){
+@media (min-width:600px) and (max-width:1399px) and (min-height:1050px) and (orientation:portrait), (min-width:1400px) and (min-height:1050px) and (orientation:portrait){
   /* the same order as sideways, so nothing moves around when it turns
      (Nov 6, Toby): Recent posts and From the archive, then Currently and
      Word Nerd, then the photo and Top categories */
@@ -1296,7 +1296,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 /* ---------- Big tablet upright: every app by the date (Nov 6, Toby) ----------
    An iPad Pro 12.9" upright (about 1192 wide on More Space) has room for the
    laptop's full app grid beside the date, so All apps goes away like on a laptop. */
-@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
+@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home .hh-quad,#hutch-home:not(.nonow) .hh-quad{display:none}
   /* the grid is exactly the right-hand column, and its icons line up with the
      cards' text below: first icon at the left text edge, last at the right (Toby) */
@@ -1313,14 +1313,17 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home .hh-dock .hh-tile .hx-ic{width:calc(var(--dockt,56px) * .45);height:calc(var(--dockt,56px) * .45)}
 }
 
-/* Big tablet upright, cards (Nov 6, Toby): each row is as tall as the top
-   row sideways (356px), and the cards use the sideways text sizes, so the
+/* Big tablet upright, cards (Nov 6, Toby): the three rows share the room
+   down to the dock evenly (about the top row's height sideways at 1192 wide;
+   taller rows when the page is zoomed out, so the cards look the same size
+   on the screen), and the cards use the sideways text sizes, so the
    screen fills down to the dock and Word Nerd doesn't look empty. Currently
    keeps its two items side by side, like sideways. */
-@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto repeat(3,minmax(0,356px));align-content:start;row-gap:14px}
+@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto repeat(3,minmax(0,1fr));align-content:stretch;row-gap:14px;max-width:none}
   #hutch-home:not(.nonow) .hh-photo,#hutch-home:not(.nonow) .hh-word{max-height:none}
-  /* Recent posts */
+  /* Recent posts: more posts when the card has room (hutch.js adds them one at a time) */
+  #hutch-home:not(.nonow) .hh-posts .hh-row.on{display:flex}
   #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
   #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
   #hutch-home:not(.nonow) .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25;-webkit-line-clamp:2}
@@ -1376,3 +1379,8 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 
 /* the example looks the same on every layout: no shaded box (Nov 6, Toby) */
 #hutch-home .hh-area .hh-word .wex{background:none;border-radius:0;padding:2px 0 2px 12px;color:#5F6673}
+
+/* Upright is always the upright layout (Nov 6, Toby's iPad Pro in Brave drew
+   the page about 1400 wide, as a desktop with a mouse, and got the laptop
+   layout with the apps on top of the date). The laptop layout is sideways
+   only: 1100+ wide and 540+ tall. */

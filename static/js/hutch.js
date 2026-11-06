@@ -241,7 +241,7 @@
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
     .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
   var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
-  var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)') : { matches: false };
+  var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
@@ -834,7 +834,7 @@
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     /* a show finished since this page was built: swap Currently once his Trakt ratings come in;
        checked again every 10 minutes and whenever he comes back to the screen */
-    if (window.matchMedia && (matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (min-height:380px) and (max-width:1399px) and (pointer:coarse), (min-width:1100px) and (min-height:380px) and (max-height:699px) and (pointer:coarse)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    if (window.matchMedia && (matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (min-height:380px) and (max-width:1399px) and (pointer:coarse), (min-width:1100px) and (min-height:380px) and (max-height:699px) and (pointer:coarse), (min-width:1400px) and (orientation:portrait)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();
@@ -976,7 +976,7 @@
        blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
     a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight');
     var z = 1;
-    if (strip && window.matchMedia && matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)').matches) {
+    if (strip && window.matchMedia && matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches) {
       strip.style.removeProperty('--sth');
       var h0 = a.getBoundingClientRect().height;
       for (var zi = 0; zi < 4; zi++) {
@@ -1057,7 +1057,7 @@
     /* Word Nerd never ends cut in half (Nov 3, Safari draws text a little
        taller): the example goes first, then meanings from the end */
     var wd = homeEl.querySelector('.hh-area .hh-word.multi');
-    if (wd && strip && getComputedStyle(strip).display !== 'none' || wd && homeEl.classList.contains('nostrip') || wd && window.matchMedia && matchMedia('(min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait)').matches) {
+    if (wd && strip && getComputedStyle(strip).display !== 'none' || wd && homeEl.classList.contains('nostrip') || wd && window.matchMedia && matchMedia('(min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait)').matches) {
       [].forEach.call(wd.querySelectorAll('.defs li'), function (li) { li.style.display = ''; });
       if (wd.scrollHeight > wd.clientHeight + 2) homeEl.classList.add('noex');
       var lis = wd.querySelectorAll('.defs li');

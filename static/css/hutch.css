@@ -301,6 +301,20 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-word.snug .defs.defs li{margin-bottom:2px}
 @media (max-width:599px) and (min-height:740px){ .hh-word .defs{font-size:14px} }
 @media (min-width:600px) and (min-height:380px){ .hh-word .defs{font-size:15px} }
+/* Word Nerd's example sentence, styled like the quote in the Word Nerd app:
+   italic, with the orange line on the left. Every screen; hutch.js fit()
+   hides it (#hutch-home.noex) where it doesn't fit under the meanings
+   (Nov 6, Toby) */
+.hh-word .wex{display:block;flex:none;margin:10px 0 0;padding:2px 0 2px 12px;border-left:3px solid #C4622D;
+  font:italic 400 14px/1.45 Georgia,serif;color:#5F6673}
+#hutch-home.noex .hh-word .wex{display:none}
+.hh-word .wex .rt{display:block}
+.hh-word .wex .rt.cl{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+@media (min-width:600px) and (min-height:380px){
+  .hh-word .wex{font-size:15px}
+  /* one meaning: a size up, it has the card to itself */
+  #hutch-home .hh-word:not(.multi) .def{font-size:16.5px;line-height:1.4}
+}
 .hh-word .rm{margin-top:auto;align-self:flex-start;position:relative;top:0;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
 .hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
 
@@ -773,7 +787,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* ---------- 13. Big desktop widgets (Nov 3, mockup v52) ----------
    1400 x 820 or more: From the archive, Currently, Top categories and a
    Latest photos strip (hutch.js bigDesk). Hidden everywhere else. */
-.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex{display:none}
+.hh-arch,.hh-now,.hh-cats,.hh-strip{display:none}
 /* Word Nerd's way in, top right like See all and Den (Nov 3, Toby: every layout) */
 .hh-word .wsee{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px;flex:none;white-space:nowrap}
 @media (max-width:599px){ .hh-word .wsee .wl{display:none} }
@@ -865,7 +879,8 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* the way into Word Nerd sits top right, like See all and Den (Nov 3, Toby) */
   #hutch-home.noex .hh-word .wex{display:none}
   /* shrunk to fit (hutch.js fit): the words zoom back to full size */
-  .hh-row > div,.hh-arow .tx,.hh-afoot > span,.hh-nitem .tx,.hh-word .pos,.hh-word .defs,.hh-word .wex,.hh-chips a,.hh-wtag{zoom:var(--tz,1)}
+  .hh-row > div,.hh-arow .tx,.hh-afoot > span,.hh-nitem .tx,.hh-word .pos,.hh-word .defs,.hh-word .def,.hh-word .wex,.hh-chips a,.hh-wtag{zoom:var(--tz,1)}
+  #hutch-home .hh-word:not(.multi) .def{font-size:18px;line-height:1.4}
   .hh-word .wsee{display:inline;color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 10px}
 
   /* the logo and face sit on the dock line here (mockup v48+) */
@@ -1352,8 +1367,12 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home:not(.nonow) .hh-word .defs li{margin-bottom:8px}
   #hutch-home .hh-word .wex{display:block;margin:10px 0 0;padding:10px 14px;border-left:3px solid #C4622D;background:rgba(196,98,45,.06);border-radius:0 12px 12px 0;font:italic 400 16px/1.5 Georgia,serif;color:#4A5568}
   #hutch-home.noex .hh-word .wex{display:none}
+  #hutch-home:not(.nonow) .hh-word:not(.multi) .def{font-size:19px}
   /* Top categories */
   #hutch-home .hh-cats .hh-chips{gap:10px;margin-top:14px}
   #hutch-home .hh-cats .hh-chips a{font-size:16.5px;padding:9px 14px}
   #hutch-home .hh-cats .hh-chips span{font-size:12.5px}
 }
+
+/* the example looks the same on every layout: no shaded box (Nov 6, Toby) */
+#hutch-home .hh-area .hh-word .wex{background:none;border-radius:0;padding:2px 0 2px 12px;color:#5F6673}

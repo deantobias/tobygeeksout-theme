@@ -71,8 +71,15 @@
     {{- $def = trim (replaceRE `^[\s:·•|]+` "" $plain) " \n\t" | truncate 160 -}}
   {{- end -}}
   {{/* ms = up to 4 meanings, for the bigger unfolded screens (Nov 3) */}}
+  {{/* ex = the example sentence only. The Roots, Close cousins and First
+       known use rows reuse the define-example class with a -text class,
+       so they're skipped (Nov 6, Toby: Perpend's Roots showed as a quote) */}}
   {{- $ex := "" -}}
-  {{- with findRE `(?s)<(?:p|td|div)\b[^>]*\bclass=["'][^"']*\bdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $c 1 -}}{{- $ex = trim (index . 0 | plainify | htmlUnescape) " \n\t" -}}{{- end -}}
+  {{- range findRE `(?s)<(?:p|td|div)\b[^>]*\bclass=["'][^"']*\bdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $c -}}
+    {{- $open := index (findRE `^<[^>]*>` . 1) 0 -}}
+    {{- $t := trim (. | plainify | htmlUnescape) " \n\t" -}}
+    {{- if and (not $ex) (not (findRE `\bdefine-[\w-]+-text\b` $open)) -}}{{- $ex = $t -}}{{- end -}}
+  {{- end -}}
   {{- $word = dict "w" $w "pos" $pos "def" $def "n" (len $senses) "ms" (first 4 $senses) "ex" $ex "u" .RelPermalink "d" (.Date.Format "Jan 2") -}}
 {{- end -}}{{- end -}}
 

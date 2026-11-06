@@ -792,7 +792,7 @@
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
         /* big desktop: the example and a way in, so the card never ends in empty space */
-        (w.ex ? '<p class="wex">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</p>' : '') + '</a>'
+        (w.ex ? '<p class="wex"><span class="rt">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</span></p>' : '') + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -955,7 +955,10 @@
     setTimeout(brandFit, 0);
     setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
-    homeEl.classList.remove('fit1', 'fit2', 'nostrip', 'noex');
+    homeEl.classList.remove('fit1', 'fit2', 'nostrip');
+    /* Word Nerd's quote box stays out while the cards are fitted; it comes
+       back at the end wherever it fits (Nov 6) */
+    homeEl.classList.add('noex');
     /* the upright Fold's short mode, from the height actually visible (Nov 3) */
     var vh = (window.visualViewport && visualViewport.height) || innerHeight;
     homeEl.classList.toggle('short', innerWidth >= 600 && innerWidth < 840 && vh < 760);
@@ -1141,6 +1144,36 @@
       if (clipped() && pt) pt.style.display = 'none';
       if (clipped()) def.style.webkitLineClamp = '1';
       if (clipped()) def.style.display = 'none';
+    }
+    /* Word Nerd's example sentence shows on every screen where it fits under the meanings without making the
+       card taller or cutting anything off (Nov 6, Toby: a one-meaning word
+       left the card half empty) */
+    var wx = wc && wc.querySelector('.wex');
+    if (wx) {
+      /* hidden so far: it may come back only if no card changes size (on a
+         laptop its row may grow a little, as long as nothing below is cut
+         off). Already shown (the laptop layout sized its rows with it): it
+         stays if it fits */
+      var base = null;
+      if (homeEl.classList.contains('noex')) {
+        base = [wc.getBoundingClientRect().height, a.getBoundingClientRect().height];
+        homeEl.classList.remove('noex');
+      }
+      var rt = wx.querySelector('.rt'), wpb = parseFloat(getComputedStyle(wc).paddingBottom) || 0;
+      var fits = function () {
+        var wcr = wc.getBoundingClientRect(), abr = a.getBoundingClientRect();
+        var cut = innerHeight > 520 && [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > abr.bottom + 1; });
+        return getComputedStyle(wx).display !== 'none' && (!base || (DKMQ.matches || Math.abs(wcr.height - base[0]) <= 1) && Math.abs(abr.height - base[1]) <= 1) &&
+          wx.getBoundingClientRect().bottom <= wcr.bottom - wpb / 2 + 1 && !cut;
+      };
+      /* the whole line, or cut to 3, 2 or 1 lines (…) so a little room still shows it */
+      var ok = false;
+      /* one line only where the card is wide enough to read a real phrase */
+      for (var cl = 0; cl <= (wx.clientWidth >= 280 ? 3 : 2) && !ok; cl++) {
+        if (rt) { rt.classList.toggle('cl', cl > 0); rt.style.webkitLineClamp = cl ? String(4 - cl) : ''; }
+        ok = fits();
+      }
+      if (!ok) { if (rt) { rt.classList.remove('cl'); rt.style.webkitLineClamp = ''; } homeEl.classList.add('noex'); }
     }
   }
 

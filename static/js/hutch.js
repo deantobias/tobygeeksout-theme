@@ -241,7 +241,7 @@
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
     .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
   var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
-  var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 600px)') : { matches: false };
+  var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
@@ -834,7 +834,7 @@
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     /* a show finished since this page was built: swap Currently once his Trakt ratings come in;
        checked again every 10 minutes and whenever he comes back to the screen */
-    if (window.matchMedia && (matchMedia('(min-width:1400px) and (min-height:700px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    if (window.matchMedia && (matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (min-height:380px) and (max-width:1399px) and (pointer:coarse), (min-width:1100px) and (min-height:380px) and (max-height:699px) and (pointer:coarse)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();
@@ -973,7 +973,7 @@
        blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
     a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight');
     var z = 1;
-    if (strip && window.matchMedia && matchMedia('(min-width:1400px) and (min-height:700px)').matches) {
+    if (strip && window.matchMedia && matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape), (min-width: 1400px) and (min-height: 700px)').matches) {
       strip.style.removeProperty('--sth');
       var h0 = a.getBoundingClientRect().height;
       for (var zi = 0; zi < 4; zi++) {
@@ -981,7 +981,8 @@
         var need = a.getBoundingClientRect().height;
         a.style.flex = ''; a.style.height = '';
         /* Nov 3 (Toby, Windows at 125%: about 1475 x 810): shorter screens may go to 80% */
-        var zMin = innerHeight < 820 ? 0.8 : 0.85;
+        /* Nov 6: a 13" laptop (about 1280 x 600) may go to 75% */
+        var zMin = innerHeight < 650 ? 0.75 : innerHeight < 820 ? 0.8 : 0.85;
         if (need <= h0 + 1 || z <= zMin) break;
         /* tight: smaller covers in Currently first (CSS), then shrink */
         if (!homeEl.classList.contains('tight')) { homeEl.classList.add('tight'); zi--; continue; }
@@ -1015,23 +1016,45 @@
         }
       }
     }
+    /* the strip stepped aside after the cards were shrunk to make room for
+       it: shrink them again only as much as the cards alone need (Nov 6:
+       a 15" laptop at 1536 x 730 was left at 80% with a gap under the cards) */
+    if (z < 1 && homeEl.classList.contains('nostrip')) {
+      a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight'); z = 1;
+      var hB = a.getBoundingClientRect().height;
+      for (var zj = 0; zj < 4; zj++) {
+        a.style.flex = 'none'; a.style.height = 'auto';
+        var needB = a.getBoundingClientRect().height;
+        a.style.flex = ''; a.style.height = '';
+        var zMinB = innerHeight < 650 ? 0.75 : innerHeight < 820 ? 0.8 : 0.85;
+        if (needB <= hB + 1 || z <= zMinB) break;
+        if (!homeEl.classList.contains('tight')) { homeEl.classList.add('tight'); zj--; continue; }
+        z = Math.max(zMinB, Math.floor(z * hB / needB * 100) / 100);
+        a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
+      }
+    }
     if (strip && !homeEl.classList.contains('nostrip') && getComputedStyle(strip).display !== 'none') {
       /* a row squeezed by the grid shows up as a card cut short inside */
       var ab0 = a.getBoundingClientRect();
       /* Top categories shows fewer chips and Word Nerd trims itself (below), so they don't count */
       if ([].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab0.bottom + 1 || (c.classList.contains('hh-wg') && !c.classList.contains('hh-photo') && !c.classList.contains('hh-cats') && !c.classList.contains('hh-word') && c.scrollHeight > c.clientHeight + 2); })) homeEl.classList.add('nostrip');
     }
+    /* the dock's icons match the home screen's apps on laptops, even when
+       the cards were shrunk to fit (Nov 6, Toby: the dock looked bigger) */
+    var appT = homeEl.querySelector('.hh-dkapps .hh-tile');
+    if (appT && appT.offsetParent) homeEl.style.setProperty('--dockt', appT.getBoundingClientRect().width.toFixed(1) + 'px');
+    else homeEl.style.removeProperty('--dockt');
     /* Top categories: as many chips as fit its card (Nov 3) */
     var cc = homeEl.querySelector('.hh-area .hh-cats');
     if (cc && getComputedStyle(cc).display !== 'none') {
       var chips = [].slice.call(cc.querySelectorAll('.hh-chips a')), cb = cc.getBoundingClientRect().bottom - (parseFloat(getComputedStyle(cc).paddingBottom) || 0) * z;
       chips.forEach(function (x) { x.style.display = ''; });
-      for (var ci = chips.length - 1; ci > 3 && chips[ci].getBoundingClientRect().bottom > cb + 1; ci--) chips[ci].style.display = 'none';
+      for (var ci = chips.length - 1; ci > 0 && chips[ci].getBoundingClientRect().bottom > cb + 1; ci--) chips[ci].style.display = 'none';
     }
     /* Word Nerd never ends cut in half (Nov 3, Safari draws text a little
        taller): the example goes first, then meanings from the end */
     var wd = homeEl.querySelector('.hh-area .hh-word.multi');
-    if (wd && strip && getComputedStyle(strip).display !== 'none' || wd && homeEl.classList.contains('nostrip')) {
+    if (wd && strip && getComputedStyle(strip).display !== 'none' || wd && homeEl.classList.contains('nostrip') || wd && window.matchMedia && matchMedia('(min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait)').matches) {
       [].forEach.call(wd.querySelectorAll('.defs li'), function (li) { li.style.display = ''; });
       if (wd.scrollHeight > wd.clientHeight + 2) homeEl.classList.add('noex');
       var lis = wd.querySelectorAll('.defs li');
@@ -1042,6 +1065,8 @@
     function over() { var ab = a.getBoundingClientRect(); return [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > ab.bottom + 1; }); }
     if (over()) homeEl.classList.add('fit1');
     if (over()) homeEl.classList.add('fit2');
+    /* the rows just changed size, so Currently is measured again (Nov 6) */
+    if (homeEl.classList.contains('fit1')) nitemFit();
     /* Recent posts fills its card (Nov 3, Toby): where the card is taller
        than its three posts (it sits beside the date or Word Nerd), more
        posts are added one at a time, as long as the card doesn't grow and

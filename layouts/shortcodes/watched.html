@@ -378,6 +378,9 @@
       next.appendChild(el("span", null, "shows up here in " + d.current.next));
       grid.appendChild(next);
       sec.hidden = false;
+      /* Arriving from the Now page (/watched/#watched-months): the row was
+         still hidden when the browser tried the jump, so do it now. */
+      if (location.hash === "#watched-months") sec.scrollIntoView({ block: "start" });
     }).catch(function () {});
   })();
   </script>

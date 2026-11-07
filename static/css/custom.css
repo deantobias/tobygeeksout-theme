@@ -14893,7 +14893,10 @@ a.cat-more:hover,
    partials/month-review.html. Colors are theme variables, so every
    Sky state follows along.
    ============================================================ */
-.watched-months { container-type: inline-size; }
+.watched-months {
+  container-type: inline-size;
+  scroll-margin-top: calc(var(--header-actual-h, var(--header-h)) + 16px); /* Now page link lands below the header */
+}
 .watched-months[hidden] { display: none; }
 .wm-grid {
   display: grid;

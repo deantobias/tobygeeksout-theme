@@ -248,14 +248,14 @@
   <section class="tgn-sec" id="tgn-month" aria-labelledby="tgn-month-h" hidden>
     <div class="tgn-head">
       <div><span class="tgn-kicker">Last month</span><h2 class="tgn-h" id="tgn-month-h">Watched last month</h2></div>
-      <a class="tgn-src" href="{{ "/watched/" | absURL }}">from /watched ↗</a>
+      <a class="tgn-src" href="{{ "/watched/" | absURL }}#watched-months">from /watched ↗</a>
     </div>
     <div class="tgn-month">
       <span class="tgn-month-new" id="tgn-month-new" hidden>New</span>
       <div class="tgn-month-stats" id="tgn-month-stats"></div>
       <p class="tgn-month-label" id="tgn-month-label">Most watched</p>
       <div class="tgn-month-posters" id="tgn-month-posters" aria-hidden="true"></div>
-      <a class="tgn-month-more" href="{{ "/watched/" | absURL }}">More on my Watched page →</a>
+      <a class="tgn-month-more" href="{{ "/watched/" | absURL }}#watched-months">More on my Watched page →</a>
     </div>
   </section>
   {{ partial "month-review.html" . }}

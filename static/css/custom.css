@@ -1755,6 +1755,7 @@ body:not(.type-post) .site-nav li a .tgo-icon {
   max-width: 720px;
   margin: 1.5rem auto 0;
   padding: 0 1rem;
+  scroll-margin-top: 6rem; /* Nov 7, 2026: /archive/#categories jump clears the header */
 }
 
 .archive-categories-fold summary {

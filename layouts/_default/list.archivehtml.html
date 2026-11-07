@@ -22,16 +22,23 @@
   {{ $list := ($.Site.GetPage "taxonomyTerm" "categories").Pages }}
   {{ if gt (len $list) 0 }}
     {{/* Collapsed by default (Toby, July 11 2026): the post list is
-         what greets readers; tap "Categories" to browse by topic.
-         Native details/summary — no JS. CSS in section 14. */}}
-    <details class="archive-categories-fold">
-      <summary>Categories</summary>
+         what greets readers; tap the summary to browse by topic.
+         Native details/summary. CSS in section 14.
+         Nov 7, 2026 (Toby): label now says "Browse all N categories"
+         so it reads as tappable, and id="categories" lets links like
+         /archive/#categories (Knowember page) land with it opened by
+         the tiny script after </details>. Everyone else: collapsed. */}}
+    <details class="archive-categories-fold" id="categories">
+      <summary>Browse all {{ len $list }} categories</summary>
       <div class="archive_categories">
         {{ range $list }}
           <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
         {{ end }}
       </div>
     </details>
+    <script>
+      if (location.hash === '#categories') document.getElementById('categories').open = true;
+    </script>
   {{ end }}
   {{ $posts := where .Site.Pages "Type" "post" }}
   <div class="archive-wrapper">

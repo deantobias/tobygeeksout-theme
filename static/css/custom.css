@@ -15076,7 +15076,14 @@ a.cat-more:hover,
   font-size: 0.85rem;
   font-weight: 600;
 }
-.tg-now a.tgn-month-more:hover { background: var(--color-terra-dark); text-decoration: none; }
+/* The page-wide link rule (section 6) turns link text terra-dark on hover,
+   the same color as this button's hover fill, so the words vanished
+   (Toby, Nov 7). Same specificity, later in the file, so these win. */
+.tg-now a.tgn-month-more,
+.tg-now a.tgn-month-more:hover,
+.tg-now a.tgn-month-more:focus-visible { color: #FFFFFF; text-decoration: none; }
+.tg-now a.tgn-month-more:hover,
+.tg-now a.tgn-month-more:focus-visible { background: var(--color-terra-dark); }
 @media (max-width: 480px) {
   .tg-now .tgn-month-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

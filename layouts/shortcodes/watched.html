@@ -329,6 +329,59 @@
     </div>
   </section>
 
+  {{/* ---- MONTH IN REVIEW (Nov 7, 2026, Toby). Four spots in every
+       layout, oldest to newest: the three finished months, then the
+       month in progress as an empty "shows up here" spot. On the 1st
+       everything shifts left and the oldest month drops off. Numbers
+       and posters come from Trakt in the browser (partials/
+       month-review.html, which skips Trakt's repeat plays); each card
+       links to that month's Trakt Month in Review page. No recap blog
+       posts (Toby's call). The row stays hidden until Trakt answers,
+       and stays hidden if it never does.
+       Styles: custom.css section 127. */}}
+  <section class="queue-group watched-months" id="watched-months" aria-labelledby="watched-months-h" hidden>
+    <h2 class="queue-heading" id="watched-months-h">Month in review</h2>
+    <div class="wm-grid" id="wm-grid"></div>
+  </section>
+  {{ partial "month-review.html" . }}
+  <script>
+  (function () {
+    var sec = document.getElementById("watched-months"), grid = document.getElementById("wm-grid");
+    if (!sec || !grid || !window.tgoMonthReview) return;
+    function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+    function n(v, one, many) { return v + "\u00a0" + (v === 1 ? one : many); } /* number stays with its word when the line wraps */
+    window.tgoMonthReview().then(function (d) {
+      grid.textContent = "";
+      d.months.forEach(function (m) {
+        var card = el("a", "wm-card");
+        card.href = m.mir; card.rel = "noopener";
+        var fan = el("span", "wm-fan");
+        fan.setAttribute("aria-hidden", "true");
+        m.posters.slice(0, 5).forEach(function (p) {
+          var slot = el("span", "wm-poster");
+          fan.appendChild(slot);
+          window.tgoPoster(p.tmdb, p.kind).then(function (u) {
+            if (!u) return;
+            var img = document.createElement("img");
+            img.alt = ""; img.loading = "lazy"; img.decoding = "async"; img.width = 100; img.height = 150; img.src = u;
+            slot.appendChild(img);
+          });
+        });
+        card.appendChild(fan);
+        card.appendChild(el("span", "wm-title", m.label));
+        card.appendChild(el("span", "wm-stats", m.plays ? n(m.movies, "movie", "movies") + " · " + n(m.shows, "show", "shows") + " · " + n(m.hours, "hour", "hours") : "Nothing logged"));
+        card.appendChild(el("span", "wm-go", "See it on Trakt ↗"));
+        grid.appendChild(card);
+      });
+      var next = el("div", "wm-next");
+      next.appendChild(el("strong", null, d.current.label));
+      next.appendChild(el("span", null, "shows up here in " + d.current.next));
+      grid.appendChild(next);
+      sec.hidden = false;
+    }).catch(function () {});
+  })();
+  </script>
+
   {{ range $i, $_ := $years }}
   {{ $y := index $years (sub (sub $n 1) $i) }}
   {{ $group := where (sort (where $items "year" $y) "sortKey" "desc") "url" "not in" $recentURLs }}

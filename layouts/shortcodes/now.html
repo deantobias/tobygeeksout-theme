@@ -239,6 +239,58 @@
     </div>
   </section>
 
+  {{/* LAST MONTH (Nov 7, 2026, Toby): last month's numbers and top
+       posters from Trakt, with a way over to the Watched page's Month in
+       review row. Same data as that row (partials/month-review.html), so
+       the two always agree. Switches to the month that just ended on
+       the 1st; the NEW tag shows for the first week of the month.
+       Hidden until Trakt answers. Styles: custom.css section 127. */}}
+  <section class="tgn-sec" id="tgn-month" aria-labelledby="tgn-month-h" hidden>
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">Last month</span><h2 class="tgn-h" id="tgn-month-h">Watched last month</h2></div>
+      <a class="tgn-src" href="{{ "/watched/" | absURL }}">from /watched ↗</a>
+    </div>
+    <div class="tgn-month">
+      <span class="tgn-month-new" id="tgn-month-new" hidden>New</span>
+      <div class="tgn-month-stats" id="tgn-month-stats"></div>
+      <div class="tgn-month-posters" id="tgn-month-posters" aria-hidden="true"></div>
+      <a class="tgn-month-more" href="{{ "/watched/" | absURL }}">More on my Watched page →</a>
+    </div>
+  </section>
+  {{ partial "month-review.html" . }}
+  <script>
+  (function () {
+    var sec = document.getElementById("tgn-month");
+    if (!sec || !window.tgoMonthReview) return;
+    function el(tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; }
+    window.tgoMonthReview().then(function (d) {
+      var m = d.months[d.months.length - 1];
+      if (!m || !m.plays) return;
+      document.getElementById("tgn-month-h").textContent = "Watched in " + m.label.split(" ")[0];
+      var stats = document.getElementById("tgn-month-stats");
+      [[m.movies, "movie", "movies"], [m.shows, "show", "shows"], [m.hours, "hour", "hours"], [m.plays, "play", "plays"]].forEach(function (s) {
+        var cell = el("div");
+        cell.appendChild(el("b", null, String(s[0])));
+        cell.appendChild(el("span", null, s[0] === 1 ? s[1] : s[2]));
+        stats.appendChild(cell);
+      });
+      var row = document.getElementById("tgn-month-posters");
+      m.posters.forEach(function (p) {
+        var slot = el("span", "tgn-month-poster");
+        row.appendChild(slot);
+        window.tgoPoster(p.tmdb, p.kind).then(function (u) {
+          if (!u) return;
+          var img = document.createElement("img");
+          img.alt = ""; img.loading = "lazy"; img.decoding = "async"; img.width = 100; img.height = 150; img.src = u;
+          slot.appendChild(img);
+        });
+      });
+      if (new Date().getDate() <= 7) document.getElementById("tgn-month-new").hidden = false;
+      sec.hidden = false;
+    }).catch(function () {});
+  })();
+  </script>
+
   {{- if $bookTitle }}
   <section class="tgn-sec" aria-labelledby="tgn-reading-h">
     <div class="tgn-head">

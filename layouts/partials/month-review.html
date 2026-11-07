@@ -1,0 +1,144 @@
+{{/* MONTH IN REVIEW DATA (Nov 7, 2026, Toby)
+     Shared by the Watched page's "Month in review" row
+     (shortcodes/watched.html) and the Now page's "Watched in <month>"
+     section (shortcodes/now.html). Reads Toby's public Trakt history in
+     the browser, like the Watching page, so the months roll over on
+     their own: on the 1st, the month that just ended gets its numbers
+     and the oldest one drops off. No rebuild needed.
+
+       window.tgoMonthReview() -> Promise of
+         { current: { key, label, next },          the month in progress
+           months: [ { key, label, plays, hours, movies, shows,
+                       posters: [{ tmdb, kind }...], mir }, ... ] }   oldest first,
+                                                    the 3 finished months
+
+     REPEATS. Rating or reviewing something Toby already watched makes
+     Trakt (via Perch) log it again, sometimes a whole season at the same
+     minute. Those are not real plays, so a play is skipped when the same
+     episode or movie was already logged in the year before it. A real
+     rewatch years later still counts (Pride and Prejudice and Zombies,
+     2016 -> Oct 2026). Toby checked the Aug-Oct 2026 numbers by hand:
+     Aug 13 plays / 17 h, Sep 24 / 27 h, Oct 60 / 58 h.
+
+     Months follow Toby's clock (America/New_York), not UTC.
+     Cached in the browser for 6 hours. Posters come from Perch's poster
+     lookup with the same cache key as the Watching page. */}}
+<script>
+window.tgoMonthReview = window.tgoMonthReview || (function () {
+  var USER = "technogeek75", TZ = "America/New_York";
+  var CLIENT_ID = "23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc"; // public API key, not a secret
+  var KEY = "tgo_month_review_v2", TTL = 6 * 60 * 60 * 1000, YEAR = 365 * 86400000;
+  var NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var keyFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit" });
+  var pending = null;
+
+  function monthKey(t) { return keyFmt.format(new Date(t)).slice(0, 7); } /* "2026-10" */
+  function shift(key, n) {
+    var y = +key.slice(0, 4), m = +key.slice(5, 7) - 1 + n;
+    y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    return y + "-" + (m < 9 ? "0" : "") + (m + 1);
+  }
+  function label(key) { return NAMES[+key.slice(5, 7) - 1] + " " + key.slice(0, 4); }
+  function load() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
+  function store(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+
+  function page(type, from, to, ext, n) {
+    var url = "https://api.trakt.tv/users/" + USER + "/history/" + type + "?limit=1000&page=" + n +
+      "&start_at=" + encodeURIComponent(from) + "&end_at=" + encodeURIComponent(to) + (ext ? "&extended=full" : "");
+    return fetch(url, { headers: { "trakt-api-version": "2", "trakt-api-key": CLIENT_ID } })
+      .then(function (r) { if (!r.ok) throw new Error("Trakt " + r.status); return r.json(); });
+  }
+  function all(type, from, to, ext) {
+    var out = [];
+    function next(n) {
+      return page(type, from, to, ext, n).then(function (rows) {
+        out = out.concat(rows);
+        return rows.length === 1000 && n < 5 ? next(n + 1) : out;
+      });
+    }
+    return next(1);
+  }
+
+  function build() {
+    var now = Date.now(), cur = monthKey(now), first = shift(cur, -3);
+    /* A day of slack each side; plays are sorted into months by Toby's clock below. */
+    var winStart = new Date(Date.UTC(+first.slice(0, 4), +first.slice(5, 7) - 1, 1) - 86400000).toISOString();
+    var yearBefore = new Date(Date.parse(winStart) - YEAR).toISOString();
+    var nowISO = new Date(now).toISOString();
+    return Promise.all([
+      all("episodes", yearBefore, winStart, false),
+      all("movies", yearBefore, winStart, false),
+      all("episodes", winStart, nowISO, true),
+      all("movies", winStart, nowISO, true)
+    ]).then(function (r) {
+      var rows = [];
+      r.forEach(function (list, i) {
+        list.forEach(function (h) {
+          var mv = h.movie, ep = h.episode, sh = h.show;
+          if (!(mv || (ep && sh))) return;
+          rows.push({
+            t: Date.parse(h.watched_at), inWin: i >= 2,
+            id: mv ? "m" + mv.ids.trakt : "e" + ep.ids.trakt,
+            title: mv ? "m" + mv.ids.trakt : "s" + sh.ids.trakt,
+            kind: mv ? "movie" : "show",
+            tmdb: (mv || sh).ids.tmdb || 0,
+            mins: mv ? (mv.runtime || 0) : (ep.runtime || sh.runtime || 0)
+          });
+        });
+      });
+      rows.sort(function (a, b) { return a.t - b.t; });
+      var seen = {}, months = {};
+      [-3, -2, -1].forEach(function (n) { var k = shift(cur, n); months[k] = { key: k, plays: 0, mins: 0, titles: {} }; });
+      rows.forEach(function (x) {
+        var prev = seen[x.id];
+        if (prev && x.t - prev < YEAR) return;           /* a repeat: already logged in the past year */
+        seen[x.id] = x.t;
+        if (!x.inWin) return;
+        var m = months[monthKey(x.t)];
+        if (!m) return;                                    /* the current month, or the day of slack */
+        m.plays++; m.mins += x.mins;
+        var tt = m.titles[x.title] || (m.titles[x.title] = { kind: x.kind, tmdb: x.tmdb, mins: 0 });
+        tt.mins += x.mins;
+      });
+      var list = [-3, -2, -1].map(function (n) {
+        var k = shift(cur, n), m = months[k], movies = 0, shows = 0;
+        var titles = Object.keys(m.titles).map(function (id) { return m.titles[id]; });
+        titles.forEach(function (tt) { if (tt.kind === "movie") movies++; else shows++; });
+        titles.sort(function (a, b) { return b.mins - a.mins; });
+        return {
+          key: k, label: label(k), plays: m.plays, hours: Math.round(m.mins / 60), movies: movies, shows: shows,
+          posters: titles.filter(function (tt) { return tt.tmdb; }).slice(0, 6).map(function (tt) { return { tmdb: tt.tmdb, kind: tt.kind }; }),
+          mir: "https://app.trakt.tv/users/" + USER + "/mir/" + k.slice(0, 4) + "/" + k.slice(5, 7)
+        };
+      });
+      return { current: { key: cur, label: label(cur), next: NAMES[+shift(cur, 1).slice(5, 7) - 1] }, months: list };
+    });
+  }
+
+  return function () {
+    var c = load(), cur = monthKey(Date.now());
+    if (c && c.data && c.data.current.key === cur && Date.now() - c.t < TTL) return Promise.resolve(c.data);
+    if (!pending) {
+      pending = build().then(function (d) { store({ t: Date.now(), data: d }); return d; })
+        .catch(function (e) { pending = null; if (c && c.data && c.data.current.key === cur) return c.data; throw e; });
+    }
+    return pending;
+  };
+})();
+
+/* Poster for a TMDB id, through Perch's lookup. The lookup treats a bare
+   id as a TV show; movies need &type=movie (TMDB numbers movies and
+   shows separately, so the same id can be both). Shows share the
+   Watching and Now pages' cache key; movies get their own. */
+window.tgoPoster = window.tgoPoster || function (tmdb, kind) {
+  if (!tmdb) return Promise.resolve("");
+  var movie = kind === "movie";
+  var k = "tgo_poster_v1_" + (movie ? "m" : "") + tmdb, TTL = 30 * 24 * 60 * 60 * 1000;
+  try { var c = JSON.parse(localStorage.getItem(k) || "null"); if (c && Date.now() - c.t < TTL) return Promise.resolve(c.u); } catch (e) {}
+  return fetch("https://perch-app.pages.dev/poster?tmdb=" + tmdb + (movie ? "&type=movie" : "")).then(function (r) { return r.json(); }).then(function (d) {
+    var u = (d && d.poster) || "";
+    if (u) { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), u: u })); } catch (e) {} }
+    return u;
+  }).catch(function () { return ""; });
+};
+</script>

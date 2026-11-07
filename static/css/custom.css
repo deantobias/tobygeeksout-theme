@@ -15035,6 +15035,15 @@ a.cat-more:hover,
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
+.tg-now p.tgn-month-label {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
 .tg-now .tgn-month-posters {
   /* One row, as many as fit (three on a phone); extra rows collapse to 0. */
   display: grid;

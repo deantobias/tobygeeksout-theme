@@ -253,6 +253,7 @@
     <div class="tgn-month">
       <span class="tgn-month-new" id="tgn-month-new" hidden>New</span>
       <div class="tgn-month-stats" id="tgn-month-stats"></div>
+      <p class="tgn-month-label" id="tgn-month-label">Most watched</p>
       <div class="tgn-month-posters" id="tgn-month-posters" aria-hidden="true"></div>
       <a class="tgn-month-more" href="{{ "/watched/" | absURL }}">More on my Watched page →</a>
     </div>
@@ -267,6 +268,8 @@
       var m = d.months[d.months.length - 1];
       if (!m || !m.plays) return;
       document.getElementById("tgn-month-h").textContent = "Watched in " + m.label.split(" ")[0];
+      /* The posters are the top titles by time watched, not everything (Toby, Nov 7: "it needs to be clear what it means"). */
+      document.getElementById("tgn-month-label").textContent = "Most watched in " + m.label.split(" ")[0];
       var stats = document.getElementById("tgn-month-stats");
       [[m.movies, "movie", "movies"], [m.shows, "show", "shows"], [m.hours, "hour", "hours"], [m.plays, "play", "plays"]].forEach(function (s) {
         var cell = el("div");

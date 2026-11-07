@@ -74,10 +74,12 @@
     {{- if $b -}}{{- $m = $m | append (dict "n" (trim $num " \n\t .:") "t" $b) -}}{{- end -}}
   {{- end -}}
 
-  {{/* example */}}
+  {{/* example: the example sentence only. Roots, Close cousins and First
+       known use reuse the define-example class with a -text class (Nov 6) */}}
   {{- $ex := "" -}}
-  {{- with findRE (printf `(?s)<(?:p|td|div)\b[^>]*%sdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $cls) $c 1 -}}
-    {{- $ex = trim (index . 0 | plainify | htmlUnescape) " \n\t " -}}
+  {{- range findRE (printf `(?s)<(?:p|td|div)\b[^>]*%sdefine-example\b[^"']*["'][^>]*>.*?</(?:p|td|div)>` $cls) $c -}}
+    {{- $open := index (findRE `^<[^>]*>` . 1) 0 -}}
+    {{- if and (not $ex) (not (findRE `\bdefine-[\w-]+-text\b` $open)) -}}{{- $ex = trim (. | plainify | htmlUnescape) " \n\t  " -}}{{- end -}}
   {{- end -}}
 
   {{/* extra rows. A cell that is only a label ("Roots") joins the cell

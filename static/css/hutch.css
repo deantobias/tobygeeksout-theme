@@ -301,6 +301,20 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-word.snug .defs.defs li{margin-bottom:2px}
 @media (max-width:599px) and (min-height:740px){ .hh-word .defs{font-size:14px} }
 @media (min-width:600px) and (min-height:380px){ .hh-word .defs{font-size:15px} }
+/* Word Nerd's example sentence, styled like the quote in the Word Nerd app:
+   italic, with the orange line on the left. Every screen; hutch.js fit()
+   hides it (#hutch-home.noex) where it doesn't fit under the meanings
+   (Nov 6, Toby) */
+.hh-word .wex{display:block;flex:none;margin:10px 0 0;padding:2px 0 2px 12px;border-left:3px solid #C4622D;
+  font:italic 400 14px/1.45 Georgia,serif;color:#5F6673}
+#hutch-home.noex .hh-word .wex{display:none}
+.hh-word .wex .rt{display:block}
+.hh-word .wex .rt.cl{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+@media (min-width:600px) and (min-height:380px){
+  .hh-word .wex{font-size:15px}
+  /* one meaning: a size up, it has the card to itself */
+  #hutch-home .hh-word:not(.multi) .def{font-size:16.5px;line-height:1.4}
+}
 .hh-word .rm{margin-top:auto;align-self:flex-start;position:relative;top:0;border-radius:999px;background:#C4622D;color:#fff !important;font:700 12px var(--h-ui);padding:7px 12px;flex:none}
 .hh-empty{display:grid;place-items:center;text-align:center;padding:14px;font:500 13px var(--h-ui);color:#6B7280}
 
@@ -495,7 +509,7 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 /* Short landscape: the unfolded Fold sideways in a browser with tabs and
    an address bar leaves only ~500-600px of height (Nov 2, Toby) */
-@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape){
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape) and (pointer:coarse), (min-width:600px) and (min-height:380px) and (max-height:640px) and (max-width:1099px) and (orientation:landscape){
   .hh-ridgebox{height:122px}
   .hh-area{padding:12px 24px 6px;--gap:12px;grid-template-rows:auto minmax(80px,1fr)}
   .hh-g{font-size:18px}
@@ -693,7 +707,7 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
   .hh-quad{grid-template-columns:repeat(5,80px)}
   #hutch-drawer:not(.q) [data-w5]{display:none !important}
 }
-@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape){
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape) and (pointer:coarse), (min-width:600px) and (min-height:380px) and (max-height:640px) and (max-width:1099px) and (orientation:landscape){
   .hh-quad{grid-template-columns:repeat(5,68px)}
 }
 /* unfolded upright: five apps leave the date room for two lines ("November 3rd." stays together) */
@@ -713,7 +727,9 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
    All apps then lists only what didn't fit, and its button goes away
    when that's nothing (#hutch-home.dk-full). */
 .hh-dkapps{display:none}
-@media (min-width:1100px) and (min-height:600px){
+/* the full app grid: laptops and big screens (Nov 6); on the three-column
+   tablet layout it made the left column so tall the photo and Word Nerd shrank */
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-quad{display:none}
   .hh-dkapps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 6px;margin-top:20px;width:100%;max-width:540px}
   .hh-dkapps .hh-ic{width:100%;font-size:13px;gap:6px}
@@ -755,7 +771,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    The logo and Toby's face rest low on the left above the mountains
    (hutch.js buildHome), desktop only. */
 .hh-brand{display:none}
-@media (min-width:1100px) and (min-height:600px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-brand{position:absolute;z-index:1;left:clamp(24px,4vw,72px);bottom:calc(112px + env(safe-area-inset-bottom));
     display:flex;align-items:center;gap:16px;text-decoration:none !important;opacity:.95;transition:opacity .2s,transform .2s}
   .hh-brand:hover{opacity:1;transform:translateY(-2px)}
@@ -771,18 +787,19 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 /* ---------- 13. Big desktop widgets (Nov 3, mockup v52) ----------
    1400 x 820 or more: From the archive, Currently, Top categories and a
    Latest photos strip (hutch.js bigDesk). Hidden everywhere else. */
-.hh-arch,.hh-now,.hh-cats,.hh-strip,.hh-word .wex{display:none}
+.hh-arch,.hh-now,.hh-cats,.hh-strip{display:none}
 /* Word Nerd's way in, top right like See all and Den (Nov 3, Toby: every layout) */
 .hh-word .wsee{color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 8px;flex:none;white-space:nowrap}
 @media (max-width:599px){ .hh-word .wsee .wl{display:none} }
-@media (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-area{max-width:1720px;grid-template-columns:1fr 1.15fr .95fr;grid-template-areas:"hello posts arch" "now word cats" "strip strip strip";
     grid-template-rows:auto auto auto;align-content:start;column-gap:20px;row-gap:18px}
   /* Currently always keeps its spot (Nov 3, Toby: on his Mac the strip
      didn't fit and the big photo had pushed Currently out). The big
      photo only fills in when Den has nothing in progress. */
   /* Shorter screens (no room for the strip): Currently, Word Nerd and
-     the big photo; Top categories steps aside (Nov 3, Toby) */
+     the big photo; Top categories steps aside (Nov 3, Toby; Nov 6, Toby
+     kept the photo over Top categories on a 13" laptop) */
   #hutch-home:not(.nonow):not(.nostrip) .hh-photo{display:none}
   #hutch-home.nonow .hh-area{grid-template-areas:"hello posts arch" "photo word cats" "strip strip strip"}
   #hutch-home.nostrip .hh-area{grid-template-areas:"hello posts arch" "now word photo"}
@@ -862,7 +879,8 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* the way into Word Nerd sits top right, like See all and Den (Nov 3, Toby) */
   #hutch-home.noex .hh-word .wex{display:none}
   /* shrunk to fit (hutch.js fit): the words zoom back to full size */
-  .hh-row > div,.hh-arow .tx,.hh-afoot > span,.hh-nitem .tx,.hh-word .pos,.hh-word .defs,.hh-word .wex,.hh-chips a,.hh-wtag{zoom:var(--tz,1)}
+  .hh-row > div,.hh-arow .tx,.hh-afoot > span,.hh-nitem .tx,.hh-word .pos,.hh-word .defs,.hh-word .def,.hh-word .wex,.hh-chips a,.hh-wtag{zoom:var(--tz,1)}
+  #hutch-home .hh-word:not(.multi) .def{font-size:18px;line-height:1.4}
   .hh-word .wsee{display:inline;color:#C4622D;letter-spacing:.04em;padding:4px 0 4px 10px}
 
   /* the logo and face sit on the dock line here (mockup v48+) */
@@ -890,14 +908,21 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    medium (600-839, foldables and tablets upright) gets section 15 below,
    which builds on the card styles here. Width only, so Brave's bars
    don't flip the layout. */
-@media (min-width:600px) and (min-height:380px) and (max-width:1099px){
+/* Nov 6 (Toby: "use the most screen, no gaps"; real sizes: Fold sideways
+   794x545, iPad mini 1133x598): every wide touch screen short of a big one
+   (1400x700) gets this three-column layout, and the bottom cards stretch
+   to fill the height down to the dock. Every screen 1100+ wide held
+   sideways (every laptop, and tablets like the iPad mini and Galaxy Tab)
+   gets the desktop layout instead, whatever its size (Toby: "all laptop
+   should be identified the same", and tablets sideways like the laptops). */
+@media (min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-hello{flex-direction:column;align-items:flex-start;padding-top:6px}
   /* the apps stay right under the date, even when Recent posts makes the row taller (Nov 3, Toby) */
   #hutch-home:not(.nonow) .hh-tx{flex:none}
   /* the three cards end on one line: no height caps here (Nov 3, Toby) */
   #hutch-home:not(.nonow) .hh-photo,#hutch-home:not(.nonow) .hh-word{max-height:none}
   /* the bottom row is only as tall as Word Nerd needs (Nov 3, Toby: the photo and Pristine ran too tall upright); the cards sit together in the middle of the screen */
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto fit-content(330px);align-content:center;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
+  #hutch-home:not(.nonow) .hh-area{max-width:1280px;grid-template-rows:auto minmax(0,1fr);align-content:stretch;grid-template-columns:auto minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"hello posts now" "photo word now";column-gap:14px}
   #hutch-home:not(.nonow) .hh-quad{grid-template-columns:repeat(5,58px);gap:8px 4px}
   #hutch-home:not(.nonow) .hh-quad .hh-tile{width:46px;height:46px}
   #hutch-home:not(.nonow) .hh-quad .hh-tile .hx-ic{width:21px;height:21px}
@@ -935,26 +960,28 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-now .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
 }
 /* the shorter sideways screen (Brave's bars leave ~540px): smaller covers */
-@media (min-width:840px) and (min-height:380px) and (max-height:640px) and (max-width:1099px){
+@media (min-width:600px) and (min-height:380px) and (max-height:640px) and (orientation:landscape) and (pointer:coarse), (min-width:600px) and (min-height:380px) and (max-height:640px) and (max-width:1099px) and (orientation:landscape){
   .hh-now .hh-nitem img,.hh-now .hh-nitem .cv{width:46px;height:68px}
 }
 
 /* sideways with height to spare: the bigger date, like upright (Nov 3, Toby:
    "I love how the date gets bigger"); the short Brave view keeps the smaller
    one so Word Nerd keeps its second meaning */
-@media (min-width:840px) and (max-width:1099px) and (min-height:640px){
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-s{font-size:44px}
   #hutch-home:not(.nonow) .hh-g{font-size:20px}
 }
 /* ---------- 15. Unfolded upright (Nov 3, mockup v58) ----------
+   Held upright only (Nov 6): Brave on the Fold sideways is just 794 wide,
+   and it takes the three columns, not this.
    Google's "medium" width (600-839): the Fold and tablets held upright.
    Date and apps across the top; then a 2x2: Recent posts (3) over the
    photo on the left, Currently over Word Nerd on the right. Cards start
    at the top. The date is bigger here and the apps sit level with the
    bottom of the date block, spread across their side, so the two read
    as one row (Toby: they felt far apart). */
-@media (min-width:600px) and (max-width:839px) and (min-height:380px){
-  #hutch-home:not(.nonow) .hh-area{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);grid-template-areas:"hello hello" "posts now" "photo word";grid-template-rows:auto auto auto;align-content:start;row-gap:12px;column-gap:14px}
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);grid-template-areas:"hello hello" "posts now" "photo word";grid-template-rows:auto auto minmax(0,1fr);align-content:stretch;row-gap:12px;column-gap:14px}
   #hutch-home:not(.nonow) .hh-hello{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:2px}
   #hutch-home:not(.nonow) .hh-s{font-size:min(46px,6.5vw)}
   #hutch-home:not(.nonow) .hh-g{font-size:min(22px,3.1vw)}
@@ -966,7 +993,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home:not(.nonow) .hh-row .t{-webkit-line-clamp:3;font-size:15px}
   #hutch-home:not(.nonow) .hh-photo{min-height:120px}
   /* the phone's tight-screen rule (hide the 3rd post) doesn't apply: the card has the room */
-  #hutch-home.fit2:not(.nonow) .hh-posts .hh-row:nth-of-type(3){display:flex}
+  #hutch-home.fit2:not(.nonow):not(.short) .hh-posts .hh-row:nth-of-type(3){display:flex}
   #hutch-home:not(.nonow) .hh-wtag{letter-spacing:.07em}
   .hh-now .hh-ntwo{contain:none !important;grid-auto-rows:auto;gap:8px}
   .hh-now .hh-nitem{flex-direction:row;align-items:flex-start;gap:10px}
@@ -977,7 +1004,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    Upright: about 1-1.5px up everywhere. Sideways with height to spare:
    about 1px. The short sideways Brave view keeps its sizes so Word Nerd
    and Currently keep what they show. */
-@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-wtag{font-size:12px}
   #hutch-home:not(.nonow) .hh-row .t{font-size:16.5px}
   #hutch-home:not(.nonow) .hh-row .d{font-size:12px}
@@ -989,7 +1016,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
   #hutch-home:not(.nonow) .hh-photo .cap b{font-size:17px}
 }
-@media (min-width:840px) and (max-width:1099px) and (min-height:640px){
+@media (min-width:840px) and (max-width:1099px) and (min-height:640px), (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-row .t{font-size:15px}
   #hutch-home:not(.nonow) .hh-row .d{font-size:11.5px}
   #hutch-home:not(.nonow) .hh-word .w{font-size:24px}
@@ -1003,7 +1030,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
    photo). On the short upright screen (Brave's bars showing) the date is
    34px, "N posts this week" steps aside, and the photo keeps at least
    170px; Currently drops its covers there instead (hutch.js). */
-@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-s{font-size:40px}
   #hutch-home:not(.nonow) .hh-g{font-size:20px}
   /* the photo and Word Nerd share whatever height is left (not just Word Nerd's text) */
@@ -1011,7 +1038,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 }
 /* .short comes from hutch.js (the height you actually see): Brave on
    Android answers height media queries with the space behind its bars */
-@media (min-width:600px) and (max-width:839px) and (min-height:380px){
+@media (min-width:600px) and (max-width:1399px) and (min-height:380px) and (orientation:portrait), (min-width:1400px) and (min-height:380px) and (orientation:portrait){
   #hutch-home.short:not(.nonow) .hh-s{font-size:34px}
   #hutch-home.short:not(.nonow) .hh-g{font-size:18px}
   #hutch-home.short:not(.nonow) .hh-p{display:none}
@@ -1024,12 +1051,25 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   /* Recent posts sets the top row's height; Currently fits into it (covers step aside) so the photo row gets the rest */
   #hutch-home.short:not(.nonow) .hh-now{min-height:0;overflow:hidden}
   #hutch-home.short:not(.nonow) .hh-now .hh-ntwo{contain:size !important;flex:1 1 0;min-height:0}
+  /* each item lies on its side, small cover beside its words, so the
+     covers and the episode and page lines keep their place (Nov 6, Toby) */
+  #hutch-home.short:not(.nonow) .hh-now .hh-ntwo{gap:6px;margin-top:6px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem{flex-direction:row;align-items:center;gap:10px;padding:8px 10px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem img,#hutch-home.short:not(.nonow) .hh-now .hh-nitem .cv{width:42px;height:62px;border-radius:7px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem b{-webkit-line-clamp:1;font-size:14px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem .bar{margin-top:3px;height:4px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem{padding:5px 10px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem .tx{gap:1px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem small{font-size:9.5px}
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem em{font-size:11.5px}
+  /* lying down, the cover is never what makes it too tall, so it stays */
+  #hutch-home.short:not(.nonow) .hh-now .hh-nitem.t2 img,#hutch-home.short:not(.nonow) .hh-now .hh-nitem.t2 .cv{display:block}
 }
 
 /* the bunny on the big desktop sits just past the photo strip's right end,
    on the ridge's last rise, so the strip never hides it (Nov 3, Toby: on
    Windows it was behind the strip) */
-@media (min-width:1400px) and (min-height:700px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-bunny{left:calc(96% - 11px);bottom:52.5%}
 }
 
@@ -1043,7 +1083,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 @media (max-width:599px) and (min-height:740px){ #hutch-home .hh-posts .hh-row.feat{font-size:16px} }
 @media (min-width:600px) and (min-height:380px){ #hutch-home .hh-posts .hh-row.feat{font-size:16.5px} }
 @media (min-width:600px) and (min-height:640px) and (orientation:portrait){ #hutch-home .hh-posts .hh-row.feat{font-size:17.5px} }
-@media (min-width:1100px) and (min-height:600px){
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
   #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
   #hutch-home .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25}
@@ -1142,3 +1182,205 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 .hh-ic.hx-press .hh-tile{animation:hxPress .32s cubic-bezier(.2,0,0,1)}
 @keyframes hxPress{40%{transform:scale(.88)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){#hx-splash,#hx-splash .hx-sic{transition:none}.hh-ic.hx-press .hh-tile{animation:none}#hx-splash .hx-swait i{animation-duration:2s}}
+
+
+
+/* Tall tablets held upright (Galaxy Tab, iPad mini and Air; Nov 6, Toby:
+   "galaxy tab can add a widget for categories on the bottom" instead of a
+   huge photo and Word Nerd): Top categories runs across the bottom, and
+   shows as many chips as fit (hutch.js). */
+@media (min-width:600px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
+  /* the photo and Word Nerd stop at a comfortable height; any room left
+     stays at the bottom (Nov 6, Toby: on a Galaxy Tab upright they got too tall) */
+  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats";grid-template-rows:auto auto minmax(0,320px) auto;align-content:start}
+  #hutch-home:not(.nonow) .hh-cats{grid-area:cats;display:flex;flex-direction:column;padding:14px 16px 12px}
+  #hutch-home:not(.nonow) .hh-cats .hh-chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;margin-top:10px;max-height:94px;overflow:hidden}
+  #hutch-home:not(.nonow) .hh-chips a{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:#F4EEE7;font:600 14px var(--h-ui);color:#1E2D4A}
+  #hutch-home:not(.nonow) .hh-chips span{font:700 11.5px var(--h-ui);color:#fff;background:#C4622D;border-radius:999px;padding:2px 7px}
+}
+/* Fold sideways in Brave (794 wide): Word Nerd's header kept its "›" (Nov 6) */
+@media (min-width:600px) and (max-width:899px) and (min-height:380px) and (orientation:landscape){
+  #hutch-home:not(.nonow) .hh-word .hh-wtag{letter-spacing:.04em;gap:6px}
+}
+/* iPad mini and tablets sideways (Nov 6, Toby: the Den widget wasted too
+   much space): Currently's column is tall, so each item gets a big poster
+   or cover beside its words, filling its half of the card */
+@media (min-width:1000px) and (max-width:1099px) and (min-height:380px) and (pointer:coarse) and (orientation:landscape){
+  #hutch-home:not(.nonow) .hh-now .hh-nitem{flex-direction:row;align-items:center;gap:14px;padding:12px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:auto;height:100%;max-height:150px;aspect-ratio:2/3;border-radius:10px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font-size:16px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:13px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem .tx{gap:3px}
+}
+
+/* Wider laptops too short for the photo strip (a 15" at about 1536 x 730;
+   Nov 6, Toby: "15 could have a category added"): the bottom row holds
+   four cards: Currently, Word Nerd, the photo and a narrower Top
+   categories (Toby swapped the photo and Top categories). */
+@media (min-width:1450px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home.nostrip:not(.nonow) .hh-area{grid-template-columns:repeat(24,minmax(0,1fr));
+    grid-template-areas:"hello hello hello hello hello hello hello hello posts posts posts posts posts posts posts posts posts arch arch arch arch arch arch arch" "now now now now now now now word word word word word word word word photo photo photo photo photo cats cats cats cats"}
+  #hutch-home.nostrip:not(.nonow) .hh-cats{display:flex !important}
+  /* a narrow card: a size smaller, and a long name never runs past the edge */
+  #hutch-home.nostrip:not(.nonow) .hh-cats .hh-chips a{font-size:15px;padding:7px 11px;max-width:100%;min-width:0}
+}
+/* From the archive matches Recent posts' second and third rows on every
+   laptop (Nov 6, Toby): the same title and date sizes */
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home .hh-arow b{font-size:18.5px;line-height:1.25}
+  #hutch-home .hh-arow small{font-size:12.5px}
+}
+/* the dock's icons are the same size as the apps above (Nov 6; hutch.js sets --dockt) */
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home .hh-dock .hh-tile{width:var(--dockt,54px);height:var(--dockt,54px)}
+  #hutch-home .hh-dock .hh-tile .hx-ic{width:calc(var(--dockt,54px) * .45);height:calc(var(--dockt,54px) * .45)}
+}
+/* Tablets sideways with height to spare (Galaxy Tab / iPad Air size; Nov 6,
+   Toby): the photo and Word Nerd stop at a comfortable height, and any
+   room left stays at the bottom */
+@media (min-width:1000px) and (max-width:1099px) and (min-height:680px) and (pointer:coarse) and (orientation:landscape){
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto minmax(0,300px);align-content:start}
+}
+/* Tall tablets upright (Galaxy Tab, iPad Air; 1050+ tall) get From the
+   archive beside Top categories at the bottom (Nov 6, Toby); the iPad
+   mini is too short for it, so it keeps just Top categories */
+@media (min-width:600px) and (max-width:1399px) and (min-height:1050px) and (orientation:portrait), (min-width:1400px) and (min-height:1050px) and (orientation:portrait){
+  /* the same order as sideways, so nothing moves around when it turns
+     (Nov 6, Toby): Recent posts and From the archive, then Currently and
+     Word Nerd, then the photo and Top categories */
+  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts arch" "now word" "photo cats";grid-template-rows:auto auto auto minmax(0,280px)}
+  #hutch-home:not(.nonow) .hh-arch{min-height:0}
+  #hutch-home:not(.nonow) .hh-cats{min-height:0}
+  #hutch-home:not(.nonow) .hh-cats .hh-chips{max-height:none;flex:1 1 0;min-height:0;contain:size}
+  #hutch-home:not(.nonow) .hh-arch{grid-area:arch;display:flex;flex-direction:column;padding:14px 16px 12px}
+  #hutch-home:not(.nonow) .hh-alist{flex:1 1 0;min-height:0;contain:size;overflow:hidden;margin-top:6px}
+  #hutch-home:not(.nonow) .hh-arow.off{display:none}
+  #hutch-home:not(.nonow) .hh-arow{display:flex;gap:10px;align-items:center;padding:4px 0;border-top:1px solid #E7E1D8;color:inherit}
+  #hutch-home:not(.nonow) .hh-arow:first-child{border-top:0;padding-top:2px}
+  #hutch-home:not(.nonow) .hh-arow img{width:32px;height:32px;border-radius:9px;object-fit:cover;flex:none;background:#E7E1D8}
+  #hutch-home:not(.nonow) .hh-arow .tx{min-width:0;display:flex;flex-direction:column;gap:2px}
+  /* one line each, so the card always shows 3 posts whichever it picks (Nov 6, Toby) */
+  #hutch-home:not(.nonow) .hh-arow b{font:700 14.5px/1.25 var(--h-ui);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #hutch-home:not(.nonow) .hh-arow small{font:700 10.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:#C4622D}
+  #hutch-home:not(.nonow) .hh-arow em{display:none}
+  #hutch-home:not(.nonow) .hh-afoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font:600 12px var(--h-ui);color:#C4622D}
+  #hutch-home:not(.nonow) .hh-shuf{border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#D9A441;color:#fff;font:600 12.5px var(--h-ui);padding:7px 11px;border-radius:12px}
+  #hutch-home:not(.nonow) .hh-shuf .hx-ic{width:16px;height:16px}
+}
+/* narrower wide screens (a Galaxy Tab sideways, about 1180): the app
+   names fit under their icons (Nov 6) */
+@media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
+  .hh-dkapps{gap:12px 2px}
+  .hh-dkapps .hh-ic{font-size:11.5px}
+  .hh-dkapps .hh-tile{width:52px;height:52px}
+}
+/* the same narrower wide screens: Currently's cards are narrow, so the
+   covers are smaller and the episode and page lines stay on one line (Nov 6) */
+@media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home .hh-now .hh-nitem{gap:9px;padding:10px}
+  #hutch-home .hh-now .hh-nitem img,#hutch-home .hh-now .hh-nitem .cv{width:50px;height:74px;border-radius:8px}
+  #hutch-home .hh-now .hh-nitem b{font-size:14.5px}
+  #hutch-home .hh-now .hh-nitem i,#hutch-home .hh-now .hh-nitem em{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+/* ...and there Currently's two items stack instead of sitting side by side,
+   so the second one is never cut off at the card's edge (Nov 6, Toby) */
+@media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home .hh-now .hh-ntwo{grid-template-columns:1fr;grid-auto-rows:1fr;gap:8px;margin-top:8px;min-height:0}
+  #hutch-home .hh-now .hh-nitem{align-items:center;padding:8px 10px;min-height:0;overflow:hidden}
+  #hutch-home .hh-now .hh-nitem img,#hutch-home .hh-now .hh-nitem .cv{width:42px;height:62px}
+  #hutch-home .hh-now .hh-nitem b{-webkit-line-clamp:1}
+  #hutch-home .hh-now .hh-nitem .tx{gap:1px}
+  #hutch-home .hh-now .hh-nitem .bar{margin-top:4px}
+}
+
+/* ---------- Big tablet upright: every app by the date (Nov 6, Toby) ----------
+   An iPad Pro 12.9" upright (about 1192 wide on More Space) has room for the
+   laptop's full app grid beside the date, so All apps goes away like on a laptop. */
+@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
+  #hutch-home .hh-quad,#hutch-home:not(.nonow) .hh-quad{display:none}
+  /* the grid is exactly the right-hand column, and its icons line up with the
+     cards' text below: first icon at the left text edge, last at the right (Toby) */
+  #hutch-home .hh-dkapps{display:grid;grid-template-columns:repeat(6,56px);justify-content:space-between;gap:12px 0;margin:0;
+    flex:0 0 calc((100% - 10px) / 2.08);margin-right:-2px;max-width:none;box-sizing:border-box;padding:0 16px 2px}
+  #hutch-home .hh-dkapps .hh-ic{width:56px;font-size:13px;gap:6px}
+  #hutch-home .hh-dkapps .hh-ic span:last-child{white-space:nowrap;overflow:visible;max-width:none}
+  #hutch-home .hh-dkapps .hh-tile{width:56px;height:56px}
+  #hutch-home .hh-dkapps .hh-tile .hx-ic{width:25px;height:25px}
+  #hutch-home.dk-full .hh-handle{display:none}
+  #hutch-drawer:not(.q) [data-dk]{display:none !important}
+  /* the dock's icons match the apps, as on laptops (hutch.js sets --dockt) */
+  #hutch-home .hh-dock .hh-tile{width:var(--dockt,56px);height:var(--dockt,56px)}
+  #hutch-home .hh-dock .hh-tile .hx-ic{width:calc(var(--dockt,56px) * .45);height:calc(var(--dockt,56px) * .45)}
+}
+
+/* Big tablet upright, cards (Nov 6, Toby): the three rows share the room
+   down to the dock evenly (about the top row's height sideways at 1192 wide;
+   taller rows when the page is zoomed out, so the cards look the same size
+   on the screen), and the cards use the sideways text sizes, so the
+   screen fills down to the dock and Word Nerd doesn't look empty. Currently
+   keeps its two items side by side, like sideways. */
+@media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto repeat(3,minmax(0,1fr));align-content:stretch;row-gap:14px;max-width:none}
+  #hutch-home:not(.nonow) .hh-photo,#hutch-home:not(.nonow) .hh-word{max-height:none}
+  /* Recent posts: more posts when the card has room (hutch.js adds them one at a time) */
+  #hutch-home:not(.nonow) .hh-posts .hh-row.on{display:flex}
+  #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
+  #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
+  #hutch-home:not(.nonow) .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25;-webkit-line-clamp:2}
+  #hutch-home .hh-posts .hh-row .d{font-size:12.5px;margin-top:4px}
+  #hutch-home .hh-posts .hh-row.feat{font-size:20px;align-items:flex-start;padding:4px 0 14px}
+  #hutch-home:not(.nonow) .hh-posts .hh-row.feat .t.t{font-size:1.3em;-webkit-line-clamp:2}
+  #hutch-home .hh-posts .hh-row.feat .d{font-size:13px;margin-top:6px}
+  #hutch-home .hh-posts .hh-row.feat img{width:104px;height:104px;border-radius:20px;order:2}
+  #hutch-home .hh-posts .hh-row.feat .x{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 16px/1.45 var(--h-ui);color:#4A5468;margin-top:6px}
+  #hutch-home[data-sky="night"] .hh-posts .hh-row.feat .x,#hutch-home[data-sky="dusk"] .hh-posts .hh-row.feat .x{color:inherit;opacity:.8}
+  /* From the archive: pictures and a line of each post, as many as fit */
+  #hutch-home:not(.nonow) .hh-arch{padding:16px 18px}
+  #hutch-home:not(.nonow) .hh-alist{margin-top:8px}
+  #hutch-home:not(.nonow) .hh-arow{gap:14px;align-items:flex-start;padding:10px 0}
+  #hutch-home:not(.nonow) .hh-arow:first-child{padding-top:4px}
+  #hutch-home:not(.nonow) .hh-arow img{width:76px;height:76px;border-radius:16px}
+  #hutch-home:not(.nonow) .hh-arow .tx{gap:3px}
+  #hutch-home:not(.nonow) .hh-arow b{font:700 18.5px/1.25 var(--h-ui);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #hutch-home:not(.nonow) .hh-arow small{font-size:12.5px}
+  #hutch-home:not(.nonow) .hh-arow em{display:-webkit-box;font:400 13.5px/1.4 var(--h-ui);font-style:normal;color:#5F6673;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #hutch-home:not(.nonow) .hh-alist.tight .hh-arow{padding:8px 0;gap:12px}
+  #hutch-home:not(.nonow) .hh-alist.tight .hh-arow:first-child{padding-top:2px}
+  #hutch-home:not(.nonow) .hh-alist.tight .hh-arow img{width:56px;height:56px;border-radius:13px}
+  #hutch-home:not(.nonow) .hh-alist.tight .hh-arow em{-webkit-line-clamp:1}
+  #hutch-home:not(.nonow) .hh-afoot{margin-top:10px;font-size:13px}
+  #hutch-home:not(.nonow) .hh-shuf{gap:8px;font-size:13.5px;padding:9px 14px;border-radius:14px}
+  #hutch-home:not(.nonow) .hh-shuf .hx-ic{width:18px;height:18px}
+  /* Currently: two side by side, big covers */
+  #hutch-home:not(.nonow) .hh-now{padding:16px 18px;display:flex;flex-direction:column}
+  #hutch-home:not(.nonow) .hh-now .hh-ntwo{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  #hutch-home:not(.nonow) .hh-now .hh-ntwo.one{grid-template-columns:1fr}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem{display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:#F6F1EB;border-radius:16px;padding:14px;color:inherit}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:84px;height:124px;border-radius:10px;object-fit:cover;flex:none;box-shadow:0 3px 10px rgba(15,23,38,.2)}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem .tx{min-width:0;width:100%;flex:1;display:flex;flex-direction:column;gap:3px;align-self:stretch}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font:700 17px/1.25 var(--h-ui);-webkit-line-clamp:2}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:14px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem .bar{margin-top:auto}
+  /* Word Nerd: bigger word and meanings, with the example */
+  #hutch-home:not(.nonow) .hh-word{padding:16px 18px}
+  #hutch-home:not(.nonow) .hh-word .w{font-size:36px;margin-top:10px}
+  #hutch-home:not(.nonow) .hh-word .pos{font-size:16px;margin-top:4px}
+  #hutch-home:not(.nonow) .hh-word .defs,#hutch-home:not(.nonow) .hh-word .def{font-size:17.5px;line-height:1.4;padding-top:12px}
+  #hutch-home:not(.nonow) .hh-word .defs li{margin-bottom:8px}
+  #hutch-home .hh-word .wex{display:block;margin:10px 0 0;padding:10px 14px;border-left:3px solid #C4622D;background:rgba(196,98,45,.06);border-radius:0 12px 12px 0;font:italic 400 16px/1.5 Georgia,serif;color:#4A5568}
+  #hutch-home.noex .hh-word .wex{display:none}
+  #hutch-home:not(.nonow) .hh-word:not(.multi) .def{font-size:19px}
+  /* Top categories */
+  #hutch-home .hh-cats .hh-chips{gap:10px;margin-top:14px}
+  #hutch-home .hh-cats .hh-chips a{font-size:16.5px;padding:9px 14px}
+  #hutch-home .hh-cats .hh-chips span{font-size:12.5px}
+}
+
+/* the example looks the same on every layout: no shaded box (Nov 6, Toby) */
+#hutch-home .hh-area .hh-word .wex{background:none;border-radius:0;padding:2px 0 2px 12px;color:#5F6673}
+
+/* Upright is always the upright layout (Nov 6, Toby's iPad Pro in Brave drew
+   the page about 1400 wide, as a desktop with a mouse, and got the laptop
+   layout with the apps on top of the date). The laptop layout is sideways
+   only: 1100+ wide and 540+ tall. */

@@ -12365,81 +12365,239 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 
 
 /* ============================================================
-   103 · GEEK GEAR — /uses/   (Oct 4, 2026, Toby)
+   103 · GEEK GEAR — /uses/   (Oct 4, 2026, Toby; redesigned Nov 8, 2026)
    ============================================================
-   Body of the Uses page, from the "uses" shortcode. Plain grouped
-   lists: section head in the same quiet uppercase as the Queue and
-   Watched year heads, then one row per item (name, optional small
-   terracotta tag, one line on how Toby uses it). No cards, on
-   purpose: Toby wanted it very easy and simple.
+   Body of the Uses page, from the "uses" shortcode.
+   Nov 8 redesign (mockup v5, Toby): Hutch-style cards. Each section is
+   a terracotta kicker over one rounded card; every item has a small
+   logo tile (brand favicon / app icon on white, so brand colors read
+   on every Sky; a few drawn line icons on a warm tile). Two columns on
+   wider screens (left: everyday gear, right: making the blog; fixed,
+   so nothing jumps sides), one column on phones. "I built these" is a
+   row of three bigger app cards, "Off the screen" a warm note box.
+   Hutch's Uses app reads the same class names, so keep them.
    ============================================================ */
-.uses { max-width: 44rem; }
-.uses-intro {
+.page-body .uses, .uses { max-width: none; }
+/* names follow the 70s rule (C) for small titles: Fraunces soft */
+.page-body .uses .uses-intro {
   font-family: var(--font-reading);
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   line-height: 1.6;
-  margin: 0 0 0.3rem;
-}
-.uses-updated {
-  font-size: 0.75rem;
-  color: var(--color-text-light);
-  margin: 0 0 2.2rem;
-}
-.uses-group { margin: 0 0 2.1rem; }
-.uses .uses-head {
-  font-family: var(--font-display);
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin: 0 0 0.35rem;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-border);
-}
-.uses-list { list-style: none; margin: 0; padding: 0; }
-/* The page body's own list rule is more specific and was adding
-   bullets and an indent on the live site (Oct 4) - beat it here. */
-.page-body .uses .uses-list { list-style: none; margin: 0; padding-left: 0; }
-.page-body .uses .uses-list li { list-style: none; margin: 0; padding-left: 0; }
-.uses .uses-group:last-child { margin-bottom: 0; }
-.uses-list li {
   margin: 0;
-  padding: 0.75rem 0;
-  border-bottom: 1px dashed var(--color-border);
+  max-width: 38rem;
 }
+.page-body .uses .uses-updated {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+/* jump buttons */
+.uses-jump {
+  display: flex;
+  gap: 8px;
+  margin: 22px 0 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.uses-jump::-webkit-scrollbar { display: none; }
+.page-body .uses-jump a {
+  flex: none;
+  font: 600 0.82rem/1 var(--font-body);
+  color: var(--color-navy);
+  text-decoration: none;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 9px 14px;
+}
+.page-body .uses-jump a:hover { border-color: var(--color-terra); color: var(--color-terra-text); }
+/* two fixed columns */
+.uses-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 28px;
+  align-items: start;
+  margin: 36px 0 0;
+}
+.uses-group { margin: 0 0 30px; scroll-margin-top: calc(var(--header-h, 90px) + 16px); }
+.page-body .uses .uses-head {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  font: 700 0.8rem/1 var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.page-body .uses .uses-head::before, .page-body .uses .uses-head::after { content: none; }
+/* the card */
+.page-body .uses .uses-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.page-body .uses .uses-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  list-style: none;
+  margin: 0;
+  padding: 16px 18px;
+  border-top: 1px solid var(--color-border);
+}
+.page-body .uses .uses-list li:first-child { border-top: 0; }
 .uses-list li::before { content: none; }
-.uses-list li:last-child { border-bottom: 0; }
+.uses-text { flex: 1; min-width: 0; }
 .uses-name {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.12rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font: 600 1.12rem/1.3 var(--font-body);
   color: var(--color-navy);
 }
 .uses-tag {
-  display: inline-block;
-  margin-left: 8px;
-  font-family: var(--font-body);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font: 600 0.72rem/1 var(--font-body);
   color: var(--color-terra-text);
-  vertical-align: 2px;
+  background: var(--color-terra-light);
+  padding: 5px 9px;
+  border-radius: 999px;
 }
 .uses-why {
   display: block;
-  margin-top: 2px;
-  font-size: 0.95rem;
+  margin-top: 3px;
+  font-size: 1rem;
   line-height: 1.5;
   color: var(--color-text-muted);
 }
-.uses-note {
+/* logo tiles */
+.uses-logo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.page-body .uses .uses-logo img {
+  width: 26px;
+  height: 26px;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: contain;
+  display: block;
+}
+.page-body .uses .uses-logo img.uses-appicon { width: 32px; height: 32px; border-radius: 8px; }
+.uses-logo--line { background: var(--color-bg-warm); border-color: transparent; color: var(--color-navy); }
+.uses-logo--line svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* I built these: three app cards */
+.uses-group--built { margin-top: 6px; }
+.page-body .uses .uses-group--built .uses-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.page-body .uses .uses-group--built .uses-list li {
+  position: relative;
+  overflow: hidden;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-bg-card);
+  box-shadow: 0 1px 2px rgba(30, 45, 74, 0.05), 0 8px 24px rgba(30, 45, 74, 0.06);
+}
+.uses-group--built .uses-list li::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--app, var(--color-terra));
+  opacity: 0.08;
+  pointer-events: none;
+}
+.uses-group--built .uses-name { font-size: 1.2rem; font-weight: 700; }
+.uses-logo--big { width: 60px; height: 60px; border-radius: 14px; border: 0; background: none; }
+.page-body .uses .uses-logo--big img {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+.page-body .uses .uses-logo--big img.uses-soft { background: #FBEFE7; padding: 7px; }
+/* Dusk + Night: a lighter ring so the navy Draft Studio icon doesn't vanish */
+body.tgo-night .page-body .uses .uses-logo--big img { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18); }
+/* Off the screen: warm note box with a LEGO brick tile */
+.page-body .uses .uses-note {
+  position: relative;
+  margin: 0;
+  padding: 22px 24px 22px 90px;
+  border-radius: 18px;
+  background: var(--color-bg-warm);
+  border: 1px solid var(--color-border);
   font-family: var(--font-reading);
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.65;
-  margin: 0.75rem 0 0;
+}
+.uses-note::before, .uses-note::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+.uses-note::before { background: var(--color-bg-card); }
+.uses-note::after {
+  background: var(--color-terra);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Crect x='3' y='10' width='18' height='9' rx='1.5'/%3E%3Crect x='5.5' y='6.5' width='4' height='3.5' rx='1'/%3E%3Crect x='14.5' y='6.5' width='4' height='3.5' rx='1'/%3E%3C/svg%3E") center / 24px 24px no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Crect x='3' y='10' width='18' height='9' rx='1.5'/%3E%3Crect x='5.5' y='6.5' width='4' height='3.5' rx='1'/%3E%3Crect x='14.5' y='6.5' width='4' height='3.5' rx='1'/%3E%3C/svg%3E") center / 24px 24px no-repeat;
+}
+/* Phones: one column, app cards become rows */
+@media (max-width: 767px) {
+  .uses-cols { grid-template-columns: 1fr; }
+  .page-body .uses .uses-group--built .uses-list { grid-template-columns: 1fr; }
+  .page-body .uses .uses-group--built .uses-list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 14px;
+    padding: 16px;
+  }
+  .uses-group--built .uses-logo--big { grid-row: span 2; width: 54px; height: 54px; }
+  .page-body .uses .uses-logo--big img { width: 54px; height: 54px; }
+  .uses-group--built .uses-list li::after { display: none; }
+  .page-body .uses .uses-note { padding: 76px 18px 18px; }
+  .uses-note::before, .uses-note::after { left: 18px; top: 18px; }
 }
 
 /* ------------------------------------------------------------

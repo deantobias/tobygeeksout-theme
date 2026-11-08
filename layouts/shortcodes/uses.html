@@ -1,76 +1,98 @@
 {{- /*
-  uses.html - "Geek Gear", the /uses/ page (Oct 4, 2026, Toby).
-  The gear, apps and tools behind the blog, grouped into sections;
-  each item is a name, an optional small tag, and one line on how
-  Toby uses it. The page title ("Geek Gear") comes from the
-  Micro.blog page itself; this shortcode is only the body.
-  To edit: change the text below, keep one <li> per item. No blank
-  lines inside the HTML (Goldmark rule for raw HTML blocks).
+  uses.html - "Geek Gear", the /uses/ page.
+  Oct 4, 2026 (Toby): first version, plain grouped lists.
+  Nov 8, 2026 (Toby): redesign. Two columns of cards with real logos
+  (left: everyday gear; right: making the blog), then "I built these"
+  (Perch, Draft Studio, Focus Mail) and "Off the screen" full width.
+  The page title ("Geek Gear") comes from the Micro.blog page itself;
+  this shortcode is only the body.
+  KEEP THE CLASS NAMES: Hutch's Uses app (static/js/apps/small.js)
+  reads .uses-intro, .uses-updated, .uses-group, .uses-head,
+  .uses-list > li, .uses-name, .uses-tag, .uses-why and the
+  section's own <p>. The logo spans and columns are extra.
+  Logos: brand favicons via Google's favicon service; Safari, Live
+  Transcribe and Snapseed use their official app-store icons; Toby's
+  three apps use his own uploads. To swap one for an upload, change
+  its img src.
+  No blank lines inside the HTML (Goldmark rule for raw HTML blocks).
   Styles: custom.css section 103 (.uses).
 */ -}}
 <div class="uses">
 <p class="uses-intro">The gear, apps and tools behind Toby Geeks Out!, and how I use them.</p>
-<p class="uses-updated">Last updated October 2026</p>
-<section class="uses-group">
+<p class="uses-updated">Last updated November 2026</p>
+<nav class="uses-jump" aria-label="Jump to a section"><a href="#desk">Computers and phone</a><a href="#handy">Handy to have</a><a href="#blog">Making the blog</a><a href="#built">I built these</a><a href="#off">Off the screen</a></nav>
+<div class="uses-cols">
+<div class="uses-col">
+<section class="uses-group" id="desk">
 <h2 class="uses-head">Computers</h2>
 <ul class="uses-list">
-<li><span class="uses-name">MacBook Air M5 <span class="uses-tag">Everyday</span></span><span class="uses-why">My main machine. I&rsquo;m not always at my desk, so the Air goes where I go.</span></li>
-<li><span class="uses-name">Samsung M8 27-inch monitor</span><span class="uses-why">I plug the Air into it when I want the big screen.</span></li>
-<li><span class="uses-name">Mac mini M2</span><span class="uses-why">Stays at the desk.</span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://apple.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">MacBook Air M5 <span class="uses-tag">Everyday</span></span><span class="uses-why">My main machine. I&rsquo;m not always at my desk, so the Air goes where I go.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://samsung.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Samsung M8 27-inch monitor</span><span class="uses-why">I plug the Air into it when I want the big screen.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://apple.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Mac mini M2</span><span class="uses-why">Stays at the desk.</span></span></li>
 </ul>
 </section>
 <section class="uses-group">
 <h2 class="uses-head">Phone</h2>
 <ul class="uses-list">
-<li><span class="uses-name">Google Pixel 11 Pro XL</span><span class="uses-why">My phone now. Before this I had the Galaxy Z Fold 7.</span></li>
-</ul>
-</section>
-<section class="uses-group">
-<h2 class="uses-head">Communication</h2>
-<ul class="uses-list">
-<li><span class="uses-name">Live Transcribe</span><span class="uses-why">Real-time captions for everyday conversations. I use it all the time.</span></li>
-<li><span class="uses-name">SL2T (sign to text) <span class="uses-tag">Favorite</span></span><span class="uses-why">Google&rsquo;s sign-to-text on my phone. I sign my messages instead of typing them out.</span></li>
-</ul>
-</section>
-<section class="uses-group">
-<h2 class="uses-head">Writing and reading</h2>
-<ul class="uses-list">
-<li><span class="uses-name">Perch <span class="uses-tag">I built this</span></span><span class="uses-why">My own Micro.blog app. Posting, my timeline, and reading articles and blogs.</span></li>
-<li><span class="uses-name">Draft Studio <span class="uses-tag">I built this</span></span><span class="uses-why">My own editor for longer posts.</span></li>
-<li><span class="uses-name">Micro.blog</span><span class="uses-why">Home of this blog.</span></li>
-</ul>
-</section>
-<section class="uses-group">
-<h2 class="uses-head">Building the blog</h2>
-<ul class="uses-list">
-<li><span class="uses-name">Claude</span><span class="uses-why">Writes the HTML and CSS for my theme and tools.</span></li>
-<li><span class="uses-name">Visual Studio Code</span><span class="uses-why">Where I look over the code.</span></li>
-<li><span class="uses-name">GitHub</span><span class="uses-why">I review, commit and push, then update the design on Micro.blog myself.</span></li>
-</ul>
-</section>
-<section class="uses-group">
-<h2 class="uses-head">Photos</h2>
-<ul class="uses-list">
-<li><span class="uses-name">My phone&rsquo;s camera</span><span class="uses-why">Every photo on the blog, edited in the phone&rsquo;s built-in editor.</span></li>
-<li><span class="uses-name">Snapseed</span><span class="uses-why">For when a photo needs a little more.</span></li>
-</ul>
-</section>
-<section class="uses-group">
-<h2 class="uses-head">AI helpers</h2>
-<ul class="uses-list">
-<li><span class="uses-name">Claude <span class="uses-tag">Go-to</span></span><span class="uses-why">My AI best friend. Drafts, editing, ideas and coding work.</span></li>
-<li><span class="uses-name">Gemini</span><span class="uses-why">Mostly on my phone, sometimes on the Mac.</span></li>
-<li><span class="uses-name">ChatGPT</span><span class="uses-why">Now and then to check something, and it&rsquo;s great at making AI images.</span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://store.google.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Google Pixel 11 Pro XL</span><span class="uses-why">My phone now. Before this I had the Galaxy Z Fold 7.</span></span></li>
 </ul>
 </section>
 <section class="uses-group">
 <h2 class="uses-head">Browser</h2>
 <ul class="uses-list">
-<li><span class="uses-name">Brave <span class="uses-tag">Phone and Mac</span></span><span class="uses-why">I&rsquo;ve tried other browsers, but I always come back to Brave.</span></li>
-<li><span class="uses-name">Safari</span><span class="uses-why">Sometimes, on the Mac.</span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://brave.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Brave <span class="uses-tag">Phone and Mac</span></span><span class="uses-why">I&rsquo;ve tried other browsers, but I always come back to Brave.</span></span></li>
+<li><span class="uses-logo"><img class="uses-appicon" src="https://ipcdn-web.apple.com/assets/v2/web/c6d93db1-d714-47ae-a19b-0ffd7095280e" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Safari</span><span class="uses-why">Sometimes, on the Mac.</span></span></li>
+</ul>
+</section>
+<section class="uses-group" id="handy">
+<h2 class="uses-head">Handy to have</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img class="uses-appicon" src="https://play-lh.googleusercontent.com/OkB5HBj3Tc30dUzYkSTVDjM61lnnIHj8nqc92so2sB7YV7rN2PuDndbL2R_T20ANZj4aw1WV0h6j1W9WpS30=w128" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Live Transcribe</span><span class="uses-why">Real-time captions for when I need to talk with people out and about, like at the store or the pharmacy.</span></span></li>
+<li><span class="uses-logo uses-logo--line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4a1.5 1.5 0 0 1 3 0v7M14 10V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3 16.5a1.5 1.5 0 0 1 2.2-2L8 17"/></svg></span><span class="uses-text"><span class="uses-name">SL2T (sign to text) <span class="uses-tag">Favorite</span></span><span class="uses-why">Google&rsquo;s sign-to-text on my phone. I sign my messages instead of typing them out.</span></span></li>
+</ul>
+</section>
+</div>
+<div class="uses-col">
+<section class="uses-group" id="blog">
+<h2 class="uses-head">Writing and reading</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://micro.blog" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Micro.blog</span><span class="uses-why">Home of this blog.</span></span></li>
 </ul>
 </section>
 <section class="uses-group">
+<h2 class="uses-head">Building the blog</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://claude.ai" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Claude</span><span class="uses-why">Writes the HTML and CSS for my theme and tools.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://code.visualstudio.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Visual Studio Code</span><span class="uses-why">Where I look over the code.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://github.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">GitHub</span><span class="uses-why">I review, commit and push, then update the design on Micro.blog myself.</span></span></li>
+</ul>
+</section>
+<section class="uses-group">
+<h2 class="uses-head">Photos</h2>
+<ul class="uses-list">
+<li><span class="uses-logo uses-logo--line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span class="uses-text"><span class="uses-name">My phone&rsquo;s camera</span><span class="uses-why">Every photo on the blog, edited in the phone&rsquo;s built-in editor.</span></span></li>
+<li><span class="uses-logo"><img class="uses-appicon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ed/1f/ab/ed1fab9f-73ad-5f78-d720-d44b84262375/ProdAppIcon-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-0-85-220.png/512x512bb.jpg" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Snapseed</span><span class="uses-why">For when a photo needs a little more.</span></span></li>
+</ul>
+</section>
+<section class="uses-group">
+<h2 class="uses-head">AI helpers</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://claude.ai" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Claude <span class="uses-tag">Go-to</span></span><span class="uses-why">My AI best friend. Drafts, editing, ideas and coding work.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://gemini.google.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Gemini</span><span class="uses-why">Mostly on my phone, sometimes on the Mac.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://chatgpt.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">ChatGPT</span><span class="uses-why">Now and then to check something, and it&rsquo;s great at making AI images.</span></span></li>
+</ul>
+</section>
+</div>
+</div>
+<section class="uses-group uses-group--built" id="built">
+<h2 class="uses-head">I built these</h2>
+<ul class="uses-list">
+<li style="--app:#C4622D"><span class="uses-logo uses-logo--big"><img class="uses-soft" src="https://tobygeeksout.micro.blog/uploads/2026/icon-192.png" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Perch</span><span class="uses-why">My own Micro.blog app. Posting, my timeline, and reading articles and blogs.</span></span></li>
+<li style="--app:#1E2D4A"><span class="uses-logo uses-logo--big"><img src="https://tobygeeksout.micro.blog/uploads/2026/ds-icon.png" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Draft Studio</span><span class="uses-why">My own editor for longer posts.</span></span></li>
+<li style="--app:#1F6F78"><span class="uses-logo uses-logo--big"><img src="https://tobygeeksout.micro.blog/uploads/2026/icon.svg" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Focus Mail <span class="uses-tag">New</span></span><span class="uses-why">My own email app, built just for me. It keeps my inbox calm and helps me find blog ideas.</span></span></li>
+</ul>
+</section>
+<section class="uses-group uses-group--off" id="off">
 <h2 class="uses-head">Off the screen</h2>
 <p class="uses-note">A few LEGO sets still waiting to be built, a pile of colored pencils, and books I want to get back to. The plan is the new sunroom: no phones, no screens, just a comfy spot for reading, coloring and maybe some LEGO.</p>
 </section>

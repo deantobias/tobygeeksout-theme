@@ -130,10 +130,13 @@
        /knowember/ page. Paper red reads on both Day and Night skies.
        Only built during November 2026 (build-time date), so it drops
        off on the first rebuild in December. Full rail only: CSS hides
-       it on the compact rail and short windows (no height to spare). */}}
-  {{ if eq (now.Format "2006-01") "2026-11" }}
+       it on the compact rail and short windows (no height to spare).
+       ON HOLD (Nov 8, 2026, Toby): hidden until Robert adds Toby to the
+       Knowember list. To turn it on, change $showKnowember to true. */}}
+  {{ $showKnowember := false }}
+  {{ if and $showKnowember (eq (now.Format "2006-01") "2026-11") }}
   <a href="https://tobygeeksout.micro.blog/knowember/" class="rail-badge">
-    <img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="Get to know me: Knowember" width="88" height="31">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="Get to know me: Knowember" width="110" height="39">
   </a>
   {{ end }}
 

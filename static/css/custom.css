@@ -5336,7 +5336,7 @@ body.tgo-night .rail-nav a.active {
    November 2026 only (header.html). Hidden on the compact rail and
    short windows, which have no height to spare. */
 .rail-badge { display: inline-block; margin-top: 14px; line-height: 0; border-radius: 2px; }
-.rail-badge img { display: block; width: 110px; height: auto; aspect-ratio: 88 / 31; } /* 1.25x the 88x31 original (Toby, Nov 8) */
+.rail-badge img { display: block; width: 132px; height: auto; aspect-ratio: 88 / 31; } /* 1.5x the 88x31 original (Toby, Nov 8) */
 .rail-badge:hover img { transform: translateY(-1px); }
 .rail-badge:focus-visible { outline: 2px solid var(--color-terra-text); outline-offset: 3px; }
 @media (min-width: 768px) and (max-width: 1023px), (min-width: 768px) and (max-height: 720px) {

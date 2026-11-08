@@ -70,6 +70,10 @@
     reading: '<path d="M12 6.5C10.5 5.3 8.3 4.5 4 4.5v13c4.3 0 6.5.8 8 2 1.5-1.2 3.7-2 8-2v-13c-4.3 0-6.5.8-8 2Z"/><path d="M12 6.5v13"/>',
     blaugust: '<path d="M12 3.2 14.7 9l6.3.6-4.8 4.2 1.5 6.2-5.7-3.5-5.7 3.5 1.5-6.2-4.8-4.2 6.3-.6Z"/>',
     mb: '<path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-8.5L6 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V6.5A1.5 1.5 0 0 1 5 5Z"/><path d="M8 9.5h8 M8 12.5h5"/>',
+    /* Nov 8 (Toby): The Long Road Here (a winding road) and Knowember (a
+       name tag) become apps, like the Classic footer's "Get to know me" */
+    longroad: '<path d="M4 20c3-4 9-3 9-7s-5-3-5-6 3-3 4-4"/><path d="M14 20c2-3 6-4 6-7"/>',
+    knowember: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18 M7.5 15h9"/>',
     tinkering: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
     house: '<path d="M4 11 12 4l8 7"/><path d="M6 9.5V20h12V9.5"/>',
     search: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M20 20l-4.1-4.1"/>',
@@ -116,6 +120,12 @@
       '<g transform="translate(7 7.5) scale(1.42)"><circle cx="12" cy="10.6" r="4.6" fill="#FFFAB0"/><path d="M12 0C5.4 0 0 4.9 0 10.95 0 17 5.4 21.9 12 21.9c1.4 0 2.85-.25 4.2-.7.15-.05.35 0 .45.1 1 1.35 2.55 2.3 4.25 2.7l.25-.1v-.3a4.65 4.65 0 01.2-5.9C22.9 15.85 24 13.5 24 10.95 24 4.9 18.55 0 12 0zm-.05 5.2c.15 0 .3.1.35.25L13.55 9l3.85.1c.15 0 .3.1.35.2.05.15 0 .3-.15.4L14.55 12l1.1 3.6c.05.15 0 .3-.15.4h-.4l-3.15-2.15L8.8 16h-.4c-.15-.1-.2-.25-.15-.4l1.1-3.6L6.3 9.7c-.15-.1-.2-.25-.15-.4.05-.1.2-.2.35-.2l3.85-.1 1.25-3.55c.05-.15.2-.25.35-.25z" fill="url(#%ID%m)"/></g>',
     tinkering: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.tinkering) + '" fill="#5B6B7A"/></g><circle cx="12" cy="36" r="2" fill="#F2B544"/>',
     settings: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.settings) + '" fill="#6B7280"/><circle cx="12" cy="12" r="3.3" fill="#FFFDF8"/></g>',
+    /* Nov 8: a road winding up to the mountains, and a red "Hello" name tag */
+    longroad: '<path d="M6 26l9-10 6 5.5 7-8.5 14 13z" fill="#5E7A55"/><circle cx="35" cy="11" r="3.4" fill="#F2B544"/>' +
+      '<path d="M6 25.5h36V38a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#A9C08E"/>' +
+      '<path d="M13 42c4-6 17-6 11.2-16.5h1.6C33 34 27 37 35 42z" fill="#B5663A"/><path d="M24 42c1-4 6.5-6.5 1-16" stroke="#FFF3DC" stroke-width="1.2" stroke-dasharray="2.2 2" fill="none"/>',
+    knowember: '<rect x="6" y="11" width="36" height="27" rx="5" fill="#C8402F"/><text x="24" y="21" text-anchor="middle" font-family="Roboto,system-ui,sans-serif" font-weight="800" font-size="8" letter-spacing=".6" fill="#fff">HELLO</text>' +
+      '<rect x="10" y="24" width="28" height="10.5" rx="2" fill="#FFF8EE"/><path d="M14.5 30.5c2-2.5 3.5 1.5 5.5-.8s3.2 1 5.5-.6 3 .8 4.5-.4" stroke="#1E2D4A" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
     /* not apps, but drawn the same way for the Follow app (Nov 5, v65) */
     mail: '<rect x="7" y="12" width="34" height="24" rx="4" fill="#C4622D"/><path d="M8.5 14.5 24 26l15.5-11.5" fill="none" stroke="#FCE9DC" stroke-width="2.8" stroke-linejoin="round"/>',
     json: '<rect x="9" y="9" width="30" height="30" rx="8" fill="#7A8F6A"/><path d="M20 15c-3 0-3.5 1.5-3.5 4v2.5c0 1.5-1 2.5-2.5 2.5 1.5 0 2.5 1 2.5 2.5V29c0 2.5.5 4 3.5 4M28 15c3 0 3.5 1.5 3.5 4v2.5c0 1.5 1 2.5 2.5 2.5-1.5 0-2.5 1-2.5 2.5V29c0 2.5-.5 4-3.5 4" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -172,6 +182,11 @@
        Timeline when signed in, and Micro.blog's own welcome page for
        anyone who isn't. The profile stays in the Follow app. */
     mb: ['Micro.blog', '#4A6FA5', 'https://micro.blog/'],
+    /* Nov 8 (Toby): The Long Road Here and Knowember join (the Classic
+       footer's "Get to know me" line). A fourth item is the full name for
+       the app's bar. */
+    longroad: ['Long Road', '#B5663A', '/the-long-road-here/', 'The Long Road Here'],
+    knowember: ['Knowember', '#C8402F', '/knowember/'],
     tinkering: ['Tinkering Log', '#5B6B7A', '/changelog/'],
     settings: ['Settings', '#6B7280', null]
   };
@@ -226,7 +241,24 @@
   /* the four by the date never repeat a dock app (if his nav ever holds
      one of them, the next app in line takes its place) */
   /* Nov 3 (Toby): Settings takes Uses' spot; Uses moves to All apps */
-  var QUAD = ['den', 'surprise', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses'].filter(function (k) { return DOCK.indexOf(k) < 0; }).slice(0, 4);
+  /* Nov 8 (Toby): Knowember is a November app (Robert Birming's
+     Knowember is every November). In November it sits by the date; the
+     rest of the year it waits in All apps (laptops keep it by the date
+     all year, they have room for every app). The reader's own month. */
+  var KNOW = new Date().getMonth() === 10;
+  /* Nov 8 (Toby): Den joins the dock as a sixth app, next to Blog, on
+     the unfolded Fold, tablets and laptops. Phones keep five, like a Pixel. */
+  var DOCK6 = DOCK.indexOf('den') < 0 && DOCK.length < 6 ? 'den' : null;
+  function offDock(k) { return DOCK.indexOf(k) < 0; }
+  /* phones: four by the date (Knowember takes Follow's spot in November) */
+  var QUAD = (KNOW ? ['den', 'surprise', 'settings', 'knowember', 'follow'] : ['den', 'surprise', 'settings', 'follow'])
+    .concat(['photos', 'words', 'calendar', 'uses']).filter(offDock).slice(0, 4);
+  /* unfolded and tablets keep five by the date (Nov 8, Toby): Den is in
+     the dock, so Micro.blog takes its spot; the fifth is Knowember in
+     November and The Long Road Here the rest of the year (Long Road goes
+     to All apps wherever there's no room for it, like phones). */
+  var TQUAD = ['den', 'surprise', 'mb', 'settings', 'follow'].filter(function (k) { return offDock(k) && k !== DOCK6; }).slice(0, 4);
+  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : ['longroad']).concat(['calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
   /* Desktop (Nov 3, Toby): a big screen has room for every app on the
      home screen, so all of them sit by the date, Micro.blog before
      Settings, in place of the four. Up to 18; any beyond that stay in All
@@ -237,10 +269,9 @@
      apps or in app search; Den's Currently reading row and its "See all"
      lead there. Searching "reading" finds Den. */
   var NOHOME = { tinkering: 1, reading: 1 };
-  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'blaugust'];
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'blaugust', 'longroad', 'knowember'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
-    .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && all.indexOf(k) === i; }).slice(0, 18);
-  var WIDE5 = APPS.mb && DOCK.indexOf('mb') < 0 && QUAD.indexOf('mb') < 0 && QUAD.indexOf('settings') > -1 ? 'mb' : null;
+    .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   function appIcon(k, label) {
@@ -421,17 +452,18 @@
          screen (dock + the four by the date). Photos and Word Nerd stay:
          on the home screen they are widgets, not icons. Searching still
          finds every app. The Tinkering Log lives in Settings. */
-      var onHome = DOCK.concat(QUAD);
+      /* phones and tablets have different apps on the home screen (Nov 8) */
+      var onPh = DOCK.concat(QUAD), onTb = DOCK.concat(TQUAD, DOCK6 ? [DOCK6] : []);
       /* on desktop, the apps already by the date don't repeat here */
       var keys = Object.keys(APPS).filter(function (k) { return !NOHOME[k]; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { var h = onHome.indexOf(k) > -1; return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (h ? ' data-home style="display:none"' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (k === WIDE5 ? ' data-w5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();
         drawer.classList.toggle('q', !!q);
-        drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = q ? (d.getAttribute('data-n').indexOf(q) > -1 ? '' : 'none') : (d.hasAttribute('data-home') ? 'none' : ''); });
+        drawer.querySelectorAll('[data-n]').forEach(function (d) { d.style.display = q && d.getAttribute('data-n').indexOf(q) < 0 ? 'none' : ''; });
         drawerCols();
       });
       window.addEventListener('resize', function () { if (drawer.classList.contains('open')) drawerCols(); });
@@ -541,7 +573,9 @@
       return;
     }
     var ql = q.toLowerCase(), terms = ql.split(/\s+/).filter(Boolean), html = '';
-    var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && APPS[k][0].toLowerCase().indexOf(ql) > -1) || (k === 'den' && ('watching'.indexOf(ql) === 0 || 'reading'.indexOf(ql) === 0)); });
+    /* other words that find an app (Nov 8) */
+    var ALSO = { den: ['watching', 'reading'], mb: ['microblog', 'timeline'], follow: ['subscribe', 'newsletter'], longroad: ['the long road here', 'history', 'blogs'], knowember: ['get to know'] };
+    var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && (APPS[k][3] || APPS[k][0]).toLowerCase().indexOf(ql) > -1) || (ALSO[k] || []).some(function (w) { return w.indexOf(ql) === 0; }); });
     if (apps.length) html += '<div class="hx-lab">Apps</div><ul class="hx-res">' + apps.map(function (k) {
       var a = APPS[k], inner = tile(k) + '<span><span class="hx-t">' + hi(a[0], terms) + '</span></span>';
       return '<li>' + (a[2] ? '<a data-app="' + k + '" href="' + a[2] + '"' + (/^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '') + '>' + inner + '</a>' : '<button type="button" data-sheet="' + k + '">' + inner + '</button>') + '</li>'; }).join('') + '</ul>';
@@ -806,16 +840,18 @@
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
       '<div class="hh-area">' +
         '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br><span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
-        /* unfolded and tablets (one row of apps): room for a fifth,
-           Micro.blog before Settings (Nov 3, Toby). Phones keep the four. */
-        '<div class="hh-quad">' + QUAD.map(function (k) { return (k === 'settings' && WIDE5 ? '<span class="hh-w5">' + appIcon(WIDE5) + '</span>' : '') + appIcon(k); }).join('') + '</div>' +
+        /* phones show QUAD, unfolded and tablets TQUAD (Nov 8): each icon
+           says which (q-p, q-t) and its place in each (--po, --to) */
+        '<div class="hh-quad" style="--qn:' + TQUAD.length + '">' + QUAD.concat(TQUAD.filter(function (k) { return QUAD.indexOf(k) < 0; })).map(function (k) {
+          var p = QUAD.indexOf(k), t = TQUAD.indexOf(k);
+          return '<span class="hh-q' + (p < 0 ? ' q-t' : '') + (t < 0 ? ' q-p' : '') + '" style="--po:' + p + ';--to:' + t + '">' + appIcon(k) + '</span>'; }).join('') + '</div>' +
         '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
         '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
         photo + word + bigDesk() +
       '</div>' +
       '<button type="button" class="hh-handle" data-sheet="apps" aria-label="All apps">' + ic('up', 2.4) + '<span>All apps</span></button>' +
-      '<div class="hh-bottom"><nav class="hh-dock" aria-label="Dock">' + DOCK.map(function (k) { return appIcon(k); }).join('') + '</nav>' +
-        '<button type="button" class="hh-search" data-sheet="search"><span class="hs-ic">' + ic('search') + '</span><span class="lbl">Hutch Search</span><span class="hx-face hs-face">' + RABBIT + '</span></button></div>' +
+      '<div class="hh-bottom"><nav class="hh-dock" aria-label="Dock">' + DOCK.map(function (k, i) { return appIcon(k) + (i === 0 && DOCK6 ? '<span class="hh-d6">' + appIcon(DOCK6) + '</span>' : ''); }).join('') + '</nav>' +
+        '<button type="button" class="hh-search" data-sheet="search"><span class="hs-ic">' + ic('search') + '</span><span class="lbl"><span class="lb-h">Hutch </span>Search</span><span class="hx-face hs-face">' + RABBIT + '</span></button></div>' +
       '</div>');
     document.body.appendChild(homeEl);
 
@@ -873,7 +909,7 @@
       homeEl.appendChild(mark);
     })();
     /* desktop: every app is already on the screen, so no All apps button */
-    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && DKAPPS.indexOf(k) < 0; }).length === 0);
+    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0);
     fit();
     window.addEventListener('resize', fit);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -1272,7 +1308,7 @@
     var k = appForPage(), a = APPS[k] || APPS.blog;
     var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
     var hasTitle = isPost || isBlogApp;
-    var name = a[0];
+    var name = a[3] || a[0];
     if (k === 'archive' && path.indexOf('/categories/') === 0 && PAGE.title) name = PAGE.title;
     if (k === 'blog' && !isPost && path !== '/' && PAGE.title) name = PAGE.title;
     /* the app's icon and name open that app's main screen (Nov 3, Toby);

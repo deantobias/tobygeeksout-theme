@@ -519,7 +519,8 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-cv{width:74px;aspect-ratio:2/3;border-radius:5px 9px 9px 5px;flex:none;overflow:hidden;background:#3E3A5C;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.2);position:relative;display:block}
 .hx-now .nw-cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
 .hx-now .nw-cv img.nw-bad{display:none}
-.hx-now .nw-cv span{display:block;padding:8px 7px;font:600 11px/1.15 Georgia,serif}
+/* the stand-in title when a cover picture fails: the site's reading font (Nov 8) */
+.hx-now .nw-cv span{display:block;padding:8px 7px;font:600 11px/1.15 var(--font-reading,Georgia),Georgia,serif}
 .hx-now .nw-cv:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(0,0,0,.2);z-index:2}
 .hx-now .nw-bk{flex:1;min-width:0;display:block}
 .hx-now .nw-bk b{display:block;font:600 17px/1.28 var(--h-ui)}

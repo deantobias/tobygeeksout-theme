@@ -1,0 +1,10 @@
+{{/* Nov 7, 2026 (Toby): Toby's social profiles, in ONE place. Used by
+     follow-profiles.html (home rail, home phone strip, the post
+     Connect & Share card) and by hutch-data/small.html (Hutch's Follow
+     app). Change a link here and every spot updates. Returns a slice of
+     dicts: name, icon (icon.html name), url. */}}
+{{- return (slice
+  (dict "name" "Micro.blog" "icon" "microblog" "url" "https://micro.blog/technogeek75")
+  (dict "name" "Bluesky"    "icon" "bluesky"   "url" "https://bsky.app/profile/technogeek75.bsky.social")
+  (dict "name" "Mastodon"   "icon" "mastodon"  "url" "https://mastodon.social/@technogeek75")
+) -}}

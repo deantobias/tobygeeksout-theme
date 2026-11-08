@@ -969,7 +969,12 @@
          fits email; RSS and JSON aren't an inbox. JSON button added so
          the strip matches the rail and the post Connect card. Short
          labels (Email / RSS / JSON) keep all three on one row on phones. */}}
-    <p class="subscribe-heading">Follow along</p>
+    {{/* Nov 7, 2026 (Toby): Micro.blog / Bluesky / Mastodon icons beside
+         the heading, same as the rail and the post Connect card. */}}
+    <div class="follow-top">
+      <p class="subscribe-heading">Follow along</p>
+      <span class="follow-profiles">{{ partial "follow-profiles.html" (dict) }}</span>
+    </div>
     <p class="subscribe-text">Posts on tech, home decor, and whatever has my attention. No noise.</p>
     <div class="subscribe-actions">
       <a href="https://tobygeeksout.micro.blog/subscribe/" class="btn-subscribe">

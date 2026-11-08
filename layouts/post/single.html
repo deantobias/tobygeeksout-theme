@@ -251,15 +251,7 @@
            Email / RSS / JSON. Desktop keeps "Connect & Share". */}}
       <p class="connect-share-heading"><span class="cs-heading-full">Connect<span class="cs-heading-share"> &amp; Share</span></span><span class="cs-heading-compact">Follow</span></p>
       <span class="cs-social-top">
-        <a class="cs-pill cs-pill--icon" href="https://micro.blog/technogeek75" target="_blank" rel="me noopener" aria-label="Follow on Micro.blog">
-          {{ partial "icon.html" (dict "name" "microblog") }}
-        </a>
-        <a class="cs-pill cs-pill--icon" href="https://bsky.app/profile/technogeek75.bsky.social" target="_blank" rel="me noopener" aria-label="Follow on Bluesky">
-          {{ partial "icon.html" (dict "name" "bluesky") }}
-        </a>
-        <a class="cs-pill cs-pill--icon" href="https://mastodon.social/@technogeek75" target="_blank" rel="me noopener" aria-label="Follow on Mastodon">
-          {{ partial "icon.html" (dict "name" "mastodon") }}
-        </a>
+        {{ partial "follow-profiles.html" (dict "class" "cs-pill cs-pill--icon") }}
       </span>
     </div>
     <p class="connect-share-tagline"><span class="cs-heading-full">Enjoyed this? Follow along wherever you like to read.</span><span class="cs-heading-compact">Enjoyed this? Get new posts by email or feed.</span></p>
@@ -280,15 +272,7 @@
           {{ partial "icon.html" (dict "name" "check" "class" "tgo-check-icon") }}
           <span class="tgo-rss-label">JSON</span>
         </button>
-        <a class="cs-pill cs-social-inline" href="https://micro.blog/technogeek75" target="_blank" rel="me noopener">
-          {{ partial "icon.html" (dict "name" "microblog") }} Micro.blog
-        </a>
-        <a class="cs-pill cs-social-inline" href="https://bsky.app/profile/technogeek75.bsky.social" target="_blank" rel="me noopener">
-          {{ partial "icon.html" (dict "name" "bluesky") }} Bluesky
-        </a>
-        <a class="cs-pill cs-social-inline" href="https://mastodon.social/@technogeek75" target="_blank" rel="me noopener">
-          {{ partial "icon.html" (dict "name" "mastodon") }} Mastodon
-        </a>
+        {{ partial "follow-profiles.html" (dict "class" "cs-pill cs-social-inline" "labels" true) }}
       </span>
     </div>
     <div class="connect-share-row cs-share-row">

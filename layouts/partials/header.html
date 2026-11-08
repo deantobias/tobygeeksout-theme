@@ -97,7 +97,15 @@
   </a>
 
   <div class="rail-subscribe">
-    <p class="rail-sub-heading">Follow along</p>
+    {{/* Nov 7, 2026 (Toby): profile icons sit on the heading's line,
+         like the post card on phones, so the rail gets no taller
+         (the foldable's compact rail has no height to spare). The
+         compact rail (768-1023px) shortens the heading to "Follow", like
+         the post card does on phones, so it stays on one line. */}}
+    <div class="follow-top">
+      <p class="rail-sub-heading">Follow<span class="follow-along-word"> along</span></p>
+      <span class="follow-profiles">{{ partial "follow-profiles.html" (dict) }}</span>
+    </div>
     <a href="https://tobygeeksout.micro.blog/subscribe/" class="rail-btn rail-btn--primary">
       {{ partial "icon.html" (dict "name" "mail") }} Subscribe by email
     </a>
@@ -116,6 +124,18 @@
     {{ $latestNewsletter := (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 }}
     <a href="{{ with $latestNewsletter }}{{ (index . 0).Permalink }}?view=list{{ else }}{{ "/newsletters/" | absURL }}{{ end }}" class="rail-newsletters">Browse past newsletters →</a>
   </div>
+
+  {{/* Knowember badge (Nov 7, 2026, Toby): Robert Birming's "paper
+       red" 88x31 button, self-hosted in uploads, linking to the
+       /knowember/ page. Paper red reads on both Day and Night skies.
+       Only built during November 2026 (build-time date), so it drops
+       off on the first rebuild in December. Full rail only: CSS hides
+       it on the compact rail and short windows (no height to spare). */}}
+  {{ if eq (now.Format "2006-01") "2026-11" }}
+  <a href="https://tobygeeksout.micro.blog/knowember/" class="rail-badge">
+    <img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="Get to know me: Knowember" width="88" height="31">
+  </a>
+  {{ end }}
 
   <div class="rail-sky-slot"></div>
 </aside>

@@ -1,0 +1,14 @@
+{{/* Nov 7, 2026 (Toby): the Micro.blog / Bluesky / Mastodon follow
+     links, rendered from follow-profiles-data.html.
+     Params:
+       class   class on each link (default "follow-profile")
+       labels  true = icon + name (desktop post card pills);
+               false = icon only, with an aria-label (default)
+     rel="me" stays on every copy so Mastodon can verify the blog. */}}
+{{- $class := .class | default "follow-profile" -}}
+{{- $labels := .labels | default false -}}
+{{- range partial "follow-profiles-data.html" . }}
+<a class="{{ $class }}" href="{{ .url }}" target="_blank" rel="me noopener"{{ if not $labels }} aria-label="Follow on {{ .name }}"{{ end }}>
+  {{ partial "icon.html" (dict "name" .icon) }}{{ if $labels }} {{ .name }}{{ end }}
+</a>
+{{- end }}

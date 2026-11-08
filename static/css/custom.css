@@ -2587,19 +2587,34 @@ body.tgo-search-empty .site-footer {
 .footer-text .footer-bit.footer-bit--challenge { display: inline; }
 .footer-text .footer-sep,
 .footer-text .footer-sep:last-of-type { display: none; }
-.footer-text::before { content: ""; flex-basis: 100%; height: 0; order: 4; }
-.footer-bit--log { order: 1; }
-.footer-bit--gear { order: 2; }
+/* Get to know me line (Nov 7, 2026, Toby): line 2 is now
+     [Get to know me:] The Long Road Here · Knowember · Blaugust 2026
+   and line 3 is
+     The Tinkering Log · Geek Gear · Published on Micro.blog · Designed by Toby & Claude
+   Still three lines on phones (Toby: no taller footer). The label
+   only shows from 600px up; on phones "Published on" already hides. */
+.footer-text::before { content: ""; flex-basis: 100%; height: 0; order: 5; }
+.footer-bit--label { order: 0; }
+.footer-bit--story { order: 1; }
+.footer-bit--know { order: 2; }
 .footer-bit--challenge { order: 3; }
-.footer-bit--mb { order: 5; }
-.footer-bit--design { order: 6; }
-.footer-bit--gear::before,
+.footer-bit--log { order: 6; }
+.footer-bit--gear { order: 7; }
+.footer-bit--mb { order: 8; }
+.footer-bit--design { order: 9; }
+.footer-bit--know::before,
 .footer-bit--challenge::before,
+.footer-bit--gear::before,
+.footer-bit--mb::before,
 .footer-bit--design::before { content: "·"; margin-right: 0.4em; color: var(--color-text-light); }
+.footer-bit--label { color: var(--color-text-muted); }
+.footer-bit--story a,
+.footer-bit--know a,
 .footer-bit--log a,
 .footer-bit--gear a,
 .footer-bit--challenge a { font-weight: 600; }
 @media (max-width: 599px) {
+  .footer-text .footer-bit.footer-bit--label { display: none; }
   .site-footer { margin-top: 1rem; padding: 0.75rem 12px; }
   .footer-inner { gap: 0.4rem; }
   .footer-tagline { font-size: 0.9rem; }
@@ -5312,6 +5327,17 @@ body.tgo-night .rail-nav a.active {
   text-decoration: none;
 }
 .rail-newsletters:hover { color: var(--color-terra-text); }
+
+/* Knowember badge (Nov 7, 2026): 88x31 button under Follow along,
+   November 2026 only (header.html). Hidden on the compact rail and
+   short windows, which have no height to spare. */
+.rail-badge { display: inline-block; margin-top: 14px; line-height: 0; border-radius: 2px; }
+.rail-badge img { display: block; width: 88px; height: 31px; }
+.rail-badge:hover img { transform: translateY(-1px); }
+.rail-badge:focus-visible { outline: 2px solid var(--color-terra-text); outline-offset: 3px; }
+@media (min-width: 768px) and (max-width: 1023px), (min-width: 768px) and (max-height: 720px) {
+  .rail-badge { display: none; }
+}
 
 /* Sky toggle slot — pinned to the rail's bottom. The sky script
    appends a .tgo-sky-btn--rail button here; it stays hidden during
@@ -15088,3 +15114,60 @@ a.cat-more:hover,
   .tg-now .tgn-month-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 /* end section 127 */
+
+/* ============================================================
+   128. FOLLOW ALONG: PROFILE ICONS ON THE HOME PAGE (Nov 7, 2026)
+   Toby: the home page's Follow along (desktop rail + the phone strip
+   at the end of the page) only had Email / RSS / JSON. It now also has
+   Micro.blog, Bluesky and Mastodon, like the post Connect & Share card
+   and Hutch's Follow app. The icons share the heading's line, so the
+   rail is no taller (the foldable's compact rail is already tight).
+   Links come from partials/follow-profiles-data.html.
+   ============================================================ */
+.follow-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+.follow-top .rail-sub-heading,
+.follow-top .subscribe-heading { margin: 0; }
+.subscribe-inner .follow-top { margin: 0 0 4px; }
+.follow-profiles { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.follow-profile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-terra);
+  color: var(--color-terra-text);
+  background: transparent;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.follow-profile .tgo-icon { width: 14px; height: 14px; }
+.follow-profile:hover { background: var(--color-terra-light); color: var(--color-terra-dark); }
+.follow-profile:focus-visible { outline: 2px solid var(--color-terra); outline-offset: 2px; }
+@media (hover: none) {
+  .follow-profile:hover { background: transparent; color: var(--color-terra-text); }
+}
+/* Phone strip: bigger taps, same 36px feel as the post card's icons */
+.subscribe-inner .follow-profiles { gap: 6px; }
+.subscribe-inner .follow-profile { width: 36px; height: 36px; }
+.subscribe-inner .follow-profile .tgo-icon { width: 16px; height: 16px; }
+/* Heading never wraps (a second line would push the rail into the
+   pinned Sky toggle on short foldable screens) */
+.follow-top .rail-sub-heading { white-space: nowrap; }
+/* Compact rail (foldables/tablets, 192px inside): heading reads
+   "Follow" and the icons are a touch smaller */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .site-rail .follow-along-word { display: none; }
+  .site-rail .follow-profile { width: 26px; height: 26px; }
+  .site-rail .follow-profile .tgo-icon { width: 13px; height: 13px; }
+  .site-rail .follow-profiles { gap: 3px; }
+}
+/* end section 128 */

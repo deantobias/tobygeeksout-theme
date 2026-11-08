@@ -73,6 +73,8 @@
   {{- with (where .Site.RegularPages "Type" "newsletter").ByDate.Reverse | first 1 -}}{{- $past = printf "%s?view=list" (index . 0).Permalink -}}{{- end -}}
   {{- $d = merge $d (dict "rss" $rss "json" (printf "%sfeed.json" .Site.BaseURL) "past" $past) -}}
   {{/* Elsewhere (Nov 5, v65): the same follow links as the Connect & Share box on posts (post/single.html) */}}
-  {{- $d = merge $d (dict "mb" "https://micro.blog/technogeek75" "bsky" "https://bsky.app/profile/technogeek75.bsky.social" "masto" "https://mastodon.social/@technogeek75") -}}
+  {{- /* Nov 7: links now come from follow-profiles-data.html (one place for all spots) */ -}}
+  {{- $fp := partial "follow-profiles-data.html" . -}}
+  {{- $d = merge $d (dict "mb" (index $fp 0).url "bsky" (index $fp 1).url "masto" (index $fp 2).url) -}}
 {{- end -}}
 <script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

@@ -752,6 +752,9 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
   .hh-dkapps .hh-tile .hx-ic{width:26px;height:26px}
   #hutch-home.dk-full .hh-handle{display:none}
   #hutch-drawer:not(.q) [data-dk]{display:none !important}
+  /* the date on one line (Nov 8): hutch.js dateFit() sizes it to the column */
+  .hh-s{white-space:nowrap}
+  .hh-s br{display:none}
 }
 
 /* ---------- 11. Desktop arrows for older / newer (Nov 3) ----------

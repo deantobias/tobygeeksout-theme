@@ -839,7 +839,7 @@
       '<svg class="hh-bunny" viewBox="0 0 20 24"><g fill="var(--r2)" opacity=".8" transform="translate(1 1)"><ellipse cx="9" cy="17" rx="8" ry="6.5"/><circle cx="15" cy="10" r="4.6"/><ellipse cx="13" cy="2" rx="1.6" ry="6"/><ellipse cx="17" cy="2" rx="1.6" ry="6"/><circle cx="2" cy="16" r="2.2"/></g></svg></div>';
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
       '<div class="hh-area">' +
-        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br><span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
+        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br> <span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
         /* phones show QUAD, unfolded and tablets TQUAD (Nov 8): each icon
            says which (q-p, q-t) and its place in each (--po, --to) */
         '<div class="hh-quad" style="--qn:' + TQUAD.length + '">' + QUAD.concat(TQUAD.filter(function (k) { return QUAD.indexOf(k) < 0; })).map(function (k) {
@@ -985,6 +985,19 @@
     while (rg.getBoundingClientRect().width > room() && fs > min) { fs -= 0.5; w.style.fontSize = fs + 'px'; }
     w.style.overflowWrap = '';
   }
+  /* Laptops (Nov 8, Toby: Recent posts had empty space at the bottom and
+     Word Nerd wanted more height): the date sits on one line ("It's
+     Sunday, November 8th."), as big as fits the column, up to 40px. The
+     apps column was the tallest card in the top row, so the whole row gets
+     about one line shorter and the cards below get that room. */
+  function dateFit() {
+    var s = homeEl && homeEl.querySelector('.hh-s'); if (!s) return;
+    s.style.fontSize = '';
+    if (!DKMQ.matches) return;
+    var f = Math.min(40, parseFloat(getComputedStyle(s).fontSize) || 40);
+    s.style.fontSize = f + 'px';
+    while (f > 22 && s.scrollWidth > s.clientWidth + 1) { f -= 1; s.style.fontSize = f + 'px'; }
+  }
   function fit() {
     if (!homeEl) return;
     setTimeout(photoFit, 0);
@@ -1011,6 +1024,23 @@
     /* The words stay full size (Toby: "fonts bigger, 100%"): the text
        blocks zoom back up by 1/z (--tz), so only spacing and pictures shrink. */
     a.style.zoom = ''; a.style.removeProperty('--tz'); homeEl.classList.remove('tight');
+    dateFit();
+    /* Laptops (Nov 8, Toby): Word Nerd's card is as tall as its word
+       needs (every meaning and the example, up to 340px), so its row
+       grows; the photo strip below takes what's left (it shrinks, or
+       steps aside when too little is left). Not on short laptops (under
+       650 tall, like a 13" Windows): there it would squeeze the top row. */
+    var wcard = homeEl.querySelector('.hh-area .hh-word');
+    if (wcard) wcard.style.minHeight = '';
+    if (wcard && DKMQ.matches && innerHeight >= 650) {
+      homeEl.classList.remove('noex');
+      [].forEach.call(wcard.querySelectorAll('.defs li'), function (li) { li.style.display = ''; li.style.webkitLineClamp = ''; });
+      wcard.style.alignSelf = 'start';
+      var wneed = wcard.getBoundingClientRect().height;
+      wcard.style.alignSelf = '';
+      homeEl.classList.add('noex');
+      wcard.style.minHeight = Math.ceil(Math.min(wneed, 340)) + 'px';
+    }
     var z = 1;
     if (strip && window.matchMedia && matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches) {
       strip.style.removeProperty('--sth');

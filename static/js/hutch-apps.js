@@ -415,6 +415,12 @@ window.HutchApps = window.HutchApps || {};
    Tap an item: phone = a detail view slides in; unfolded sideways
    (landscape, 840px+) = the section's list on the left, details on the
    right, each pane scrolling on its own. Tap a row's title = full list.
+   Month in review (Nov 7, Toby): before History, the same months as the
+   Watched page's Month in review row (partials/month-review.html, from
+   Trakt in the browser): the three finished months, each a fan of
+   posters with the numbers, linking to Trakt's Month in Review, then
+   the month in progress as a dashed "shows up here" card. The title and
+   See all open /watched/#watched-months. Hidden until Trakt answers.
    Data: partials/hutch-data/den.html (build time). Currently watching
    also reads the cards the Traditional /watching/ page draws into
    #watching-grid after its Trakt fetch (it caches 30 minutes), so the
@@ -579,12 +585,44 @@ window.HutchApps = window.HutchApps || {};
         if (QUEUE.length !== before && state.view === 'home') renderHome();
       }).catch(function () {});
     }
+    /* Month in review (Nov 7): from Trakt, once it answers */
+    var MONTHS = null;
+    function plural(v, one, many) { return v + '\u00a0' + (v === 1 ? one : many); }
+    function monthsSection() {
+      if (!MONTHS || !MONTHS.months || !MONTHS.months.length) return '';
+      var page = LINKS.months;
+      var cards = MONTHS.months.map(function (m) {
+        var fan = (m.posters || []).slice(0, 5).map(function (p) { return '<span class="mfp" data-tmdb="' + esc(p.tmdb) + '" data-kind="' + esc(p.kind) + '"></span>'; }).join('');
+        var stats = m.plays ? plural(m.movies, 'movie', 'movies') + ' · ' + plural(m.shows, 'show', 'shows') + ' · ' + plural(m.hours, 'hour', 'hours') : 'Nothing logged';
+        return '<a class="it it-month" href="' + esc(m.mir) + '" rel="noopener"><span class="mfan" aria-hidden="true">' + fan + '</span>' +
+          '<span class="cap"><span class="tt">' + esc(m.label) + '</span><span class="tm">' + esc(stats) + '</span><span class="go">See it on Trakt ↗</span></span></a>';
+      }).join('');
+      var next = MONTHS.current ? '<div class="it it-month mnext"><strong>' + esc(MONTHS.current.label) + '</strong><span>shows up here in ' + esc(MONTHS.current.next) + '</span></div>' : '';
+      var head = page ? '<a class="shead" href="' + esc(page) + '"><h2>Month in review</h2>' + ic('chev') + '</a>' : '<div class="shead"><h2>Month in review</h2></div>';
+      return '<section class="sec sec-months"><div class="shead-row">' + head + (page ? '<a class="sall" href="' + esc(page) + '">See all ›</a>' : '') + '</div>' +
+        '<div class="row">' + cards + next + '</div></section>';
+    }
+    function fillPosters() {
+      if (!window.tgoPoster) return;
+      [].forEach.call(homeEl.querySelectorAll('.mfp:not(.on)'), function (slot) {
+        slot.classList.add('on');
+        window.tgoPoster(+slot.getAttribute('data-tmdb'), slot.getAttribute('data-kind')).then(function (u) {
+          if (!u || !slot.isConnected) return;
+          var im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; im.src = u;
+          slot.appendChild(im);
+        });
+      });
+    }
+    if (window.tgoMonthReview) {
+      window.tgoMonthReview().then(function (d) { MONTHS = d; if (state.view === 'home') renderHome(); }).catch(function () {});
+    }
     function renderHome() {
       var y = homeEl.scrollTop;
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
       applyQueue();
-      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + section('history', histTile, true);
+      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
+      fillPosters();
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
       homeEl.scrollTop = y;
     }

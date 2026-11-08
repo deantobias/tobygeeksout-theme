@@ -1284,17 +1284,18 @@ window.HutchApps = window.HutchApps || {};
 })();
 
 /* ------------------------------------------------------------------
-   Small apps (v37 mockup): About, Contact, Uses, Follow. Nov 2, 2026.
+   Small apps (v37 mockup): About, Contact, Follow. Nov 2, 2026.
+   (Uses was one too, until Nov 8: Toby's Classic Geek Gear page now
+   shows as it is in Hutch.)
    One shared shell: the app bar (from hutch.js), then the page Toby
    wrote in Micro.blog, moved (not copied) out of #main-content into
    the app so his words, links and any form keep working as they are.
    Each app adds its own small touch on top:
      About    his face, name and a few facts counted by Hugo
      Contact  a big "Email me" button from the page's own mailto link
-     Uses     the Geek Gear shortcode as icon rows, one card per section
      Follow   every way to follow as a big tappable row
    Landscape (unfolded sideways, desktop): About and Contact go two
-   panes that scroll on their own; Uses and Follow go two columns.
+   panes that scroll on their own; Follow goes two columns.
    No page body found = nothing happens and the Traditional page shows.
    Data: partials/hutch-data/small.html. Styles: css/apps/small.css.
    ------------------------------------------------------------------ */
@@ -1482,52 +1483,11 @@ window.HutchApps = window.HutchApps || {};
     finish(ctx, root, true);
   };
 
-  /* ---------------- Uses ---------------- */
-  var USE_IC = [[/computer|mac|laptop|desk/i, 'laptop'], [/phone|mobile/i, 'phone'], [/communic|chat|talk|caption/i, 'chat'],
-    [/writ|read|blog/i, 'pen'], [/build|code|dev/i, 'code'], [/photo|camera/i, 'camera'], [/\bai\b|helper/i, 'spark'],
-    [/browser|web/i, 'globe'], [/screen|offline|hobby|life|lego/i, 'brick']];
-  var ITEM_IC = [[/monitor|display/i, 'monitor'], [/mac mini|desktop|\bpc\b/i, 'desktop'], [/pixel|galaxy|iphone|phone/i, 'phone'],
-    [/camera/i, 'camera'], [/perch/i, 'bird'], [/studio|editor/i, 'pen'], [/claude|gemini|chatgpt/i, 'spark'], [/micro\.blog/i, 'mb']];
-  function pick(list, s, dflt) { for (var i = 0; i < list.length; i++) if (list[i][0].test(s)) return list[i][1]; return dflt; }
-  HutchApps.uses = function (ctx) {
-    var root = shell(ctx); if (!root) return;
-    var doc = root.doc, u = doc.querySelector('.uses');
-    var head = titleHTML(ctx, root);
-    if (u) {
-      var out = '';
-      var intro = u.querySelector('.uses-intro'), upd = u.querySelector('.uses-updated');
-      if (upd) out += '<div class="hx-sm-updated">' + upd.innerHTML + '</div>';
-      if (intro) out += '<p class="hx-sm-lede">' + intro.innerHTML + '</p>';
-      out += '<div class="hx-sm-groups">';
-      [].forEach.call(u.querySelectorAll('.uses-group'), function (g, gi) {
-        var h = g.querySelector('.uses-head'), hs = h ? h.textContent.trim() : '';
-        var sic = pick(USE_IC, hs, 'gear'), col = PAL[gi % PAL.length];
-        out += '<section class="hx-sm-group">' + (h ? '<h3>' + h.innerHTML + '</h3>' : '');
-        var lis = g.querySelectorAll('.uses-list > li');
-        if (lis.length) {
-          out += '<div class="hx-sm-uses">';
-          [].forEach.call(lis, function (li) {
-            var nm = li.querySelector('.uses-name'), why = li.querySelector('.uses-why'), tags = '';
-            var nmc = nm ? nm.cloneNode(true) : null;
-            if (nmc) [].forEach.call(nmc.querySelectorAll('.uses-tag'), function (t) { tags += '<span class="tag">' + t.innerHTML + '</span>'; t.remove(); });
-            var label = nmc ? nmc.innerHTML.trim() : li.innerHTML;
-            var ik = pick(ITEM_IC, nmc ? nmc.textContent : '', sic);
-            out += '<div class="it"><span class="ri" style="background:' + col + '">' + svg(ik) + '</span><span class="m"><b>' + label + '</b>' + tags +
-              (why ? '<small>' + why.innerHTML + '</small>' : '') + '</span></div>';
-          });
-          out += '</div>';
-        }
-        [].forEach.call(g.querySelectorAll(':scope > p'), function (p) { out += '<div class="hx-sm-note"><span class="ri" style="background:' + col + '">' + svg(sic) + '</span><p>' + p.innerHTML + '</p></div>'; });
-        out += '</section>';
-      });
-      out += '</div>';
-      var box = document.createElement('div'); box.className = 'hx-sm-usesapp'; box.innerHTML = out;
-      u.parentNode.replaceChild(box, u);
-    }
-    if (head) doc.insertAdjacentHTML('afterbegin', head);
-    tidy(doc, ctx);
-    finish(ctx, root, false);
-  };
+  /* ---------------- Uses ----------------
+     Nov 8 (Toby): no Hutch version of Uses any more. Toby redesigned
+     Geek Gear in Classic (cards with the real logos, two columns, "I
+     built these"), and Hutch shows that page as it is, under the Uses
+     app bar (hutch.js no longer loads a module for /uses/). */
 
   /* ---------------- Follow ---------------- */
   HutchApps.follow = function (ctx) {

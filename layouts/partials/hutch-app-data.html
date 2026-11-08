@@ -8,7 +8,7 @@
      emitted from list.archivehtml.html instead.
      ============================================================ */}}
 {{- $p := .RelPermalink -}}
-{{/* a standalone page that is in the main menu (About, Contact, Uses,
+{{/* a standalone page that is in the main menu (About, Contact,
      Follow wherever Toby keeps them, e.g. /about-me/) */}}
 {{- $inMenu := false -}}
 {{- if and (eq .Kind "page") (eq .Type "page") -}}
@@ -20,6 +20,6 @@
 {{- else if eq $p "/photo/" -}}{{ partial "hutch-data/photos.html" . }}
 {{- else if eq $p "/calendar/" -}}{{ partial "hutch-data/calendar.html" . }}
 {{- else if eq $p "/now/" -}}{{ partial "hutch-data/now.html" . }}
-{{- else if or (in (slice "/about/" "/about-me/" "/contact/" "/uses/" "/use/" "/subscribe/" "/follow/") $p) $inMenu -}}{{ partial "hutch-data/small.html" . }}
+{{- else if or (in (slice "/about/" "/about-me/" "/contact/" "/subscribe/" "/follow/") $p) $inMenu -}}{{ partial "hutch-data/small.html" . }}
 {{- else if and (eq .Type "post") (eq .Kind "page") .Title -}}{{ partial "hutch-data/post.html" . }}
 {{- end -}}

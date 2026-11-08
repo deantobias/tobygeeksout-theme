@@ -1,5 +1,6 @@
 /* ------------------------------------------------------------------
-   Small apps (v37 mockup): About, Contact, Uses, Follow. Nov 2, 2026.
+   Small apps (v37 mockup): About, Contact, Follow. Nov 2, 2026 (Uses
+   removed Nov 8: Hutch shows Toby's Classic Geek Gear page as it is).
    Built by js/apps/small.js. Everything is scoped under .hx-sm and
    follows the sky through the blog's own color tokens.
    ------------------------------------------------------------------ */
@@ -120,23 +121,6 @@
 .hx-sm .hx-sm-big.alt svg{color:var(--acc)}
 .hx-sm .hx-sm-big:hover{filter:brightness(1.05)}
 
-/* ---- Uses ---- */
-.hx-sm-updated{font:600 12.5px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--sub);margin:0 0 6px}
-.hx-sm .hx-sm-lede{font:400 16px/1.55 var(--h-ui);color:var(--sub);margin:0 0 6px}
-.hx-sm .hx-sm-group h3{font:700 13px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:22px 0 9px}
-.hx-sm-uses,.hx-sm-note{background:var(--surf);border:1px solid var(--ln);border-radius:16px}
-.hx-sm-uses .it{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;border-top:1px solid var(--ln)}
-.hx-sm-uses .it:first-child{border-top:0}
-.hx-sm-uses .ri,.hx-sm-note .ri{width:38px;height:38px;border-radius:12px;margin-top:1px}
-.hx-sm-uses .ri svg,.hx-sm-note .ri svg{width:19px;height:19px}
-.hx-sm-uses .m{flex:1;min-width:0}
-.hx-sm-uses b{font:600 16px/1.3 var(--h-ui);color:var(--ink);margin-right:6px}
-.hx-sm-uses small{display:block;font:400 15px/1.45 var(--h-ui);color:var(--sub);margin-top:3px}
-.hx-sm-uses .tag{display:inline-block;vertical-align:2px;font:600 11.5px/1 var(--h-ui);background:var(--surf2);color:var(--acc);padding:4px 9px;border-radius:999px}
-.hx-sm.dark .hx-sm-uses .tag{background:rgba(233,135,95,.14)}
-.hx-sm-note{display:flex;gap:13px;align-items:flex-start;padding:13px 14px}
-.hx-sm .hx-sm-note p{margin:0;font:400 15.5px/1.55 var(--h-ui);color:var(--ink)}
-
 /* ---- snackbar ---- */
 .hx-sm-snack{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));z-index:9100;width:calc(100% - 28px);max-width:380px;
   transform:translate(-50%,calc(100% + 60px));visibility:hidden;background:#2B2F36;color:#F3EEE7;border-radius:12px;padding:13px 16px;font:500 15px var(--h-ui);
@@ -149,23 +133,18 @@
 @media (min-width:600px){
   .hx-sm-panes{max-width:720px;padding:16px 32px 56px}
   .hx-sm-doc,.hx-sm .hx-sm-doc p,.hx-sm .hx-sm-intro p,.hx-sm .hx-sm-doc :is(ul,ol) > li{font-size:17.5px}
-  .hx-sm .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title),.hx-sm .hx-sm-group h3{font-size:14px}
+  .hx-sm .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){font-size:14px}
   .hx-sm .hx-sm-row b{font-size:18px}
   .hx-sm .hx-sm-row small{font-size:15px}
-  .hx-sm-uses b{font-size:17.5px}
-  .hx-sm-uses small,.hx-sm .hx-sm-note p,.hx-sm .hx-sm-lede{font-size:16.5px}
   .hx-sm-facts > div{font-size:16px}
   .hx-sm .hx-sm-title{font-size:34px}
   .hx-sm .hx-sm-big{font-size:18px}
   .hx-sm-hero .face{width:116px;height:116px}
   .hx-sm .hx-sm-hero h2{font-size:27px}
 }
-/* Uses and Follow: two columns once there is room */
+/* Follow: two columns once there is room */
 @media (min-width:690px){
-  .hx-sm--uses .hx-sm-panes,.hx-sm--follow .hx-sm-panes{max-width:1000px}
-  .hx-sm-groups{columns:2;column-gap:20px}
-  .hx-sm-group{break-inside:avoid;display:inline-block;width:100%;vertical-align:top}
-  .hx-sm-group h3{break-after:avoid}
+  .hx-sm--follow .hx-sm-panes{max-width:1000px}
   .hx-sm-follow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .hx-sm-follow .hx-sm-nl{grid-column:1 / -1}
   .hx-sm--follow .hx-sm-intro,.hx-sm--follow .hx-sm-title,.hx-sm--follow .hx-sm-more{max-width:680px}

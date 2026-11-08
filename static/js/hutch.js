@@ -1461,7 +1461,7 @@
        speed). head.html and baseof.html load the right ones from the
        address; an app found another way (a renamed About page from the
        menu) fetches its part here first. */
-    var MODFILE = { den: 'den', photos: 'photos', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', uses: 'small', follow: 'small' };
+    var MODFILE = { den: 'den', photos: 'photos', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', follow: 'small' }; /* Uses: Toby's Classic page as is (Nov 8) */
     function runApp(mod) {
       try {
         mod({

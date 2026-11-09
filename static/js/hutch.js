@@ -670,6 +670,9 @@
   }
   function archRows(n) {
     return archPick(n).map(function (x) {
+      /* a micro (Nov 9): its own words where the title goes, then the date */
+      if (x.mi) return '<a class="hh-arow mi" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') +
+        '<span class="tx"><b>' + esc(x.x) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small></span></a>';
       return '<a class="hh-arow" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') +
         '<span class="tx"><b>' + esc(x.t) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small>' + (x.x ? '<em>' + esc(x.x) + '</em>' : '') + '</span></a>';
     }).join('');

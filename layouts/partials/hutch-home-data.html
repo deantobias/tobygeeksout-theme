@@ -239,18 +239,29 @@
   {{- end -}}
 {{- end -}}
 
-{{/* Desktop "From the archive" (Nov 3, Toby): titled posts older than the
-     Blog app's newest 60, Watchlist cards and Word of the Day left out.
-     Up to 80, spread across the years; the page picks two at random and
-     Shuffle picks two more. img = Toby's own upload, never a card poster;
-     x = a short clean line. */}}
+{{/* Desktop "From the archive" (Nov 3, Toby): posts older than the Blog
+     app's newest 60. Up to 80, spread across the years; the page picks two
+     at random and Shuffle picks two more. img = Toby's own upload, never a
+     card poster; x = a short clean line.
+     Nov 9 (Toby): only titled posts and micros. Left out: the Den and Word
+     Nerd categories (Reel and Remote, Movie/TV/Book Reviews, Bookshelf,
+     Currently Watching/Reading, Reading, Word of the Day), Now watching /
+     Currently reading / Watchlist / Want to read / On my radar posts (by
+     title or, for micros, by their first words), Watch Logs, and any post
+     built on a review, movie, book or define card. Micros with no words
+     (photo only) stay out too; the Photos app has them. */}}
+{{- $archCats := $tlCats | append (slice "book reviews" "bookshelf") -}}
 {{- $older := slice -}}
 {{- $seenTl := dict -}}{{- range $tl -}}{{- $seenTl = merge $seenTl (dict .u true) -}}{{- end -}}{{- range $tlOut -}}{{- $seenTl = merge $seenTl (dict . true) -}}{{- end -}}
 {{- range (where $site.RegularPages "Type" "post").ByDate.Reverse -}}
-  {{- if and .Title (not (index $seenTl .RelPermalink)) (not (in .Params.categories "Word of the Day")) -}}
+  {{- if not (index $seenTl .RelPermalink) -}}
     {{- $skip := false -}}
-    {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
-    {{- if findRE `(?i)^\W*(watchlist|on my radar|want to read|currently reading|now watching):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
+    {{- range .Params.categories -}}{{- if in $archCats (lower .) -}}{{- $skip = true -}}{{- end -}}{{- end -}}
+    {{- $c := .Content -}}
+    {{- if or (in $c "review-card") (in $c "movie-card") (in $c "book-card") (in $c "watch-log") (in $c "define-card") -}}{{- $skip = true -}}{{- end -}}
+    {{- $lead := .Title -}}{{- if not .Title -}}{{- $lead = .Plain | htmlUnescape -}}{{- end -}}
+    {{- if findRE `(?i)^\W*(now watching|currently watching|currently reading|watchlist|want to read|want to watch|on my radar|word nerd alert)\b` $lead 1 -}}{{- $skip = true -}}{{- end -}}
+    {{- if and (not .Title) (not (trim (.Plain | htmlUnescape) " \n\t ")) -}}{{- $skip = true -}}{{- end -}}
     {{- if not $skip -}}{{- $older = $older | append . -}}{{- end -}}
   {{- end -}}
 {{- end -}}
@@ -267,12 +278,12 @@
       {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
       {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $img = $u -}}{{- end -}}
     {{- end -}}
-    {{- $x := $p.Summary | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}
-    {{- if or (in $p.Content "review-card") (in $p.Content "movie-card") (in $p.Content "book-card") -}}
-      {{- with findRE `(?s)<[^>]*review-tagline[^>]*>.*?</p>` $p.Content 1 -}}{{- $x = index . 0 | plainify | htmlUnescape -}}{{- else -}}{{- $x = "" -}}{{- end -}}
-    {{- end -}}
-    {{- $x = trim (replaceRE `\s+` " " (replaceRE `[★☆½]+` " " $x)) " " -}}
-    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "x" $x) -}}
+    {{- $mi := not $p.Title -}}
+    {{/* a micro's own words stand in for the title (mi) */}}
+    {{- $x := "" -}}
+    {{- if $mi -}}{{- $x = $p.Plain | htmlUnescape | truncate 200 | htmlUnescape -}}{{- else -}}{{- $x = $p.Summary | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}{{- end -}}
+    {{- $x = trim (replaceRE `\s+` " " $x) " " -}}
+    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "x" $x "mi" $mi) -}}
   {{- end -}}
 {{- end -}}
 

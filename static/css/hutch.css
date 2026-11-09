@@ -1321,6 +1321,10 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
    coverFit() marks each Currently item .ctr (cover beside the words) or
    .ctrc (cover on top) and grows the cover into any room. Word Nerd keeps
    its header at the top; the word and meanings sit centered below it. */
+/* From the archive: a micro's words stand where a title goes, in regular
+   weight, up to 3 lines (2 when the list is tight) (Nov 9, Toby) */
+#hutch-home .hh-area .hh-arow.mi b{font-weight:500;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#hutch-home .hh-area .hh-alist.tight .hh-arow.mi b{-webkit-line-clamp:2}
 #hutch-home .hh-area .hh-now .hh-nitem.ctr{align-items:center}
 #hutch-home .hh-area .hh-now .hh-nitem.ctr .tx{align-self:center}
 #hutch-home .hh-area .hh-now .hh-nitem.ctrc{justify-content:center}

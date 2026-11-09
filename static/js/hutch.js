@@ -912,6 +912,12 @@
     homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0);
     fit();
     window.addEventListener('resize', fit);
+    /* turning the iPad (Nov 9, Toby: upright, the date kept its sideways
+       size and Word Nerd ran under Top categories): Safari can fire resize
+       before the new size settles, so fit again when the laptop layout
+       switches on or off, and once the turn is done */
+    if (DKMQ.addEventListener) DKMQ.addEventListener('change', fit); else if (DKMQ.addListener) DKMQ.addListener(fit);
+    window.addEventListener('orientationchange', function () { setTimeout(fit, 350); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
     [].forEach.call(homeEl.querySelectorAll('img'), function (i) { if (!i.complete) i.addEventListener('load', fit, { once: true }); });
 
@@ -969,13 +975,41 @@
     if (hit()) b.classList.add('xs');
     if (hit()) b.classList.add('off');
   }
+  /* Currently on every screen (Nov 9, Toby picked D in mockup v108, then
+     "all screens, centered"): each item is centered in its space (.ctr when
+     the cover sits beside the words, .ctrc when it sits on top), and where
+     the item has room the cover grows into it (up to about 112 x 168, true
+     shape, never wider than a third of the item), instead of leaving a gap */
+  function coverFit() {
+    var items = [].slice.call(homeEl.querySelectorAll('.hh-area .hh-nitem'));
+    items.forEach(function (x) {
+      var c = x.querySelector('img, .cv'); if (c) { c.style.width = ''; c.style.height = ''; }
+      x.classList.remove('ctr', 'ctrc');
+    });
+    items.forEach(function (x) {
+      if (!x.offsetParent) return;
+      var cs = getComputedStyle(x), row = cs.flexDirection.indexOf('row') === 0;
+      x.classList.add(row ? 'ctr' : 'ctrc');
+      var c = x.querySelector('img, .cv'); if (!row || !c || !c.offsetParent) return;
+      var room = x.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom),
+        maxW = Math.min(112, x.clientWidth * 0.34),
+        h = Math.floor(Math.min(room, maxW * 1.5));
+      if (h > c.offsetHeight + 4) {
+        var fits = x.scrollHeight <= x.clientHeight + 1;
+        c.style.height = h + 'px'; c.style.width = Math.round(h / 1.5) + 'px';
+        /* a bigger cover never costs the words a line */
+        if (fits && x.scrollHeight > x.clientHeight + 1) { c.style.width = ''; c.style.height = ''; }
+      }
+    });
+  }
   /* Currently's items never end cut off: the by/season line goes first,
      then the cover, then the last line (Nov 3, Toby: on the Fold sideways
      the bottom line was cut). Checked again once fonts and images are in. */
   function nitemFit() {
     if (!homeEl) return;
+    [].forEach.call(homeEl.querySelectorAll('.hh-nitem'), function (x) { x.classList.remove('t1', 't2', 't3'); });
+    coverFit();
     [].forEach.call(homeEl.querySelectorAll('.hh-nitem'), function (x) {
-      x.classList.remove('t1', 't2', 't3');
       ['t1', 't2', 't3'].forEach(function (t) { if (x.scrollHeight > x.clientHeight + 1) x.classList.add(t); });
     });
   }

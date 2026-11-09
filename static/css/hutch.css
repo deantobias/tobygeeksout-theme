@@ -740,6 +740,11 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
    Micro.blog before Settings, in place of the four (hutch.js DKAPPS).
    All apps then lists only what didn't fit, and its button goes away
    when that's nothing (#hutch-home.dk-full). */
+/* Currently: each line keeps its height (Nov 9, Toby: on the iPad mini
+   sideways the lines squashed into each other). With room short, the item
+   overflows instead, and hutch.js nitemFit() drops the by/season line,
+   then the cover, then the last line. */
+.hh-nitem .tx > *{flex-shrink:0}
 .hh-dkapps{display:none}
 /* the full app grid: laptops and big screens (Nov 6); on the three-column
    tablet layout it made the left column so tall the photo and Word Nerd shrank */
@@ -759,6 +764,11 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
      two-line date is narrower than the one-line date was, so the apps
      keep the column as wide as before (Nov 9) */
   .hh-dkapps{min-width:min(464px,34vw)}
+  /* Currently too short for its lines (hutch.js nitemFit): the by/season
+     line goes first, then the last line; the cover stays (it sits beside
+     the words here, so hiding it saves no height) (Nov 9) */
+  .hh-now .hh-nitem.t1 i:not(.bar i){display:none}
+  .hh-now .hh-nitem.t3 em{display:none}
   /* no "Latest post" line under the date (Nov 9, Toby: not needed; the date gets the room) */
   .hh-p{display:none}
 }
@@ -866,7 +876,8 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hh-nitem b{font:700 16px/1.25 var(--h-ui);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .hh-nitem i{font:400 13px var(--h-ui);font-style:normal;color:#5F6673}
   .hh-nitem em{font:500 13px var(--h-ui);font-style:normal;color:#5F6673;margin-top:2px}
-  .hh-nitem .bar{display:block;height:5px;border-radius:9px;background:#E5DDD5;margin-top:auto;overflow:hidden}
+  /* the progress bar sits right under the page line, not at the bottom of a tall card (Nov 9, Toby) */
+  .hh-nitem .bar{display:block;height:5px;border-radius:9px;background:#E5DDD5;margin-top:10px;overflow:hidden}
   .hh-nitem .bar i{display:block;height:100%;background:#C4622D;border-radius:9px}
   /* shorter screens: Currently is a narrower card, so smaller covers leave room for the titles (Nov 3) */
   #hutch-home.nostrip .hh-nitem,#hutch-home.tight .hh-nitem{gap:10px;padding:10px}
@@ -1305,6 +1316,17 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home .hh-now .hh-nitem b{font-size:14.5px}
   #hutch-home .hh-now .hh-nitem i,#hutch-home .hh-now .hh-nitem em{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+/* Currently and Word Nerd centered in their space on every screen (Nov 9,
+   Toby: mockup v108 D, "all screens ... same as define"). hutch.js
+   coverFit() marks each Currently item .ctr (cover beside the words) or
+   .ctrc (cover on top) and grows the cover into any room. Word Nerd keeps
+   its header at the top; the word and meanings sit centered below it. */
+#hutch-home .hh-area .hh-now .hh-nitem.ctr{align-items:center}
+#hutch-home .hh-area .hh-now .hh-nitem.ctr .tx{align-self:center}
+#hutch-home .hh-area .hh-now .hh-nitem.ctrc{justify-content:center}
+#hutch-home .hh-area .hh-now .hh-nitem.ctrc .tx{flex:0 0 auto}
+#hutch-home .hh-area .hh-word > .hh-wtag{margin-bottom:auto}
+#hutch-home .hh-area .hh-word::after{content:"";margin-top:auto}
 /* ...and there Currently's two items stack instead of sitting side by side,
    so the second one is never cut off at the card's edge (Nov 6, Toby) */
 @media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
@@ -1384,7 +1406,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
   #hutch-home:not(.nonow) .hh-now .hh-nitem b{font:700 17px/1.25 var(--h-ui);-webkit-line-clamp:2}
   #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:14px}
-  #hutch-home:not(.nonow) .hh-now .hh-nitem .bar{margin-top:auto}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem .bar{margin-top:10px}
   /* Word Nerd: bigger word and meanings, with the example */
   #hutch-home:not(.nonow) .hh-word{padding:16px 18px}
   #hutch-home:not(.nonow) .hh-word .w{font-size:36px;margin-top:10px}

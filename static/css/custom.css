@@ -1652,6 +1652,10 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .page-body { padding: var(--space-lg) 0 var(--space-2xl); }
 .page-body p { margin-bottom: var(--space-lg); font-family: var(--font-reading); font-weight: 400; }
+/* Lists on pages match the paragraphs (Nov 9, 2026, Toby): .page-body li
+   fell back to the UI font (Inter), so bullet lists on pages like
+   Knowember read in a different face than the text around them. */
+.page-body li { font-family: var(--font-reading); font-weight: 400; }
 
 .page-body h2 {
   font-size: 1.25rem;

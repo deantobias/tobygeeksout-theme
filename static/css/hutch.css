@@ -752,9 +752,15 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
   .hh-dkapps .hh-tile .hx-ic{width:26px;height:26px}
   #hutch-home.dk-full .hh-handle{display:none}
   #hutch-drawer:not(.q) [data-dk]{display:none !important}
-  /* the date on one line (Nov 8): hutch.js dateFit() sizes it to the column */
+  /* the date on two lines, each kept whole (Nov 9, Toby; it was one line
+     on Nov 8): hutch.js dateFit() sizes it to the column */
   .hh-s{white-space:nowrap}
-  .hh-s br{display:none}
+  /* where the date's column sizes to what's in it (the iPad Pro), the
+     two-line date is narrower than the one-line date was, so the apps
+     keep the column as wide as before (Nov 9) */
+  .hh-dkapps{min-width:min(464px,34vw)}
+  /* no "Latest post" line under the date (Nov 9, Toby: not needed; the date gets the room) */
+  .hh-p{display:none}
 }
 
 /* ---------- 11. Desktop arrows for older / newer (Nov 3) ----------

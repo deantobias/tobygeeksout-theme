@@ -951,6 +951,19 @@
     /* laptops: no free sky above the mountains, so it rests on the
        mountains beside the dock instead */
     if (hit()) b.classList.add('low');
+    /* laptops (Nov 9, Toby: in Safari on his 15" Air the logo had shrunk to
+       its smallest; "it should be bigger"): the photo strip gives up a little
+       height so the logo keeps its "sm" size (the size Brave showed) */
+    if (hit() && DKMQ.matches) {
+      var st = homeEl.querySelector('.hh-strip'), th = st && st.querySelector('.hh-thumbs a');
+      if (th && getComputedStyle(st).display !== 'none') {
+        var zz = parseFloat(homeEl.querySelector('.hh-area').style.zoom) || 1,
+          nh = Math.floor(th.getBoundingClientRect().height / zz), h1 = nh;
+        /* 4px at a time, never more than 40px, never under 96px */
+        while (hit() && nh - 4 >= 96 && h1 - nh < 40) { nh -= 4; st.style.setProperty('--sth', nh + 'px'); }
+        if (hit()) { if (h1 < nh + 4) st.style.removeProperty('--sth'); else st.style.setProperty('--sth', h1 + 'px'); }
+      }
+    }
     /* one more, smaller step before it goes away (Nov 3, Toby: the logo
        and face vanished when the photo strip came in) */
     if (hit()) b.classList.add('xs');
@@ -990,13 +1003,33 @@
      Sunday, November 8th."), as big as fits the column, up to 40px. The
      apps column was the tallest card in the top row, so the whole row gets
      about one line shorter and the cards below get that room. */
-  function dateFit() {
+  /* Nov 9 (Toby, iPad mini sideways: "the date looks small"): it starts
+     at 40px on every laptop-size screen (it was stuck at the short
+     tablet's 30px). cap: on screens where the cards were shrunk to fit,
+     the date may widen its column by 15% at most (not at all under 650px
+     tall, like the iPad mini or a 13" Windows); a long date ("Wednesday,
+     September 30th.") had pushed the column so wide that Recent posts
+     wrapped and Currently got squashed (iPad Air, iPad mini). */
+  function dateFit(cap) {
     var s = homeEl && homeEl.querySelector('.hh-s'); if (!s) return;
-    s.style.fontSize = '';
+    s.style.fontSize = ''; s.style.maxWidth = '';
+    /* two lines on every laptop-size screen (Nov 9, Toby: "I would prefer
+       two lines for dates"): the day on one line, the month on the next,
+       like "It's Monday," / "November 9th.", up to 50px. The "Latest post"
+       line under it is gone there (CSS), so the date has the room. */
+    var two = DKMQ.matches;
+    s.classList.toggle('d2', two);
     if (!DKMQ.matches) return;
-    var f = Math.min(40, parseFloat(getComputedStyle(s).fontSize) || 40);
+    var lim = Infinity;
+    if (cap) {
+      s.style.fontSize = '22px';
+      var pe = s.closest('.hh-hello') || s.parentNode, ps = getComputedStyle(pe);
+      lim = Math.floor((pe.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) * (innerHeight < 650 ? 1 : 1.15)) - 4;
+      s.style.maxWidth = lim + 'px';
+    }
+    var f = two ? 50 : 40;
     s.style.fontSize = f + 'px';
-    while (f > 22 && s.scrollWidth > s.clientWidth + 1) { f -= 1; s.style.fontSize = f + 'px'; }
+    while (f > 22 && (s.scrollWidth > s.clientWidth + 1 || s.scrollWidth > lim)) { f -= 1; s.style.fontSize = f + 'px'; }
   }
   function fit() {
     if (!homeEl) return;
@@ -1102,6 +1135,8 @@
         a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
       }
     }
+    /* the date again with its cap, now the cards are at their final size */
+    if (z < 1) dateFit(true);
     if (strip && !homeEl.classList.contains('nostrip') && getComputedStyle(strip).display !== 'none') {
       /* a row squeezed by the grid shows up as a card cut short inside */
       var ab0 = a.getBoundingClientRect();

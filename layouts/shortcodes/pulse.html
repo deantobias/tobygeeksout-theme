@@ -113,14 +113,18 @@
 {{ if $isCurrent }}{{ $elapsed = int (div (sub now.Unix (time.AsTime (printf "%d-01-01" $year)).Unix) 86400) }}{{ end }}
 {{ if gt $elapsed 0 }}{{ $perDay = printf "%.1f" (div (float $totalPosts) (float $elapsed)) }}{{ end }}
 
-{{ $cmeName := "Caught My Eyes" }}
+{{/* Photo tile: the "Photos" category (was "Caught My Eyes" until
+     Nov 10, 2026). Shows the newest Photos post that actually has an
+     uploaded photo, so a text-only post can't blank the tile. */}}
+{{ $cmeName := "Photos" }}
 {{ $cme := where $posts "Params.categories" "intersect" (slice $cmeName) }}
 {{ $cmeCount := len $cme }}
 {{ $cmePhoto := "" }}
-{{ with $cme }}
-  {{ $latest := index (sort . "Date" "desc") 0 }}
-  {{ $imgs := findRE `https://cdn\.uploads\.micro\.blog/[^"]+?\.(?:jpg|jpeg|png|webp)` $latest.Content 1 }}
-  {{ with $imgs }}{{ $cmePhoto = index . 0 }}{{ end }}
+{{ range sort $cme "Date" "desc" }}
+  {{ if not $cmePhoto }}
+    {{ $imgs := findRE `https://cdn\.uploads\.micro\.blog/[^"]+?\.(?:jpg|jpeg|png|webp)` .Content 1 }}
+    {{ with $imgs }}{{ $cmePhoto = index . 0 }}{{ end }}
+  {{ end }}
 {{ end }}
 
 {{ $catCount := len $cats }}
@@ -178,7 +182,7 @@
       <div class="fact a-photo fact--photo">
         {{ with $cmePhoto }}<span class="fact-photo-img" style="background-image:url({{ . }})"></span>{{ end }}
         <span class="fact-photo-scrim">
-          <span class="fact-label">Caught My Eyes</span>
+          <span class="fact-label">Photos</span>
           <span class="fact-value">{{ $cmeCount }}</span>
           <span class="fact-note">photo post{{ if ne $cmeCount 1 }}s{{ end }}</span>
         </span>

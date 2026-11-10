@@ -1,8 +1,9 @@
 /* ---------- CALENDAR app (v39). Everything under .hx-cal ---------- */
-.hx-cal{--bg:#FFFBF7;--surf:#FFFFFF;--surf2:#F5EEE6;--ink:#1E2D4A;--sub:#646B78;--ln:#EEE6DC;--acc:#C4622D;--l1:rgba(196,98,45,.3);--l0:#EFE8DF;--sel:rgba(196,98,45,.08);
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-cal{--acct:#984A20;--bg:#FFFBF7;--surf:#FFFFFF;--surf2:#F5EEE6;--ink:#1E2D4A;--sub:#555B66;--ln:#EEE6DC;--acc:#C4622D;--l1:rgba(196,98,45,.3);--l0:#EFE8DF;--sel:rgba(196,98,45,.08);
   position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;z-index:10;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#A9B2C3;--ln:#262E3D;--acc:#E9875F;--l1:rgba(233,135,95,.38);--l0:#1E2534;--sel:rgba(233,135,95,.1)}
+html.hx-dark .hx-cal{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#C3CAD7;--ln:#262E3D;--acc:#E9875F;--l1:rgba(233,135,95,.38);--l0:#1E2534;--sel:rgba(233,135,95,.1)}
 .hx-cal *{box-sizing:border-box}
 .hx-cal a{color:inherit;text-decoration:none !important}
 .hx-cal button{font-family:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
@@ -32,9 +33,12 @@ html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-cal .ca-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--ln)}
 .hx-cal .ca-day{min-height:76px;border:0;border-bottom:1px solid var(--ln);border-right:1px solid var(--ln);padding:3px 2px;cursor:pointer;display:flex;flex-direction:column;gap:2px;overflow:hidden;background:none;text-align:left;font:inherit;min-width:0}
 .hx-cal .ca-day:nth-child(7n){border-right:0}
-.hx-cal .ca-day.ca-out{opacity:.35;cursor:default}
+.hx-cal .ca-day.ca-out{cursor:default}
+/* WCAG (Nov 9): other-month days in the softer grey (6:1 or more) instead of fading the whole day to 35% */
+.hx-cal .ca-day.ca-out .ca-n{color:var(--sub);font-weight:500}
 .hx-cal .ca-n{align-self:center;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 13px var(--h-ui);flex:none}
-.hx-cal .ca-day.ca-today .ca-n{background:var(--acc);color:#fff}
+.hx-cal .ca-day.ca-today .ca-n{background:#A65326;color:#fff}
+html.hx-dark .hx-cal .ca-day.ca-today .ca-n{background:var(--acc);color:#141A26}
 .hx-cal .ca-day.ca-sel{background:var(--sel)}
 .hx-cal .ca-day.ca-sel:not(.ca-today) .ca-n{box-shadow:inset 0 0 0 2px var(--acc)}
 .hx-cal .ca-day:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
@@ -140,3 +144,13 @@ html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-cal.ca-two .ca-day{min-height:0}
 .hx-cal.ca-two .ca-agenda{flex:1;min-width:0;overflow:auto;overscroll-behavior:contain;padding:14px 22px 24px}
 @media (max-height:560px){ .hx-cal.ca-two .ca-chip{font-size:10.5px;line-height:1.3} .hx-cal.ca-two .ca-n{width:22px;height:22px;font-size:12px} .hx-cal.ca-two .ca-day{gap:1px;padding:2px} }
+
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-cal .ca-wk{font-size:12.5px}
+.hx-cal .ca-chip,.hx-cal.ca-two .ca-chip{font-size:12px}
+.hx-cal .ca-more{font-size:12px}

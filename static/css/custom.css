@@ -3957,9 +3957,11 @@ table.link-card a[style*="inline-block"] {
 .cs-pill:hover { background: var(--color-terra-light); color: var(--color-terra-dark); }
 
 .cs-pill--solid {
-  background: var(--color-terra);
-  color: #FFFFFF;
-  border-color: var(--color-terra);
+  /* WCAG (Nov 9, Toby): the button tokens from section 85, so the ink
+     flips dark at night (white on terracotta was 4.09 day, 3.08 night) */
+  background: var(--color-terra-btn, #B85C2A);
+  color: var(--color-btn-ink, #FFFFFF);
+  border-color: var(--color-terra-btn, #B85C2A);
 }
 .cs-pill--solid:hover {
   background: var(--color-terra-dark);
@@ -12357,10 +12359,10 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
   margin-top: 4px;
   padding: 2px 7px;
   border-radius: 999px;
-  background: var(--color-terra);
-  color: #fff;
+  background: var(--color-terra-btn, #B85C2A); /* WCAG (Nov 9): button tokens */
+  color: var(--color-btn-ink, #fff);
   font-family: var(--font-body);
-  font-size: 0.58rem;
+  font-size: 0.65rem; /* readability (Nov 9): was 0.58rem, 11.6px */
   font-weight: 700;
   letter-spacing: 1.2px;
   text-transform: uppercase;
@@ -12470,11 +12472,12 @@ body.tgo-night .post-title-mosaic { --tm-strength: .85; }
 }
 .uses-tag {
   font: 600 0.72rem/1 var(--font-body);
-  color: var(--color-terra-text);
+  color: var(--color-terra-dark, #8B3E18); /* WCAG (Nov 9): was terra-text, 4.1:1 on the tag's tint */
   background: var(--color-terra-light);
   padding: 5px 9px;
   border-radius: 999px;
 }
+body.tgo-night .uses-tag, html.hx-dark .uses-tag { color: #F2A988; } /* WCAG (Nov 9): night tag ink */
 .uses-why {
   display: block;
   margin-top: 3px;

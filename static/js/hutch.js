@@ -945,6 +945,21 @@
   }
   /* the desktop logo never sits on top of a widget or the dock: smaller
      if it has to be, gone if there's no free sky for it */
+  /* App names under the icons (Nov 9, Toby): a name too long for its tile
+     ("Knowember" on the iPad mini) shrinks just enough to show in full,
+     instead of being cut off with "..."; every other name keeps its size */
+  function labelFit() {
+    if (!homeEl) return;
+    [].forEach.call(homeEl.querySelectorAll('.hh-ic > span:last-child'), function (l) {
+      l.style.fontSize = ''; l.style.letterSpacing = '';
+      if (!l.offsetParent || l.scrollWidth <= l.clientWidth + 1) return;
+      var f = parseFloat(getComputedStyle(l).fontSize) || 12;
+      var to = Math.max(8.5, Math.floor(f * (l.clientWidth - 1) / l.scrollWidth * 4) / 4);
+      l.style.fontSize = to + 'px';
+      while (to > 8.5 && l.scrollWidth > l.clientWidth + 1) { to -= 0.25; l.style.fontSize = to + 'px'; }
+      if (l.scrollWidth > l.clientWidth + 1) l.style.letterSpacing = '-.02em';
+    });
+  }
   function brandFit() {
     var b = homeEl && homeEl.querySelector('.hh-brand'); if (!b) return;
     b.classList.remove('sm', 'low', 'xs', 'off');
@@ -1072,6 +1087,7 @@
     if (!homeEl) return;
     setTimeout(photoFit, 0);
     setTimeout(brandFit, 0);
+    setTimeout(labelFit, 0);
     setTimeout(archFit, 0);
     var a = homeEl.querySelector('.hh-area');
     homeEl.classList.remove('fit1', 'fit2', 'nostrip');

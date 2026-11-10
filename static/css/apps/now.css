@@ -1,15 +1,16 @@
 /* ---------- NOW app (v38). Everything under .hx-now ---------- */
-.hx-now{--bg:#FAF8F5;--surf:#FFFFFF;--surf2:#F2ECE5;--ink:#1E2D4A;--sub:#646B78;--ln:#E9E1D7;--acc:#C4622D;--accs:rgba(196,98,45,.1);
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-now{--acct:#984A20;--bg:#FAF8F5;--surf:#FFFFFF;--surf2:#F2ECE5;--ink:#1E2D4A;--sub:#555B66;--ln:#E9E1D7;--acc:#C4622D;--accs:rgba(196,98,45,.1);
   position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;z-index:10;background:var(--bg);color:var(--ink);
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#A9B2C3;--ln:#262E3D;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
+html.hx-dark .hx-now{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#C3CAD7;--ln:#262E3D;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
 .hx-now *{box-sizing:border-box}
 .hx-now a{color:inherit;text-decoration:none !important}
 .hx-now .nw-scroll{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .hx-now .nw-wrap{padding:6px 16px 34px;max-width:1100px;margin:0 auto}
 
 .hx-now .nw-intro{padding:4px 4px 16px}
-.hx-now .nw-up{display:inline-flex;align-items:center;gap:7px;font:700 12px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acc);background:var(--accs);padding:6px 11px;border-radius:999px}
+.hx-now .nw-up{display:inline-flex;align-items:center;gap:7px;font:700 12px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acct);background:var(--accs);padding:6px 11px;border-radius:999px}
 .hx-now .nw-up i{width:7px;height:7px;border-radius:50%;background:var(--acc);display:inline-block;animation:nwpulse 2s infinite}
 @keyframes nwpulse{50%{opacity:.3}}
 @media (prefers-reduced-motion:reduce){.hx-now .nw-up i{animation:none}}
@@ -19,9 +20,9 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-two{display:none}
 .hx-now .nw-card{background:var(--surf);border:1px solid var(--ln);border-radius:24px;padding:15px 16px 17px;min-width:0}
 .hx-now .nw-ch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
-.hx-now .nw-lab{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.hx-now .nw-lab{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acct)}
 .hx-now .nw-h{font:700 20px var(--h-ui);margin:3px 0 0;color:var(--ink)}
-.hx-now .nw-from,.hx-now .nw-what{font:600 13.5px var(--h-ui);color:var(--acc) !important;white-space:nowrap}
+.hx-now .nw-from,.hx-now .nw-what{font:600 13.5px var(--h-ui);color:var(--acct) !important;white-space:nowrap}
 .hx-now .nw-tag{font:600 13px var(--h-ui);color:var(--sub);font-style:italic;white-space:nowrap}
 
 /* watching */
@@ -48,7 +49,7 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-bk small{display:block;font:500 14px var(--h-ui);color:var(--sub);margin-top:4px}
 .hx-now .nw-bar{display:block;height:6px;border-radius:3px;background:var(--surf2);margin-top:10px;overflow:hidden}
 .hx-now .nw-bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
-.hx-now .nw-pct{font:800 27px var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acc);margin-left:auto;padding-left:6px}
+.hx-now .nw-pct{font:800 27px var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acct);margin-left:auto;padding-left:6px}
 
 /* photo + making */
 .hx-now .nw-photo{display:block;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/9;background:var(--surf2)}
@@ -64,10 +65,10 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-dots i{width:9px;height:9px;border-radius:50%;background:var(--surf2)}
 .hx-now .nw-dots i.on{background:var(--acc)}
 .hx-now .nw-wbody{min-width:0;display:flex;flex-direction:column;gap:4px}
-.hx-now .nw-count{font:800 32px/1 var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acc)}
+.hx-now .nw-count{font:800 32px/1 var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acct)}
 .hx-now .nw-count span{font-size:18px;color:var(--sub);font-weight:600}
 .hx-now .nw-wbody small{font:500 14px/1.4 var(--h-ui);color:var(--sub)}
-.hx-now .nw-wbody a,.hx-now .nw-proj small a,.hx-now .nw-foot a,.hx-now .nw-raw a{color:var(--acc) !important;text-decoration:underline !important;text-underline-offset:2px}
+.hx-now .nw-wbody a,.hx-now .nw-proj small a,.hx-now .nw-foot a,.hx-now .nw-raw a{color:var(--acct) !important;text-decoration:underline !important;text-underline-offset:2px}
 
 /* building */
 .hx-now .nw-projects{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -127,3 +128,11 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
   .hx-now .nw-slash{grid-template-columns:repeat(8,minmax(0,1fr))}
 }
 @media (min-width:1200px){ .hx-now .nw-pst{width:132px} }
+
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-now .nw-cv span{font-size:12px}

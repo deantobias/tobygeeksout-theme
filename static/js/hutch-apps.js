@@ -252,6 +252,13 @@ window.HutchApps = window.HutchApps || {};
       var h = 0; for (var j = 0; j < c.length; j++) h = (h * 31 + c.charCodeAt(j)) >>> 0;
       return POOL[h % POOL.length];
     }
+    /* WCAG (Nov 9, Toby): white words on a chip need 4.5:1, so the chip's
+       category colour is shaded 18% (same hue, every chip 5:1 or more) */
+    function shade(h) {
+      var m = /^#?([0-9a-f]{6})$/i.exec(h); if (!m) return h;
+      var n = parseInt(m[1], 16), f = function (v) { return Math.round(v * 0.82); };
+      return 'rgb(' + f(n >> 16 & 255) + ',' + f(n >> 8 & 255) + ',' + f(n & 255) + ')';
+    }
     function catName(p) { return p.b ? 'Blaugust' + (p.c && !/blaugust/i.test(p.c) ? ' · ' + p.c : '') : (p.c || 'Post'); }
 
     /* ---------- state ---------- */
@@ -290,7 +297,7 @@ window.HutchApps = window.HutchApps || {};
         var lab = MN[m] + ' ' + d + (ps.length ? ', ' + ps.length + (ps.length === 1 ? ' post' : ' posts') : '') + (k === TK ? ', today' : '');
         cells += '<button type="button" class="ca-day' + (k === TK ? ' ca-today' : '') + (k === sel ? ' ca-sel' : '') + '" data-d="' + k + '" aria-label="' + lab + '"' + (k === sel ? ' aria-pressed="true"' : '') + '>' +
           '<span class="ca-n">' + d + '</span>' +
-          ps.slice(0, mx).map(function (p) { return '<span class="ca-chip" style="background:' + color(p) + '">' + esc(p.t.replace(/^\W*(Word Nerd Alert|Blaugust Day \d+|Now Watching):\s*/i, '')) + '</span>'; }).join('') +
+          ps.slice(0, mx).map(function (p) { return '<span class="ca-chip" style="background:' + shade(color(p)) + '">' + esc(p.t.replace(/^\W*(Word Nerd Alert|Blaugust Day \d+|Now Watching):\s*/i, '')) + '</span>'; }).join('') +
           (ps.length > mx ? '<span class="ca-more">+' + (ps.length - mx) + '</span>' : '') + '</button>';
       }
       return '<div class="ca-month"><div class="ca-wk" aria-hidden="true">' + 'SMTWTFS'.split('').map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div><div class="ca-days">' + cells + '</div></div>';

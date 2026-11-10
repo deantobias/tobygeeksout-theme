@@ -1,10 +1,11 @@
 /* HUTCH OS app styles (Nov 2, 2026). Loaded after hutch.css only when Hutch is on. Built from static/css/apps/. */
 
 /* ---------- ARCHIVE app (v33). Everything under .hx-ar ---------- */
-.hx-ar{--bg:#FAF7F3;--surf:#FFFFFF;--surf2:#F3ECE4;--ink:#1E2D4A;--sub:#646B78;--ln:#EAE2D8;--acc:#C4622D;--accs:rgba(196,98,45,.1);
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-ar{--acct:#984A20;--bg:#FAF7F3;--surf:#FFFFFF;--surf2:#F3ECE4;--ink:#1E2D4A;--sub:#555B66;--ln:#EAE2D8;--acc:#C4622D;--accs:rgba(196,98,45,.1);
   position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;z-index:10;background:var(--bg);color:var(--ink);overflow:hidden;
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-html.hx-dark .hx-ar{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#A9B2C3;--ln:#2A3344;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
+html.hx-dark .hx-ar{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#C3CAD7;--ln:#2A3344;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
 .hx-ar *{box-sizing:border-box}
 .hx-ar a{color:inherit;text-decoration:none !important}
 .hx-ar button{font-family:inherit;color:inherit}
@@ -40,7 +41,7 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
 .hx-ar .ar-folder .ar-nm{display:flex;flex-direction:column;gap:3px;min-width:0;max-width:100%}
 .hx-ar .ar-folder b{font:600 16px/1.25 var(--h-ui);overflow-wrap:anywhere}
 .hx-ar .ar-folder small{font:500 13.5px var(--h-ui);color:var(--sub)}
-.hx-ar .ar-app{font:700 10.5px var(--h-ui);letter-spacing:.04em;color:var(--acc);background:var(--accs);padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:3px;white-space:nowrap}
+.hx-ar .ar-app{font:700 10.5px var(--h-ui);letter-spacing:.04em;color:var(--acct);background:var(--accs);padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:3px;white-space:nowrap}
 .hx-ar .ar-folder .ar-app{position:absolute;top:12px;right:12px}
 .hx-ar .ar-app .hx-ic{width:11px;height:11px}
 .hx-ar .ar-more{text-align:center;font:500 15px var(--h-ui);color:var(--sub);margin:24px 0}
@@ -49,15 +50,15 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
 .hx-ar .ar-mag{padding:14px 20px 40px;max-width:820px;margin:0 auto}
 .hx-ar .ar-mast{font:800 40px/1.02 var(--h-flex);font-variation-settings:'opsz' 144,'wdth' 95;letter-spacing:-.02em;margin:4px 0 8px;overflow-wrap:anywhere;color:var(--ink)}
 .hx-ar .ar-dateline{font:600 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);padding-bottom:14px;border-bottom:2px solid var(--ink);margin-bottom:18px}
-.hx-ar .ar-dateline b{color:var(--acc)}
+.hx-ar .ar-dateline b{color:var(--acct)}
 .hx-ar .ar-feat{display:block;margin-bottom:24px;cursor:pointer}
 .hx-ar .ar-feat .ar-img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;margin-bottom:12px;background:var(--surf2)}
-.hx-ar .ar-feat .ar-k{font:700 12px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.hx-ar .ar-feat .ar-k{font:700 12px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acct)}
 .hx-ar .ar-feat .ar-h{font:700 24px/1.18 var(--h-ui);margin:6px 0 6px;color:var(--ink)}
 .hx-ar .ar-feat .ar-h.ar-untitled{font-weight:600;font-size:21px}
 .hx-ar .ar-feat p{font:400 15.5px/1.5 var(--h-ui);color:var(--sub);margin:0}
-.hx-ar .ar-feat:hover .ar-h{color:var(--acc)}
-.hx-ar .ar-year{font:800 13px var(--h-ui);letter-spacing:.12em;color:var(--acc);margin:22px 0 6px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
+.hx-ar .ar-feat:hover .ar-h{color:var(--acct)}
+.hx-ar .ar-year{font:800 13px var(--h-ui);letter-spacing:.12em;color:var(--acct);margin:22px 0 6px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
 .hx-ar .ar-year:after{content:"";flex:1;height:1px;background:var(--ln);order:1}
 .hx-ar .ar-year span{order:2;font:600 12px var(--h-ui);letter-spacing:.04em;color:var(--sub)}
 .hx-ar .ar-year.ar-ybig{font:800 30px/1 var(--h-flex);font-variation-settings:'opsz' 144;letter-spacing:-.01em;color:var(--ink);margin:30px 0 4px}
@@ -70,11 +71,11 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
 .hx-ar .ar-ent .ar-ln i{flex:1;border-bottom:2px dotted var(--ln);transform:translateY(-4px);min-width:16px}
 .hx-ar .ar-ent .ar-ln span{font:600 12.5px var(--h-ui);color:var(--sub);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
 .hx-ar .ar-ent .ar-sm{display:block;font:400 15px/1.45 var(--h-ui);color:var(--sub);margin:4px 0 0}
-.hx-ar .ar-ent:hover .ar-ln b{color:var(--acc)}
+.hx-ar .ar-ent:hover .ar-ln b{color:var(--acct)}
 .hx-ar .ar-nada{color:var(--sub);font-size:15px}
 .hx-ar .ar-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:28px}
 .hx-ar .ar-foot a{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ln);border-radius:999px;padding:10px 16px;font:600 14px var(--h-ui);background:var(--surf)}
-.hx-ar .ar-foot .hx-ic{width:17px;height:17px;color:var(--acc)}
+.hx-ar .ar-foot .hx-ic{width:17px;height:17px;color:var(--acct)}
 
 /* landscape: two panes */
 .hx-ar .ar-panes{display:none}
@@ -114,11 +115,46 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
   .hx-ar .ar-folders{grid-template-columns:repeat(4,1fr)}
 }
 
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-ar .ar-dateline{font-size:13.5px}
+.hx-ar .ar-feat .ar-k{font-size:13px}
+.hx-ar .ar-feat p{font-size:16.5px}
+.hx-ar .ar-year{font-size:14px}
+.hx-ar .ar-year span{font-size:13px}
+.hx-ar .ar-ent .ar-ln b{font-size:17px}
+.hx-ar .ar-ent.ar-micro .ar-ln b{font-size:16.5px}
+.hx-ar .ar-ent .ar-ln span{font-size:13.5px}
+.hx-ar .ar-ent .ar-sm{font-size:16px}
+.hx-ar .ar-app{font-size:12px}
+.hx-ar .ar-flist .ar-row small,.hx-ar .ar-folder small{font-size:14px}
+@media (min-width:600px){
+  .hx-ar .ar-feat p{font-size:17px}
+  .hx-ar .ar-ent .ar-ln b{font-size:18px}
+  .hx-ar .ar-ent.ar-micro .ar-ln b{font-size:17.5px}
+  .hx-ar .ar-ent .ar-sm{font-size:16.5px}
+}
+@media (min-width:1100px){
+  .hx-ar .ar-feat .ar-h{font-size:29px}
+  .hx-ar .ar-feat p{font-size:18px}
+  .hx-ar .ar-ent .ar-ln b{font-size:19px}
+  .hx-ar .ar-ent.ar-micro .ar-ln b{font-size:18.5px}
+  .hx-ar .ar-ent .ar-ln span{font-size:14px}
+  .hx-ar .ar-ent .ar-sm{font-size:17.5px}
+  .hx-ar .ar-flist .ar-row b{font-size:17px}
+  .hx-ar .ar-flist .ar-row small{font-size:14.5px}
+}
+
 /* ---------- CALENDAR app (v39). Everything under .hx-cal ---------- */
-.hx-cal{--bg:#FFFBF7;--surf:#FFFFFF;--surf2:#F5EEE6;--ink:#1E2D4A;--sub:#646B78;--ln:#EEE6DC;--acc:#C4622D;--l1:rgba(196,98,45,.3);--l0:#EFE8DF;--sel:rgba(196,98,45,.08);
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-cal{--acct:#984A20;--bg:#FFFBF7;--surf:#FFFFFF;--surf2:#F5EEE6;--ink:#1E2D4A;--sub:#555B66;--ln:#EEE6DC;--acc:#C4622D;--l1:rgba(196,98,45,.3);--l0:#EFE8DF;--sel:rgba(196,98,45,.08);
   position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;z-index:10;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#A9B2C3;--ln:#262E3D;--acc:#E9875F;--l1:rgba(233,135,95,.38);--l0:#1E2534;--sel:rgba(233,135,95,.1)}
+html.hx-dark .hx-cal{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#C3CAD7;--ln:#262E3D;--acc:#E9875F;--l1:rgba(233,135,95,.38);--l0:#1E2534;--sel:rgba(233,135,95,.1)}
 .hx-cal *{box-sizing:border-box}
 .hx-cal a{color:inherit;text-decoration:none !important}
 .hx-cal button{font-family:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
@@ -148,9 +184,12 @@ html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-cal .ca-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--ln)}
 .hx-cal .ca-day{min-height:76px;border:0;border-bottom:1px solid var(--ln);border-right:1px solid var(--ln);padding:3px 2px;cursor:pointer;display:flex;flex-direction:column;gap:2px;overflow:hidden;background:none;text-align:left;font:inherit;min-width:0}
 .hx-cal .ca-day:nth-child(7n){border-right:0}
-.hx-cal .ca-day.ca-out{opacity:.35;cursor:default}
+.hx-cal .ca-day.ca-out{cursor:default}
+/* WCAG (Nov 9): other-month days in the softer grey (6:1 or more) instead of fading the whole day to 35% */
+.hx-cal .ca-day.ca-out .ca-n{color:var(--sub);font-weight:500}
 .hx-cal .ca-n{align-self:center;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 13px var(--h-ui);flex:none}
-.hx-cal .ca-day.ca-today .ca-n{background:var(--acc);color:#fff}
+.hx-cal .ca-day.ca-today .ca-n{background:#A65326;color:#fff}
+html.hx-dark .hx-cal .ca-day.ca-today .ca-n{background:var(--acc);color:#141A26}
 .hx-cal .ca-day.ca-sel{background:var(--sel)}
 .hx-cal .ca-day.ca-sel:not(.ca-today) .ca-n{box-shadow:inset 0 0 0 2px var(--acc)}
 .hx-cal .ca-day:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
@@ -257,6 +296,16 @@ html.hx-dark .hx-cal{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-cal.ca-two .ca-agenda{flex:1;min-width:0;overflow:auto;overscroll-behavior:contain;padding:14px 22px 24px}
 @media (max-height:560px){ .hx-cal.ca-two .ca-chip{font-size:10.5px;line-height:1.3} .hx-cal.ca-two .ca-n{width:22px;height:22px;font-size:12px} .hx-cal.ca-two .ca-day{gap:1px;padding:2px} }
 
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-cal .ca-wk{font-size:12.5px}
+.hx-cal .ca-chip,.hx-cal.ca-two .ca-chip{font-size:12px}
+.hx-cal .ca-more{font-size:12px}
+
 /* ==================================================================
    DEN app (/watching/), Hutch OS (Nov 2, 2026) - mockup v30.
    Always dark, whatever the sky. Everything is under .hx-den, plus
@@ -267,7 +316,8 @@ html.hx-den-on body{background:#15110E}
 html.hx-den-on #hutch-bar{background:#15110E;color:#F3EEE7}
 html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,0,0,.35)}
 
-.hx-den{--bg:#15110E;--surf:#201A16;--ink:#F3EEE7;--sub:#B3A89C;--ln:#2F2822;--acc:#E9875F;--btn:#C4622D;--gold:#E2AE4A;
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-den{--acct:#F2A988;--bg:#15110E;--surf:#201A16;--ink:#F3EEE7;--sub:#C4B9AD;--ln:#2F2822;--acc:#E9875F;--btn:#A65326;--gold:#E2AE4A;
   --pad:16px;
   position:fixed;top:var(--h-bar,56px);left:0;right:0;bottom:0;z-index:50;overflow:hidden;
   background:var(--bg);color:var(--ink);font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
@@ -306,7 +356,9 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .cover{border-radius:6px 10px 10px 6px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 10px}
 .hx-den .cover:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:rgba(0,0,0,.2);z-index:1}
 .hx-den .cover .ct{font:600 15px/1.15 var(--font-reading,Georgia),Georgia,serif;position:relative;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical}
-.hx-den .cover .ca{font:500 10px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;opacity:.85;position:relative}
+.hx-den .cover .ca{font:500 10px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;position:relative}
+/* WCAG (Nov 9): the stand-in cover's colour is shaded 20% so its words clear 4.5:1 */
+.hx-den .cover{box-shadow:inset 0 0 0 999px rgba(0,0,0,.2)}
 .hx-den .poster{border-radius:10px;display:flex;flex-direction:column;justify-content:flex-end;padding:9px}
 .hx-den .poster:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.6))}
 .hx-den .poster .pn{position:relative;z-index:1;font:800 15px/1 var(--h-flex);font-variation-settings:'wdth' 75,'opsz' 144;text-transform:uppercase;overflow-wrap:break-word;hyphens:auto}
@@ -367,7 +419,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .dtop .bg,.hx-den .dtop .bgimg{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);object-fit:cover;filter:blur(30px) brightness(.45) saturate(1.2);z-index:0}
 .hx-den .dtop .art{position:relative;z-index:1;width:118px;flex:none}
 .hx-den .dtop .info{position:relative;z-index:1;min-width:0;padding-bottom:4px}
-.hx-den .meta{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.hx-den .meta{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acct)}
 .hx-den .dtop h2{font:800 28px/1.05 var(--h-flex);font-variation-settings:'wdth' 85,'opsz' 144;margin:6px 0 5px;color:#fff;overflow-wrap:anywhere;letter-spacing:0;font-family:var(--h-flex) !important}
 .hx-den .dtop .sub2{font:500 15px/1.35 var(--h-ui);color:#CFC5BA}
 .hx-den .rate{display:flex;align-items:center;gap:10px;margin-top:10px}
@@ -456,7 +508,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den a.it{color:inherit;text-decoration:none}
 .hx-den .it-q .poster{position:relative}
 .hx-den .qbadge{position:absolute;top:8px;left:8px;z-index:2;font:800 11px/1 var(--h-ui);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:rgba(0,0,0,.62);color:#F2B544}
-.hx-den .qbadge.soon{background:#C4622D;color:#fff}
+.hx-den .qbadge.soon{background:#A65326;color:#fff}
 .hx-den .qbadge.out{background:#3E8E5E;color:#fff}
 
 /* Month in review (Nov 7, Toby): like the Watched page's row, in Den's
@@ -477,18 +529,29 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .it-month.mnext strong,.hx-den .it-month.mnext span{display:block}
 @media (min-width:840px){.hx-den .it-month{width:220px}}
 
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-den .badge,.hx-den .hd-wcard .ty,.hx-den .qbadge{font-size:12px}
+.hx-den .hd-wcard .thumb .tn{font-size:12px}
+.hx-den .cover .ca{font-size:12px}
+
 /* ---------- NOW app (v38). Everything under .hx-now ---------- */
-.hx-now{--bg:#FAF8F5;--surf:#FFFFFF;--surf2:#F2ECE5;--ink:#1E2D4A;--sub:#646B78;--ln:#E9E1D7;--acc:#C4622D;--accs:rgba(196,98,45,.1);
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-now{--acct:#984A20;--bg:#FAF8F5;--surf:#FFFFFF;--surf2:#F2ECE5;--ink:#1E2D4A;--sub:#555B66;--ln:#E9E1D7;--acc:#C4622D;--accs:rgba(196,98,45,.1);
   position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;z-index:10;background:var(--bg);color:var(--ink);
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#A9B2C3;--ln:#262E3D;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
+html.hx-dark .hx-now{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;--sub:#C3CAD7;--ln:#262E3D;--acc:#E9875F;--accs:rgba(233,135,95,.14)}
 .hx-now *{box-sizing:border-box}
 .hx-now a{color:inherit;text-decoration:none !important}
 .hx-now .nw-scroll{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .hx-now .nw-wrap{padding:6px 16px 34px;max-width:1100px;margin:0 auto}
 
 .hx-now .nw-intro{padding:4px 4px 16px}
-.hx-now .nw-up{display:inline-flex;align-items:center;gap:7px;font:700 12px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acc);background:var(--accs);padding:6px 11px;border-radius:999px}
+.hx-now .nw-up{display:inline-flex;align-items:center;gap:7px;font:700 12px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acct);background:var(--accs);padding:6px 11px;border-radius:999px}
 .hx-now .nw-up i{width:7px;height:7px;border-radius:50%;background:var(--acc);display:inline-block;animation:nwpulse 2s infinite}
 @keyframes nwpulse{50%{opacity:.3}}
 @media (prefers-reduced-motion:reduce){.hx-now .nw-up i{animation:none}}
@@ -498,9 +561,9 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-two{display:none}
 .hx-now .nw-card{background:var(--surf);border:1px solid var(--ln);border-radius:24px;padding:15px 16px 17px;min-width:0}
 .hx-now .nw-ch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
-.hx-now .nw-lab{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.hx-now .nw-lab{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--acct)}
 .hx-now .nw-h{font:700 20px var(--h-ui);margin:3px 0 0;color:var(--ink)}
-.hx-now .nw-from,.hx-now .nw-what{font:600 13.5px var(--h-ui);color:var(--acc) !important;white-space:nowrap}
+.hx-now .nw-from,.hx-now .nw-what{font:600 13.5px var(--h-ui);color:var(--acct) !important;white-space:nowrap}
 .hx-now .nw-tag{font:600 13px var(--h-ui);color:var(--sub);font-style:italic;white-space:nowrap}
 
 /* watching */
@@ -527,7 +590,7 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-bk small{display:block;font:500 14px var(--h-ui);color:var(--sub);margin-top:4px}
 .hx-now .nw-bar{display:block;height:6px;border-radius:3px;background:var(--surf2);margin-top:10px;overflow:hidden}
 .hx-now .nw-bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
-.hx-now .nw-pct{font:800 27px var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acc);margin-left:auto;padding-left:6px}
+.hx-now .nw-pct{font:800 27px var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acct);margin-left:auto;padding-left:6px}
 
 /* photo + making */
 .hx-now .nw-photo{display:block;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/9;background:var(--surf2)}
@@ -543,10 +606,10 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 .hx-now .nw-dots i{width:9px;height:9px;border-radius:50%;background:var(--surf2)}
 .hx-now .nw-dots i.on{background:var(--acc)}
 .hx-now .nw-wbody{min-width:0;display:flex;flex-direction:column;gap:4px}
-.hx-now .nw-count{font:800 32px/1 var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acc)}
+.hx-now .nw-count{font:800 32px/1 var(--h-flex);font-variation-settings:'opsz' 144;color:var(--acct)}
 .hx-now .nw-count span{font-size:18px;color:var(--sub);font-weight:600}
 .hx-now .nw-wbody small{font:500 14px/1.4 var(--h-ui);color:var(--sub)}
-.hx-now .nw-wbody a,.hx-now .nw-proj small a,.hx-now .nw-foot a,.hx-now .nw-raw a{color:var(--acc) !important;text-decoration:underline !important;text-underline-offset:2px}
+.hx-now .nw-wbody a,.hx-now .nw-proj small a,.hx-now .nw-foot a,.hx-now .nw-raw a{color:var(--acct) !important;text-decoration:underline !important;text-underline-offset:2px}
 
 /* building */
 .hx-now .nw-projects{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -607,6 +670,14 @@ html.hx-dark .hx-now{--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;--ink:#F3EEE7;-
 }
 @media (min-width:1200px){ .hx-now .nw-pst{width:132px} }
 
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-now .nw-cv span{font-size:12px}
+
 /* ---------- Photos app (/photo/), v32 mockup, Nov 2, 2026 ----------
    Always light (a gallery wall), whatever the sky. Built by
    static/js/apps/photos.js. html.hxp-on is set only on /photo/ with
@@ -617,7 +688,8 @@ html.hxp-on #hutch-bar{background:#FFFFFF;color:#1E2D4A}
 html.hxp-on #hutch-bar.scrolled{box-shadow:0 1px 0 #ECE6DE,0 4px 14px rgba(15,23,38,.06)}
 html.hxp-lock,html.hxp-lock body{overflow:hidden}
 
-.hx-photos{--bg:#FFFFFF;--ink:#1E2D4A;--sub:#5F6673;--ln:#ECE6DE;--acc:#C4622D;--surf:#F6F1EB;
+/* WCAG (Nov 9, Toby): --acct is the accent for TEXT, at least 4.5:1 on every surface here (--acc stays the brand orange for fills, bars and borders) */
+.hx-photos{--acct:#984A20;--bg:#FFFFFF;--ink:#1E2D4A;--sub:#555B66;--ln:#ECE6DE;--acc:#C4622D;--surf:#F6F1EB;
   color-scheme:light;background:var(--bg);color:var(--ink);font-family:var(--h-ui);
   padding-top:var(--h-bar);min-height:100vh;-webkit-font-smoothing:antialiased}
 .hx-photos *,.hx-photos *::before,.hx-photos *::after{box-sizing:border-box}
@@ -653,7 +725,7 @@ html.hxp-lock,html.hxp-lock body{overflow:hidden}
 .hxp-new{margin:0 12px}
 .hxp-nhead{display:flex;align-items:center;gap:8px;margin:0 6px 8px}
 .hxp-chip{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--h-ui);letter-spacing:.06em;text-transform:uppercase;
-  color:#fff;background:var(--acc);padding:6px 10px 6px 9px;border-radius:999px}
+  color:#fff;background:#A65326;padding:6px 10px 6px 9px;border-radius:999px} /* WCAG (Nov 9): white on #A65326 = 5.4:1 */
 .hxp-chip i{width:7px;height:7px;border-radius:50%;background:#fff;animation:hxp-blink 2s ease-in-out infinite}
 @keyframes hxp-blink{50%{opacity:.35}}
 .hxp-ago{font:500 13px var(--h-ui);color:var(--sub)}
@@ -701,7 +773,7 @@ html.hxp-lock,html.hxp-lock body{overflow:hidden}
 .hxp-tile:focus-visible{outline:3px solid var(--acc);outline-offset:-3px}
 .hxp-tile:active img{opacity:.85}
 .hxp-plus{position:absolute;top:6px;right:6px;z-index:2;font:700 12px/1 var(--h-ui);color:#fff;
-  background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:4px 7px;border-radius:999px}
+  background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:4px 7px;border-radius:999px}
 .hx-photos[data-mode=port] .hxp-plus{font-size:13px}
 
 /* ---------- detail (slides in over the grid, scrolls on its own) ---------- */
@@ -723,13 +795,13 @@ html.hxp-lock,html.hxp-lock body{overflow:hidden}
 .hxp-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);box-shadow:0 0 3px rgba(0,0,0,.45);transition:background .2s,transform .2s}
 .hxp-dots i.on{background:#fff;transform:scale(1.15)}
 
-.hxp-date{display:block;font:700 12px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.hxp-date{display:block;font:700 12px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acct)}
 .hxp-title{font:700 19px/1.3 var(--h-ui);font-family:var(--h-ui) !important;text-wrap:pretty;margin:5px 0 4px;color:var(--ink);overflow-wrap:anywhere}
 .hxp-cap{font:400 15.5px/1.5 var(--h-ui);color:var(--ink);margin:4px 0 0;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hxp-read{margin-top:14px;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:10px 20px;border-radius:999px;
-  background:var(--acc);color:#fff !important;text-decoration:none !important;font:600 15px var(--h-ui)}
-.hxp-read:hover{background:#A9521F}
+  background:#A65326;color:#fff !important;text-decoration:none !important;font:600 15px var(--h-ui)}
+.hxp-read:hover{background:#8F4519}
 .hxp-read:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 
 /* feed: phone and unfolded upright (a centered column) */
@@ -805,10 +877,10 @@ html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1
    follows the sky through the blog's own color tokens.
    ------------------------------------------------------------------ */
 .hx-sm{--bg:var(--color-bg,#FAF8F5);--surf:var(--color-bg-card,#FFFFFF);--surf2:var(--color-bg-warm,#F2EDE8);--ink:var(--color-text,#1A1A18);
-  --sub:var(--color-text-muted,#69635C);--ln:var(--color-border,#E5DDD5);--acc:var(--color-terra-text,#A65326);--btn:var(--color-terra,#C4622D);
+  --sub:var(--color-text-muted,#69635C);--ln:var(--color-border,#E5DDD5);--acc:var(--color-terra-text,#A65326);--acct:var(--color-terra-text,#A65326);--btn:var(--color-terra,#C4622D);
   min-height:100vh;min-height:100dvh;padding:var(--h-bar) 0 0;background:var(--bg);color:var(--ink);
   font-family:var(--h-ui);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
-.hx-sm.dark{--acc:#E9875F;--btn:#D9703F;--surf2:rgba(255,255,255,.06)}
+.hx-sm.dark{--acc:#E9875F;--acct:#F2A988;--btn:#D9703F;--surf2:rgba(255,255,255,.06)}
 .hx-sm *{box-sizing:border-box}
 .hx-sm svg{width:22px;height:22px;display:block;flex:none}
 .hx-sm-panes{max-width:680px;margin:0 auto;padding:10px 20px 48px}
@@ -821,15 +893,15 @@ html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1
 .hx-sm .hx-sm-title{font:800 30px/1.1 var(--h-flex);font-variation-settings:'opsz' 144;letter-spacing:-.01em;margin:8px 0 14px;color:var(--ink)}
 .hx-sm-doc{font:400 16px/1.6 var(--h-ui);overflow-wrap:break-word}
 .hx-sm .hx-sm-doc p,.hx-sm .hx-sm-intro p{font:400 16px/1.6 var(--h-ui);margin:0 0 14px;color:var(--ink)}
-.hx-sm .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){font:700 13px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:26px 0 10px;border:0;padding:0}
+.hx-sm .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){font:700 13px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acct);margin:26px 0 10px;border:0;padding:0}
 .hx-sm .hx-sm-doc > :is(h1,h2,h3,h4):not(.hx-sm-title):first-child{margin-top:8px}
-.hx-sm .hx-sm-doc a:not(.hx-sm-row),.hx-sm .hx-sm-intro a,.hx-sm .hx-sm-facts a{color:var(--acc);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+.hx-sm .hx-sm-doc a:not(.hx-sm-row),.hx-sm .hx-sm-intro a,.hx-sm .hx-sm-facts a{color:var(--acct);font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--acc) 40%,transparent)}
 .hx-sm .hx-sm-doc :is(ul,ol){list-style:none;margin:0 0 16px;padding:0;background:var(--surf);border:1px solid var(--ln);border-radius:16px;overflow:hidden}
 .hx-sm .hx-sm-doc :is(ul,ol) > li{position:relative;margin:0;padding:12px 16px 12px 36px;border-top:1px solid var(--ln);font:400 16px/1.45 var(--h-ui)}
 .hx-sm .hx-sm-doc :is(ul,ol) > li:first-child{border-top:0}
 .hx-sm .hx-sm-doc ul > li::before{content:"";position:absolute;left:17px;top:21px;width:7px;height:7px;border-radius:50%;background:var(--btn)}
 .hx-sm .hx-sm-doc ol{counter-reset:hxs}
-.hx-sm .hx-sm-doc ol > li::before{counter-increment:hxs;content:counter(hxs);position:absolute;left:14px;top:12px;font:700 13px/1.7 var(--h-ui);color:var(--acc)}
+.hx-sm .hx-sm-doc ol > li::before{counter-increment:hxs;content:counter(hxs);position:absolute;left:14px;top:12px;font:700 13px/1.7 var(--h-ui);color:var(--acct)}
 .hx-sm .hx-sm-doc :is(ul,ol) :is(ul,ol){border:0;border-radius:0;margin:6px 0 0;background:transparent}
 .hx-sm .hx-sm-doc blockquote{margin:0 0 16px;padding:12px 16px;border-left:4px solid var(--btn);background:var(--surf);border-radius:0 14px 14px 0;font-style:normal}
 .hx-sm .hx-sm-doc img{max-width:100%;height:auto;border-radius:14px}
@@ -853,7 +925,7 @@ html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1
 .hx-sm .hx-sm-row small{display:block;font:400 14px/1.35 var(--h-ui);color:var(--sub);overflow:hidden;text-overflow:ellipsis}
 .hx-sm .hx-sm-row .chev{color:var(--sub)}
 .hx-sm .hx-sm-row .chev svg{width:20px;height:20px}
-.hx-sm .hx-sm-row .go{flex:none;font:600 14px var(--h-ui);color:var(--acc);padding:6px 2px}
+.hx-sm .hx-sm-row .go{flex:none;font:600 14px var(--h-ui);color:var(--acct);padding:6px 2px}
 .hx-sm .hx-sm-row.done .go{color:#4F8A5B}
 .hx-sm.dark .hx-sm-row.done .go{color:#8FCB9B}
 
@@ -918,7 +990,7 @@ html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1
 .hx-sm .hx-sm-big{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1px solid transparent;border-radius:18px;background:var(--btn);
   color:#fff !important;font:600 17px var(--h-ui);padding:17px;margin:0 0 10px;text-decoration:none !important;cursor:pointer}
 .hx-sm .hx-sm-big.alt{background:var(--surf);color:var(--ink) !important;border-color:var(--ln)}
-.hx-sm .hx-sm-big.alt svg{color:var(--acc)}
+.hx-sm .hx-sm-big.alt svg{color:var(--acct)}
 .hx-sm .hx-sm-big:hover{filter:brightness(1.05)}
 
 /* ---- snackbar ---- */
@@ -985,7 +1057,7 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
 .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){height:52px !important;min-height:52px !important;font-size:17px !important;border-radius:14px !important}
 .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){min-height:52px;font-size:17px !important;border-radius:14px !important;padding:0 22px !important}
 .hx-sm .hx-sm-nl .hx-sm-nlnote{margin-top:10px;font-size:13.5px}
-.hx-sm .hx-fl-sec{font:700 12.5px/1 var(--h-ui) !important;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:24px 2px 10px !important}
+.hx-sm .hx-fl-sec{font:700 12.5px/1 var(--h-ui) !important;letter-spacing:.08em;text-transform:uppercase;color:var(--acct);margin:24px 2px 10px !important}
 .hx-sm .hx-fl-rows{display:flex;flex-direction:column;gap:10px}
 .hx-sm.hx-fl-on .hx-sm-follow{margin:0}
 .hx-sm.hx-fl-on .hx-sm-row b{font-size:17.5px}
@@ -1081,9 +1153,9 @@ html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{padding-top:0}
    Everything is scoped to html.hxw-on (set only by the Word Nerd app)
    and .hx-words. Light by day, dark at dusk / night (html.hxw-dk).
    ------------------------------------------------------------------ */
-html.hxw-on{--wn-bg:#FFF9F2;--wn-surf:#FFFFFF;--wn-tint:#FBEADB;--wn-ink:#1E2D4A;--wn-sub:#6B7280;--wn-ln:#EFE4D8;--wn-acc:#C4622D;--wn-chip:#F3E3D3;
+html.hxw-on{--wn-acct:#984A20;--wn-bg:#FFF9F2;--wn-surf:#FFFFFF;--wn-tint:#FBEADB;--wn-ink:#1E2D4A;--wn-sub:#555B66;--wn-ln:#EFE4D8;--wn-acc:#C4622D;--wn-chip:#F3E3D3;
   --wn-fab:#1E2D4A;--wn-serif:"Roboto Serif",var(--font-reading,Georgia),Georgia,serif}
-html.hxw-on.hxw-dk{--wn-bg:#141A26;--wn-surf:#1D2535;--wn-tint:#2A2730;--wn-ink:#F3EEE7;--wn-sub:#A9B2C3;--wn-ln:#2C3547;--wn-acc:#E9875F;--wn-chip:#3A2E2A;--wn-fab:#E9875F}
+html.hxw-on.hxw-dk{--wn-acct:#F2A988;--wn-bg:#141A26;--wn-surf:#1D2535;--wn-tint:#2A2730;--wn-ink:#F3EEE7;--wn-sub:#C3CAD7;--wn-ln:#2C3547;--wn-acc:#E9875F;--wn-chip:#3A2E2A;--wn-fab:#E9875F}
 html.hxw-on,html.hxw-on body{background:var(--wn-bg) !important}
 html.hxw-on #hutch-bar{background:var(--wn-bg);color:var(--wn-ink)}
 html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14px rgba(0,0,0,.25)}
@@ -1099,7 +1171,7 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 
 /* ---------- the word card (Latest alert + detail) ---------- */
 .hx-words .hxw-today{background:var(--wn-tint);border-radius:28px;padding:20px 20px 20px;margin-bottom:26px}
-.hx-words .hxw-lbl{display:flex;justify-content:space-between;gap:10px;font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--wn-acc)}
+.hx-words .hxw-lbl{display:flex;justify-content:space-between;gap:10px;font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--wn-acct)}
 .hx-words .hxw-lbl span:last-child:not(:first-child){color:var(--wn-sub)}
 .hx-words .hxw-word{font:600 46px/1.04 var(--wn-serif);font-variation-settings:'opsz' 144;letter-spacing:-.01em;margin:12px 0 6px;color:var(--wn-ink);
   overflow-wrap:anywhere;text-transform:none;font-family:var(--wn-serif) !important}
@@ -1109,14 +1181,14 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 .hx-words .hxw-means{margin:16px 0 0;padding:0;list-style:none}
 .hx-words .hxw-means li{font:400 17px/1.5 var(--wn-serif);font-variation-settings:'opsz' 18;margin:0 0 9px;position:relative;color:var(--wn-ink)}
 .hx-words .hxw-means.multi li{padding-left:32px}
-.hx-words .hxw-n{position:absolute;left:0;top:2px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:var(--wn-acc);color:#fff;
+.hx-words .hxw-n{position:absolute;left:0;top:2px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:#A65326;color:#fff;
   font:700 12px/22px var(--h-ui);text-align:center}
-.hxw-dk .hx-words .hxw-n{color:#141A26}
+.hxw-dk .hx-words .hxw-n{color:#141A26;background:var(--wn-acc)}
 .hx-words .hxw-ex{font:italic 400 16px/1.5 var(--wn-serif);color:var(--wn-sub);border-left:3px solid var(--wn-acc);padding:2px 0 2px 12px;margin:14px 0 0}
 .hx-words .hxw-extra{margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--wn-ln);display:grid;gap:12px}
 /* label above its text, like the post (Nov 2) */
 .hx-words .hxw-extra div{display:block}
-.hx-words .hxw-extra dt{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--wn-acc);margin:0 0 2px}
+.hx-words .hxw-extra dt{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--wn-acct);margin:0 0 2px}
 .hx-words .hxw-extra dd{margin:0;font:400 16px/1.45 var(--wn-serif);color:var(--wn-ink)}
 .hx-words .hxw-acts{display:flex;align-items:center;gap:10px;margin-top:18px}
 .hx-words .hxw-btn{border:0;border-radius:999px;background:var(--wn-acc);color:#fff !important;font:600 15px var(--h-ui);padding:11px 20px;display:inline-flex;align-items:center;gap:7px}
@@ -1124,7 +1196,7 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 .hx-words .hxw-btn svg{width:16px;height:16px}
 .hx-words .hxw-posted{display:inline-block;font:500 14px var(--h-ui);color:var(--wn-sub) !important;margin-top:18px;text-decoration:none !important}
 .hx-words .hxw-acts+.hxw-posted{margin-top:16px}
-.hx-words .hxw-posted:hover,.hx-words .hxw-posted:focus-visible{color:var(--wn-acc) !important}
+.hx-words .hxw-posted:hover,.hx-words .hxw-posted:focus-visible{color:var(--wn-acct) !important}
 
 /* ---------- All words ---------- */
 .hx-words .hxw-mini{display:none}
@@ -1144,7 +1216,7 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 .hx-words .hxw-seg button{border:0;background:transparent;color:var(--wn-sub);font:600 14px var(--h-ui);padding:8px 18px;border-radius:999px;cursor:pointer;min-height:38px}
 .hx-words .hxw-seg button.on{background:var(--wn-ink);color:var(--wn-bg)}
 .hx-words .hxw-list{background:var(--wn-surf);border-radius:22px;overflow:hidden;border:1px solid var(--wn-ln)}
-.hx-words .hxw-letter{font:700 13px var(--h-ui);color:var(--wn-acc);padding:12px 18px 4px;letter-spacing:.08em}
+.hx-words .hxw-letter{font:700 13px var(--h-ui);color:var(--wn-acct);padding:12px 18px 4px;letter-spacing:.08em}
 .hx-words .hxw-it{display:flex;align-items:center;gap:12px;padding:13px 18px;border-top:1px solid var(--wn-ln);color:var(--wn-ink) !important;cursor:pointer}
 .hx-words .hxw-letter+.hxw-it,.hx-words .hxw-list>.hxw-it:first-child{border-top:0}
 .hx-words .hxw-it:hover{background:rgba(196,98,45,.06)}
@@ -1155,7 +1227,7 @@ html.hxw-on.hxw-dk #hutch-bar.scrolled{box-shadow:0 1px 0 var(--wn-ln),0 4px 14p
 .hx-words .hxw-it .w i{font:italic 500 14px var(--h-ui);color:var(--wn-sub);margin-left:7px;display:inline-block;white-space:nowrap}
 .hx-words .hxw-it .d{display:block;font:400 15px/1.35 var(--h-ui);color:var(--wn-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
 .hx-words .hxw-it .dt{font:700 11.5px var(--h-ui);color:var(--wn-sub);letter-spacing:.06em;text-transform:uppercase;flex:none;white-space:nowrap}
-.hx-words .hxw-it .plus{font:700 11.5px var(--h-ui);color:var(--wn-acc);background:rgba(196,98,45,.13);border-radius:999px;padding:2px 8px;flex:none}
+.hx-words .hxw-it .plus{font:700 11.5px var(--h-ui);color:var(--wn-acct);background:rgba(196,98,45,.13);border-radius:999px;padding:2px 8px;flex:none}
 .hxw-dk .hx-words .hxw-it .plus{background:rgba(233,135,95,.16)}
 .hx-words .hxw-empty{padding:28px 18px;color:var(--wn-sub);text-align:center;font-size:15px}
 
@@ -1180,6 +1252,8 @@ html.hxw-open,html.hxw-open body{overflow:hidden}
 .hx-words .hxw-pn button{flex:1;min-width:0;border:1px solid var(--wn-ln);background:var(--wn-surf);color:var(--wn-ink);border-radius:18px;padding:10px 14px;text-align:left;cursor:pointer}
 .hx-words .hxw-pn button.older{text-align:right}
 .hx-words .hxw-pn button:disabled{opacity:.35;cursor:default}
+/* WCAG (Nov 9): "This is the newest" is information, so it stays readable; only the arrow label fades */
+.hx-words .hxw-pn button:disabled{opacity:1}.hx-words .hxw-pn button:disabled small{opacity:.45}.hx-words .hxw-pn button:disabled b{color:var(--wn-sub)}
 .hx-words .hxw-pn small{display:block;font:600 11.5px var(--h-ui);color:var(--wn-sub);letter-spacing:.06em;text-transform:uppercase}
 .hx-words .hxw-pn b{display:block;font:600 17px/1.3 var(--wn-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* with the card open, Random sits above Newer / Older as a round button */
@@ -1233,7 +1307,7 @@ html.hxw-two .hx-words .hxw-mini.sel{box-shadow:inset 0 0 0 2px var(--wn-acc)}
 html.hxw-two .hx-words .hxw-mini .hxw-mt{display:block;min-width:0}
 html.hxw-two .hx-words .hxw-mini .hxw-lbl{display:block}
 html.hxw-two .hx-words .hxw-mini .w{display:block;font:600 27px/1.1 var(--wn-serif);margin-top:4px;overflow-wrap:anywhere}
-html.hxw-two .hx-words .hxw-mini .go{margin-left:auto;color:var(--wn-acc)}
+html.hxw-two .hx-words .hxw-mini .go{margin-left:auto;color:var(--wn-acct)}
 html.hxw-two .hx-words .hxw-mini .go svg{width:22px;height:22px}
 html.hxw-two .hx-words .hxw-detail{position:relative;top:auto;flex:1;min-width:0;transform:none;visibility:visible;transition:none;z-index:auto}
 html.hxw-two .hx-words .hxw-card{max-width:760px;padding:16px 40px 28px}
@@ -1253,3 +1327,15 @@ html.hxw-two .hx-words .hxw-fab{position:fixed;left:calc(min(42vw,480px) - 16px)
 html.hxw-two .hx-words .hxw-card .hxw-word.long{font-size:clamp(36px,6vh,52px)}
 html.hxw-two .hx-words .hxw-card .hxw-word.xlong{font-size:clamp(30px,5vh,44px)}
 .hx-words .hxw-word{hyphens:auto;-webkit-hyphens:auto}
+
+/* ==========================================================================
+   READABILITY (Nov 9, 2026, Toby): text sizes to match Classic.
+   Nothing under 12px; dates and labels 12.5-13.5px; excerpts and notes
+   16px on phones, 17px on laptops. Kept together here so it's easy to
+   review; these come last so they win over the sizes above.
+   ========================================================================== */
+.hx-words .hxw-it .dt{font-size:13px}
+.hx-words .hxw-it .plus{font-size:12.5px}
+.hx-words .hxw-it .d{font-size:16px}
+.hx-words .hxw-pn button small{font-size:13px}
+@media (min-width:1100px){.hx-words .hxw-it .d{font-size:17px}}

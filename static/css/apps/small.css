@@ -275,3 +275,16 @@ html.hutch-win .hx-sm{--bg:#FFFFFF;background:transparent}
 html.hutch-win .hx-sm.dark{--bg:#141A26}
 html.hutch-win .hx-sm .hx-sm-title{display:none}
 html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{padding-top:0}
+
+/* About: Get to know me (Nov 9, Toby): The Long Road Here all year, and
+   Knowember with its badge outside November */
+.hx-sm-gtk{background:var(--surf);border:1px solid var(--ln);border-radius:16px;margin:0 0 20px;overflow:hidden}
+.hx-sm-gtk h3{font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin:0;padding:13px 16px 4px}
+.hx-sm-gtk-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--ln);color:var(--ink) !important;text-decoration:none !important}
+.hx-sm-gtk h3 + .hx-sm-gtk-row{border-top:0}
+.hx-sm-gtk-row img{flex:none;width:99px;height:35px;object-fit:contain}
+.hx-sm-gtk-row .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hx-sm-gtk-row b{font:600 16px/1.3 var(--h-ui)}
+.hx-sm-gtk-row small{font:400 14px/1.35 var(--h-ui);color:var(--sub)}
+.hx-sm-gtk-row i{font:400 22px/1 var(--h-ui);font-style:normal;color:var(--sub)}
+.hx-sm-gtk-row:hover b{color:var(--acct)}

@@ -255,10 +255,10 @@
     .concat(['photos', 'words', 'calendar', 'uses']).filter(offDock).slice(0, 4);
   /* unfolded and tablets keep five by the date (Nov 8, Toby): Den is in
      the dock, so Micro.blog takes its spot; the fifth is Knowember in
-     November and The Long Road Here the rest of the year (Long Road goes
-     to All apps wherever there's no room for it, like phones). */
+     November and Photos the rest of the year (Nov 9: The Long Road Here
+     moved into About). */
   var TQUAD = ['den', 'surprise', 'mb', 'settings', 'follow'].filter(function (k) { return offDock(k) && k !== DOCK6; }).slice(0, 4);
-  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : ['longroad']).concat(['calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
+  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : []).concat(['photos', 'words', 'calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
   /* Desktop (Nov 3, Toby): a big screen has room for every app on the
      home screen, so all of them sit by the date, Micro.blog before
      Settings, in place of the four. Up to 18; any beyond that stay in All
@@ -268,12 +268,23 @@
      keeps its title and icon) but isn't shown on the home screen, in All
      apps or in app search; Den's Currently reading row and its "See all"
      lead there. Searching "reading" finds Den. */
-  var NOHOME = { tinkering: 1, reading: 1 };
-  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'photos', 'words', 'calendar', 'uses', 'pulse', 'blaugust', 'longroad', 'knowember'];
+  /* Nov 9 (Toby): The Long Road Here lives in About ("Get to know me"),
+     Blaugust is a chip in the Blog app, and Knowember is on the home
+     screen only in November (the rest of the year it's in About with its
+     badge). All three stay apps for their own pages (title and icon in the
+     bar) and can still be found in Search. That leaves ten apps by the date
+     in November and nine otherwise: two rows of five, no All apps button
+     on tablets held sideways or laptops. */
+  var NOHOME = { tinkering: 1, reading: 1, longroad: 1, blaugust: 1 };
+  if (!KNOW) NOHOME.knowember = 1;
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'knowember', 'photos', 'words', 'calendar', 'uses', 'pulse'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
     .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
+  /* the ten apps by the date on the iPad mini sideways: the unfolded
+     Fold's five, then the next five in the laptop order */
+  var DK10 = TQUAD.concat(DKAPPS.filter(function (k) { return TQUAD.indexOf(k) < 0; }).slice(0, 10 - TQUAD.length));
   function appIcon(k, label) {
     var a = APPS[k], inner = tile(k) + '<span>' + esc(a[0]) + '</span>';
     var ext = a[2] && /^https?:/.test(a[2]) ? ' target="_blank" rel="noopener"' : '';
@@ -458,7 +469,7 @@
       var keys = Object.keys(APPS).filter(function (k) { return !NOHOME[k]; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (DK10.indexOf(k) > -1 ? ' data-k10' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();
@@ -848,7 +859,10 @@
         '<div class="hh-quad" style="--qn:' + TQUAD.length + '">' + QUAD.concat(TQUAD.filter(function (k) { return QUAD.indexOf(k) < 0; })).map(function (k) {
           var p = QUAD.indexOf(k), t = TQUAD.indexOf(k);
           return '<span class="hh-q' + (p < 0 ? ' q-t' : '') + (t < 0 ? ' q-p' : '') + '" style="--po:' + p + ';--to:' + t + '">' + appIcon(k) + '</span>'; }).join('') + '</div>' +
-        '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return appIcon(k); }).join('') + '</div></div>' +
+        /* the iPad mini sideways (#hutch-home.dk5, Nov 9) shows ten in two
+           rows of five: .hh-dkq = the first row (the unfolded Fold's five),
+           .hh-dkx = the ones that step aside into All apps */
+        '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return '<span class="' + (TQUAD.indexOf(k) > -1 ? 'hh-dkq' : DK10.indexOf(k) > -1 ? 'hh-dk2' : 'hh-dkx') + '">' + appIcon(k) + '</span>'; }).join('') + '</div></div>' +
         '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
         photo + word + bigDesk() +
       '</div>' +
@@ -912,7 +926,7 @@
       homeEl.appendChild(mark);
     })();
     /* desktop: every app is already on the screen, so no All apps button */
-    homeEl.classList.toggle('dk-full', Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0);
+    DKFULL = Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0;
     fit();
     window.addEventListener('resize', fit);
     /* turning the iPad (Nov 9, Toby: upright, the date kept its sideways
@@ -948,6 +962,19 @@
   /* App names under the icons (Nov 9, Toby): a name too long for its tile
      ("Knowember" on the iPad mini) shrinks just enough to show in full,
      instead of being cut off with "..."; every other name keeps its size */
+  /* iPad mini and iPad Air sideways (Nov 9, Toby: twelve apps were too many for that
+     column; the names came out in different sizes): five apps by the date
+     like the unfolded Fold plus the next five (two rows of five, ten in all),
+     the rest in All apps. Laptop-size screens
+     under 1200px wide (mini 1133, Air 1180; Toby can't check an Air, so it
+     gets the layout where no name ever has to shrink). */
+  var DKFULL = false;
+  function dkFive() {
+    var five = DKMQ.matches && innerWidth < 1200;
+    homeEl.classList.toggle('dk5', five);
+    homeEl.classList.toggle('dk-full', DKFULL && (!five || DKAPPS.length <= DK10.length));
+    de.classList.toggle('hutch-dk5', five);
+  }
   function labelFit() {
     if (!homeEl) return;
     [].forEach.call(homeEl.querySelectorAll('.hh-ic > span:last-child'), function (l) {
@@ -1085,6 +1112,7 @@
   }
   function fit() {
     if (!homeEl) return;
+    dkFive();
     setTimeout(photoFit, 0);
     setTimeout(brandFit, 0);
     setTimeout(labelFit, 0);
@@ -1618,7 +1646,9 @@
     var filter = 'all', sel = null, full = false;
     var wrap = el('<div id="hutch-blog"><div class="hbl-left">' +
       '<div class="hbl-filters" role="group" aria-label="Show">' + [['all', 'All'], ['posts', 'Posts'], ['micro', 'Micros']].map(function (f) {
-        return '<button type="button" data-f="' + f[0] + '"' + (f[0] === 'all' ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + f[1] + '</button>'; }).join('') + '</div>' +
+        return '<button type="button" data-f="' + f[0] + '"' + (f[0] === 'all' ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + f[1] + '</button>'; }).join('') +
+        /* Blaugust lives here now, not on the home screen (Nov 9, Toby) */
+        (APPS.blaugust ? '<a class="hbl-chip" href="' + APPS.blaugust[2] + '">' + tile('blaugust') + '<span>Blaugust</span></a>' : '') + '</div>' +
       '<div class="hbl-tl"></div></div><div class="hbl-right"></div></div>');
     document.body.appendChild(wrap);
     var list = wrap.querySelector('.hbl-tl'), right = wrap.querySelector('.hbl-right'), left = wrap.querySelector('.hbl-left');

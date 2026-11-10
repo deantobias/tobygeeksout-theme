@@ -750,7 +750,7 @@ html.hx-dark .hx-top{background:#F3EDE4;color:#1E2D4A;box-shadow:0 6px 16px rgba
    tablet layout it made the left column so tall the photo and Word Nerd shrank */
 @media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   .hh-quad{display:none}
-  .hh-dkapps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 6px;margin-top:20px;width:100%;max-width:540px}
+  .hh-dkapps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 6px;margin-top:20px;width:100%;max-width:540px}
   .hh-dkapps .hh-ic{width:100%;font-size:13px;gap:6px}
   .hh-dkapps .hh-ic span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .hh-dkapps .hh-tile{width:58px;height:58px}
@@ -1351,7 +1351,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home .hh-quad,#hutch-home:not(.nonow) .hh-quad{display:none}
   /* the grid is exactly the right-hand column, and its icons line up with the
      cards' text below: first icon at the left text edge, last at the right (Toby) */
-  #hutch-home .hh-dkapps{display:grid;grid-template-columns:repeat(6,56px);justify-content:space-between;gap:12px 0;margin:0;
+  #hutch-home .hh-dkapps{display:grid;grid-template-columns:repeat(5,56px);justify-content:space-between;gap:12px 0;margin:0;
     flex:0 0 calc((100% - 10px) / 2.08);margin-right:-2px;max-width:none;box-sizing:border-box;padding:0 16px 2px}
   #hutch-home .hh-dkapps .hh-ic{width:56px;font-size:13px;gap:6px}
   #hutch-home .hh-dkapps .hh-ic span:last-child{white-space:nowrap;overflow:visible;max-width:none}
@@ -1458,9 +1458,30 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 .hh-handle span{font-size:12.5px}
 .hh-chips span{font-size:12px}
 .hh-thumbs small{font-size:12.5px}
-#hutch-home .hh-thumbs small,#hutch-home .hh-shuf,#hutch-home .hh-nitem small{zoom:var(--tz,1)}
+/* (fixed Nov 9: the Currently labels and the whole Shuffle button were scaled twice) */
+#hutch-home .hh-thumbs small,#hutch-home .hh-shuf > span{zoom:var(--tz,1)}
 .hh-nitem small,.hh-now .hh-nitem small,#hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:12px}
 .hh-photo .cap small{font-size:12px}
 .hh-photo .n{font-size:12px;background:rgba(0,0,0,.62)}
 /* laptops: the app names under the icons keep their size when the cards shrink to fit */
 #hutch-home .hh-dkapps .hh-ic span:last-child{zoom:var(--tz,1);font-size:12px}
+
+/* No "Latest post" line under the date on any screen (Nov 9, Toby; it was
+   already gone on laptop-size screens) */
+.hh-p{display:none}
+/* iPad mini sideways (#hutch-home.dk5, set by hutch.js dkFive): ten apps
+   by the date in two rows of five, the rest in All apps (Nov 9, Toby) */
+.hh-dkx,.hh-dkq,.hh-dk2{display:contents}
+#hutch-home.dk5 .hh-dkx{display:none}
+#hutch-home.dk5 .hh-dkq > .hh-ic{order:-1}
+#hutch-home.dk5 .hh-dkapps{grid-template-columns:repeat(5,minmax(0,1fr))}
+html.hutch-dk5 #hutch-drawer:not(.q) [data-dk]:not([data-k10]){display:revert !important}
+/* the Fold upright's short mode keeps the 12px floor too */
+#hutch-home.short:not(.nonow) .hh-now .hh-nitem small{font-size:12px}
+
+/* Blog app: the Blaugust chip beside All / Posts / Micros (Nov 9, Toby:
+   Blaugust lives here now, not on the home screen) */
+.hbl-filters .hbl-chip{margin-left:auto;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ln);background:var(--surf);color:var(--ink) !important;text-decoration:none !important;border-radius:10px;padding:4px 12px 4px 5px;font:600 13px var(--h-ui)}
+.hbl-filters .hbl-chip .hh-tile{width:24px;height:24px;box-shadow:none}
+.hbl-filters .hbl-chip .hh-tile svg{width:100%;height:100%}
+.hbl-filters .hbl-chip:hover{border-color:var(--acc)}

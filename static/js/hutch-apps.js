@@ -1450,8 +1450,14 @@ window.HutchApps = window.HutchApps || {};
                          : (is70 ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png');
       return '<img class="hx-sm-logo" src="' + src + '" alt="' + ctx.esc(d.site || 'Toby Geeks Out!') + '" decoding="async">';
     })();
+    /* Get to know me (Nov 9, Toby): The Long Road Here lives here now, and
+       so does Knowember outside November (in November it's on the home
+       screen), with the badge from the Classic rail */
+    var gtk = '<a class="hx-sm-gtk-row" href="/the-long-road-here/"><span class="tx"><b>The Long Road Here</b><small>Every blog I\'ve kept since 2004</small></span><i aria-hidden="true">›</i></a>';
+    if (new Date().getMonth() !== 10) gtk += '<a class="hx-sm-gtk-row" href="/knowember/"><img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="" width="99" height="35" loading="lazy" decoding="async"><span class="tx"><b>Knowember</b><small>One photo, three questions</small></span><i aria-hidden="true">›</i></a>';
     root.side.innerHTML = '<div class="hx-sm-hero">' + logo + face + (name ? '<h2>' + ctx.esc(name) + '</h2>' : '') + '</div>' +
-      (facts.length ? '<div class="hx-sm-facts">' + facts.join('') + '</div>' : '');
+      (facts.length ? '<div class="hx-sm-facts">' + facts.join('') + '</div>' : '') +
+      '<div class="hx-sm-gtk"><h3>Get to know me</h3>' + gtk + '</div>';
     if (root.title) root.doc.insertAdjacentHTML('afterbegin', titleHTML(ctx, root));
     tidy(root.doc, ctx);
     finish(ctx, root, true);

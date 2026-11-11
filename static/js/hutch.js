@@ -928,6 +928,26 @@
     /* desktop: every app is already on the screen, so no All apps button */
     DKFULL = Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0;
     fit();
+    /* Nov 11 (Toby: on a refresh the cards flick while they find their
+       size): the cards wait out of sight until the fonts and pictures
+       are in and the last measuring is done, then fade in once. Never
+       longer than 1.2 seconds, and not at all when everything is already
+       in (coming back home from an app). */
+    (function () {
+      var fontsIn = !document.fonts || document.fonts.status === 'loaded';
+      if (fontsIn && document.readyState === 'complete') return;
+      var hEl = homeEl, done = false;
+      hEl.classList.add('settling');
+      function settle() {
+        if (done) return; done = true;
+        if (homeEl === hEl) fit();
+        requestAnimationFrame(function () { hEl.classList.remove('settling'); });
+      }
+      var f = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      var l = document.readyState === 'complete' ? Promise.resolve() : new Promise(function (r) { window.addEventListener('load', r, { once: true }); });
+      Promise.all([f, l]).then(function () { setTimeout(settle, 90); }, settle);
+      setTimeout(settle, 1200);
+    })();
     window.addEventListener('resize', fit);
     /* turning the iPad (Nov 9, Toby: upright, the date kept its sideways
        size and Word Nerd ran under Top categories): Safari can fire resize
@@ -1432,6 +1452,23 @@
   /* how long the back list was when this page loaded: anything added
      after (an embedded frame, a sheet) is skipped by the back arrow */
   var L0 = history.length, fromBF = false;
+  /* Nov 11 (Toby: the back arrow in Archive would not go home): the back
+     arrow used to count the steps added inside this page and jump back
+     over all of them, even after some were already undone (a folder or a
+     sheet opened and closed), so it jumped too far or went nowhere. Every
+     step made inside the page now carries its own depth (_hd), so the
+     arrow knows exactly how far the page before this one is. */
+  var HD = 0, pushes = 0;
+  try { HD = (history.state && history.state._hd) || 0; } catch (e) {}
+  (function () {
+    function stamp(st, d) { var o = {}; if (st && typeof st === 'object') for (var k in st) o[k] = st[k]; o._hd = d; return o; }
+    try {
+      var ps = history.pushState, rs = history.replaceState;
+      history.pushState = function () { var a = [].slice.call(arguments); HD++; pushes++; a[0] = stamp(a[0], HD); return ps.apply(history, a); };
+      history.replaceState = function () { var a = [].slice.call(arguments); a[0] = stamp(a[0], HD); return rs.apply(history, a); };
+    } catch (e) {}
+    window.addEventListener('popstate', function (e) { HD = (e.state && e.state._hd) || 0; }, true);
+  })();
   try { var nv = performance.getEntriesByType('navigation')[0]; fromBF = !!nv && nv.type === 'back_forward'; } catch (e) {}
   window.addEventListener('pageshow', function (e) {
     de.classList.remove('hx-leaving');
@@ -1527,7 +1564,9 @@
           }
         }
       } catch (er) {}
-      var extra = fromBF ? 0 : history.length - L0;
+      /* steps inside this page that are still behind us (HD), plus any
+         an embedded frame added (the back list grew without our own steps) */
+      var extra = HD + (fromBF ? 0 : Math.max(0, history.length - L0 - pushes));
       if (extra > 0) {
         var gone0 = false;
         window.addEventListener('pagehide', function () { gone0 = true; }, { once: true });

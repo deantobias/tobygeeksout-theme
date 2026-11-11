@@ -179,7 +179,10 @@ window.HutchApps = window.HutchApps || {};
     });
     /* the app bar's back closes an open folder first (capture: runs before hutch.js's own) */
     var back = ctx.bar.querySelector('.hb-back');
-    if (back) back.addEventListener('click', function (e) { if (open) { e.stopImmediatePropagation(); history.back(); } }, true);
+    /* Nov 11: only step back when this folder really added a step (it can
+       also be reopened from a saved state, with no step of its own; stepping
+       back then left the Archive or did nothing). Otherwise close it in place. */
+    if (back) back.addEventListener('click', function (e) { if (open) { e.stopImmediatePropagation(); if (history.state && history.state.hxar && history.state._hd > 0) history.back(); else closeFolder(); } }, true);
     window.addEventListener('popstate', function (e) {
       var id = e.state && e.state.hxar;
       if (id && BYID[id] && !two()) openFolder(id, false); else closeFolder();

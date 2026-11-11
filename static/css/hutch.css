@@ -1498,3 +1498,8 @@ html.hutch-dk5 #hutch-drawer:not(.q) [data-dk]:not([data-k10]){display:revert !i
   .hbl-filters button{padding:0 12px}
   .hbl-filters .hbl-chip{padding:0 10px 0 6px;gap:6px}
 }
+
+/* Nov 11 (Toby: the cards flick on a refresh): out of sight while they
+   are measured, then one fade in (hutch.js, "settling") */
+#hutch-home .hh-area{transition:opacity .18s ease}
+#hutch-home.settling .hh-area{opacity:0;transition:none}

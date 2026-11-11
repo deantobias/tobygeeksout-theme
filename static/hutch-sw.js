@@ -23,6 +23,23 @@
    v1's saved pages. */
 var CACHE = 'hutch-pages-v2';
 var MAX = 60;
+/* v3 (Nov 11, Toby: Word Nerd opened on yesterday's word, then changed
+   under him; "I don't want people to see it like this"). A saved copy
+   opens first only while it is fresh (saved in the last 5 minutes). An
+   older copy waits for the site: the current page is fetched, shown and
+   saved. If the site takes longer than 3 seconds (or is unreachable),
+   the saved copy opens after all. Every saved copy carries the time it
+   was saved (x-hutch-t); one without it counts as old. The home screen
+   also renews its apps' old copies in the background (hutch-preload), so
+   a tap on an app is nearly always both instant and current. */
+var FRESH_MS = 5 * 60 * 1000;
+var WAIT_MS = 3000;
+function age(hit) { var t = +(hit.headers.get('x-hutch-t') || 0); return t ? Date.now() - t : Infinity; }
+function stampPut(c, k, res) {
+  return res.text().then(function (t) {
+    return c.put(k, new Response(t, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'x-hutch-t': String(Date.now()) } }));
+  });
+}
 
 self.addEventListener('install', function () { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
@@ -91,7 +108,7 @@ function save(req, res) {
   if (!res || !res.ok || res.type !== 'basic' || res.redirected || !/text\/html/i.test(res.headers.get('content-type') || '')) return Promise.resolve();
   var copy = res.clone(), look = res.clone();
   return Promise.all([
-    caches.open(CACHE).then(function (c) { return c.put(key(req.url), copy).then(function () { return trim(c); }); }),
+    caches.open(CACHE).then(function (c) { return stampPut(c, key(req.url), copy).then(function () { return trim(c); }); }),
     look.text().then(learn)
   ]);
 }
@@ -101,8 +118,15 @@ self.addEventListener('fetch', function (e) {
   if (skip(req)) return;
   e.respondWith(
     caches.open(CACHE).then(function (c) { return c.match(key(req.url)); }).then(function (hit) {
-      if (hit) return freshen(hit);
-      return fetch(req).then(function (res) { e.waitUntil(save(req, res)); return res; });
+      if (hit && age(hit) < FRESH_MS) return freshen(hit);
+      var net = fetch(req).then(function (res) { e.waitUntil(save(req, res)); return res; });
+      if (!hit) return net;
+      /* an older copy: the site first, the copy if the site is slow, down or failing */
+      var wait = new Promise(function (r) { setTimeout(function () { r(null); }, WAIT_MS); });
+      return Promise.race([net.catch(function () { return null; }), wait]).then(function (res) {
+        if (!res || res.status >= 500) return freshen(hit);
+        return res;
+      });
     }).catch(function () { return fetch(req); })
   );
 });
@@ -116,9 +140,10 @@ self.addEventListener('message', function (e) {
         var k = key(new URL(u, self.location.origin).href);
         if (/\/surprise/i.test(k)) return;
         return c.match(k).then(function (hit) {
-          if (hit) return;
-          return fetch(k, { credentials: 'same-origin' }).then(function (res) {
-            if (res.ok && !res.redirected && /text\/html/i.test(res.headers.get('content-type') || '')) { var look = res.clone(); return Promise.all([c.put(k, res), look.text().then(learn)]); }
+          /* a fresh copy is left alone; a missing or old one is fetched (Nov 11) */
+          if (hit && age(hit) < FRESH_MS) return;
+          return fetch(k, { credentials: 'same-origin', cache: 'no-store' }).then(function (res) {
+            if (res.ok && !res.redirected && /text\/html/i.test(res.headers.get('content-type') || '')) { var look = res.clone(); return Promise.all([stampPut(c, k, res), look.text().then(learn)]); }
           }).catch(function () {});
         });
       })).then(function () { return trim(c); });

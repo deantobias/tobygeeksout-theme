@@ -2190,8 +2190,12 @@
 
   function preload() {
     if (!swOK || !homeEl) return;
-    var urls = [].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })
-      .filter(function (u, i, all) { return u && all.indexOf(u) === i; }).slice(0, 16);
+    /* the apps first (dock and home icons), then the cards' links: the
+       page helper now renews old copies too, so every app should be on
+       the list (Nov 11; the dock's apps used to fall past the cut) */
+    var urls = [].map.call(homeEl.querySelectorAll('a[data-app][href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; })
+      .concat([].map.call(homeEl.querySelectorAll('a[href^="/"]'), function (a) { return a.getAttribute('href').split('#')[0]; }))
+      .filter(function (u, i, all) { return u && all.indexOf(u) === i; }).slice(0, 24);
     navigator.serviceWorker.ready.then(function (reg) { if (reg.active) reg.active.postMessage({ type: 'hutch-preload', urls: urls }); }).catch(function () {});
   }
   /* strip what changes on every site rebuild without the page changing
@@ -2212,12 +2216,17 @@
     var k = location.href.split('#')[0];
     caches.open(SW_CACHE).then(function (c) {
       return c.match(k).then(function (hit) {
+        /* a copy the page helper saved moments ago (this very page load,
+           or the home screen's renewal) needs no second look (Nov 11) */
+        var ht = hit ? +(hit.headers.get('x-hutch-t') || 0) : 0;
+        if (ht && Date.now() - ht < 60000) return;
         var was = hit ? hit.text() : Promise.resolve(null);
         return was.then(function (old) {
           return fetch(k, { cache: 'no-store', credentials: 'same-origin' }).then(function (res) {
             if (!res.ok || !/text\/html/i.test(res.headers.get('content-type') || '')) return;
             return res.clone().text().then(function (fresh) {
-              c.put(k, res);
+              /* saved with the time, so the page helper knows how old it is */
+              c.put(k, new Response(fresh, { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'x-hutch-t': String(Date.now()) } }));
               /* tell the page helper the newest theme build, so every saved
                  page loads the newest theme files from now on */
               try { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'hutch-learn', text: fresh.slice(0, 60000) }); } catch (e) {}

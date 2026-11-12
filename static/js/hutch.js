@@ -578,7 +578,7 @@
     if (!q) {
       var rec = (IDX.recent || []).map(function (r) { return '<li><a href="' + esc(r.u) + '">' + tile('blog') + '<span><span class="hx-t">' + esc(r.t) + '</span></span><span class="hx-d">' + esc(r.d) + '</span></a></li>'; }).join('');
       var cats = (IDX.cats || []).slice(0, 12).map(function (c) { return '<a class="hx-chip" href="' + esc(c.u) + '">' + esc(c.n) + '</a>'; }).join('');
-      box.innerHTML = (rec ? '<div class="hx-lab">Recent posts</div><ul class="hx-res">' + rec + '</ul>' : '') +
+      box.innerHTML = (rec ? '<div class="hx-lab">Recent Geekouts</div><ul class="hx-res">' + rec + '</ul>' : '') +
         (cats ? '<div class="hx-lab">Browse categories</div><div class="hx-chip-row">' + cats + '</div>' : '') +
         '<p class="hx-note">Search finds apps, Word Nerd words, categories, and every post.</p>';
       return;
@@ -863,7 +863,7 @@
            rows of five: .hh-dkq = the first row (the unfolded Fold's five),
            .hh-dkx = the ones that step aside into All apps */
         '<div class="hh-dkapps">' + DKAPPS.map(function (k) { return '<span class="' + (TQUAD.indexOf(k) > -1 ? 'hh-dkq' : DK10.indexOf(k) > -1 ? 'hh-dk2' : 'hh-dkx') + '">' + appIcon(k) + '</span>'; }).join('') + '</div></div>' +
-        '<section class="hh-wg hh-posts" aria-label="Recent posts"><div class="hh-wtag">Recent posts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
+        '<section class="hh-wg hh-posts" aria-label="Recent Geekouts"><div class="hh-wtag">Recent Geekouts<a href="/?app=blog">See all ›</a></div>' + rows + '</section>' +
         photo + word + bigDesk() +
       '</div>' +
       '<button type="button" class="hh-handle" data-sheet="apps" aria-label="All apps">' + ic('up', 2.4) + '<span>All apps</span></button>' +

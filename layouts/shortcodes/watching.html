@@ -224,6 +224,9 @@
          the Traditional card looks the same; Den reads them */
       if (it.kind === "tv") {
         if (it.season) card.setAttribute("data-season", it.season);
+        /* Nov 12 (Hutch Den): which show this is on Trakt and TMDB, for the episode list and stills */
+        if (it.slug) card.setAttribute("data-slug", it.slug);
+        if (it.tmdb) card.setAttribute("data-tmdb", it.tmdb);
         if (it.ep) card.setAttribute("data-ep", it.ep);
         if (it.epn) card.setAttribute("data-epn", it.epn);
         if (it.slug && it.season && it.ep) seasonSize(it.slug, it.season).then(function (r) { if (r.n) card.setAttribute("data-eps", r.n); if (r.rt) card.setAttribute("data-rt", r.rt); });

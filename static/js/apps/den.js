@@ -43,7 +43,10 @@
     function bookBg(x) { return BOOK[hash(x.t) % BOOK.length]; }
     var IC = {
       chev: '<path d="M9 6l6 6-6 6"/>',
-      open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'
+      open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+      out: '<path d="M7 17L17 7M9 7h8v8"/>',
+      link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
     var STAR = '<path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.8l-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/>';
@@ -115,14 +118,31 @@
     function bookTile(x) {
       return '<button type="button" class="it it-book" data-pick="' + x.id + '">' + art(x) + '<span class="cap"><span class="tt">' + esc(x.t) + '</span><span class="tm">' + esc(where(x)) + '</span>' + bar(x) + '</span></button>';
     }
+    /* Nov 12 (mockup v119, A): the still on top, the words on their own
+       panel under it. The picture is the episode's still when Perch has
+       one, else the wide backdrop, else the poster on its own blur. */
+    function cardArt(x) {
+      var w = wideArt(x);
+      if (w) return img(w, 'pic wide');
+      return x.cover ? img(x.cover, 'blur') + img(x.cover, 'pic tall') : '';
+    }
     function watchCard(x) {
-      var bg = x.cover ? img(x.cover, 'blur') : '';
-      var line2 = x.kind === 'TV' ? (x.epn || (x.d ? 'Last watched ' + x.d : '')) : 'Movie' + (x.y ? ' · ' + x.y : '');
-      return '<button type="button" class="it hd-wcard" data-pick="' + x.id + '"><span class="blurbg" style="background:' + grad(x) + '"></span>' + bg +
-        '<span class="thumb" style="background:' + grad(x) + '"><span class="tn">' + esc(x.t) + '</span>' + img(x.cover) + '</span>' +
-        '<span class="winfo"><span class="ty">' + (x.kind === 'TV' ? 'TV' : 'Movie') + '</span><span class="nm">' + esc(x.t) + '</span>' +
-        '<span class="ep">' + esc(x.kind === 'TV' ? where(x) + (left(x) ? '  ·  ' + left(x) : '') : (x.d ? 'Started ' + x.d : 'Movie')) + '</span>' +
-        (line2 ? '<span class="en">' + esc(line2) + '</span>' : '') + bar(x) + '</span></button>';
+      var tv = x.kind === 'TV', l = left(x), n = l ? +(l.match(/^\d+/) || [0])[0] : 0;
+      var line = tv ? (x.epn || (x.ep ? 'Episode ' + x.ep : (x.d ? 'Last watched ' + x.d : ''))) + (n ? ' · ' + n + (n === 1 ? ' episode left' : ' episodes left') : '') : 'Movie' + (x.y ? ' · ' + x.y : '');
+      return '<button type="button" class="it hd-wcard" data-pick="' + x.id + '"><span class="wst" data-art="' + x.id + '" style="background:' + grad(x) + '"><span class="tn">' + esc(x.t) + '</span>' + cardArt(x) +
+        '<span class="ty">' + esc(tv ? where(x) : 'Movie') + '</span></span>' +
+        '<span class="winfo"><span class="nm">' + esc(x.t) + '</span>' + (line ? '<span class="en">' + esc(line) + '</span>' : '') + bar(x) + '</span></button>';
+    }
+    /* stills arrive after the row is drawn: swap the picture in place */
+    function paintCards() {
+      [].forEach.call(homeEl.querySelectorAll('.wst[data-art]'), function (el) {
+        var x = get(el.getAttribute('data-art')); if (!x) return;
+        var w = wideArt(x), cur = el.querySelector('img.pic');
+        if (w && (!cur || cur.getAttribute('src') !== w)) {
+          [].forEach.call(el.querySelectorAll('img'), function (i) { i.parentNode.removeChild(i); });
+          el.insertAdjacentHTML('beforeend', img(w, 'pic wide'));
+        }
+      });
     }
     function histTile(x) {
       return '<button type="button" class="it it-hist" data-pick="' + x.id + '">' + art(x) + '<span class="cap">' + stars(x.r) + '<span class="tt">' + esc(x.t) + '</span><span class="tm">' +
@@ -215,6 +235,7 @@
       applyQueue();
       homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
       fillPosters();
+      WATCH.slice(0, 8).forEach(function (x) { if (x.kind === 'TV') loadShow(x).then(function () { paintCards(); }); });
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
       homeEl.scrollTop = y;
     }
@@ -243,34 +264,326 @@
       return '<div class="filters" role="group" aria-label="Show">' + FILTERS.map(function (f) {
         return '<button type="button" data-f="' + f[0] + '" class="' + (f[0] === state.filter ? 'on' : '') + '" aria-pressed="' + (f[0] === state.filter) + '">' + f[0] + '</button>'; }).join('') + '</div>';
     }
-    function detail(x) {
-      if (!x) return '<p class="none pad">Pick something on the left.</p>';
-      var done = x.sec === 'history', p = pct(x);
-      var meta = x.kind === 'Book' ? 'Book' + (x.who ? ' · ' + esc(x.who) : '') : (x.kind === 'TV' ? 'TV' : 'Movie') + (x.y ? ' · ' + esc(x.y) : '');
-      var sub = '';
-      if (x.kind === 'TV') sub = done ? (x.season ? 'Season ' + x.season : '') : (x.season ? 'Season ' + x.season + (x.ep ? ' · Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') : '') : '');
-      else if (x.kind === 'Movie' && x.who) sub = 'Directed by ' + esc(x.who);
-      if (x.kind === 'TV' && done && x.who) sub += (sub ? ' · ' : '') + 'Created by ' + esc(x.who);
-      var prog = '';
-      if (!done) {
-        var label = x.kind === 'TV' ? 'Now on' : 'Progress', val = '';
-        if (x.kind === 'TV') val = x.ep ? 'E' + x.ep + (x.epn ? ' · ' + esc(x.epn) : '') + (left(x) ? '<span class="left">' + esc(left(x)) + '</span>' : '') : (x.season ? 'Season ' + x.season : '');
-        else if (x.kind === 'Book') val = esc(where(x)) + (x.page && x.total && x.pct >= 0 ? ' · ' + x.pct + '%' : '');
-        else val = x.d ? 'Started ' + esc(x.d) : '';
-        if (val) prog = '<div class="prog"><div class="lbl first">' + label + '</div><div class="pv">' + val + '</div>' + (p >= 0 ? '<div class="bar"><i style="width:' + p + '%"></i></div>' : '') + '</div>';
-      }
-      var ext = /^https?:/i.test(x.url || '') && (x.url || '').indexOf(location.origin) !== 0;
-      var btn = x.url ? '<a class="btn" href="' + esc(x.url) + '"' + (ext ? ' rel="noopener"' : '') + '>' + (ext ? 'See it on Trakt' : 'Read the post') + ' ' + ic('open') + '</a>' : '';
-      var when = done ? 'Finished ' + esc(x.date || x.d) : (x.kind === 'Book' ? 'Reading now' : 'Watching now') + (x.d ? ' · ' + (x.kind === 'Book' ? 'updated ' : 'last posted ') + esc(x.d) : '');
-      if (!done && ext) when = 'Watching now' + (x.d ? ' · last watched ' + esc(x.d) : '');
-      var bg = x.cover ? img(x.cover, 'bgimg') : '';
-      return '<div class="dtop"><div class="bg" style="background:' + (x.kind === 'Book' ? bookBg(x) : grad(x)) + '"></div>' + bg + '<div class="art">' + art(x) + '</div><div class="info">' +
-        '<div class="meta">' + meta + '</div><h2>' + esc(x.t) + '</h2>' + (sub ? '<div class="sub2">' + sub + '</div>' : '') +
-        (done ? '<div class="rate">' + stars(x.r) + '<b>' + rtext(x.r) + ' of 5</b></div>' : '') + '</div></div>' +
-        '<div class="dbody">' + prog + (x.sum ? '<div class="lbl">Summary</div><p class="summary">' + esc(x.sum) + '</p>' : '') + btn +
-        '<div class="when">' + when + '</div></div>';
+    /* ==============================================================
+       Nov 12, 2026 (Toby, mockups v118 + v119): details that act like
+       an app. Nothing sends the reader off to "Read the post" any more:
+         - Currently watching (TV): the episode he is on, its synopsis,
+           the whole season (later episodes stay quiet: no spoilers),
+           the show's own summary. Words come from Trakt's public API
+           (same key as the Watching page).
+         - History, a movie he is watching, Currently reading: the full
+           post, read from the post's own page when it is opened, with
+           a permalink line at the bottom.
+         - Books: where to get the book + "Add to my bookshelf" on
+           Micro.blog (from the ISBN in the post's Book details link).
+       PICTURES: Trakt does not allow loading its images directly
+       (developer.trakt.tv/docs/images), so episode stills come through
+       Perch's lookup (TMDB) once it offers them:
+         GET perch-app.pages.dev/poster?tmdb=ID&season=N
+           -> { stills: { "1": url, "2": url }, backdrop: url }
+       Until then: the wide backdrop from the post, else the poster on
+       a blur. Nothing breaks when the lookup has no stills.
+       ============================================================== */
+    var TKEY = '23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc'; /* public API key, not a secret */
+    var PERCH = 'https://perch-app.pages.dev/poster';
+    var HOUR = 3600000, DAY = 24 * HOUR;
+    function lsGet(k, ttl) { try { var c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && Date.now() - c.t < (c.e ? Math.min(ttl, 6 * HOUR) : ttl)) return c.v; } catch (e) {} return null; }
+    function lsSet(k, v, empty) { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), v: v, e: empty ? 1 : 0 })); } catch (e) {} }
+    var PEND = {};
+    function cached(k, ttl, make, isEmpty) {
+      var c = lsGet(k, ttl); if (c) return Promise.resolve(c);
+      if (PEND[k]) return PEND[k];
+      return PEND[k] = make().then(function (v) { delete PEND[k]; lsSet(k, v, isEmpty && isEmpty(v)); return v; }, function (e) { delete PEND[k]; throw e; });
+    }
+    function tget(path) {
+      return fetch('https://api.trakt.tv' + path, { headers: { 'trakt-api-version': '2', 'trakt-api-key': TKEY } }).then(function (r) { if (!r.ok) throw new Error('Trakt ' + r.status); return r.json(); });
+    }
+    /* which show on Trakt: the card's own slug, the Trakt link, else a search by title */
+    function findShow(x) {
+      var m = String(x.url || '').match(/trakt\.tv\/shows\/([^\/?#]+)/);
+      var slug = x.slug || (m ? decodeURIComponent(m[1]) : '');
+      if (slug) return Promise.resolve({ slug: slug, tmdb: x.tmdb || 0 });
+      return cached('tgo_den_find_v1_' + norm(x.t) + (x.y || ''), 30 * DAY, function () {
+        return tget('/search/show?query=' + encodeURIComponent(x.t) + '&limit=8').then(function (list) {
+          /* same title first; among those, the year in the post, else the newest
+             (a remake like Carrie shares its name with older shows) */
+          var same = (list || []).filter(function (r) { return r.show && norm(r.show.title) === norm(x.t); }).map(function (r) { return r.show; });
+          same.sort(function (a, b) { return (String(b.year) === String(x.y)) - (String(a.year) === String(x.y)) || (b.year || 0) - (a.year || 0); });
+          var hit = same[0] || null;
+          if (!hit && list && list[0]) hit = list[0].show;
+          if (!hit || !hit.ids || !hit.ids.slug) throw new Error('no show');
+          return { slug: hit.ids.slug, tmdb: hit.ids.tmdb || 0 };
+        });
+      });
+    }
+    function showInfo(slug) {
+      return cached('tgo_den_show_v1_' + slug, 7 * DAY, function () {
+        return tget('/shows/' + encodeURIComponent(slug) + '?extended=full').then(function (s) {
+          return { ov: s.overview || '', net: s.network || '', genres: s.genres || [], cert: s.certification || '', status: s.status || '', y: s.year || '', tmdb: (s.ids && s.ids.tmdb) || 0 };
+        });
+      });
+    }
+    function seasonEps(slug, n) {
+      return cached('tgo_den_eps_v1_' + slug + '_' + n, 6 * HOUR, function () {
+        return tget('/shows/' + encodeURIComponent(slug) + '/seasons/' + n + '?extended=full').then(function (list) {
+          return (list || []).map(function (e) { return { n: e.number || 0, t: e.title || '', ov: e.overview || '', rt: e.runtime || 0, air: e.first_aired || '' }; }).filter(function (e) { return e.n > 0; });
+        });
+      });
+    }
+    function okImg(u) { return /^https:\/\/image\.tmdb\.org\//.test(String(u || '')) ? u : ''; }
+    function stillsFor(tmdb, n) {
+      if (!tmdb) return Promise.resolve({ st: {}, bd: '' });
+      return cached('tgo_den_stills_v1_' + tmdb + '_' + n, 7 * DAY, function () {
+        return fetch(PERCH + '?tmdb=' + tmdb + '&season=' + n).then(function (r) { return r.json(); }).then(function (d) {
+          var st = {}, src = (d && d.stills) || {};
+          for (var k in src) { if (okImg(src[k])) st[k] = src[k]; }
+          return { st: st, bd: okImg(d && d.backdrop) };
+        });
+      }, function (v) { var any = false; for (var k in v.st) any = true; return !any && !v.bd; });
+    }
+    /* a wide (landscape) picture: TMDB backdrops and stills, never a poster */
+    function wide(u) { return /image\.tmdb\.org\/t\/p\/(?:w1280|w780|w300|original)\//.test(String(u || '')) || /\/(?:backdrop|still)s?\//i.test(String(u || '')); }
+
+    /* everything Trakt + Perch know about a show he is watching: T[x.id] */
+    var T = {}, P = {};
+    function loadShow(x) {
+      if (x.kind !== 'TV' || !x.season) return Promise.resolve(null);
+      var t = T[x.id] = T[x.id] || { key: '' }, key = x.season + '|' + x.ep;
+      if (t.key === key && t.done) return Promise.resolve(t);
+      if (t.key === key && t.p) return t.p;
+      t.key = key;
+      return t.p = findShow(x).then(function (f) {
+        t.slug = f.slug;
+        var a = seasonEps(f.slug, x.season).then(function (e) { t.eps = e; }, function () {});
+        var b = showInfo(f.slug).then(function (s) { t.show = s; return s.tmdb || f.tmdb; }, function () { return f.tmdb; })
+          .then(function (tmdb) { return stillsFor(tmdb, x.season).then(function (s) { t.st = s.st; t.bd = s.bd; }, function () {}); });
+        return Promise.all([a, b]);
+      }).then(function () { t.done = true; t.p = null; return t; }, function () { t.done = true; t.p = null; return t; });
+    }
+    /* the picture for an item: the episode's still, the show's backdrop, the post's backdrop */
+    function wideArt(x) {
+      var t = T[x.id], p = P[x.url];
+      if (t && t.st && t.st[x.ep]) return t.st[x.ep];
+      if (p && p.bd) return p.bd;
+      if (wide(x.cover)) return x.cover;
+      if (t && t.bd) return t.bd;
+      return '';
     }
 
+    /* ---- the full post, read from the post's own page ---- */
+    function ptxt(el) { return el ? el.textContent.replace(/\s+/g, ' ').trim() : ''; }
+    function nostars(s) { return String(s || '').replace(/[★☆½]{2,}/g, ' ').replace(/My Rating Scale\s*↗?/gi, ' ').replace(/\s+/g, ' ').trim(); }
+    function paras(el) {
+      var ps = el.querySelectorAll('p'), out = [];
+      if (ps.length) { [].forEach.call(ps, function (p) { var s = nostars(ptxt(p)); if (s) out.push(s); }); return out; }
+      var c = el.cloneNode(true);
+      [].forEach.call(c.querySelectorAll('br'), function (b) { b.parentNode.replaceChild(c.ownerDocument.createTextNode('\n'), b); });
+      c.textContent.split(/\n+/).forEach(function (s) { s = nostars(s.replace(/\s+/g, ' ')); if (s) out.push(s); });
+      return out;
+    }
+    function readPost(html) {
+      var out = { facts: [], thoughts: [], syn: '', tag: '', bd: '', trailer: '', where: '', tmdb: '', trakt: '', scale: '', isbn: '' };
+      var doc; try { doc = new DOMParser().parseFromString(String(html || ''), 'text/html'); } catch (e) { return out; }
+      var ec = doc.querySelector('.e-content'); if (!ec) return out;
+      [].forEach.call(ec.querySelectorAll('script,style,.quoteback-footer'), function (n) { n.parentNode.removeChild(n); });
+      var q = function (s) { return ec.querySelector(s); };
+      var bd = q('img.review-backdrop'); if (bd) out.bd = okImg(bd.getAttribute('src'));
+      [].forEach.call(ec.querySelectorAll('.review-fact-label'), function (l) {
+        var v = l.nextElementSibling; if (v && ptxt(l) && ptxt(v)) out.facts.push([ptxt(l), ptxt(v)]);
+      });
+      out.tag = ptxt(q('.review-tagline'));
+      var syn = q('.review-synopsis') || q('.review-about');
+      out.syn = ptxt(syn);
+      if (out.tag && out.syn.indexOf(out.tag) === 0) out.syn = out.syn.slice(out.tag.length).trim();
+      /* his own words: a marked cell, else whatever follows a "My thoughts" label */
+      var th = q('.review-thoughts, .movie-card-thoughts');
+      if (!th) {
+        [].some.call(ec.querySelectorAll('p,div,td,span,h4,h5,strong'), function (l) {
+          if (l.children.length || !/^my (?:thoughts|take|review)\s*:?$/i.test(ptxt(l))) return false;
+          var n = l.nextElementSibling || (l.parentNode && l.parentNode !== ec ? l.parentNode.nextElementSibling : null);
+          if (n) { th = n; l.setAttribute('data-den-label', '1'); }
+          return !!n;
+        });
+      }
+      if (th) out.thoughts = paras(th);
+      /* a quote in the card is the synopsis (the old "Watched" cards) */
+      if (!out.syn) {
+        [].some.call(ec.querySelectorAll('blockquote'), function (b) {
+          if (b === th || (th && (th.contains(b) || b.contains(th))) || /quoteback/.test(b.className)) return false;
+          if (b.parentNode === ec) return false;
+          out.syn = ptxt(b); return !!out.syn;
+        });
+      }
+      /* plain posts: the post's own paragraphs are what he wrote */
+      [].forEach.call(ec.children, function (c) {
+        if (!/^(P|BLOCKQUOTE|UL|OL)$/.test(c.tagName) || c === th || /quoteback/.test(c.className)) return;
+        var s = nostars(ptxt(c)); if (!s || s === out.syn || s.length < 3) return;
+        if (out.thoughts.indexOf(s) < 0) out.thoughts.push(s);
+      });
+      [].forEach.call(ec.querySelectorAll('a[href]'), function (a) {
+        var h = a.getAttribute('href') || '', tx = ptxt(a);
+        if (/^https?:\/\/(?:www\.)?(?:youtu\.be|youtube\.com)\//i.test(h)) { if (!out.trailer) out.trailer = h; }
+        else if (/^https?:\/\/(?:www\.)?themoviedb\.org\//i.test(h)) { if (/where to watch/i.test(tx)) out.where = h; else if (!out.tmdb) out.tmdb = h; }
+        else if (/^https?:\/\/(?:www\.)?trakt\.tv\//i.test(h)) { if (!out.trakt) out.trakt = h; }
+        else if (/rating-scale/i.test(h)) { if (!out.scale) out.scale = h; }
+        var m = h.match(/\/books\/(97[89]\d{10})\b/); if (m && !out.isbn) out.isbn = m[1];
+      });
+      return out;
+    }
+    function local(u) { u = String(u || ''); return u.charAt(0) === '/' || u.indexOf(location.origin) === 0; }
+    function loadPost(x) {
+      if (!x || !local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url)) return Promise.resolve(null);
+      if (P[x.url]) return Promise.resolve(P[x.url]);
+      if (PEND['p' + x.url]) return PEND['p' + x.url];
+      return PEND['p' + x.url] = fetch(x.url, { credentials: 'same-origin' }).then(function (r) { if (!r.ok) throw 0; return r.text(); }).then(function (t) {
+        delete PEND['p' + x.url]; return P[x.url] = readPost(t);
+      }, function () { delete PEND['p' + x.url]; return null; });
+    }
+
+    /* ---- the pieces of a detail screen ---- */
+    var MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function airDate(iso) {
+      var d = new Date(iso); if (!iso || isNaN(d)) return '';
+      return MONS[d.getMonth()] + ' ' + d.getDate() + (d.getFullYear() !== new Date().getFullYear() ? ', ' + d.getFullYear() : '');
+    }
+    function cap(s) { s = String(s || '').replace(/-/g, ' '); return s.charAt(0).toUpperCase() + s.slice(1); }
+    function ext(label, href, cls) {
+      return '<a class="btn ' + (cls || 'ghost') + '" href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(label) + ' ' + ic('out') + '</a>';
+    }
+    function factsHtml(rows) {
+      rows = rows.filter(function (r) { return r && r[1]; });
+      return rows.length ? '<dl class="facts">' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' : '';
+    }
+    function permaHtml(text, x) {
+      var link = local(x.url) && !/^\/(?:reading|watching|watched)\/?$/.test(x.url) ? '<a href="' + esc(x.url) + '">Permalink</a>' : '';
+      return text || link ? '<div class="perma">' + ic('link') + '<span>' + esc(text) + '</span>' + link + '</div>' : '';
+    }
+    /* the short summary in the page data is sometimes only a card's leftovers
+       ("Season 1 My Rating Scale", "Watch on YouTube"); those are not a summary */
+    function sumOf(x) {
+      var s = String(x.sum || '').replace(/My Rating Scale\s*↗?/gi, ' ').replace(/▶?\s*Watch on YouTube/gi, ' ').replace(/\bSeason\s+\d+\b/gi, ' ').replace(/\s+/g, ' ').trim();
+      return s.length >= 40 ? x.sum : '';
+    }
+    function synHtml(p, x, label) {
+      var h = '';
+      if (p && (p.syn || p.tag)) h += '<div class="lbl">' + label + '</div>' + (p.tag ? '<p class="tagline">' + esc(p.tag) + '</p>' : '') + (p.syn ? '<p class="summary">' + esc(p.syn) + '</p>' : '');
+      if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (s) { return '<p class="summary">' + esc(s) + '</p>'; }).join('') + '</div>';
+      /* the short summary from the page data only stands in until the post itself has been read */
+      if (!h && sumOf(x) && !p) h = '<div class="lbl">Summary</div><p class="summary">' + esc(sumOf(x)) + '</p>';
+      return h;
+    }
+    function bookLinks(x, p) {
+      var isbn = p && p.isbn, qv = isbn || (x.t + (x.who ? ' ' + x.who : ''));
+      if (!qv) return '';
+      var e = encodeURIComponent(qv);
+      return '<div class="lbl">Get the book</div><div class="btns">' + ext('Amazon', 'https://www.amazon.com/s?k=' + e) + ext('Bookshop.org', 'https://bookshop.org/books?keywords=' + e) + ext('Nook', 'https://www.barnesandnoble.com/s/' + e) + '</div>' +
+        (isbn ? '<div class="lbl">On Micro.blog</div><div class="btns">' + ext('Add to my bookshelf', 'https://micro.blog/books/' + isbn, 'solid') + '</div><p class="hint">Opens this book on Micro.blog, where members pick a shelf.</p>' : '');
+    }
+    function epsHtml(x, t) {
+      var eps = (t && t.eps) || []; if (!eps.length) return '';
+      var cur = x.ep || 0, st = (t && t.st) || {};
+      var open = OPENEPS[x.id], from = open ? 0 : Math.max(0, cur - 3), to = open ? eps.length : Math.min(eps.length, Math.max(cur, 1) + 2);
+      var rows = eps.slice(from, to).map(function (e) {
+        var seen = cur && e.n < cur, now = cur && e.n === cur, later = !seen && !now;
+        var th = st[e.n] ? '<span class="eth">' + img(st[e.n]) + (seen ? '<em>' + ic('check') + '</em>' : '') + '</span>' : '<span class="enum' + (seen ? ' seen' : '') + (now ? ' now' : '') + '">' + (seen ? ic('check') : e.n) + '</span>';
+        var meta = now ? 'Watching now' : [airDate(e.air), e.rt ? e.rt + ' min' : ''].filter(Boolean).join(' · ');
+        return '<li class="ep' + (now ? ' now' : '') + (later ? ' later' : '') + (st[e.n] ? ' pic' : '') + '">' + th + '<span class="etx"><span class="en"><b>E' + e.n + '</b>' + (e.t ? ' · ' + esc(e.t) : '') + '</span>' +
+          (meta ? '<span class="em">' + esc(meta) + '</span>' : '') + (seen && e.ov ? '<span class="es">' + esc(e.ov) + '</span>' : '') + '</span></li>';
+      }).join('');
+      var more = eps.length - (to - from);
+      return '<div class="lbl">Season ' + x.season + '</div><ul class="eps">' + rows + '</ul>' +
+        (more > 0 ? '<button type="button" class="epmore" data-eps="' + x.id + '">Show all ' + eps.length + ' episodes</button>' : (open && eps.length > 5 ? '<button type="button" class="epmore" data-eps="' + x.id + '">Show fewer</button>' : ''));
+    }
+    var OPENEPS = {};
+    /* the body under the header: built from what is known now, rebuilt as Trakt and the post arrive */
+    function bodyHtml(x) {
+      var p = P[x.url] || null, t = T[x.id] || null, done = x.sec === 'history', h = '';
+      if (t && t.eps && t.eps.length && !x.eps && x.sec === 'watching') { x.eps = t.eps.length; var rt0 = 0; t.eps.forEach(function (q) { if (q.n === x.ep) rt0 = q.rt; }); if (!x.rt && rt0) x.rt = rt0; }
+      if (x.sec === 'watching' && x.kind === 'TV') {
+        var e = null; ((t && t.eps) || []).forEach(function (q) { if (q.n === x.ep) e = q; });
+        var small = [e && e.rt ? e.rt + ' min' : (x.rt ? x.rt + ' min' : ''), e && e.air ? 'aired ' + airDate(e.air) : '', left(x) ? left(x).replace(/^(\d+) left/, function (m, n) { return n + (n === '1' ? ' episode left' : ' episodes left'); }) : ''].filter(Boolean).join(' · ');
+        var name = (e && e.t) || x.epn;
+        var val = x.ep ? 'E' + x.ep + (name ? ' · ' + esc(name) : '') : (x.season ? 'Season ' + x.season : '');
+        if (val) h += '<div class="prog"><div class="lbl first">Now on</div><div class="pv">' + val + (small ? '<span class="left">' + esc(small) + '</span>' : '') + '</div>' + (pct(x) >= 0 ? '<div class="bar"><i style="width:' + pct(x) + '%"></i></div>' : '') + '</div>';
+        var ov = (e && e.ov) || (p && p.syn) || sumOf(x);
+        if (ov) h += '<p class="summary epsum">' + esc(ov) + '</p>';
+        h += epsHtml(x, t);
+        if (t && t.show && (t.show.ov || t.show.genres.length)) {
+          var chips = t.show.genres.slice(0, 4).map(cap).concat([t.show.cert, t.show.net, cap(t.show.status)]).filter(Boolean);
+          h += '<div class="lbl">About the show</div>' + (t.show.ov ? '<p class="summary">' + esc(t.show.ov) + '</p>' : '') + (chips.length ? '<div class="chips">' + chips.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' : '');
+        }
+        if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (s) { return '<p class="summary">' + esc(s) + '</p>'; }).join('') + '</div>';
+        var tb = '';
+        if (t && t.slug) tb += ext('More on Trakt', 'https://trakt.tv/shows/' + encodeURIComponent(t.slug));
+        else if (!local(x.url) && x.url) tb += ext('More on Trakt', x.url);
+        if (p && p.where) tb += ext('Where to watch', p.where);
+        if (tb) h += '<div class="btns">' + tb + '</div>';
+        return h + permaHtml(x.d ? (local(x.url) ? 'Last posted ' : 'Last watched ') + x.d : '', x);
+      }
+      if (x.kind === 'Book') {
+        if (!done) {
+          var pv = esc(where(x)) + (x.page && x.total && x.pct >= 0 ? ' · ' + x.pct + '%' : '');
+          h += '<div class="prog"><div class="lbl first">Progress</div><div class="pv">' + pv + (x.page && x.total && x.total > x.page ? '<span class="left">' + (x.total - x.page) + ' pages to go</span>' : '') + '</div>' + (pct(x) >= 0 ? '<div class="bar"><i style="width:' + pct(x) + '%"></i></div>' : '') + '</div>';
+        } else h += rateHtml(x, p);
+        var bf = p && p.facts.length ? p.facts : [['Author', x.who], ['Published', x.y]];
+        h += factsHtml(bf);
+        h += synHtml(p, x, 'About the book');
+        h += bookLinks(x, p);
+        return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (x.date || x.d ? 'Started ' + (x.date || x.d) : ''), x);
+      }
+      /* a movie or a show he rated, or a movie he is watching */
+      if (done) h += rateHtml(x, p);
+      var mf = p && p.facts.length ? p.facts : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
+      h += factsHtml(mf);
+      h += synHtml(p, x, 'Synopsis');
+      var b = '';
+      if (p && p.where) b += ext('Where to watch', p.where);
+      if (p && p.trailer) b += ext('Trailer', p.trailer);
+      if (p && p.trakt) b += ext('More on Trakt', p.trakt);
+      else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
+      else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
+      if (b) h += '<div class="btns">' + b + '</div>';
+      return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
+    }
+    function rateHtml(x, p) {
+      return '<div class="rate">' + stars(x.r) + '<b>' + rtext(x.r) + ' of 5</b>' + (p && p.scale ? '<a class="scale" href="' + esc(p.scale) + '">My rating scale</a>' : '') + '</div>';
+    }
+    function headHtml(x) {
+      var done = x.sec === 'history', t = T[x.id];
+      if (t && t.eps && t.eps.length && !x.eps && x.sec === 'watching') x.eps = t.eps.length;
+      var meta = x.kind === 'Book' ? 'Book' + (x.y ? ' · ' + esc(x.y) : '') : (x.kind === 'TV' ? 'TV' : 'Movie') + ((x.y || (t && t.show && t.show.y)) ? ' · ' + esc(x.y || t.show.y) : '') + (x.kind === 'TV' && t && t.show && t.show.net && !done ? ' · ' + esc(t.show.net) : '');
+      var sub = '';
+      if (x.kind === 'Book') sub = x.who ? 'by ' + esc(x.who) : '';
+      else if (x.kind === 'TV') sub = x.season ? 'Season ' + x.season + (!done && x.ep ? ' · Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') : '') : '';
+      var w = x.kind === 'Book' ? '' : wideArt(x);
+      var info = '<div class="info"><div class="meta">' + meta + '</div><h2>' + esc(x.t) + '</h2>' + (sub ? '<div class="sub2">' + sub + '</div>' : '') + '</div>';
+      if (w) return '<div class="dhero" style="background:' + grad(x) + '">' + img(w, 'hpic') + info + '</div>';
+      var bg = x.cover ? img(x.cover, 'bgimg') : '';
+      return '<div class="dtop"><div class="bg" style="background:' + (x.kind === 'Book' ? bookBg(x) : grad(x)) + '"></div>' + bg + '<div class="art">' + art(x) + '</div>' + info + '</div>';
+    }
+    function detail(x) {
+      if (!x) return '<p class="none pad">Pick something on the left.</p>';
+      var hh = headHtml(x), bh = bodyHtml(x);
+      LAST[x.id] = { h: hh, b: bh };
+      return '<div class="dx" data-dx="' + esc(x.id) + '"><div class="dxhead">' + hh + '</div><div class="dbody">' + bh + '</div></div>';
+    }
+    /* fill in what arrives after the screen opens; only the part that changed is redrawn */
+    var LAST = {};
+    function patch(x) {
+      var hh = headHtml(x), bh = bodyHtml(x), was = LAST[x.id] || {};
+      [].forEach.call(root.querySelectorAll('.dx'), function (el) {
+        if (el.getAttribute('data-dx') !== x.id) return;
+        var he = el.querySelector('.dxhead'), be = el.querySelector('.dbody');
+        if (he && was.h !== hh) he.innerHTML = hh;
+        if (be && was.b !== bh) be.innerHTML = bh;
+      });
+      LAST[x.id] = { h: hh, b: bh };
+    }
+    function hydrate(x) {
+      if (!x) return;
+      loadPost(x).then(function (p) { if (p) patch(x); });
+      if (x.sec === 'watching') loadShow(x).then(function (t) { if (t) { patch(x); paintCards(); } });
+    }
     function setName(t) { if (hbName) hbName.textContent = t; }
     function show(v, on) { v.classList.toggle('off', !on); v.setAttribute('aria-hidden', on ? 'false' : 'true'); if (!on) v.inert = true; else v.inert = false; }
     function render() {
@@ -283,6 +596,7 @@
         vList.innerHTML = '<div class="panes"><div class="pane left">' + filtersHtml() + '<div class="pscroll lrows">' + listRows() + '</div></div>' +
           '<div class="pane right"><div class="pscroll rdet">' + detail(x) + '</div></div></div>';
         show(vList, true); show(vDetail, false); setName(SECTIONS[s.sec].title);
+        hydrate(x);
         var sel = vList.querySelector('.li.sel'); if (sel && sel.scrollIntoView) { var lr = vList.querySelector('.lrows'); if (sel.offsetTop > lr.clientHeight - 60) lr.scrollTop = sel.offsetTop - 80; }
         return;
       }
@@ -296,6 +610,7 @@
       if (s.view === 'detail' && x) {
         vDetail.innerHTML = '<div class="pscroll">' + detail(x) + '</div>';
         show(vDetail, true); setName(x.t);
+        hydrate(x);
       } else { show(vDetail, false); setName(SECTIONS[s.sec] ? SECTIONS[s.sec].title : ctx.app[0]); }
     }
     function go(next, push) {
@@ -328,10 +643,14 @@
 
     root.addEventListener('click', function (e) {
       var t = e.target;
+      var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }
       var p = t.closest('[data-pick]'); if (p) { openItem(p.getAttribute('data-pick')); return; }
     });
+    /* the post starts loading as the finger goes down, so it is usually
+       there by the time the screen has slid in */
+    root.addEventListener('pointerdown', function (e) { var p = e.target.closest && e.target.closest('[data-pick]'); if (p) { var x = get(p.getAttribute('data-pick')); if (x) { loadPost(x); if (x.sec === 'watching') loadShow(x); } } }, { passive: true });
     /* app bar shadow follows the scroll of whichever view is on top */
     root.addEventListener('scroll', function (e) {
       if (e.target.classList && (e.target.classList.contains('hxd-scroll') || e.target.classList.contains('pscroll'))) ctx.bar.classList.toggle('scrolled', e.target.scrollTop > 4);
@@ -358,6 +677,7 @@
            when Trakt is newer than the post, so the post isn't used here */
         if (p && p.url) { try { if (new URL(href, location.href).pathname !== new URL(p.url, location.href).pathname) p = null; } catch (er) {} }
         /* Trakt's latest episode, number, name and season size (data-* on the card) */
+        var tslug = card.getAttribute('data-slug') || '', ttmdb = +(card.getAttribute('data-tmdb') || 0);
         var tep = +(card.getAttribute('data-ep') || 0), tepn = card.getAttribute('data-epn') || '', teps = +(card.getAttribute('data-eps') || 0), trt = +(card.getAttribute('data-rt') || 0);
         if (p) {
           var c = {}; for (var k in p) c[k] = p[k];
@@ -366,10 +686,11 @@
           if (trt) c.rt = trt;
           else if (teps && !c.eps && season === c.season) c.eps = teps;
           if (!c.cover && cover) c.cover = cover;
+          if (tslug) c.slug = tslug; if (ttmdb) c.tmdb = ttmdb;
           if (d && /Last watched/i.test((card.querySelector('.wr-date') || {}).textContent || '')) c.d = d;
           out.push(c);
         } else {
-          out.push({ id: 't' + n, sec: 'watching', kind: /movie/i.test(prog) ? 'Movie' : 'TV', t: t, n: n, season: season, ep: tep, eps: teps, epn: tepn, rt: trt, y: '', cover: cover, url: href, d: d, date: dtx, sum: '' });
+          out.push({ id: 't' + n, sec: 'watching', kind: /movie/i.test(prog) ? 'Movie' : 'TV', t: t, n: n, season: season, ep: tep, eps: teps, epn: tepn, rt: trt, y: '', cover: cover, url: href, d: d, date: dtx, sum: '', slug: tslug, tmdb: ttmdb });
         }
       });
       return out;

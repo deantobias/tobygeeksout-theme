@@ -69,6 +69,8 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .hxd-stars .on{color:var(--gold)}
 .hx-den .hxd-stars .off{color:#3A322B}
 .hx-den .hxd-stars .half{position:absolute;inset:0;clip-path:inset(0 50% 0 0)}
+/* Nov 12: "Not rated yet" sits where the stars go, at the same height, so tiles in a row stay level */
+.hx-den .it .unr{display:block;margin-top:5px;line-height:14px}
 .hx-den .it-book{width:112px}
 .hx-den .it-hist{width:116px}
 
@@ -130,6 +132,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den .cap .tt{font-size:16px}
   .hx-den .cap .tm{font-size:14.5px}
   .hx-den .hxd-stars .s{width:15px;height:15px}
+  .hx-den .it .unr{line-height:15px}
   .hx-den .filters button{font-size:15px}
   .hx-den .li .mini{width:58px}
   .hx-den .li .tt{font-size:18px}

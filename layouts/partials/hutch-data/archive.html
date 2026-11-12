@@ -44,7 +44,8 @@
         {{- with index $idx $k -}}{{- $ci = $ci | append . -}}{{- else -}}{{- if eq (index $idx $k) 0 -}}{{- $ci = $ci | append 0 -}}{{- end -}}{{- end -}}
       {{- end -}}
       {{- $s := partial "clean-summary.html" (dict "page" . "cut" 110) | plainify | htmlUnescape -}}
-      {{- $s = trim (replaceRE `\s+` " " $s) " " -}}
+      {{/* Nov 12 (Toby: odd characters): a second unescape for doubly escaped text, and no-break spaces become plain spaces */}}
+      {{- $s = trim (replaceRE `[\s\x{00A0}]+` " " ($s | htmlUnescape)) " " -}}
       {{- $ps = $ps | append (dict "t" .Title "s" $s "u" .RelPermalink "d" (.Date.Format "2006-01-02") "c" $ci) -}}
     {{- end -}}
     {{- $months = $months | append (dict "m" .Key "n" (len .Pages) "p" $ps) -}}

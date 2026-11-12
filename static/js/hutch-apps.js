@@ -487,7 +487,8 @@ window.HutchApps = window.HutchApps || {};
     }
     function pct(x) {
       if (x.kind === 'Book') return x.pct >= 0 ? Math.min(100, x.pct) : (x.total ? Math.round(x.page / x.total * 100) : -1);
-      if (x.kind === 'TV' && x.ep && x.eps) return Math.min(100, Math.round((x.ep - 0.5) / x.eps * 100));
+      /* Nov 12 (Toby: "I was sure I finished ep 2"): Trakt logs an episode once it is finished, so episode 2 of 8 is 2/8 done */
+      if (x.kind === 'TV' && x.ep && x.eps) return Math.min(100, Math.round(x.ep / x.eps * 100));
       return -1;
     }
     function bar(x) { var p = pct(x); return p >= 0 ? '<div class="bar"><i style="width:' + p + '%"></i></div>' : ''; }
@@ -512,9 +513,9 @@ window.HutchApps = window.HutchApps || {};
       reading: { title: 'Currently reading', items: function () { return READ; }, empty: 'Between books right now.' },
       watching: { title: 'Currently watching', items: function () { return WATCH; }, empty: 'Nothing playing right now.' },
       queue: { title: 'Waiting for', items: function () { return QUEUE; }, empty: 'Nothing on the list right now.' },
-      history: { title: 'History', items: function () { return HIST; }, empty: 'No ratings yet.' }
+      history: { title: 'History', items: function () { return histAll(); }, empty: 'No ratings yet.' }
     };
-    function get(id) { var all = READ.concat(WATCH, HIST); for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
+    function get(id) { var all = READ.concat(WATCH, HIST, QUEUE_ALL, FIN_TV, FIN_MV); for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
 
     /* ---------- build ---------- */
     ctx.own();
@@ -562,8 +563,26 @@ window.HutchApps = window.HutchApps || {};
         }
       });
     }
+    /* Nov 12 (Toby: "add it as history, the rating will be updated"): a season
+       or movie he finished in the last 30 days and has not rated yet sits in
+       History with "Not rated yet" where the stars go. His review takes its
+       place once he rates it; after 30 days without one it drops off.
+       Seasons come from the Watching page (window.tgoFinished), movies from
+       his public Trakt history. */
+    var FIN_TV = [], FIN_MV = [], FIN_DAYS = 30;
+    function rated(n, kind, season) {
+      return HIST.some(function (h) { return h.kind === kind && norm(h.t) === n && (kind !== 'TV' || !h.season || !season || h.season >= season); });
+    }
+    function isoDay(ms) { var d = new Date(ms); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    function histAll() {
+      var extra = FIN_TV.concat(FIN_MV); if (!extra.length) return HIST;
+      return extra.concat(HIST).map(function (x, i) { return [x, i]; }).sort(function (a, b) {
+        var da = a[0].iso || '', db = b[0].iso || ''; return da === db ? a[1] - b[1] : (da < db ? 1 : -1);
+      }).map(function (p) { return p[0]; });
+    }
+    function rate(x) { return x.fin && !x.r ? '<span class="tm unr">Not rated yet</span>' : stars(x.r); }
     function histTile(x) {
-      return '<button type="button" class="it it-hist" data-pick="' + x.id + '">' + art(x) + '<span class="cap">' + stars(x.r) + '<span class="tt">' + esc(x.t) + '</span><span class="tm">' +
+      return '<button type="button" class="it it-hist" data-pick="' + x.id + '">' + art(x) + '<span class="cap">' + rate(x) + '<span class="tt">' + esc(x.t) + '</span><span class="tm">' +
         (x.kind === 'TV' && x.season ? 'Season ' + x.season + ' · ' : '') + esc(x.d) + '</span></span></button>';
     }
     /* Waiting for (Nov 5): The Queue's posters, each with its release
@@ -578,10 +597,13 @@ window.HutchApps = window.HutchApps || {};
       return MON[+m[2] - 1] + ' ' + (+m[3]) + (m[1] !== yNow ? ', ' + m[1] : '');
     }
     function soon(x) { if (x.out) return 'out'; var m = String(x.dk || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m || m[3] === '99') return ''; return (new Date(+m[1], +m[2] - 1, +m[3]) - new Date()) < 45 * 864e5 ? 'soon' : ''; }
+    /* Nov 12 (Toby): Waiting for opens here in the Den too, like Currently
+       and History, with a permalink to the queue post */
+    function relLine(x) { var r = relShort(x); return x.out ? 'Out now' : (r === 'TBA' ? 'No date yet' : 'Coming ' + r); }
     function queueTile(x) {
-      return '<a class="it it-hist it-q" href="' + esc(x.url) + '"><div class="poster" style="background:' + grad(x) + '"><div class="pn">' + esc(x.t) + '</div>' + img(x.cover) +
+      return '<button type="button" class="it it-hist it-q" data-pick="' + x.id + '"><div class="poster" style="background:' + grad(x) + '"><div class="pn">' + esc(x.t) + '</div>' + img(x.cover) +
         '<span class="qbadge ' + soon(x) + '">' + esc(relShort(x)) + '</span></div><span class="cap"><span class="tt">' + esc(x.t) + '</span><span class="tm">' +
-        esc(x.out ? 'Out now · ' + x.kind : x.kind + (relShort(x) !== 'TBA' ? ' · ' + relShort(x) : ' · No date yet')) + '</span></span></a>';
+        esc(x.out ? 'Out now · ' + x.kind : x.kind + (relShort(x) !== 'TBA' ? ' · ' + relShort(x) : ' · No date yet')) + '</span></span></button>';
     }
     /* each row: its title (Waiting for opens The Queue page; the others
        open their list here) and, on the right, See all for the full page
@@ -670,11 +692,11 @@ window.HutchApps = window.HutchApps || {};
       var items = listItems(), h = state.sec === 'history';
       if (!items.length) return '<p class="none">' + (h && state.filter !== 'All' ? 'Nothing here yet.' : SECTIONS[state.sec].empty) + '</p>';
       return items.map(function (x) {
-        var meta = h ? (x.kind === 'Book' ? (x.who ? esc(x.who) + ' · ' : '') : x.kind + (x.kind === 'TV' && x.season ? ' · Season ' + x.season : '') + ' · ') + esc(x.d)
+        var meta = x.sec === 'queue' ? esc(x.kind + ' · ' + relLine(x)) : h ? (x.kind === 'Book' ? (x.who ? esc(x.who) + ' · ' : '') : x.kind + (x.kind === 'TV' && x.season ? ' · Season ' + x.season : '') + ' · ') + esc(x.d)
           : x.kind === 'Book' ? esc(where(x)) + (x.who ? ' · ' + esc(x.who) : '')
           : x.kind === 'TV' ? 'TV · ' + esc(where(x)) + (x.epn ? ' · ' + esc(x.epn) : '') : esc(where(x));
         return '<button type="button" class="li' + (two() && x.id === state.id ? ' sel' : '') + '" data-pick="' + x.id + '"><span class="mini">' + art(x) + '</span><span class="m"><span class="tt">' + esc(x.t) + '</span>' +
-          '<span class="tm">' + meta + '</span>' + (h ? stars(x.r) : bar(x)) + '</span></button>';
+          '<span class="tm">' + meta + '</span>' + (h ? rate(x) : bar(x)) + '</span></button>';
       }).join('');
     }
     function filtersHtml() {
@@ -737,7 +759,7 @@ window.HutchApps = window.HutchApps || {};
     function showInfo(slug) {
       return cached('tgo_den_show_v1_' + slug, 7 * DAY, function () {
         return tget('/shows/' + encodeURIComponent(slug) + '?extended=full').then(function (s) {
-          return { ov: s.overview || '', net: s.network || '', genres: s.genres || [], cert: s.certification || '', status: s.status || '', y: s.year || '', tmdb: (s.ids && s.ids.tmdb) || 0 };
+          return { ov: s.overview || '', net: s.network || '', genres: s.genres || [], cert: s.certification || '', status: s.status || '', y: s.year || '', tmdb: (s.ids && s.ids.tmdb) || 0, trakt: (s.ids && s.ids.trakt) || 0 };
         });
       });
     }
@@ -747,6 +769,22 @@ window.HutchApps = window.HutchApps || {};
           return (list || []).map(function (e) { return { n: e.number || 0, t: e.title || '', ov: e.overview || '', rt: e.runtime || 0, air: e.first_aired || '' }; }).filter(function (e) { return e.n > 0; });
         });
       });
+    }
+    /* Nov 12 (Toby: a watched episode should say WHEN he watched it): the day
+       each episode of this season was finished, from his public Trakt history */
+    var TUSER = 'technogeek75';
+    function seenDates(traktId, n) {
+      if (!traktId) return Promise.resolve({});
+      return cached('tgo_den_seen_v1_' + traktId + '_' + n, HOUR / 2, function () {
+        return tget('/users/' + TUSER + '/history/shows/' + traktId + '?limit=300').then(function (list) {
+          var out = {};
+          (list || []).forEach(function (h) {
+            var e = h.episode; if (!e || e.season !== n || !h.watched_at) return;
+            if (!out[e.number] || h.watched_at > out[e.number]) out[e.number] = h.watched_at;
+          });
+          return out;
+        });
+      }, function (v) { for (var k in v) return false; return true; });
     }
     function okImg(u) { return /^https:\/\/image\.tmdb\.org\//.test(String(u || '')) ? u : ''; }
     function stillsFor(tmdb, n) {
@@ -774,7 +812,10 @@ window.HutchApps = window.HutchApps || {};
         t.slug = f.slug;
         var a = seasonEps(f.slug, x.season).then(function (e) { t.eps = e; }, function () {});
         var b = showInfo(f.slug).then(function (s) { t.show = s; return s.tmdb || f.tmdb; }, function () { return f.tmdb; })
-          .then(function (tmdb) { return stillsFor(tmdb, x.season).then(function (s) { t.st = s.st; t.bd = s.bd; }, function () {}); });
+          .then(function (tmdb) {
+            var c = seenDates(t.show && t.show.trakt, x.season).then(function (d) { t.seen = d; }, function () {});
+            return Promise.all([c, stillsFor(tmdb, x.season).then(function (s) { t.st = s.st; t.bd = s.bd; }, function () {})]);
+          });
         return Promise.all([a, b]);
       }).then(function () { t.done = true; t.p = null; return t; }, function () { t.done = true; t.p = null; return t; });
     }
@@ -858,6 +899,25 @@ window.HutchApps = window.HutchApps || {};
       }, function () { delete PEND['p' + x.url]; return null; });
     }
 
+    /* what Trakt knows about a title on the Waiting for list (found through
+       the Trakt link in its post): synopsis, release date, running time, genres */
+    var I = {};
+    function loadInfo(x, p) {
+      var src = (p && p.trakt) || (x.fin ? x.url : '');
+      var m = src ? src.match(/trakt\.tv\/(movies|shows)\/([^\/?#]+)/) : null;
+      if (!m) return Promise.resolve(null);
+      var key = m[1] + '/' + decodeURIComponent(m[2]);
+      return cached('tgo_den_info_v1_' + key, 7 * DAY, function () {
+        return tget('/' + m[1] + '/' + encodeURIComponent(decodeURIComponent(m[2])) + '?extended=full').then(function (j) {
+          return { ov: j.overview || '', tag: j.tagline || '', tmdb: (j.ids && j.ids.tmdb) || 0, rel: j.released || j.first_aired || '', rt: j.runtime || 0, genres: j.genres || [], cert: j.certification || '', type: m[1] };
+        });
+      }).then(function (v) { I[x.url] = v; return v; }, function () { return null; });
+    }
+    function longDate(iso) {
+      var d = new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso); if (!iso || isNaN(d)) return '';
+      return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
     /* ---- the pieces of a detail screen ---- */
     var MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     function airDate(iso) {
@@ -894,18 +954,24 @@ window.HutchApps = window.HutchApps || {};
       var isbn = p && p.isbn, qv = isbn || (x.t + (x.who ? ' ' + x.who : ''));
       if (!qv) return '';
       var e = encodeURIComponent(qv);
-      return '<div class="lbl">Get the book</div><div class="btns">' + ext('Amazon', 'https://www.amazon.com/s?k=' + e) + ext('Bookshop.org', 'https://bookshop.org/books?keywords=' + e) + ext('Nook', 'https://www.barnesandnoble.com/s/' + e) + '</div>' +
+      return '<div class="lbl">Get the book</div><div class="btns">' + ext('Amazon', 'https://www.amazon.com/s?k=' + e) + ext('Bookshop.org', isbn ? 'https://bookshop.org/book/' + isbn : 'https://bookshop.org/search?keywords=' + e) + ext('Nook', 'https://www.barnesandnoble.com/s/' + e) + '</div>' +
         (isbn ? '<div class="lbl">On Micro.blog</div><div class="btns">' + ext('Add to my bookshelf', 'https://micro.blog/books/' + isbn, 'solid') + '</div><p class="hint">Opens this book on Micro.blog, where members pick a shelf.</p>' : '');
     }
     function epsHtml(x, t) {
       var eps = (t && t.eps) || []; if (!eps.length) return '';
-      var cur = x.ep || 0, st = (t && t.st) || {};
-      var open = OPENEPS[x.id], from = open ? 0 : Math.max(0, cur - 3), to = open ? eps.length : Math.min(eps.length, Math.max(cur, 1) + 2);
+      /* Nov 12 (Toby: "I was sure I finished ep 2"): Trakt only logs an episode
+         once it is finished, so the logged episode is WATCHED (ticked, with its
+         synopsis) and the one after it is "Up next". Later ones stay quiet. */
+      var cur = x.fin ? eps.length : (x.ep || 0), st = (t && t.st) || {}, sd = (t && t.seen) || {};
+      var open = OPENEPS[x.id], from = open ? 0 : Math.max(0, cur - 2), to = open ? eps.length : Math.min(eps.length, cur + 3);
       var rows = eps.slice(from, to).map(function (e) {
-        var seen = cur && e.n < cur, now = cur && e.n === cur, later = !seen && !now;
-        var th = st[e.n] ? '<span class="eth">' + img(st[e.n]) + (seen ? '<em>' + ic('check') + '</em>' : '') + '</span>' : '<span class="enum' + (seen ? ' seen' : '') + (now ? ' now' : '') + '">' + (seen ? ic('check') : e.n) + '</span>';
-        var meta = now ? 'Watching now' : [airDate(e.air), e.rt ? e.rt + ' min' : ''].filter(Boolean).join(' · ');
-        return '<li class="ep' + (now ? ' now' : '') + (later ? ' later' : '') + (st[e.n] ? ' pic' : '') + '">' + th + '<span class="etx"><span class="en"><b>E' + e.n + '</b>' + (e.t ? ' · ' + esc(e.t) : '') + '</span>' +
+        var seen = cur && e.n <= cur, next = e.n === cur + 1, later = !seen && !next;
+        var aired = e.air && new Date(e.air) <= new Date();
+        var th = st[e.n] ? '<span class="eth">' + img(st[e.n]) + (seen ? '<em>' + ic('check') + '</em>' : '') + '</span>' : '<span class="enum' + (seen ? ' seen' : '') + (next ? ' now' : '') + '">' + (seen ? ic('check') : e.n) + '</span>';
+        var when = airDate(e.air) ? (aired ? '' : 'Airs ') + airDate(e.air) : '';
+        if (seen && sd[e.n] && airDate(sd[e.n])) when = 'Watched ' + airDate(sd[e.n]);
+        var meta = [next ? 'Up next' : '', when, e.rt ? e.rt + ' min' : ''].filter(Boolean).join(' · ');
+        return '<li class="ep' + (next ? ' now' : '') + (later ? ' later' : '') + (st[e.n] ? ' pic' : '') + '">' + th + '<span class="etx"><span class="en"><b>E' + e.n + '</b>' + (e.t ? ' · ' + esc(e.t) : '') + '</span>' +
           (meta ? '<span class="em">' + esc(meta) + '</span>' : '') + (seen && e.ov ? '<span class="es">' + esc(e.ov) + '</span>' : '') + '</span></li>';
       }).join('');
       var more = eps.length - (to - from);
@@ -917,13 +983,17 @@ window.HutchApps = window.HutchApps || {};
     function bodyHtml(x) {
       var p = P[x.url] || null, t = T[x.id] || null, done = x.sec === 'history', h = '';
       if (t && t.eps && t.eps.length && !x.eps && x.sec === 'watching') { x.eps = t.eps.length; var rt0 = 0; t.eps.forEach(function (q) { if (q.n === x.ep) rt0 = q.rt; }); if (!x.rt && rt0) x.rt = rt0; }
-      if (x.sec === 'watching' && x.kind === 'TV') {
+      if ((x.sec === 'watching' || x.fin) && x.kind === 'TV') {
         var e = null; ((t && t.eps) || []).forEach(function (q) { if (q.n === x.ep) e = q; });
-        var small = [e && e.rt ? e.rt + ' min' : (x.rt ? x.rt + ' min' : ''), e && e.air ? 'aired ' + airDate(e.air) : '', left(x) ? left(x).replace(/^(\d+) left/, function (m, n) { return n + (n === '1' ? ' episode left' : ' episodes left'); }) : ''].filter(Boolean).join(' · ');
+        var wd = t && t.seen && t.seen[x.ep] ? airDate(t.seen[x.ep]) : '';
+        var small = [wd ? 'Watched ' + wd : '', e && e.rt ? e.rt + ' min' : (x.rt ? x.rt + ' min' : ''), !wd && e && e.air ? 'aired ' + airDate(e.air) : '', left(x) ? left(x).replace(/^(\d+) left/, function (m, n) { return n + (n === '1' ? ' episode left' : ' episodes left'); }) : ''].filter(Boolean).join(' · ');
         var name = (e && e.t) || x.epn;
         var val = x.ep ? 'E' + x.ep + (name ? ' · ' + esc(name) : '') : (x.season ? 'Season ' + x.season : '');
-        if (val) h += '<div class="prog"><div class="lbl first">Now on</div><div class="pv">' + val + (small ? '<span class="left">' + esc(small) + '</span>' : '') + '</div>' + (pct(x) >= 0 ? '<div class="bar"><i style="width:' + pct(x) + '%"></i></div>' : '') + '</div>';
-        var ov = (e && e.ov) || (p && p.syn) || sumOf(x);
+        if (!small && x.ep && x.eps && x.ep >= x.eps) small = 'Season finished';
+        else if (x.ep && x.eps && x.ep >= x.eps) small += ' · season finished';
+        if (x.fin) { val = 'Season ' + x.season + (x.eps ? ' · ' + x.eps + ' episodes' : ''); small = (x.d ? x.d + ' · ' : '') + 'Not rated yet'; }
+        if (val) h += '<div class="prog"><div class="lbl first">' + (x.fin ? 'Finished' : 'Last watched') + '</div><div class="pv">' + val + (small ? '<span class="left">' + esc(small) + '</span>' : '') + '</div>' + (pct(x) >= 0 && !x.fin ? '<div class="bar"><i style="width:' + pct(x) + '%"></i></div>' : '') + '</div>';
+        var ov = x.fin ? '' : (e && e.ov) || (p && p.syn) || sumOf(x);
         if (ov) h += '<p class="summary epsum">' + esc(ov) + '</p>';
         h += epsHtml(x, t);
         if (t && t.show && (t.show.ov || t.show.genres.length)) {
@@ -936,6 +1006,7 @@ window.HutchApps = window.HutchApps || {};
         else if (!local(x.url) && x.url) tb += ext('More on Trakt', x.url);
         if (p && p.where) tb += ext('Where to watch', p.where);
         if (tb) h += '<div class="btns">' + tb + '</div>';
+        if (x.fin) return h + permaHtml('Finished ' + (x.date || x.d) + ' · Not rated yet', x);
         return h + permaHtml(x.d ? (local(x.url) ? 'Last posted ' : 'Last watched ') + x.d : '', x);
       }
       if (x.kind === 'Book') {
@@ -949,7 +1020,35 @@ window.HutchApps = window.HutchApps || {};
         h += bookLinks(x, p);
         return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (x.date || x.d ? 'Started ' + (x.date || x.d) : ''), x);
       }
+      /* Waiting for (Nov 12, Toby): synopsis, release, where to watch, Trakt.
+         Trakt does not give out streaming / rent / buy lists without a login
+         (watchnow answers 403), so "Where to watch" opens TMDB's page for it. */
+      if (x.sec === 'queue') {
+        var i = I[x.url] || null;
+        var qf = (p && p.facts.length ? p.facts.slice() : []);
+        if (i && i.rel) qf.push([new Date(i.rel) > new Date() ? 'Coming' : 'Released', longDate(i.rel)]);
+        if (i && i.rt) qf.push(['Runtime', i.rt + ' min']);
+        h += factsHtml(qf);
+        var qs = (p && p.syn) || (i && i.ov) || '', qt = (p && p.tag) || (i && i.tag) || '';
+        if (qs || qt) h += '<div class="lbl">Synopsis</div>' + (qt ? '<p class="tagline">' + esc(qt) + '</p>' : '') + (qs ? '<p class="summary">' + esc(qs) + '</p>' : '');
+        if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (t0) { return '<p class="summary">' + esc(t0) + '</p>'; }).join('') + '</div>';
+        if (i && (i.genres.length || i.cert)) h += '<div class="chips">' + i.genres.slice(0, 4).map(cap).concat([i.cert]).filter(Boolean).map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>';
+        var qw = (p && p.where) || (i && i.tmdb ? 'https://www.themoviedb.org/' + (i.type === 'shows' ? 'tv' : 'movie') + '/' + i.tmdb + '/watch' : '');
+        var qb = (qw ? ext('Where to watch', qw) : '') + (p && p.trailer ? ext('Trailer', p.trailer) : '') + (p && p.trakt ? ext('More on Trakt', p.trakt) : '');
+        if (qb) h += '<div class="btns">' + qb + '</div>' + (qw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
+        return h + permaHtml('On the Waiting for list · ' + relLine(x), x);
+      }
       /* a movie or a show he rated, or a movie he is watching */
+      if (x.fin) {
+        var fi = I[x.url] || null;
+        h += x.r ? rateHtml(x, p) : '<div class="rate"><b>Not rated yet</b></div>';
+        h += factsHtml([['Released', fi && fi.rel ? longDate(fi.rel) : x.y], ['Runtime', fi && fi.rt ? fi.rt + ' min' : '']]);
+        if (fi && (fi.ov || fi.tag)) h += '<div class="lbl">Synopsis</div>' + (fi.tag ? '<p class="tagline">' + esc(fi.tag) + '</p>' : '') + (fi.ov ? '<p class="summary">' + esc(fi.ov) + '</p>' : '');
+        if (fi && (fi.genres.length || fi.cert)) h += '<div class="chips">' + fi.genres.slice(0, 4).map(cap).concat([fi.cert]).filter(Boolean).map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>';
+        var fw = x.tmdb ? 'https://www.themoviedb.org/movie/' + x.tmdb + '/watch' : '';
+        h += '<div class="btns">' + (fw ? ext('Where to watch', fw) : '') + ext('More on Trakt', x.url) + '</div>' + (fw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
+        return h + permaHtml('Watched ' + (x.date || x.d) + (x.r ? ' · Rated on Trakt' : ' · Not rated yet'), x);
+      }
       if (done) h += rateHtml(x, p);
       var mf = p && p.facts.length ? p.facts : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
       h += factsHtml(mf);
@@ -961,7 +1060,7 @@ window.HutchApps = window.HutchApps || {};
       else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
       else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
       if (b) h += '<div class="btns">' + b + '</div>';
-      return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
+      return h + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? 'Finished ' + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
     }
     function rateHtml(x, p) {
       return '<div class="rate">' + stars(x.r) + '<b>' + rtext(x.r) + ' of 5</b>' + (p && p.scale ? '<a class="scale" href="' + esc(p.scale) + '">My rating scale</a>' : '') + '</div>';
@@ -972,7 +1071,8 @@ window.HutchApps = window.HutchApps || {};
       var meta = x.kind === 'Book' ? 'Book' + (x.y ? ' · ' + esc(x.y) : '') : (x.kind === 'TV' ? 'TV' : 'Movie') + ((x.y || (t && t.show && t.show.y)) ? ' · ' + esc(x.y || t.show.y) : '') + (x.kind === 'TV' && t && t.show && t.show.net && !done ? ' · ' + esc(t.show.net) : '');
       var sub = '';
       if (x.kind === 'Book') sub = x.who ? 'by ' + esc(x.who) : '';
-      else if (x.kind === 'TV') sub = x.season ? 'Season ' + x.season + (!done && x.ep ? ' · Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') : '') : '';
+      else if (x.kind === 'TV') sub = x.season ? 'Season ' + x.season + (!done && x.ep ? (x.eps ? ' · ' + x.ep + ' of ' + x.eps + ' watched' : ' · Episode ' + x.ep) : '') : '';
+      if (x.sec === 'queue') sub = relLine(x);
       var w = x.kind === 'Book' ? '' : wideArt(x);
       var info = '<div class="info"><div class="meta">' + meta + '</div><h2>' + esc(x.t) + '</h2>' + (sub ? '<div class="sub2">' + sub + '</div>' : '') + '</div>';
       if (w) return '<div class="dhero" style="background:' + grad(x) + '">' + img(w, 'hpic') + info + '</div>';
@@ -999,8 +1099,9 @@ window.HutchApps = window.HutchApps || {};
     }
     function hydrate(x) {
       if (!x) return;
-      loadPost(x).then(function (p) { if (p) patch(x); });
-      if (x.sec === 'watching') loadShow(x).then(function (t) { if (t) { patch(x); paintCards(); } });
+      loadPost(x).then(function (p) { if (p) patch(x); if (x.sec === 'queue') loadInfo(x, p).then(function (i) { if (i) patch(x); }); });
+      if (x.sec === 'watching' || (x.fin && x.kind === 'TV')) loadShow(x).then(function (t) { if (t) { patch(x); paintCards(); } });
+      if (x.fin && x.kind === 'Movie') loadInfo(x, null).then(function (i) { if (i) patch(x); });
     }
     function setName(t) { if (hbName) hbName.textContent = t; }
     function show(v, on) { v.classList.toggle('off', !on); v.setAttribute('aria-hidden', on ? 'false' : 'true'); if (!on) v.inert = true; else v.inert = false; }
@@ -1068,7 +1169,7 @@ window.HutchApps = window.HutchApps || {};
     });
     /* the post starts loading as the finger goes down, so it is usually
        there by the time the screen has slid in */
-    root.addEventListener('pointerdown', function (e) { var p = e.target.closest && e.target.closest('[data-pick]'); if (p) { var x = get(p.getAttribute('data-pick')); if (x) { loadPost(x); if (x.sec === 'watching') loadShow(x); } } }, { passive: true });
+    root.addEventListener('pointerdown', function (e) { var p = e.target.closest && e.target.closest('[data-pick]'); if (p) { var x = get(p.getAttribute('data-pick')); if (x) { loadPost(x); if (x.sec === 'watching' || (x.fin && x.kind === 'TV')) loadShow(x); else if (x.fin) loadInfo(x, null); } } }, { passive: true });
     /* app bar shadow follows the scroll of whichever view is on top */
     root.addEventListener('scroll', function (e) {
       if (e.target.classList && (e.target.classList.contains('hxd-scroll') || e.target.classList.contains('pscroll'))) ctx.bar.classList.toggle('scrolled', e.target.scrollTop > 4);
@@ -1128,7 +1229,49 @@ window.HutchApps = window.HutchApps || {};
       new MutationObserver(function () { clearTimeout(tmr); tmr = setTimeout(syncWatch, 60); }).observe(grid.parentNode || grid, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-ep', 'data-eps', 'data-epn', 'data-rt', 'src'] });
     }
 
+    /* ---------- History: finished, not rated yet (last 30 days) ---------- */
+    function histChanged() {
+      renderHome();
+      if (state.view !== 'home' && state.sec === 'history') { if (state.id && !get(state.id)) state.id = null; render(); }
+    }
+    function finItem(o) { o.sec = 'history'; o.fin = 1; o.sum = ''; o.who = ''; o.d = airDate(o.at); o.date = longDate(new Date(o.at).toISOString()); o.iso = isoDay(o.at); return o; }
+    function readFin() {
+      var since = Date.now() - FIN_DAYS * DAY;
+      FIN_TV = (window.tgoFinished || []).filter(function (f) { return f && f.title && f.last >= since && !rated(norm(f.title), 'TV', f.season); }).map(function (f) {
+        return finItem({ id: 'f' + norm(f.title) + (f.season || ''), kind: 'TV', t: f.title, n: norm(f.title), season: f.season, ep: f.eps || f.ep, eps: f.eps || f.ep, epn: '', r: 0, y: '', cover: f.poster || '', url: f.url || '', slug: f.slug || '', tmdb: f.tmdb || 0, at: f.last });
+      });
+      histChanged();
+    }
+    document.addEventListener('tgo:finished', readFin);
+    function readMovies() {
+      var since = Date.now() - FIN_DAYS * DAY;
+      cached('tgo_den_mv_v1', HOUR / 2, function () {
+        return Promise.all([
+          tget('/users/' + TUSER + '/history/movies?limit=100&start_at=' + encodeURIComponent(new Date(since).toISOString())),
+          tget('/users/' + TUSER + '/ratings/movies').catch(function () { return []; })
+        ]).then(function (r) {
+          var stars10 = {}, seen = {}, out = [];
+          (r[1] || []).forEach(function (q) { if (q.movie && q.movie.ids) stars10[q.movie.ids.trakt] = q.rating || 0; });
+          (r[0] || []).forEach(function (q) {
+            var m = q.movie; if (!m || !m.ids || !m.title || seen[m.ids.trakt]) return;
+            seen[m.ids.trakt] = 1;
+            out.push({ k: m.ids.trakt, t: m.title, y: m.year || '', slug: m.ids.slug || '', tmdb: m.ids.tmdb || 0, at: new Date(q.watched_at).getTime(), r: (stars10[m.ids.trakt] || 0) / 2 });
+          });
+          return out;
+        });
+      }, function (v) { return !v.length; }).then(function (list) {
+        FIN_MV = (list || []).filter(function (m) { return m.at >= since && m.slug && !rated(norm(m.t), 'Movie'); }).map(function (m) {
+          return finItem({ id: 'm' + m.k, kind: 'Movie', t: m.t, n: norm(m.t), y: m.y ? String(m.y) : '', r: m.r, cover: '', url: 'https://trakt.tv/movies/' + encodeURIComponent(m.slug), slug: m.slug, tmdb: m.tmdb, at: m.at });
+        });
+        if (!FIN_MV.length) return;
+        histChanged();
+        if (window.tgoPoster) FIN_MV.forEach(function (x) { window.tgoPoster(x.tmdb, 'movie').then(function (u) { if (u && !x.cover) { x.cover = u; histChanged(); } }); });
+      }).catch(function () {});
+    }
+
     /* ---------- go ---------- */
+    if (window.tgoFinished && window.tgoFinished.length) readFin();
+    readMovies();
     renderHome();
     syncWatch();
     var hs0 = history.state;

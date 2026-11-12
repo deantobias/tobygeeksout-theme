@@ -172,9 +172,19 @@
      episode runs, for "E4 of 10" and "5 left · 4h 50m". Only asked when
      Hutch is on (the Traditional card doesn't use it); cached a day. */
   function seasonSize(slug, season) {
-    if (!document.documentElement.classList.contains("hutch")) return Promise.resolve({});
+    /* Nov 12 (Toby: "I finished it, take it out of Currently watching"): also
+       says how many episodes the season has in all, and whether a later
+       season has started airing, so a finished season can leave the list.
+       Asked on the Traditional page too now (two small Trakt calls per show, saved a day). */
     var k = "tgo_seasons_v1_" + slug, c = load(k);
-    var pick = function (d) { var n = 0; (d.s || []).forEach(function (x) { if (x.number === season) n = x.aired_episodes || x.episode_count || 0; }); return { n: n, rt: d.rt || 0 }; };
+    var pick = function (d) {
+      var n = 0, total = 0, later = false;
+      (d.s || []).forEach(function (x) {
+        if (x.number === season) { n = x.aired_episodes || x.episode_count || 0; total = Math.max(x.aired_episodes || 0, x.episode_count || 0); }
+        if (x.number > season && (x.aired_episodes || 0) > 0) later = true;
+      });
+      return { n: n, rt: d.rt || 0, total: total, later: later };
+    };
     if (c && Date.now() - c.t < 864e5) return Promise.resolve(pick(c));
     return Promise.all([
       tget("/shows/" + encodeURIComponent(slug) + "/seasons?extended=full"),
@@ -205,9 +215,29 @@
     card.replaceChild(img, cover);
   }
 
+  /* Nov 12 (Toby): a season he has watched to the end is finished, not "in
+     progress". Its card leaves this list, and the Hutch Den app shows it in
+     History as "Not rated yet" (window.tgoFinished) until he rates it; a
+     rating already removes it from this list (see fetchTrakt). If a later
+     season is airing, the show stays here. */
+  var FIN = [], shown = 0;
+  function tell() {
+    window.tgoFinished = FIN.slice();
+    try { document.dispatchEvent(new CustomEvent("tgo:finished")); } catch (e) {}
+  }
+  function setCount() { countEl.textContent = shown > 0 ? shown + " in progress" : "Nothing in progress right now."; }
+  function finish(it, card, total) {
+    if (card.parentNode !== gridEl) return;
+    gridEl.removeChild(card); shown--; setCount();
+    var f = { title: it.title, slug: it.slug, tmdb: it.tmdb, season: it.season, ep: it.ep, eps: total, last: it.last, url: it.slug ? "https://trakt.tv/shows/" + encodeURIComponent(it.slug) : it.url, post: it.external ? "" : it.url, poster: it.poster || "" };
+    FIN.push(f); tell();
+    if (!f.poster) getPoster(it.tmdb).then(function (u) { if (u) { f.poster = u; tell(); } });
+  }
+
   function render(list) {
     gridEl.textContent = "";
-    countEl.textContent = list.length ? list.length + " in progress" : "Nothing in progress right now.";
+    FIN = []; shown = list.length; tell();
+    setCount();
     list.forEach(function (it) {
       var card = el("div", "wr-card wr-card--split");
       var cover = el("span", "wr-cover wr-cover--blank", "🍿");
@@ -229,7 +259,10 @@
         if (it.tmdb) card.setAttribute("data-tmdb", it.tmdb);
         if (it.ep) card.setAttribute("data-ep", it.ep);
         if (it.epn) card.setAttribute("data-epn", it.epn);
-        if (it.slug && it.season && it.ep) seasonSize(it.slug, it.season).then(function (r) { if (r.n) card.setAttribute("data-eps", r.n); if (r.rt) card.setAttribute("data-rt", r.rt); });
+        if (it.slug && it.season && it.ep) seasonSize(it.slug, it.season).then(function (r) {
+          if (r.total && it.ep >= r.total && !r.later) { finish(it, card, r.total); return; }
+          if (r.n) card.setAttribute("data-eps", r.n); if (r.rt) card.setAttribute("data-rt", r.rt);
+        });
       }
       gridEl.appendChild(card);
       if (it.poster) setPoster(card, cover, it.poster);

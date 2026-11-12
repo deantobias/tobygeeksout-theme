@@ -13,7 +13,7 @@
   {{- $m := "" -}}
   {{- if not $t -}}
     {{- $m = "m" -}}
-    {{- $t = replaceRE `\s+` " " (.Plain | htmlUnescape | plainify) | truncate 60 "…" -}}
+    {{- $t = replaceRE `\s+` " " (.Plain | htmlUnescape | plainify) | truncate 60 "…" | htmlUnescape -}}
   {{- end -}}
   {{- if not $t -}}{{- $t = "Untitled post" -}}{{- end -}}
   {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}

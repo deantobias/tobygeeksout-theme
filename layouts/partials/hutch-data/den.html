@@ -55,6 +55,14 @@
   {{- range findRE `[★☆½]{2,}` $bare -}}{{- if gt (len .) (len $run) -}}{{- $run = . -}}{{- end -}}{{- end -}}
   {{- $kind := "" -}}
   {{- if and $isBook (not $isCR) -}}{{- $kind = "Book" -}}{{- else if and $isReel (not $isBook) -}}{{- $kind = "Movie" -}}{{- end -}}
+  {{/* Nov 12, 2026 (Toby: "I finally watched Together" showed as a book):
+       a post in a book category that talks about WATCHING and has nothing
+       of a book about it (no book card, no book cover) is a movie or show. */}}
+  {{- if and $isBook (not $isCR) -}}
+    {{- $watchy := findRE `(?i)\bwatch(?:ed|ing)?\b` (printf "%s %s" .Title $bare) 1 -}}
+    {{- $bookish := or (in .Content "book-card") (in .Content "review-card--book") (in .Content "books.google") (in .Content "cdn.micro.blog/books") (findRE `(?i)\b(?:read|reading|book|novel|author|pages?)\b` (printf "%s %s" .Title $bare) 1) -}}
+    {{- if and $watchy (not $bookish) -}}{{- $kind = "Movie" -}}{{- end -}}
+  {{- end -}}
   {{- if and $kind (not $private) $run (findRE `★` $run 1) -}}
     {{- $full := len (findRE `★` $run) -}}{{- if gt $full 5 -}}{{- $full = 5 -}}{{- end -}}
     {{- $r := float $full -}}
@@ -75,8 +83,8 @@
         {{- $t = $before -}}
       {{- else -}}
         {{- $x := $plain -}}
-        {{- $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\b[^:.!?]{0,40}:\s*` "" $x -}}
-        {{- $x = replaceRE `(?i)^(?:finally,?\s*)?(?:i\s+)?watched\s+` "" $x -}}
+        {{- $x = replaceRE `(?i)^(?:(?:i|finally),?\s+){0,2}watched\b[^:.!?]{0,40}:\s*` "" $x -}}
+        {{- $x = replaceRE `(?i)^(?:(?:i|finally),?\s+){0,2}watched\s+` "" $x -}}
         {{- $x = replaceRE `(?s)^([^★☆½.!?…\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}]*)[\s\S]*$` "$1" $x -}}
         {{- $x = replaceRE `(?i)\s+(?:last night|tonight|yesterday|this weekend|a few days ago|on (?:Netflix|Hulu|Max|Prime Video|Prime|Disney\+?|Apple TV\+?|Peacock|Paramount\+?|Shudder))\b` "" $x -}}
         {{- $x = replaceRE `(?i),?\s+(?:and|but|which|though|so)\s+i\b[\s\S]*$` "" $x -}}
@@ -149,7 +157,8 @@
       {{- $sum = replaceRE `^(?:19|20)\d{2}\s*[•·|]\s*` "" $sum -}}
       {{- with $who -}}{{- $sum = trim (strings.TrimPrefix . $sum) " " -}}{{- end -}}
     {{- end -}}
-    {{- $sum = truncate 320 $sum -}}
+    {{/* Nov 12 (Toby: odd characters in summaries): truncate turns ' and " into &#39; and &#34;, so unescape after it */}}
+    {{- $sum = truncate 320 $sum | htmlUnescape -}}
 
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
     {{- if eq $kind "Book" -}}{{- if not (index $bookDone $norm) -}}{{- $bookDone = merge $bookDone (dict $norm .Date.Unix) -}}{{- end -}}{{- end -}}
@@ -197,7 +206,7 @@
         {{- $sum := "" -}}
         {{- with findRE `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
         {{- if not $sum -}}{{- $sum = trim (replaceRE `\s+` " " (replaceRE `(?s)Page \d+ of \d+|\d{1,3}%` "" (replaceRE `(?s)<h3[^>]*>.*?</h3>|<p[^>]*book-card-(?:byline|emoji)[^>]*>.*?</p>|<p[^>]*review-tag[^>]*>.*?</p>` "" .Content | plainify))) " " -}}{{- end -}}
-        {{- $reading = $reading | append (dict "id" (printf "r%d" (len $reading)) "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum)) -}}
+        {{- $reading = $reading | append (dict "id" (printf "r%d" (len $reading)) "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum | htmlUnescape)) -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
@@ -238,7 +247,7 @@
     {{- $sum := "" -}}
     {{- with findRE `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
     {{- if not $sum -}}{{- with findRE `(?s)<blockquote[^>]*card-quote[^>]*>.*?</blockquote>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}{{- end -}}
-    {{- $extra = merge $extra (dict .Permalink (dict "ep" $ep "eps" $eps "epn" $epn "y" $y "sum" (truncate 320 $sum) "u" .RelPermalink)) -}}
+    {{- $extra = merge $extra (dict .Permalink (dict "ep" $ep "eps" $eps "epn" $epn "y" $y "sum" (truncate 320 $sum | htmlUnescape) "u" .RelPermalink)) -}}
   {{- end -}}
 {{- end -}}
 {{- $watching := slice -}}

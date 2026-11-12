@@ -311,8 +311,16 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 }
 /* list on the left, details on the right: the header keeps to the pane */
 @media (min-width:840px) and (orientation:landscape){
-  .hx-den .pane.right .dhero{aspect-ratio:21/9;max-height:44vh}
+  /* Nov 12 (Toby: "make the backdrop taller on desktop", mockup v130): a
+     16:9 picture instead of a 21:9 strip, up to 62% of the window, and a
+     cropped picture keeps more of its top so faces are not cut */
+  .hx-den .pane.right .dhero{aspect-ratio:16/9;height:auto;max-height:62vh}
+  .hx-den .pane.right .dhero .hpic{object-position:center 22%}
   .hx-den .pane.right .dbody{max-width:860px}
+}
+/* short sideways screens keep half the height for the words below */
+@media (min-width:840px) and (orientation:landscape) and (max-height:700px){
+  .hx-den .pane.right .dhero{max-height:50vh}
 }
 @media (min-width:1180px) and (orientation:landscape){
   .hx-den .pane.right .eps{display:grid;grid-template-columns:1fr 1fr;column-gap:26px}

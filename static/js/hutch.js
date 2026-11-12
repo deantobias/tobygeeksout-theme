@@ -248,7 +248,10 @@
   var KNOW = new Date().getMonth() === 10;
   /* Nov 8 (Toby): Den joins the dock as a sixth app, next to Blog, on
      the unfolded Fold, tablets and laptops. Phones keep five, like a Pixel. */
-  var DOCK6 = DOCK.indexOf('den') < 0 && DOCK.length < 6 ? 'den' : null;
+  /* Nov 12 (Toby: "I am used to seeing Den on the home screen"): Den goes
+     back to the first spot by the date on every screen, as on phones, and
+     Micro.blog takes the sixth dock spot. */
+  var DOCK6 = DOCK.indexOf('mb') < 0 && DOCK.length < 6 ? 'mb' : null;
   function offDock(k) { return DOCK.indexOf(k) < 0; }
   /* phones: four by the date (Knowember takes Follow's spot in November) */
   var QUAD = (KNOW ? ['den', 'surprise', 'settings', 'knowember', 'follow'] : ['den', 'surprise', 'settings', 'follow'])
@@ -786,7 +789,8 @@
           by = x.who ? 'by ' + x.who : '';
           if (x.pct >= 0) { pct = x.pct; meta = x.pct + '%' + (x.page ? ' · page ' + x.page + (x.total ? ' of ' + x.total : '') : ''); }
         }
-        return '<a class="hh-nitem" href="' + esc(den) + '">' + (x.cover ? '<img src="' + esc(x.cover) + '" alt="" loading="lazy" decoding="async">' : '<span class="cv"></span>') +
+        /* Nov 12 (Toby): a tap opens this title's own screen in the Den, not the Den's first screen */
+        return '<a class="hh-nitem" href="' + esc(den + '#open=' + kind + '-' + encodeURIComponent(x.n || tnorm(x.t))) + '">' + (x.cover ? '<img src="' + esc(x.cover) + '" alt="" loading="lazy" decoding="async">' : '<span class="cv"></span>') +
           '<span class="tx"><small>' + (kind === 'w' ? 'Watching' : 'Reading') + '</small><b>' + esc(x.t) + '</b>' + (by ? '<i>' + esc(by) + '</i>' : '') + (meta ? '<em>' + esc(meta) + '</em>' : '') +
           (pct >= 0 ? '<span class="bar"><i style="width:' + Math.max(3, Math.min(100, pct)) + '%"></i></span>' : '') + '</span></a>';
       };

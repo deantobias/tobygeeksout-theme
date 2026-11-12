@@ -165,7 +165,19 @@
     function rate(x) { return x.fin && !x.r ? '<span class="tm unr">Not rated yet</span>' : stars(x.r); }
     function histTile(x) {
       return '<button type="button" class="it it-hist" data-pick="' + x.id + '">' + art(x) + '<span class="cap">' + rate(x) + '<span class="tt">' + esc(x.t) + '</span><span class="tm">' +
-        (x.kind === 'TV' && x.season ? 'Season ' + x.season + ' · ' : '') + esc(x.d) + '</span></span></button>';
+        (x.kind === 'TV' && x.season ? 'Season ' + x.season + ' · ' : '') + esc(whenShort(x)) + '</span></span></button>';
+    }
+    /* Nov 12 (Toby, mockup v129): a rated movie or season also says the day
+       he finished watching it (Trakt), when that is not the day he rated it.
+       x.wd / x.wdate are filled in by readSeen(); no Trakt record, no change. */
+    function whenShort(x) {
+      var w = x.fin ? x.d : x.wd;
+      return w ? (x.kind === 'Movie' ? 'Watched ' : '') + w : x.d;
+    }
+    function whenList(x) {
+      var verb = x.kind === 'Movie' ? 'Watched ' : 'Finished ';
+      if (x.fin) return verb + x.d;
+      return x.wd ? verb + x.wd + ' · Rated ' + x.d : x.d;
     }
     /* Waiting for (Nov 5): The Queue's posters, each with its release
        badge (Out now, the date, or TBA); a tap opens the post */
@@ -274,7 +286,7 @@
       var items = listItems(), h = state.sec === 'history';
       if (!items.length) return '<p class="none">' + (h && state.filter !== 'All' ? 'Nothing here yet.' : SECTIONS[state.sec].empty) + '</p>';
       return items.map(function (x) {
-        var meta = x.sec === 'queue' ? esc(x.kind + ' · ' + relLine(x)) : h ? (x.kind === 'Book' ? (x.who ? esc(x.who) + ' · ' : '') : x.kind + (x.kind === 'TV' && x.season ? ' · Season ' + x.season : '') + ' · ') + esc(x.d)
+        var meta = x.sec === 'queue' ? esc(x.kind + ' · ' + relLine(x)) : h ? (x.kind === 'Book' ? (x.who ? esc(x.who) + ' · ' : '') : x.kind + (x.kind === 'TV' && x.season ? ' · Season ' + x.season : '') + ' · ') + esc(x.kind === 'Book' ? x.d : whenList(x))
           : x.kind === 'Book' ? esc(where(x)) + (x.who ? ' · ' + esc(x.who) : '')
           : x.kind === 'TV' ? 'TV · ' + esc(where(x)) + (x.epn ? ' · ' + esc(x.epn) : '') : esc(where(x));
         return '<button type="button" class="li' + (two() && x.id === state.id ? ' sel' : '') + '" data-pick="' + x.id + '"><span class="mini">' + art(x) + '</span><span class="m"><span class="tt">' + esc(x.t) + '</span>' +
@@ -632,7 +644,8 @@
         return h + permaHtml('Watched ' + (x.date || x.d) + (x.r ? ' · Rated on Trakt' : ' · Not rated yet'), x);
       }
       if (done) h += rateHtml(x, p);
-      var mf = p && p.facts.length ? p.facts : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
+      var mf = p && p.facts.length ? p.facts.slice() : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
+      if (done && x.wdate) mf.push([x.kind === 'TV' ? 'Finished' : 'Watched', x.wdate]);
       h += factsHtml(mf);
       h += synHtml(p, x, 'Synopsis');
       var b = '';
@@ -642,7 +655,7 @@
       else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
       else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
       if (b) h += '<div class="btns">' + b + '</div>';
-      return h + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? 'Finished ' + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
+      return h + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? (x.wdate ? 'Rated ' : 'Finished ') + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
     }
     function rateHtml(x, p) {
       return '<div class="rate">' + stars(x.r) + '<b>' + rtext(x.r) + ' of 5</b>' + (p && p.scale ? '<a class="scale" href="' + esc(p.scale) + '">My rating scale</a>' : '') + '</div>';
@@ -804,6 +817,7 @@
       lastSig = sig;
       WATCH = tag(g, 'watching');
       renderHome();
+      openWanted();
       if (state.view !== 'home' && (state.sec === 'watching')) { if (state.id && !get(state.id)) state.id = null; render(); }
     }
     if (grid && window.MutationObserver) {
@@ -851,13 +865,76 @@
       }).catch(function () {});
     }
 
+    /* ---------- History: the day he watched what he rated (Trakt history) ---------- */
+    function readSeen() {
+      if (!HIST.some(function (x) { return x.kind !== 'Book'; })) return;
+      cached('tgo_den_when_v1', HOUR, function () {
+        return Promise.all([
+          tget('/users/' + TUSER + '/history/movies?limit=1000'),
+          tget('/users/' + TUSER + '/history/episodes?limit=1000').catch(function () { return []; })
+        ]).then(function (r) {
+          var mv = {}, tv = {};
+          (r[0] || []).forEach(function (q) {
+            if (!q.movie || !q.watched_at) return;
+            var n = norm(q.movie.title), a = mv[n] = mv[n] || [];
+            if (a.length < 4) a.push(q.watched_at);
+          });
+          (r[1] || []).forEach(function (q) {
+            if (!q.show || !q.episode || !q.watched_at) return;
+            var n = norm(q.show.title), a = tv[n + '|' + q.episode.season] = tv[n + '|' + q.episode.season] || [], b = tv[n + '|0'] = tv[n + '|0'] || [];
+            if (a.length < 3) a.push(q.watched_at);
+            if (b.length < 3) b.push(q.watched_at);
+          });
+          return { mv: mv, tv: tv };
+        });
+      }, function (v) { for (var k in v.mv) return false; for (var k2 in v.tv) return false; return true; }).then(function (d) {
+        var any = false;
+        HIST.forEach(function (x) {
+          if (x.kind === 'Book' || !x.iso) return;
+          var list = (x.kind === 'Movie' ? d.mv[norm(x.t)] : d.tv[norm(x.t) + '|' + (x.season || 0)]) || [];
+          /* newest first: the latest watch on or before the day he rated it */
+          for (var i = 0; i < list.length; i++) {
+            var t = new Date(list[i]).getTime(); if (isNaN(t)) continue;
+            var day = isoDay(t);
+            if (day > x.iso) continue;
+            if (day < x.iso) { x.wd = airDate(list[i]); x.wdate = longDate(list[i]); any = true; }
+            break;
+          }
+        });
+        if (any) histChanged();
+      }).catch(function () {});
+    }
+
+    /* ---------- a title tapped in the home screen's Currently card (Nov 12, Toby) ----------
+       The card links here as /watching/#open=w-<title> or #open=r-<title>;
+       the Den opens on that title's details. A show that only lives on
+       Trakt joins the list a moment later, so this is tried again when the
+       Watching list arrives (for a few seconds, and never after a tap). */
+    var want = location.hash.match(/^#open=([wr])-(.+)$/);
+    function openWanted() {
+      if (!want) return;
+      var n = ''; try { n = decodeURIComponent(want[2]); } catch (e) { n = want[2]; }
+      var list = want[1] === 'w' ? WATCH : READ, x = null;
+      list.forEach(function (q) { if (!x && (q.n || norm(q.t)) === n) x = q; });
+      if (!x) return;
+      want = null;
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+      openItem(x.id);
+    }
+    if (want) {
+      setTimeout(function () { want = null; }, 8000);
+      root.addEventListener('pointerdown', function () { want = null; }, { passive: true, once: true });
+    }
+
     /* ---------- go ---------- */
+    readSeen();
     if (window.tgoFinished && window.tgoFinished.length) readFin();
     readMovies();
     renderHome();
     syncWatch();
     var hs0 = history.state;
-    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList }; }
+    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList }; want = null; }
     render();
+    openWanted();
   };
 })();

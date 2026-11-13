@@ -162,13 +162,37 @@
 
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
     {{- if eq $kind "Book" -}}{{- if not (index $bookDone $norm) -}}{{- $bookDone = merge $bookDone (dict $norm .Date.Unix) -}}{{- end -}}{{- end -}}
-    {{- $history = $history | append (dict "id" (printf "h%d" (len $history)) "kind" $kind "t" $t "who" $who "y" $ry "season" $season "cover" $cover "r" $r "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "iso" (.Date.Format "2006-01-02") "sum" $sum) -}}
+    {{/* Nov 13 (Toby: "Perch can add a line for when I watched"): a Watched or
+         Finished fact in the card gives the day he watched it, so the Den
+         does not have to ask Trakt. A data-date="2026-10-23" on the value
+         cell is preferred; else the text as written. */}}
+    {{- $wd := "" -}}{{- $wdate := "" -}}
+    {{- with findRE `(?s)review-fact-label[^>]*>\s*(?i:date\s+)?(?i:watched|finished)(?i:\s+date|\s+on)?\s*:?\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 -}}
+      {{- $cell := index . 0 -}}
+      {{- with findRE `data-date="\d{4}-\d{2}-\d{2}"` $cell 1 -}}
+        {{- $wt := time (index (findRE `\d{4}-\d{2}-\d{2}` (index . 0) 1) 0) -}}
+        {{- $wd = $wt.Format "Jan 2" -}}{{- $wdate = $wt.Format "January 2, 2006" -}}
+      {{- else -}}
+        {{- $wdate = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" $cell))) " \n\t" -}}
+        {{- $wd = replaceRE `,?\s*\d{4}$` "" $wdate -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if eq $wdate (.Date.Format "January 2, 2006") -}}{{- $wd = "" -}}{{- $wdate = "" -}}{{- end -}}
+    {{- $history = $history | append (dict "id" (printf "h%d" (len $history)) "kind" $kind "t" $t "who" $who "y" $ry "season" $season "cover" $cover "r" $r "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "iso" (.Date.Format "2006-01-02") "sum" $sum "wd" $wd "wdate" $wdate) -}}
   {{- end -}}
 {{- end -}}
 
 {{/* ---------- currently reading ---------- */}}
+{{/* Nov 12 (Toby: "a progress update will just be author, year and progress"):
+     all the Currently Reading posts for one book are read as one story.
+     Progress comes from the newest post; the summary, cover and author from
+     whichever post has them (so he never has to repeat them); "Started" is
+     the oldest post's date; "log" lists every update, newest first. Posts
+     older than a finished review of the same book are a past read and are
+     left out. */}}
 {{- $reading := slice -}}
 {{- $seenBooks := slice -}}
+{{- $bk := newScratch -}}
 {{- range $posts -}}
   {{- if and (in .Params.categories "Currently Reading") .Title (not (findRE `(?i)want to read` .Title 1)) -}}
     {{- $t := "" -}}
@@ -186,9 +210,8 @@
     {{- with $who -}}{{- $t = trim (strings.TrimSuffix (printf " by %s" .) $t) " " -}}{{- end -}}
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
     {{- $done := index $bookDone $norm -}}
-    {{- if and $norm (not (in $seenBooks $norm)) -}}
-      {{- $seenBooks = $seenBooks | append $norm -}}
-      {{- if not (and $done (ge $done .Date.Unix)) -}}
+    {{- if and $norm (not (and $done (ge $done .Date.Unix))) -}}
+      {{- if true -}}
         {{- $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify -}}
         {{- $page := 0 -}}{{- $total := 0 -}}{{- $pct := -1 -}}
         {{- with findRE `Page \d+ of \d+` $plain 1 -}}{{- $bits := findRE `\d+` (index . 0) -}}{{- $page = int (index $bits 0) -}}{{- $total = int (index $bits 1) -}}{{- end -}}
@@ -204,12 +227,28 @@
         {{- end -}}
         {{- if $cover -}}{{- $cover = replaceRE `&(amp;)?edge=curl` "" $cover -}}{{- end -}}
         {{- $sum := "" -}}
-        {{- with findRE `(?s)<[^>]*review-synopsis[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $sum = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
+        {{- $syn := "" -}}
+        {{- with findRE `(?s)<[^>]*review-(?:synopsis|about)[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $syn = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
+        {{- $sum = $syn -}}
         {{- if not $sum -}}{{- $sum = trim (replaceRE `\s+` " " (replaceRE `(?s)Page \d+ of \d+|\d{1,3}%` "" (replaceRE `(?s)<h3[^>]*>.*?</h3>|<p[^>]*book-card-(?:byline|emoji)[^>]*>.*?</p>|<p[^>]*review-tag[^>]*>.*?</p>` "" .Content | plainify))) " " -}}{{- end -}}
-        {{- $reading = $reading | append (dict "id" (printf "r%d" (len $reading)) "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum | htmlUnescape)) -}}
+        {{- $step := dict "d" (.Date.Format "Jan 2") "page" $page "total" $total "pct" $pct "url" .RelPermalink -}}
+        {{- if not (in $seenBooks $norm) -}}
+          {{- $seenBooks = $seenBooks | append $norm -}}
+          {{- $bk.Set $norm (dict "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sdate" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum | htmlUnescape) "syn" (ne $syn "") "surl" (cond (ne $syn "") .RelPermalink "") "log" (slice $step)) -}}
+        {{- else -}}
+          {{- $e := $bk.Get $norm -}}
+          {{- $add := dict "sdate" (.Date.Format "January 2, 2006") "log" ($e.log | append $step) -}}
+          {{- if and (not $e.who) $who -}}{{- $add = merge $add (dict "who" $who) -}}{{- end -}}
+          {{- if and (not $e.cover) $cover -}}{{- $add = merge $add (dict "cover" $cover) -}}{{- end -}}
+          {{- if and (not $e.syn) $syn -}}{{- $add = merge $add (dict "syn" true "surl" .RelPermalink "sum" (truncate 320 $syn | htmlUnescape)) -}}{{- end -}}
+          {{- $bk.Set $norm (merge $e $add) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
+{{- end -}}
+{{- range $i, $n := $seenBooks -}}
+  {{- $reading = $reading | append (merge ($bk.Get $n) (dict "id" (printf "r%d" $i))) -}}
 {{- end -}}
 {{/* No Currently Reading posts: the Micro.blog shelf, read the home card's way. */}}
 {{- if not $reading -}}

@@ -780,19 +780,20 @@
     var w = nowWatch(traktRated(), N);
     if (w || r) {
       var den = APPS.den[2] || '/watching/', item = function (x, kind) {
-        var meta = '', by = '', pct = -1;
+        var meta = '', by = '', pct = -1, pc = '';
         if (kind === 'w') {
           by = x.kind === 'TV' ? (x.season ? 'Season ' + x.season : 'TV') : (x.y || 'Movie');
           if (x.ep) { meta = 'Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') + (x.epn ? ' · ' + x.epn : ''); if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
           else meta = x.d ? 'Since ' + x.d : '';
         } else {
           by = x.who ? 'by ' + x.who : '';
-          if (x.pct >= 0) { pct = x.pct; meta = x.pct + '%' + (x.page ? ' · page ' + x.page + (x.total ? ' of ' + x.total : '') : ''); }
+          /* Nov 13 (Toby, v132): the page line stays on one line; the percent sits at the end of the bar */
+          if (x.pct >= 0) { pct = x.pct; pc = x.pct + '%'; meta = x.page ? 'Page ' + x.page + (x.total ? ' of ' + x.total : '') : ''; }
         }
         /* Nov 12 (Toby): a tap opens this title's own screen in the Den, not the Den's first screen */
         return '<a class="hh-nitem" href="' + esc(den + '#open=' + kind + '-' + encodeURIComponent(x.n || tnorm(x.t))) + '">' + (x.cover ? '<img src="' + esc(x.cover) + '" alt="" loading="lazy" decoding="async">' : '<span class="cv"></span>') +
           '<span class="tx"><small>' + (kind === 'w' ? 'Watching' : 'Reading') + '</small><b>' + esc(x.t) + '</b>' + (by ? '<i>' + esc(by) + '</i>' : '') + (meta ? '<em>' + esc(meta) + '</em>' : '') +
-          (pct >= 0 ? '<span class="bar"><i style="width:' + Math.max(3, Math.min(100, pct)) + '%"></i></span>' : '') + '</span></a>';
+          (pct >= 0 ? (pc ? '<span class="brow">' : '') + '<span class="bar"><i style="width:' + Math.max(3, Math.min(100, pct)) + '%"></i></span>' + (pc ? '<span class="pc">' + pc + '</span></span>' : '') : '') + '</span></a>';
       };
       out += '<section class="hh-wg hh-now" aria-label="Currently"><div class="hh-wtag">Currently<a href="' + esc(den) + '">Den ›</a></div><div class="hh-ntwo' + (w && r ? '' : ' one') + '">' +
         (w ? item(w, 'w') : '') + (r ? item(r, 'r') : '') + '</div></section>';

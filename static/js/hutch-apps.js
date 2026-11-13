@@ -962,7 +962,7 @@ window.HutchApps = window.HutchApps || {};
     }
     function permaHtml(text, x) {
       var link = local(x.url) && !/^\/(?:reading|watching|watched)\/?$/.test(x.url) ? '<a href="' + esc(x.url) + '">Permalink</a>' : '';
-      return text || link ? '<div class="perma">' + ic('link') + '<span>' + esc(text) + '</span>' + link + '</div>' : '';
+      return text || link ? '<div class="perma">' + (link ? ic('link') : '') + '<span>' + esc(text) + '</span>' + link + '</div>' : '';
     }
     /* the short summary in the page data is sometimes only a card's leftovers
        ("Season 1 My Rating Scale", "Watch on YouTube"); those are not a summary */
@@ -973,7 +973,8 @@ window.HutchApps = window.HutchApps || {};
     function synHtml(p, x, label) {
       var h = '';
       if (p && (p.syn || p.tag)) h += '<div class="lbl">' + label + '</div>' + (p.tag ? '<p class="tagline">' + esc(p.tag) + '</p>' : '') + (p.syn ? '<p class="summary">' + esc(p.syn) + '</p>' : '');
-      if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (s) { return '<p class="summary">' + esc(s) + '</p>'; }).join('') + '</div>';
+      /* Nov 13 (Toby, v133): a book in progress shows the newest post's thoughts, so the label carries that post's day */
+      if (p && p.thoughts.length) h += '<div class="lbl">My thoughts' + (x.log && x.d ? ' · ' + esc(x.d) : '') + '</div><div class="thoughts">' + p.thoughts.map(function (s) { return '<p class="summary">' + esc(s) + '</p>'; }).join('') + '</div>';
       /* the short summary from the page data only stands in until the post itself has been read */
       if (!h && sumOf(x) && !p) h = '<div class="lbl">Summary</div><p class="summary">' + esc(sumOf(x)) + '</p>';
       return h;
@@ -1059,11 +1060,13 @@ window.HutchApps = window.HutchApps || {};
         var bf = p && p.facts.length ? p.facts : [['Author', x.who], ['Published', x.y]];
         h += factsHtml(bf);
         h += synHtml(p, x, 'About the book');
-        if (!done) h += logHtml(x);
+        var lg = done ? '' : logHtml(x);
+        h += lg;
         h += bookLinks(x, p);
-        /* "Started" is the first post about the book; "Updated" shows only when a later post exists */
+        /* "Started" is the first post about the book. Nov 13 (Toby): when the progress log is
+           showing, it already gives every date, so the bottom line is the permalink alone */
         var st = x.sdate || x.date || x.d;
-        return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (st ? 'Started ' + st + (x.sdate && x.date && x.sdate !== x.date ? ' · Updated ' + x.date : '') : ''), x);
+        return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (!lg && st ? 'Started ' + st : ''), x);
       }
       /* Waiting for (Nov 12, Toby): synopsis, release, where to watch, Trakt.
          Trakt does not give out streaming / rent / buy lists without a login

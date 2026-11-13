@@ -119,7 +119,15 @@ self.addEventListener('fetch', function (e) {
   e.respondWith(
     caches.open(CACHE).then(function (c) { return c.match(key(req.url)); }).then(function (hit) {
       if (hit && age(hit) < FRESH_MS) return freshen(hit);
-      var net = fetch(req).then(function (res) { e.waitUntil(save(req, res)); return res; });
+      /* v4 (Nov 13, Toby: the home screen showed page 20 after he posted page 43, until he
+         refreshed a few times). Micro.blog sends no caching rule, so the browser keeps its own
+         copy of a page and can hand that back for hours; fetch(req) got that old copy and it
+         was then saved here as "fresh". The site is now always asked ('no-cache': it answers
+         "unchanged" in a few bytes when nothing is new). A redirect goes the ordinary way. */
+      var net = fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+        if (res.redirected || res.type !== 'basic') return fetch(req);
+        e.waitUntil(save(req, res)); return res;
+      });
       if (!hit) return net;
       /* an older copy: the site first, the copy if the site is slow, down or failing */
       var wait = new Promise(function (r) { setTimeout(function () { r(null); }, WAIT_MS); });

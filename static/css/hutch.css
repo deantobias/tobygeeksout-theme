@@ -1503,3 +1503,9 @@ html.hutch-dk5 #hutch-drawer:not(.q) [data-dk]:not([data-k10]){display:revert !i
    are measured, then one fade in (hutch.js, "settling") */
 #hutch-home .hh-area{transition:opacity .18s ease}
 #hutch-home.settling .hh-area{opacity:0;transition:none}
+
+/* Nov 13 (Toby, v132): Reading tile, percent at the end of the bar. The bar keeps its own
+   top margin in every layout, so the row lines the number up on the bar from the bottom. */
+.hh-nitem .brow{display:flex;align-items:flex-end;gap:8px}
+.hh-nitem .brow .bar{flex:1;min-width:0}
+.hh-nitem .brow .pc{flex:none;font:600 12px/12px var(--h-ui);color:#555B66;margin-bottom:-4px}

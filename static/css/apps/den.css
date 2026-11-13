@@ -121,7 +121,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .when{font:500 14px var(--h-ui);color:var(--sub);margin-top:14px}
 
 /* ---------- unfolded (600px+): one size up ---------- */
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-den{--pad:26px}
   .hx-den .shead h2{font-size:22px}
   .hx-den .shead small{font-size:15px}
@@ -148,7 +148,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den .when{font-size:15px}
 }
 /* sideways and short (Fold landscape with browser tabs): compact rows */
-@media (orientation:landscape) and (max-height:700px) and (min-width:600px){
+@media (orientation:landscape) and (max-height:700px) and (min-width:520px){
   .hx-den .sec{margin:2px 0 10px}
   .hx-den .sec:first-child{margin-top:8px}
   .hx-den .shead{margin-bottom:6px;min-height:36px}
@@ -287,7 +287,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .ep.later .eth .pic{filter:saturate(.4) brightness(.7)}
 .hx-den .epmore{display:inline-flex !important;align-items:center;min-height:44px;margin-top:4px;font:600 14px var(--h-ui);color:var(--acct) !important;text-decoration:underline;text-underline-offset:3px}
 
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-den .hd-wcard{width:300px}
   .hx-den .hd-wcard .nm{font-size:20px}
   .hx-den .hd-wcard .en{font-size:15px}
@@ -301,7 +301,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den .tagline{font-size:19px}
 }
 /* a short sideways screen: smaller cards and a shallower header */
-@media (orientation:landscape) and (max-height:700px) and (min-width:600px){
+@media (orientation:landscape) and (max-height:700px) and (min-width:520px){
   .hx-den .hd-wcard{width:232px}
   .hx-den .hd-wcard .nm{font-size:17px}
   .hx-den .hd-wcard .en{font-size:14px}

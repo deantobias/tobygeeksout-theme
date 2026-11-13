@@ -130,7 +130,7 @@
 .hx-sm-snack.show{transform:translate(-50%,0);visibility:visible}
 
 /* ---- unfolded and wider: a size bigger ---- */
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-sm-panes{max-width:720px;padding:16px 32px 56px}
   .hx-sm-doc,.hx-sm .hx-sm-doc p,.hx-sm .hx-sm-intro p,.hx-sm .hx-sm-doc :is(ul,ol) > li{font-size:17.5px}
   .hx-sm .hx-sm-doc :is(h1,h2,h3,h4,h5):not(.hx-sm-title){font-size:14px}
@@ -199,7 +199,7 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
 .hx-sm .hx-fl-soc b{font:600 15.5px/1.2 var(--h-ui)}
 .hx-sm .hx-fl-soc small{font:400 12.5px/1.2 var(--h-ui);color:var(--sub);margin-top:-4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Fold upright: the form on one line */
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-sm.hx-fl-on .hx-sm-panes{max-width:660px;padding-top:18px}
   .hx-sm.hx-fl-on .hx-sm-title{font-size:40px}
 }
@@ -222,7 +222,7 @@ html.hx-sm-two .hx-sm-split .hx-sm-side .hx-sm-facts{margin-bottom:8px}
 /* the older two-up grid for the rows doesn't apply to the new layout */
 .hx-sm.hx-fl-on .hx-sm-follow{display:block !important;grid-template-columns:none !important}
 /* phones: the Subscribe button runs the full width, like the mockup */
-@media (max-width:599px){
+@media (max-width:519px){
   .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="email"],input[type="text"],input:not([type])){flex-basis:100%}
   .hx-sm .hx-sm-nl .hx-sm-form.hx-sm-subform :is(input[type="submit"],button){flex:1 1 100%;justify-content:center}
 }

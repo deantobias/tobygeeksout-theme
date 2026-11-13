@@ -44,7 +44,7 @@
     }
     function readMore(p) { return '<a class="hxp-read" href="' + esc(p.u) + '">Read more<span class="hxp-sr"> about ' + esc(p.l) + '</span>' + ic('open') + '</a>'; }
 
-    function mode() { var w = innerWidth, h = innerHeight; return w >= 800 && w > h ? 'land' : (w >= 600 ? 'port' : 'phone'); }
+    function mode() { var w = innerWidth, h = innerHeight; return w >= 800 && w > h ? 'land' : (w >= 520 ? 'port' : 'phone'); }
     var M = mode();
 
     /* ---------- home: profile + grid ---------- */

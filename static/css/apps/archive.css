@@ -93,7 +93,7 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
 .hx-ar .ar-pane.ar-right .ar-mag{padding:22px 32px 40px}
 
 /* unfolded (portrait-ish, 600px+): one size up, three folders across */
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-ar .ar-pad{padding:10px 28px 40px}
   .hx-ar .ar-folders{grid-template-columns:repeat(3,1fr)}
   .hx-ar .ar-folder b{font-size:17px}
@@ -130,7 +130,7 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
 .hx-ar .ar-ent .ar-sm{font-size:16px}
 .hx-ar .ar-app{font-size:12px}
 .hx-ar .ar-flist .ar-row small,.hx-ar .ar-folder small{font-size:14px}
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-ar .ar-feat p{font-size:17px}
   .hx-ar .ar-ent .ar-ln b{font-size:18px}
   .hx-ar .ar-ent.ar-micro .ar-ln b{font-size:17.5px}

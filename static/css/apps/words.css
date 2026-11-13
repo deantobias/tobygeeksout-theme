@@ -118,7 +118,7 @@ html.hxw-open .hx-words .hxw-fab span{display:none}
 }
 
 /* unfolded upright: a size bigger */
-@media (min-width:600px){
+@media (min-width:520px){
   .hx-words .hxw-wrap{padding:8px 34px 120px}
   .hx-words .hxw-today{padding:26px 28px 24px}
   .hx-words .hxw-lbl{font-size:13px}

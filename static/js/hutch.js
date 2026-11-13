@@ -892,7 +892,7 @@
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
     /* a show finished since this page was built: swap Currently once his Trakt ratings come in;
        checked again every 10 minutes and whenever he comes back to the screen */
-    if (window.matchMedia && (matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches || matchMedia('(min-width:600px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (min-height:380px) and (max-width:1399px) and (pointer:coarse), (min-width:1100px) and (min-height:380px) and (max-height:699px) and (pointer:coarse), (min-width:1400px) and (orientation:portrait)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
+    if (window.matchMedia && (matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches || matchMedia('(min-width:520px) and (min-height:380px) and (max-width:1099px), (min-width:1100px) and (min-height:380px) and (max-width:1399px) and (pointer:coarse), (min-width:1100px) and (min-height:380px) and (max-height:699px) and (pointer:coarse), (min-width:1400px) and (orientation:portrait)').matches) && homeEl.querySelector('.hh-area .hh-cats')) traktFresh(function () {
       var old = homeEl.querySelector('.hh-now'), html = nowCard();
       if (old && old.outerHTML === html) return;
       if (old) old.remove();
@@ -1149,7 +1149,7 @@
     homeEl.classList.add('noex');
     /* the upright Fold's short mode, from the height actually visible (Nov 3) */
     var vh = (window.visualViewport && visualViewport.height) || innerHeight;
-    homeEl.classList.toggle('short', innerWidth >= 600 && innerWidth < 840 && vh < 760);
+    homeEl.classList.toggle('short', innerWidth >= 520 && innerWidth < 840 && vh < 760);
     /* every pass starts clean (Nov 3, Toby: the photo strip came and went
        on each refresh, because the last pass's trimmed Word Nerd and
        hidden chips changed the next measurement) */

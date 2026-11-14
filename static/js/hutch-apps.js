@@ -1374,12 +1374,16 @@ window.HutchApps = window.HutchApps || {};
        the Den opens on that title's details. A show that only lives on
        Trakt joins the list a moment later, so this is tried again when the
        Watching list arrives (for a few seconds, and never after a tap). */
-    var want = location.hash.match(/^#open=([wr])-(.+)$/);
+    /* Nov 14 (Toby, Blog app v138): "Open in Den" on a Blog card links
+       here as #open=u-<the post's address>; the Den opens whatever it
+       knows that post as (a rated title, a book's progress, a show). */
+    var want = location.hash.match(/^#open=([wru])-(.+)$/);
     function openWanted() {
       if (!want) return;
       var n = ''; try { n = decodeURIComponent(want[2]); } catch (e) { n = want[2]; }
       var list = want[1] === 'w' ? WATCH : READ, x = null;
-      list.forEach(function (q) { if (!x && (q.n || norm(q.t)) === n) x = q; });
+      if (want[1] === 'u') [HIST, READ, WATCH].forEach(function (L) { (L || []).forEach(function (q) { if (!x && (q.url === n || (q.log || []).some(function (s) { return s.url === n; }))) x = q; }); });
+      else list.forEach(function (q) { if (!x && (q.n || norm(q.t)) === n) x = q; });
       if (!x) return;
       want = null;
       try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
@@ -2423,6 +2427,15 @@ window.HutchApps = window.HutchApps || {};
     /* coming back from a post (Read more or the date link): reopen the card
        he was on instead of dropping him on the list (Nov 2, Toby) */
     var hs = history.state;
-    if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
+    /* Nov 14 (Blog app v138): "Open in Word Nerd" on a Blog card links
+       here as #w=<the post's address>; that word's card opens */
+    var hw = location.hash.match(/^#w=(.+)$/), wi = -1;
+    if (hw) {
+      var wu = ''; try { wu = decodeURIComponent(hw[1]); } catch (e) { wu = hw[1]; }
+      W.forEach(function (x) { if (wi < 0 && x.u === wu) wi = x.i; });
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+    }
+    if (wi >= 0) show(wi);
+    else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

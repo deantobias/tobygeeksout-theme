@@ -102,12 +102,14 @@
 (function () {
   /* July 22, 2026: also drives the desktop rail's copy — every element
      matching #tgo-tagline or .tgo-tagline-cycle cycles in lockstep. */
-  var els = document.querySelectorAll('#tgo-tagline, .tgo-tagline-cycle');
-  if (!els.length) return;
-  var words = [
+  /* Nov 14 (v140): the Hutch Blog app's header shows the same lines and
+     is drawn after this runs, so the list is shared (window.tgoTaglines)
+     and the elements are looked up on every change, not once. */
+  var words = window.tgoTaglines = [
     "Technogeek.",
     "Deaf, proud of it.",
     "Blogging since 2004.",
+    "On Micro.blog since 2022.",
     "LEGO builder.",
     "Tiny house dweller.",
     "OULDHH writer."
@@ -115,6 +117,8 @@
   var i = 0;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   setInterval(function () {
+    var els = document.querySelectorAll('#tgo-tagline, .tgo-tagline-cycle');
+    if (!els.length) return;
     i = (i + 1) % words.length;
     els.forEach(function (el) { el.style.opacity = 0; });
     setTimeout(function () {

@@ -1062,7 +1062,9 @@
       x.classList.add(row ? 'ctr' : 'ctrc');
       var c = x.querySelector('img, .cv'); if (!row || !c || !c.offsetParent) return;
       var room = x.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom),
-        maxW = Math.min(112, x.clientWidth * 0.34),
+        /* Nov 13 (Toby, TCL sideways): on a short screen (under 480px tall) a narrow item (under 220px) keeps its cover to about
+           a quarter of its width, so the words beside it are not cut short */
+        maxW = Math.min(112, x.clientWidth * (x.clientWidth < 220 && innerHeight < 480 ? 0.26 : 0.34)),
         h = Math.floor(Math.min(room, maxW * 1.5));
       if (h > c.offsetHeight + 4) {
         var fits = x.scrollHeight <= x.clientHeight + 1;
@@ -1677,139 +1679,435 @@
     }
   }
 
-  /* ---------- Blog app (/?app=blog), v36 ----------
-     Timeline of the newest 60 posts as cards (titled posts with their
-     photo and an excerpt, micros with the ❧ and the time), filtered by
-     All / Posts / Micros. Phone and unfolded-portrait: a card opens the
-     post itself. Landscape: timeline on the left, the post on the right
-     (the real post page in a pane), and the expand button gives the post
-     the whole screen. */
+  /* ---------- Blog app (/?app=blog), Nov 14 (Toby, mockups v136-v140) ----------
+     A feed of every post from the last 30 days, newest first: titled
+     posts, micros, reviews, Watch Logs, Currently Reading / Watching
+     posts and Word Nerd words. Only real posts; day-to-day watching from
+     Trakt stays in the Den and on the home screen.
+       Header: avatar, name, the same cycling tagline as Classic
+         (window.tgoTaglines, custom_footer.html), About me.
+       Tabs: All / Posts (titled) / Micros / Photos (posts with pictures).
+       More (in the bar): Series and the main categories; a pick filters
+         the feed ("Showing: X" with an X to clear it), still in Blog.
+       Cards: date and category on top (no name: it's his blog). Reviews,
+         reading / watching posts and Watch Logs get "Open in Den", words
+         get "Open in Word Nerd". Every card ends with "Reply", or "View
+         replies" when Micro.blog says the post has a conversation (one
+         request for the whole feed). Both open the post at #replies.
+       A photo opens a viewer inside Blog; "See all photos" opens Photos.
+     Layouts:
+       phone / upright: one column; a card opens the post itself.
+       840-1199 wide and sideways (Fold, TCL, iPad mini): the feed on the
+         left, the post on the right (the real post page in a pane).
+       1200+ wide and sideways (laptops, iPad Pro): three columns. Left:
+         you, the Show list, follow links. Middle: the feed, or the post
+         with "Back to the feed" and Newer / Older. Right: Categories and
+         Series. Only the middle changes. */
   function buildBlog() {
-    var TL = HOME.tl || [];
+    var TL = HOME.tl || [], ME = HOME.me || {}, CATS = HOME.cats || [], ARCH = HOME.arch || [];
     de.classList.add('hutch-blog');
-    var filter = 'all', sel = null, full = false;
-    var wrap = el('<div id="hutch-blog"><div class="hbl-left">' +
-      '<div class="hbl-filters" role="group" aria-label="Show">' + [['all', 'All'], ['posts', 'Posts'], ['micro', 'Micros']].map(function (f) {
-        return '<button type="button" data-f="' + f[0] + '"' + (f[0] === 'all' ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + f[1] + '</button>'; }).join('') +
-        /* Blaugust lives here now, not on the home screen (Nov 9, Toby) */
-        (APPS.blaugust ? '<a class="hbl-chip" href="' + APPS.blaugust[2] + '">' + tile('blaugust') + '<span>Blaugust</span></a>' : '') + '</div>' +
-      '<div class="hbl-tl"></div></div><div class="hbl-right"></div></div>');
+    var tab = 'all', cat = null, sel = null, full = false, conv = {};
+    var SERIES = CATS.filter(function (c) { return /blaugust|100\s*days/i.test(c.n); });
+    var MAINCATS = CATS.filter(function (c) { return SERIES.indexOf(c) < 0; }).slice(0, 8);
+    var aboutU = APPS.about[2] || '/about/', den = APPS.den[2] || '/watching/', wordsU = APPS.words[2] || '/categories/word-of-the-day/';
+    var av = ME.av || ((document.querySelector('link[rel="icon"]') || {}).href || '');
+    var tg = (window.tgoTaglines && window.tgoTaglines[0]) || '';
+    var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures']];
+    var I = {
+      more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+      reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+      den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 21h6"/>',
+      word: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6"/>',
+      chev: '<path d="M9 6l6 6-6 6"/>',
+      x: '<path d="M6 6l12 12M18 6L6 18"/>',
+      hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
+      photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'
+    };
+    function sv(k, w) { return '<svg viewBox="0 0 24 24" fill="' + (k === 'more' ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; }
+
+    var wrap = el('<div id="hutch-blog">' +
+      '<aside class="hbl-side l" aria-label="About and show">' +
+        '<div class="hbl-box hbl-me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '<b class="hbl-nm">' + esc(ME.n || '') + '</b>' +
+          (tg ? '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p>' : '') +
+          '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div>' +
+        '<div class="hbl-box"><h4>Show</h4><div class="hbl-show" role="group" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" data-f="' + t[0] + '"><span>' + t[1] + '</span><small>' + t[2] + '</small></button>'; }).join('') + '</div></div>' +
+        ((ME.fm || []).length ? '<div class="hbl-box"><h4>Follow along</h4><ul class="hbl-fm">' + ME.fm.map(function (f) { return '<li><a href="' + esc(f.u) + '" rel="me noopener" target="_blank">' + (f.ic || '') + '<span>' + esc(f.n) + '</span></a></li>'; }).join('') +
+          (APPS.follow ? '<li><a href="' + esc(APPS.follow[2]) + '">' + sv('chev', 2.2) + '<span>More ways to follow</span></a></li>' : '') + '</ul></div>' : '') +
+      '</aside>' +
+      '<div class="hbl-left">' +
+        '<div class="hbl-head"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
+          '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b>' + (tg ? '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p>' : '') +
+          '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div></div>' +
+        '<div class="hbl-tabs" role="tablist" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" role="tab" data-f="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+        '<div class="hbl-filt" hidden><span>Showing: <b></b></span><button type="button" class="hbl-fx" aria-label="Show everything again" title="Show everything again">' + sv('x', 2.2) + '</button></div>' +
+        '<div class="hbl-tl"></div></div>' +
+      '<div class="hbl-right"><div class="hbl-pbar"><button type="button" class="hbl-pback">' + ic('back') + '<span>Back to the feed</span></button>' +
+        '<span class="hbl-pnav"><button type="button" data-d="1">' + ic('back', 2.4) + '<span>Newer</span></button><button type="button" data-d="-1"><span>Older</span>' + ic('fwd', 2.4) + '</button></span></div></div>' +
+      '<aside class="hbl-side r" aria-label="Categories and series">' +
+        '<div class="hbl-box"><h4>Categories</h4><div class="hbl-cats">' + MAINCATS.map(function (c) { return '<button type="button" data-cat="' + esc(c.n) + '"><span>' + esc(c.n) + '</span><small>' + c.c + ' post' + (c.c === 1 ? '' : 's') + '</small></button>'; }).join('') + '</div>' +
+          '<a class="hbl-lnk" href="' + esc(APPS.archive[2] || '/archive/') + '">See all categories' + sv('chev', 2.4) + '</a></div>' +
+        (SERIES.length ? '<div class="hbl-box"><h4>Series</h4><div class="hbl-cats">' + SERIES.map(function (c) { return '<a class="hbl-ser" href="' + esc(/blaugust/i.test(c.n) && APPS.blaugust ? APPS.blaugust[2] : c.u) + '"><span>' + esc(c.n) + '</span><small>' + c.c + ' post' + (c.c === 1 ? '' : 's') + '</small></a>'; }).join('') + '</div></div>' : '') +
+      '</aside></div>');
     document.body.appendChild(wrap);
     var list = wrap.querySelector('.hbl-tl'), right = wrap.querySelector('.hbl-right'), left = wrap.querySelector('.hbl-left');
+    var filt = wrap.querySelector('.hbl-filt');
     var bar = document.getElementById('hutch-bar'), expandBtn = bar.querySelector('.hb-expand');
-    var mq = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
+    /* More, in the bar, before Home */
+    var moreBtn = el('<button type="button" class="hb-btn hb-more" aria-label="More: categories and series" title="Categories and series">' + sv('more') + '<span>More</span></button>');
+    bar.insertBefore(moreBtn, bar.querySelector('.hb-home'));
+    function catRows(L) { return L.map(function (c) { return '<button type="button" class="hbl-opt" data-cat="' + esc(c.n) + '"><span>' + esc(c.n) + '</span><small>' + c.c + '</small></button>'; }).join(''); }
+    /* a series opens its own page (Blaugust's lives in the Blaugust app):
+       its posts are mostly older than the feed's 30 days */
+    function seriesU(c) { return /blaugust/i.test(c.n) && APPS.blaugust ? APPS.blaugust[2] : c.u; }
+    function seriesRows(L) { return L.map(function (c) { return '<a class="hbl-opt" href="' + esc(seriesU(c)) + '"><span>' + esc(c.n) + '</span><small>' + c.c + '</small></a>'; }).join(''); }
+    var moreSheet = sheet('hbl-more', '<div class="hx-scroll hbl-sh">' +
+      (SERIES.length ? '<h4>Series</h4>' + seriesRows(SERIES) : '') + '<h4>Categories</h4>' + catRows(MAINCATS) +
+      '<a class="hbl-opt all" href="' + esc(APPS.archive[2] || '/archive/') + '">See all categories' + sv('chev', 2.4) + '</a></div>');
+    moreBtn.addEventListener('click', function () { openSheet(moreSheet); });
+
+    var mq2 = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
+    var mq3 = window.matchMedia('(min-width: 1200px) and (min-height: 600px) and (orientation: landscape)');
+    function three() { return mq3.matches; }
+    function two() { return mq2.matches && !three(); }
+    function paned() { return mq2.matches; } /* a post opens beside or inside the feed, not as its own page */
+
+    /* ---- dates: "Today at 11:40 AM", "Yesterday at...", "Nov 11" ---- */
+    function dayDiff(iso) { if (!iso) return 99; var t = new Date(), a = new Date(iso + 'T12:00:00'), b = new Date(t.getFullYear(), t.getMonth(), t.getDate(), 12); return Math.round((b - a) / 864e5); }
+    function when(x) {
+      var dd = dayDiff(x.iso), y = new Date().getFullYear();
+      var d = dd === 0 ? 'Today' : dd === 1 ? 'Yesterday' : x.d + (x.y && +x.y !== y ? ', ' + x.y : '');
+      return d + (x.tm && (dd <= 1 || x.k === 'm') ? ' at ' + x.tm : '');
+    }
+    function stars(r) { r = +r || 0; var s = ''; for (var i = 1; i <= 5; i++) s += r >= i ? '★' : r >= i - 0.5 ? '½' : '☆'; return s; }
+    function denLink(x) { return den + '#open=u-' + encodeURIComponent(x.u); }
+    function wordLink(x) { return wordsU + '#w=' + encodeURIComponent(x.u); }
+    function pics(x) {
+      var im = x.imgs || [], n = x.ni || im.length;
+      if (!im.length) return '';
+      var cls = im.length === 1 ? 'one' : im.length === 2 ? 'two' : 'many';
+      return '<div class="hbl-pics ' + cls + '">' + im.map(function (u, j) {
+        var extra = j === 2 && n > 3 ? '<em>+' + (n - 3) + '</em>' : '';
+        return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '"><img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
+      }).join('') + '</div>';
+    }
+    function body(x) {
+      var dn = x.dn || {}, h = '';
+      if (x.k === 'wd' && x.wn) {
+        var multi = (x.wn.m || []).length > 1;
+        return '<div class="hbl-df"><div class="k">Word Nerd Alert</div><b>' + esc(x.wn.w) + '</b>' + (x.wn.pos ? '<i>' + esc(x.wn.pos) + '</i>' : '') +
+          (x.wn.m || []).map(function (m, j) { return '<p>' + (multi ? '<span>' + (j + 1) + '</span>' : '') + esc(m) + '</p>'; }).join('') + '</div>';
+      }
+      if (x.k === 'wl' && x.wl && x.wl.it) {
+        return '<div class="hbl-wl"><b>Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
+          x.wl.it.slice(0, 5).map(function (w) { return '<li><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</li>'; }).join('') +
+          (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div>';
+      }
+      if ((x.k === 'rv' || x.k === 'rd') && dn.t) {
+        var meta = [], kind = dn.kind === 'TV' ? 'TV' : dn.kind || '';
+        if (x.k === 'rv') {
+          if (kind) meta.push(kind === 'TV' && dn.season ? 'Season ' + dn.season : kind);
+          if (dn.y) meta.push(dn.y);
+          if (dn.who) meta.push(dn.who);
+        } else if (kind === 'Book') {
+          if (dn.who) meta.push('by ' + dn.who);
+        } else if (dn.season) meta.push('Season ' + dn.season);
+        var lab = x.k === 'rv' ? '' : kind === 'Book' ? 'Reading' : 'Watching';
+        var prog = x.k === 'rd' && kind === 'Book' && dn.page ? '<small class="pg">Page ' + dn.page + (dn.total ? ' of ' + dn.total : '') + (dn.pct >= 0 && dn.total ? ' · ' + dn.pct + '%' : '') + '</small>' : '';
+        var line = x.k === 'rv' ? (dn.sum || '') : '';
+        /* a small copy of a TMDB picture is plenty for a card (a review can carry the 1280px backdrop) */
+        var cov = (dn.cover || '').replace(/(image\.tmdb\.org\/t\/p\/)(?:w500|w780|w1280|original)\//, '$1w342/');
+        h = '<div class="hbl-rv">' + (cov ? '<img class="po" src="' + esc(cov) + '" alt="" loading="lazy" decoding="async">' : '<span class="po"></span>') +
+          '<div class="rt">' + (lab ? '<span class="lab">' + lab + '</span>' : '') + '<b>' + esc(dn.t) + '</b>' + (meta.length ? '<small>' + esc(meta.join(' · ')) + '</small>' : '') +
+          (x.k === 'rv' ? '<span class="st" aria-label="' + (+dn.r || 0) + ' out of 5 stars">' + stars(dn.r) + '</span>' : '') + prog +
+          (line ? '<p>' + esc(line) + '</p>' : '') + '</div></div>';
+        return h;
+      }
+      if (x.m) {
+        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Read more</button>' : '') + '</div>' + pics(x);
+      }
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post · ' + (x.min || 1) + ' min</span></div>' + pics(x);
+    }
+    function actions(x) {
+      var b = '';
+      if (x.k === 'rv' || x.k === 'rd' || x.k === 'wl') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
+      if (x.k === 'wd') b += '<a class="hbl-a den" href="' + esc(wordLink(x)) + '">' + sv('word', 2.2) + '<span>Open in Word Nerd</span></a>';
+      var v = !!conv[x.u];
+      b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
+      return '<div class="hbl-act">' + b + '</div>';
+    }
     function card(x, i) {
-      var cls = 'hbl-it' + (x.m ? ' micro' : '') + (x.u === sel ? ' sel' : '');
-      /* a Watch Log reads as a short list: the week, then each show with its episodes (Nov 3) */
-      var wl = x.wl && x.wl.it && x.wl.it.length ? '<div class="hbl-wl"><b>🍿 Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
-        x.wl.it.slice(0, 5).map(function (w) { return '<li><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</li>'; }).join('') +
-        (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div>' : '';
-      if (x.m) return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '"><div class="hbl-tx"><span class="fl" aria-hidden="true">❧</span><div class="hbl-mb"><div class="hbl-k">' + esc(x.d) + ' · ' + esc(x.tm) + '</div>' + (wl || '<p>' + esc(x.x) + '</p>') +
-        (x.img ? '<img class="mimg" src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') + '</div></div></a>';
-      return '<a class="' + cls + '" href="' + esc(x.u) + '" data-i="' + i + '">' + (x.img ? '<img class="hero" src="' + esc(x.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
-        '<div class="hbl-tx"><div class="hbl-k">' + esc(x.d) + (x.c ? ' · ' + esc(x.c) : '') + '</div><h3>' + esc(x.t) + '</h3>' +
-        /* card posts carry a clean line (hutch-home-data.html); reviews show their stars */
-        (x.rs ? '<p class="hbl-rv"><span class="st">' + esc(x.rs) + '</span>' + esc(x.x.replace(x.rs, '').replace(/^\s*·\s*/, '')) + '</p>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') +
-        '<span class="hbl-kr">Keep reading · ' + (x.min || 1) + ' min</span></div></a>';
+      var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '">' + esc(x.c) + '</button>' : '';
+      return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
+        '<div class="hbl-k">' + esc(when(x)) + c + '</div>' + body(x) + actions(x) + '</article>';
     }
+    function archCard(x) {
+      if (!x) return '';
+      var mi = x.mi;
+      return '<article tabindex="0" class="hbl-it hbl-arch" data-u="' + esc(x.u) + '"><div class="hbl-mem">' + sv('hist') + '<span>From the archive · ' + esc(x.m) + '</span></div>' +
+        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post</span></div>' +
+        (x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
+        '<div class="hbl-act"><a class="hbl-a rp" href="' + esc(x.u) + '#replies">' + sv('reply') + '<span>Reply</span></a></div></article>';
+    }
+    function match(x) {
+      if (cat && (x.cs || [x.c]).indexOf(cat) < 0) return false;
+      return tab === 'all' || (tab === 'posts' ? x.k === 'p' : tab === 'micro' ? x.k === 'm' : (x.ni || 0) > 0);
+    }
+    function shown() { return TL.filter(match); }
     function render() {
-      var items = TL.map(function (x, i) { return [x, i]; }).filter(function (p) { return filter === 'all' || (filter === 'micro' ? p[0].m : !p[0].m); });
-      list.innerHTML = (items.map(function (p) { return card(p[0], p[1]); }).join('') || '<p class="hbl-none">Nothing here yet.</p>') +
-        '<div class="hbl-more"><a href="/archive/">Everything older is in Archive ›</a></div>';
+      var items = TL.map(function (x, i) { return [x, i]; }).filter(function (p) { return match(p[0]); });
+      var out = '', n = 0;
+      items.forEach(function (p) {
+        out += card(p[0], p[1]); n++;
+        /* an older post, picked at random, about every dozen cards (All, no category) */
+        if (tab === 'all' && !cat && n % 12 === 6) out += archCard(picks[(n - 6) / 12]);
+      });
+      var cu = cat ? (CATS.filter(function (c) { return c.n === cat; })[0] || {}).u : null;
+      var none = cat ? 'No ' + esc(cat) + ' posts in the last 30 days.' : 'Nothing here in the last 30 days.';
+      list.innerHTML = (out || '<p class="hbl-none">' + none + '</p>') +
+        '<div class="hbl-more"><p>That’s everything ' + (cat ? 'in ' + esc(cat) + ' ' : '') + 'from the last 30 days.</p><a href="' + esc(cu || APPS.archive[2] || '/archive/') + '">' + (cat ? 'See every ' + esc(cat) + ' post in Archive' : 'Everything older is in Archive') + ' ›</a></div>';
+      [].forEach.call(wrap.querySelectorAll('[data-f]'), function (b) { var on = b.getAttribute('data-f') === tab; b.classList.toggle('on', on); b.setAttribute(b.getAttribute('role') === 'tab' ? 'aria-selected' : 'aria-pressed', on ? 'true' : 'false'); });
+      [].forEach.call(wrap.querySelectorAll('.hbl-side [data-cat]'), function (b) { var on = b.getAttribute('data-cat') === cat; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+      filt.hidden = !cat; if (cat) filt.querySelector('b').textContent = cat;
+      if (paneArrows) paneArrows.refresh();
     }
-    function two() { return mq.matches; }
-    function openInPane(x) {
+    /* a different random pick for each spot, the same ones until the page reloads */
+    var picks = ARCH.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 12);
+
+    /* ---- a post beside the feed (840+) or in the middle column (1200+) ---- */
+    var paneArrows = null;
+    function openInPane(x, toReplies) {
       sel = x.u;
-      [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('href') === sel); });
+      [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('data-u') === sel); });
+      var u = x.u + (toReplies ? '#replies' : '');
       var f = right.querySelector('iframe');
       if (!f) { f = document.createElement('iframe'); f.title = 'Post'; right.appendChild(f); }
-      /* Nov 3 (Toby: back needed two or three taps): changing an iframe's
-         src adds a step to the browser's back list, so back walked through
-         every post shown in the pane before leaving. replace() swaps the
-         post without adding a step. */
-      if (!f.getAttribute('src')) f.setAttribute('src', x.u);
-      else if (f.getAttribute('data-u') !== x.u) { try { f.contentWindow.location.replace(x.u); } catch (er) { f.setAttribute('src', x.u); } }
-      f.setAttribute('data-u', x.u);
+      /* replace(), not a new src: keeps the browser's back list short (Nov 3) */
+      if (!f.getAttribute('src')) f.setAttribute('src', u);
+      else if (f.getAttribute('data-u') !== u) { try { f.contentWindow.location.replace(u); } catch (er) { f.setAttribute('src', u); } }
+      f.setAttribute('data-u', u);
       bar.classList.remove('titled');
-      bar.querySelector('.hb-title').textContent = x.t || (x.d + ' · ' + x.tm);
-      bar.querySelector('.hb-prog').style.width = '0';
-      if (typeof paneArrows !== 'undefined' && paneArrows) paneArrows.refresh();
+      var tt = bar.querySelector('.hb-title'); if (tt) tt.textContent = x.t || when(x);
+      var pg = bar.querySelector('.hb-prog'); if (pg) pg.style.width = '0';
+      de.classList.add('hbl-reading');
+      if (paneArrows) paneArrows.refresh();
     }
-    /* desktop / unfolded sideways: arrows on the post pane and the ← →
-       keys step through the list (newer / older), the same as the swipe
-       on a phone (Nov 3) */
-    function shown() { return TL.filter(function (x) { return filter === 'all' || (filter === 'micro' ? x.m : !x.m); }); }
+    function backToFeed() {
+      de.classList.remove('hbl-reading');
+      var c = list.querySelector('.hbl-it.sel');
+      if (c) c.scrollIntoView({ block: 'center' });
+    }
     function nb(d) { var L = shown(), i = -1; for (var j = 0; j < L.length; j++) if (L[j].u === sel) { i = j; break; } return i < 0 ? null : L[i - d] || null; }
     right.style.position = 'relative';
-    var paneArrows = addArrows({
+    paneArrows = addArrows({
       host: right,
-      active: function () { return two(); },
-      has: function (d) { return two() && !!nb(d); },
+      active: function () { return two() || (three() && de.classList.contains('hbl-reading')); },
+      has: function (d) { return (two() || (three() && de.classList.contains('hbl-reading'))) && !!nb(d); },
       go: function (d) {
         var x = nb(d); if (!x) return;
         openInPane(x);
-        var c = list.querySelector('.hbl-it.sel'); if (c) c.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+        var c = list.querySelector('.hbl-it.sel'); if (c && two()) c.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' });
       },
-      label: function (d) { var x = nb(d); return (d < 0 ? 'Older · ' : 'Newer · ') + (x ? (x.t || (x.d + ' · ' + x.tm)) : ''); }
+      label: function (d) { var x = nb(d); return (d < 0 ? 'Older · ' : 'Newer · ') + (x ? (x.t || when(x)) : ''); }
     });
+    right.querySelector('.hbl-pback').addEventListener('click', backToFeed);
+    right.querySelector('.hbl-pnav').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-d]'); if (!b) return;
+      var x = nb(+b.getAttribute('data-d')); if (x) openInPane(x);
+    });
+    function navState() {
+      var nw = right.querySelector('[data-d="1"]'), od = right.querySelector('[data-d="-1"]');
+      if (nw) nw.disabled = !nb(1); if (od) od.disabled = !nb(-1);
+    }
     function layout() {
       de.classList.toggle('hbl-two', two());
-      if (!two()) { de.classList.remove('hbl-full'); bar.classList.remove('titled'); return; }
-      if (!sel && TL.length) openInPane(TL[0]);
+      de.classList.toggle('hbl-three', three());
+      if (!paned()) { de.classList.remove('hbl-full', 'hbl-reading'); bar.classList.remove('titled'); return; }
+      if (two()) { de.classList.remove('hbl-reading'); if (!sel && TL.length) openInPane(TL[0]); de.classList.remove('hbl-reading'); }
+      if (three()) de.classList.remove('hbl-full');
     }
-    wrap.querySelector('.hbl-filters').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-f]'); if (!b) return;
-      filter = b.getAttribute('data-f');
-      [].forEach.call(this.querySelectorAll('[data-f]'), function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      render(); left.scrollTop = 0; window.scrollTo(0, 0);
-      if (paneArrows) paneArrows.refresh();
+
+    /* ---- taps ---- */
+    function setTab(f) { tab = f; render(); left.scrollTop = 0; if (!paned()) window.scrollTo(0, 0); if (three()) backToFeed(); }
+    function setCat(c) { cat = c; render(); left.scrollTop = 0; window.scrollTo(0, 0); if (three()) backToFeed(); }
+    wrap.addEventListener('click', function (e) {
+      var t = e.target;
+      var f = t.closest('[data-f]'); if (f) { setTab(f.getAttribute('data-f')); return; }
+      var cb = t.closest('[data-cat]'); if (cb) { e.preventDefault(); setCat(cb.getAttribute('data-cat') === cat && cb.closest('.hbl-side') ? null : cb.getAttribute('data-cat')); return; }
+      if (t.closest('.hbl-fx')) { setCat(null); return; }
+      var rm = t.closest('.hbl-rm');
+      if (rm) { var it0 = TL[+rm.closest('.hbl-it').getAttribute('data-i')]; var mx = rm.parentNode.querySelector('.mx'); if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); } return; }
+      var pc = t.closest('.hbl-pc[data-pi]');
+      if (pc) { var it1 = TL[+pc.closest('.hbl-it').getAttribute('data-i')]; if (it1) viewer(it1, +pc.getAttribute('data-pi')); return; }
+      var card0 = t.closest('.hbl-it'); if (!card0) return;
+      var a = t.closest('a[href]');
+      var x = card0.hasAttribute('data-i') ? TL[+card0.getAttribute('data-i')] : picks.filter(function (q) { return q.u === card0.getAttribute('data-u'); })[0] || null;
+      if (a) {
+        /* Reply / View replies: beside the feed, the post opens there at its conversation */
+        if (a.hasAttribute('data-rp') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x, true); navState(); }
+        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); } catch (er) {}
+        return;
+      }
+      if (t.closest('button')) return;
+      if (!x) return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey) { window.open(x.u, '_blank'); return; }
+      if (paned()) { openInPane(x); navState(); return; }
+      try { sessionStorage.setItem('hutch-lastpost', x.u); } catch (er) {}
+      leaving(); location.href = x.u;
     });
-    list.addEventListener('click', function (e) {
-      var a = e.target.closest('.hbl-it'); if (!a || !two()) return;
-      e.preventDefault(); openInPane(TL[+a.getAttribute('data-i')]);
+    /* cards are articles, not links (they hold buttons and links of their
+       own), so Enter on a focused card opens it too */
+    list.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || !e.target.classList || !e.target.classList.contains('hbl-it')) return;
+      e.target.click();
     });
-    expandBtn.addEventListener('click', function () {
+    moreSheet.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cat]'); if (!b) return;
+      closeSheet(); setCat(b.getAttribute('data-cat'));
+    });
+    if (expandBtn) expandBtn.addEventListener('click', function () {
       full = !de.classList.contains('hbl-full');
       de.classList.toggle('hbl-full', full);
       expandBtn.innerHTML = ic(full ? 'shrink' : 'expand');
-      expandBtn.setAttribute('aria-label', full ? 'Show the timeline' : 'Full screen');
+      expandBtn.setAttribute('aria-label', full ? 'Show the feed' : 'Full screen');
       expandBtn.title = expandBtn.getAttribute('aria-label');
     });
-    /* the post in the right pane reports its title and how far you've read */
+    /* the post in the pane reports its title and how far you've read */
     window.hutchPane = function (info) {
-      if (!two()) return;
-      if (info.title) bar.querySelector('.hb-title').textContent = info.title;
+      if (!paned()) return;
+      var tt = bar.querySelector('.hb-title');
+      if (info.title && tt) tt.textContent = info.title;
       bar.classList.toggle('titled', !!info.past);
-      bar.querySelector('.hb-pct').textContent = (info.pct || 0) + '%';
-      bar.querySelector('.hb-prog').style.width = (info.pct || 0) + '%';
-      if (info.path && info.path !== sel) {
+      var pc = bar.querySelector('.hb-pct'), pg = bar.querySelector('.hb-prog');
+      if (pc) pc.textContent = (info.pct || 0) + '%';
+      if (pg) pg.style.width = (info.pct || 0) + '%';
+      if (info.path && info.path !== sel && TL.some(function (x) { return x.u === info.path; })) {
         sel = info.path;
-        [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('href') === sel); });
+        [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('data-u') === sel); });
+        navState();
       }
     };
+
+    /* ---- the photo viewer: full screen, still inside Blog ---- */
+    var vw = null;
+    function viewer(x, start) {
+      var srcs = (x.imgs || []).slice(), at = start || 0, n = Math.max(x.ni || 0, srcs.length);
+      if (!vw) {
+        vw = el('<div class="hbl-view" role="dialog" aria-modal="true" aria-label="Photo"><div class="vtop"><button type="button" class="vx" aria-label="Close">' + sv('x', 2.4) + '</button><span class="vn"></span><span class="vsp"></span></div>' +
+          '<div class="vimg"><img alt=""><button type="button" class="vgo l" aria-label="Previous photo">' + ic('back', 2.4) + '</button><button type="button" class="vgo r" aria-label="Next photo">' + ic('fwd', 2.4) + '</button></div>' +
+          '<div class="vcap"><b></b><small></small></div><div class="vstrip"></div>' +
+          '<div class="vlinks"><a class="vpost">Open the post</a><a class="vall" href="' + esc(APPS.photos[2] || '/photo/') + '">' + sv('photo', 2) + 'See all photos</a></div></div>');
+        document.body.appendChild(vw);
+        vw.querySelector('.vx').addEventListener('click', function () { closeViewer(); });
+        vw.addEventListener('click', function (e) {
+          var g = e.target.closest('.vgo'); if (g) { step(g.classList.contains('r') ? 1 : -1); return; }
+          var th = e.target.closest('[data-vi]'); if (th) { at = +th.getAttribute('data-vi'); draw(); }
+        });
+        var x0 = null;
+        vw.addEventListener('touchstart', function (e) { x0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+        vw.addEventListener('touchend', function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
+        document.addEventListener('keydown', function (e) {
+          if (!de.classList.contains('hbl-viewing')) return;
+          if (e.key === 'Escape') closeViewer(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1);
+        });
+        window.addEventListener('popstate', function () { if (de.classList.contains('hbl-viewing')) closeViewer(true); });
+      }
+      function step(d) { var k = at + d; if (k >= 0 && k < srcs.length) { at = k; draw(); } }
+      vw.__step = step;
+      function draw() {
+        vw.querySelector('.vimg img').src = srcs[at] || '';
+        vw.querySelector('.vn').textContent = (at + 1) + ' of ' + Math.max(n, srcs.length);
+        vw.querySelector('.vgo.l').hidden = at <= 0; vw.querySelector('.vgo.r').hidden = at >= srcs.length - 1;
+        vw.querySelector('.vstrip').innerHTML = srcs.map(function (u, j) { return '<button type="button" data-vi="' + j + '"' + (j === at ? ' class="on" aria-current="true"' : '') + ' aria-label="Photo ' + (j + 1) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>'; }).join('');
+      }
+      vw.querySelector('.vcap b').textContent = x.t || (x.x || '').slice(0, 80);
+      vw.querySelector('.vcap small').textContent = when(x) + (x.c ? ' · ' + x.c : '');
+      vw.querySelector('.vpost').href = x.u;
+      de.classList.add('hbl-viewing');
+      try { history.pushState({ hblView: 1 }, ''); } catch (e) {}
+      draw();
+      /* the card only carries 3 photos: the rest come from the post itself
+         (usually already saved by the page helper) */
+      if (n > srcs.length) fetch(x.u, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (h) {
+        var post = (h.match(/<div[^>]*class="[^"]*\b(?:post-content|e-content)\b[\s\S]*?(?=<div[^>]*class="[^"]*\b(?:post-conversation|keep-reading|connect-share)\b|$)/) || [h])[0];
+        var seen = {}, all = [];
+        (post.match(/<img[^>]+src="[^"]+"/g) || []).forEach(function (m) {
+          var u = m.replace(/^[\s\S]*?src="([^"]+)"[\s\S]*$/, '$1').replace(/&amp;/g, '&');
+          if ((/cdn\.uploads\.micro\.blog|\/uploads\//.test(u)) && !seen[u]) { seen[u] = 1; all.push(u); }
+        });
+        if (all.length > srcs.length && de.classList.contains('hbl-viewing')) { srcs = all; n = all.length; draw(); }
+      }).catch(function () {});
+    }
+    function closeViewer(viaPop) {
+      if (!vw || !de.classList.contains('hbl-viewing')) return;
+      de.classList.remove('hbl-viewing');
+      if (!viaPop && history.state && history.state.hblView) { try { history.back(); } catch (e) {} }
+    }
+
+    /* ---- Reply → View replies: one request to Micro.blog for the whole
+       feed (Nov 14, tested on his account: its list marks every post that
+       has a conversation). Saved for 30 minutes. ---- */
+    function applyConv() {
+      [].forEach.call(list.querySelectorAll('.hbl-it[data-u]'), function (c) {
+        var a = c.querySelector('.hbl-a.rp'); if (!a) return;
+        var v = !!conv[c.getAttribute('data-u')];
+        a.classList.toggle('vr', v); a.querySelector('span').textContent = v ? 'View replies' : 'Reply';
+      });
+    }
+    (function loadConv() {
+      if (!ME.user) { var rm = document.querySelector('link[rel="me"][href*="micro.blog/"]'); if (rm) ME.user = (rm.getAttribute('href').match(/micro\.blog\/([^\/?#]+)/) || [])[1] || ''; }
+      if (!ME.user) return;
+      var KEY = 'hbl-conv-v1', got = null;
+      try { got = JSON.parse(ls(KEY) || 'null'); } catch (e) {}
+      if (got && got.t && Date.now() - got.t < 30 * 60000 && got.c) { conv = got.c; applyConv(); return; }
+      fetch('https://micro.blog/posts/' + encodeURIComponent(ME.user) + '?count=' + Math.min(200, TL.length + 20), { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+          if (!j || !j.items) return;
+          var c = {};
+          j.items.forEach(function (it) {
+            if (!it._microblog || !it._microblog.is_conversation || !it.url) return;
+            try { var u = new URL(it.url); if (u.host !== 'micro.blog') c[u.pathname] = 1; } catch (e) {} /* micro.blog/user/123 are his replies to others */
+          });
+          conv = c; try { ls(KEY, JSON.stringify({ t: Date.now(), c: c })); } catch (e) {}
+          applyConv();
+        }).catch(function () {});
+    })();
+
     render(); layout();
-    /* back from swiping through posts (Nov 3): the list scrolls to the
-       post you ended on and lights it up for a moment */
+    /* back from a post: the feed scrolls to the post you came from and lights it up */
     function showLast() {
       var u = null; try { u = sessionStorage.getItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lastpost'); } catch (e) {}
       if (!u) return;
-      var c = list.querySelector('.hbl-it[href="' + u.replace(/"/g, '') + '"]');
+      var c = list.querySelector('.hbl-it[data-u="' + u.replace(/"/g, '') + '"]');
       if (!c) return;
       c.scrollIntoView({ block: 'center' });
       c.classList.add('hl'); setTimeout(function () { c.classList.remove('hl'); }, 2400);
     }
     showLast();
     window.addEventListener('pageshow', function (e) { if (e.persisted) showLast(); });
-    /* new posts arrive without a refresh (Nov 3): the timeline is redrawn
-       from the newer copy and stays on the post you were looking at */
+    /* new posts arrive without a refresh: redrawn from the newer copy, staying on the card in view */
     window.hutchBlogFresh = function (tl) {
       if (!tl || !tl.length) return;
-      var top = null, off = 0, cards = list.querySelectorAll('.hbl-it');
-      for (var i = 0; i < cards.length; i++) { var r = cards[i].getBoundingClientRect(); if (r.bottom > 70) { top = cards[i].getAttribute('href'); off = r.top; break; } }
-      TL = tl; render();
-      if (top) { var c = list.querySelector('.hbl-it[href="' + top.replace(/"/g, '') + '"]'); if (c) { var sc = two() ? left : null, d = c.getBoundingClientRect().top - off; if (sc) sc.scrollTop += d; else window.scrollBy(0, d); } }
+      var top = null, off = 0, cards = list.querySelectorAll('.hbl-it[data-i]');
+      for (var i = 0; i < cards.length; i++) { var r = cards[i].getBoundingClientRect(); if (r.bottom > 70) { top = cards[i].getAttribute('data-u'); off = r.top; break; } }
+      TL = tl; render(); applyConv();
+      if (top) { var c = list.querySelector('.hbl-it[data-u="' + top.replace(/"/g, '') + '"]'); if (c) { var sc = paned() ? left : null, d = c.getBoundingClientRect().top - off; if (sc) sc.scrollTop += d; else window.scrollBy(0, d); } }
     };
-    if (mq.addEventListener) mq.addEventListener('change', layout); else mq.addListener(layout);
+    [mq2, mq3].forEach(function (m) { if (m.addEventListener) m.addEventListener('change', layout); else m.addListener(layout); });
+  }
+
+  /* ---------- land on the conversation (Nov 14, Blog app) ----------
+     "Reply" and "View replies" on a Blog card open the post at #replies.
+     Micro.blog fills the conversation in a moment after the page shows,
+     and photos above it can still be loading, so the page settles on it
+     a few times over the first few seconds, until the reader scrolls. */
+  function toReplies() {
+    if (location.hash !== '#replies') return;
+    var t = document.getElementById('replies'); if (!t) return;
+    var stop = false, n = 0;
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) { window.addEventListener(ev, function () { stop = true; }, { passive: true, once: true }); });
+    function go() { if (!stop) t.scrollIntoView({ block: 'start' }); }
+    go();
+    var iv = setInterval(function () { if (++n > 16 || stop) { clearInterval(iv); return; } go(); }, 250);
   }
 
   /* a page shown inside the Blog app's right pane: no app bar of its own,
@@ -1831,6 +2129,7 @@
     }
     window.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(report); } }, { passive: true });
     report();
+    toReplies();
     /* links that leave the posts open in the full window */
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href]'); if (!a) return;
@@ -2280,7 +2579,7 @@
   var isBlogApp = !isEmbed && path === '/' && /[?&]app=blog\b/.test(location.search) && HOME && HOME.tl && HOME.tl.length > 0;
   if (isEmbed) buildEmbed();
   else if (isHome && HOME) { buildHome(); boot(false); setTimeout(preload, 1500); }
-  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); topButton(); if (!(PAGE.type === 'post' && PAGE.kind === 'page')) setTimeout(warmLinks, 600); }
+  else { if (isHome) { de.classList.remove('hutch-hs'); de.classList.add('hutch-app'); } buildFrame(); if (isBlogApp) buildBlog(); else if (PAGE.type === 'post' && PAGE.kind === 'page' && PAGE.title) postExtras(); if (PAGE.type === 'post' && PAGE.kind === 'page') toReplies(); topButton(); if (!(PAGE.type === 'post' && PAGE.kind === 'page')) setTimeout(warmLinks, 600); }
 
   de.classList.add('hutch-ready'); /* lets hutch.css show the page if no app took it over */
   /* tap to open: the splash this page painted from its first frame (see

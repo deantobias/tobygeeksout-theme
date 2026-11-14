@@ -306,7 +306,9 @@
        Micro.blog's script renders nothing when there are no
        replies, so quiet posts show no gap. */}}
   {{ if and .Site.Params.include_conversation .Permalink }}
-    <div class="post-conversation">
+    {{/* id="replies" (Nov 14): the Hutch Blog app's "Reply" / "View replies"
+         links land here (post.html#replies) */}}
+    <div class="post-conversation" id="replies">
       <p class="post-conversation-label">Join the conversation</p>
       <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
     </div>

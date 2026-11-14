@@ -123,25 +123,56 @@
   {{- $words = $words | append (dict "w" (trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t ") "u" .RelPermalink) -}}
 {{- end -}}
 
-{{/* Blog app timeline (Nov 2, 2026): the newest 60 posts, titled and
-     micro, newest first. Watchlist / "Want to Watch" cards stay out, same
-     tests as the home feed. img = first of Toby's own uploads (never a
-     card poster); x = a short plain-text excerpt; m = micro (no title). */}}
+{{/* Blog app feed (Nov 14, 2026, Toby, mockups v136-v140): every post
+     from the last 30 days, newest first (at least 20, at most 150), so
+     "All" really is everything: titled posts, micros, reviews, Watch
+     Logs, Currently Reading / Watching posts and Word Nerd words. Only
+     Watchlist / "Want to Watch" cards stay out (they are not posts about
+     something he did). Day-to-day Trakt watching stays in the Den.
+     Per post, on top of the older fields:
+       k     kind: p titled, m micro, rv review, rd reading / watching
+             post, wl Watch Log, wd Word Nerd word
+       iso   date, cs every category, imgs up to 3 of his own photos,
+       ni    how many of his own photos, xf a micro's full text when the
+             card only shows the start
+       dn    the Den's own reading of a review / reading post (title,
+             kind, cover, stars, by, year, season, page ...)
+       wn    Word Nerd's own reading of a word (word, part of speech,
+             up to 3 meanings)
+     Earlier (Nov 5) the Blog app left the Den and Word Nerd posts out;
+     Toby turned that around on Nov 14. */}}
+{{- $denD := dict -}}
+{{- with partial "hutch-data/den.html" $site.Home -}}
+  {{- $j := replaceRE `(?s)^.*?<script[^>]*>(.*)</script>\s*$` "$1" . -}}
+  {{- with transform.Unmarshal $j -}}{{- $denD = . -}}{{- end -}}
+{{- end -}}
+{{- $denBy := dict -}}
+{{- range $denD.history -}}{{- if .url -}}{{- $denBy = merge $denBy (dict .url (dict "k" "rv" "t" .t "kind" .kind "who" .who "y" .y "season" .season "cover" .cover "r" .r "sum" .sum)) -}}{{- end -}}{{- end -}}
+{{- range $denD.reading -}}
+  {{- $b := . -}}
+  {{- range .log -}}{{- if .url -}}{{- $denBy = merge $denBy (dict .url (dict "k" "rd" "t" $b.t "kind" "Book" "who" $b.who "cover" $b.cover "page" .page "total" .total "pct" .pct)) -}}{{- end -}}{{- end -}}
+{{- end -}}
+{{- range $denD.watching -}}{{- if and .url (ne .url "/watching/") -}}{{- $denBy = merge $denBy (dict .url (dict "k" "rd" "t" .t "kind" .kind "cover" .cover "season" .season)) -}}{{- end -}}{{- end -}}
+{{- $wnBy := dict -}}
+{{- with $site.GetPage "/categories/word-of-the-day" -}}
+  {{- with partial "hutch-data/words.html" . -}}
+    {{- $j := replaceRE `(?s)^.*?<script[^>]*>(.*)</script>\s*$` "$1" . -}}
+    {{- with transform.Unmarshal $j -}}
+      {{- range .words -}}
+        {{- $ms := slice -}}{{- range first 3 .m -}}{{- $ms = $ms | append .t -}}{{- end -}}
+        {{- $wnBy = merge $wnBy (dict .u (dict "w" .w "pos" .pos "m" $ms "more" (gt (len .m) 3))) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 {{- $tl := slice -}}
-{{/* Nov 5 (Toby): reviews, watching and reading posts, Watch Logs and
-     Word of the Day live in the Den and Word Nerd apps, so the Blog app leaves them out
-     on every tab (All, Posts, Micros). Archive still shows everything.
-     $tlOut remembers them so "From the archive" doesn't pick up a
-     recent one either. */}}
+{{/* still used by "From the archive" below, which keeps the Den and Word Nerd posts out */}}
 {{- $tlCats := slice "reel and remote" "movie reviews" "tv reviews" "currently watching" "currently reading" "reading" "word of the day" -}}
 {{- $tlOut := slice -}}
-{{- range first 200 (where $site.RegularPages.ByDate.Reverse "Type" "post") -}}
-  {{- if lt (len $tl) 60 -}}
+{{- $cut := now.AddDate 0 0 -30 -}}
+{{- range first 400 (where $site.RegularPages.ByDate.Reverse "Type" "post") -}}
+  {{- if and (lt (len $tl) 150) (or (.Date.After $cut) (lt (len $tl) 20)) -}}
   {{- $skip := false -}}
-  {{- range .Params.categories -}}{{- if in $tlCats (lower .) -}}{{- $skip = true -}}{{- end -}}{{- end -}}
-  {{- if findRE `(?i)^\W*(now watching|currently watching|currently reading):` .Title 1 -}}{{- $skip = true -}}{{- end -}}
-  {{- if in .Content "watch-log" -}}{{- $skip = true -}}{{- end -}}{{/* Watch Log posts too (Nov 5, Toby) */}}
-  {{- if $skip -}}{{- $tlOut = $tlOut | append .RelPermalink -}}{{- end -}}
   {{- if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) -}}{{- $skip = true -}}{{- end -}}
   {{- if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) -}}{{- $skip = true -}}{{- end -}}
   {{- if not $skip -}}
@@ -149,10 +180,14 @@
     {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
     {{- end -}}
-    {{- $img := "" -}}
+    {{- $img := "" -}}{{- $imgs := slice -}}{{- $ni := 0 -}}
     {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
       {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
-      {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) -}}{{- $img = $u -}}{{- end -}}
+      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) (not (in $imgs $u)) -}}
+        {{- if not $img -}}{{- $img = $u -}}{{- end -}}
+        {{- $ni = add $ni 1 -}}
+        {{- if lt (len $imgs) 3 -}}{{- $imgs = $imgs | append $u -}}{{- end -}}
+      {{- end -}}
     {{- end -}}
     {{- $micro := not .Title -}}
     {{- $x := "" -}}
@@ -234,7 +269,18 @@
       {{- if $items -}}{{- $wl = dict "h" $wh "it" $items -}}{{- end -}}
     {{- end -}}
     {{- $cat := "" -}}{{- with .Params.categories -}}{{- $cat = index . 0 -}}{{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "img" $img "x" (trim $x " \n\t") "m" $micro "min" .ReadingTime "c" $cat "rs" $rs "wl" $wl) -}}
+    {{- $cs := slice -}}{{- range .Params.categories -}}{{- $cs = $cs | append . -}}{{- end -}}
+    {{- $dn := index $denBy .RelPermalink -}}
+    {{- $wn := index $wnBy .RelPermalink -}}
+    {{- $k := cond $micro "m" "p" -}}
+    {{- if $wn -}}{{- $k = "wd" -}}
+    {{- else if $wl -}}{{- $k = "wl" -}}
+    {{- else if $dn -}}{{- $k = index $dn "k" -}}
+    {{- else if and $rs (or (in $c "review-card") (in $c "movie-card") (in $c "book-card")) -}}{{- $k = "rv" -}}
+    {{- end -}}
+    {{- $xf := "" -}}
+    {{- if and $micro (gt (len .Plain) 280) -}}{{- $xf = .Plain | htmlUnescape | truncate 2000 | htmlUnescape -}}{{- end -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}
@@ -292,9 +338,8 @@
      (partials/hutch-data/den.html, posts only; Trakt-only shows aren't
      known until /watching/ is opened). */}}
 {{- $now := dict -}}
-{{- with partial "hutch-data/den.html" $site.Home -}}
-  {{- $j := replaceRE `(?s)^.*?<script[^>]*>(.*)</script>\s*$` "$1" . -}}
-  {{- with transform.Unmarshal $j -}}
+{{- with $denD -}}
+  {{- with . -}}
     {{- $w := dict -}}{{- with .watching -}}{{- $w = index . 0 -}}{{- end -}}
     {{- $ws := slice -}}{{- with .watching -}}{{- $ws = first 6 . -}}{{- end -}}
     {{- $r := dict -}}{{- with .reading -}}{{- $r = index . 0 -}}{{- end -}}
@@ -306,4 +351,9 @@
   {{- end -}}
 {{- end -}}
 
-<script type="application/json" id="hutch-home-data">{{ dict "recent" $recent "word" $word "photo" $photo "photos" $photos6 "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>
+{{/* Blog app header (Nov 14, v140): name, avatar, Micro.blog username
+     and the follow links, from the same places Classic uses */}}
+{{- $fm := slice -}}
+{{- range partial "follow-profiles-data.html" . -}}{{- $fm = $fm | append (dict "n" .name "u" .url "ic" (trim (partial "icon.html" (dict "name" .icon)) " \n")) -}}{{- end -}}
+{{- $me := dict "n" ($site.Author.name | default $site.Title) "av" ($site.Author.avatar | default "") "user" ($site.Author.username | default "") "fm" $fm -}}
+<script type="application/json" id="hutch-home-data">{{ dict "me" $me "recent" $recent "word" $word "photo" $photo "photos" $photos6 "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>

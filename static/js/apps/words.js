@@ -198,6 +198,15 @@
     /* coming back from a post (Read more or the date link): reopen the card
        he was on instead of dropping him on the list (Nov 2, Toby) */
     var hs = history.state;
-    if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
+    /* Nov 14 (Blog app v138): "Open in Word Nerd" on a Blog card links
+       here as #w=<the post's address>; that word's card opens */
+    var hw = location.hash.match(/^#w=(.+)$/), wi = -1;
+    if (hw) {
+      var wu = ''; try { wu = decodeURIComponent(hw[1]); } catch (e) { wu = hw[1]; }
+      W.forEach(function (x) { if (wi < 0 && x.u === wu) wi = x.i; });
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+    }
+    if (wi >= 0) show(wi);
+    else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

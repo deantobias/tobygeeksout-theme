@@ -355,5 +355,5 @@
      and the follow links, from the same places Classic uses */}}
 {{- $fm := slice -}}
 {{- range partial "follow-profiles-data.html" . -}}{{- $fm = $fm | append (dict "n" .name "u" .url "ic" (trim (partial "icon.html" (dict "name" .icon)) " \n")) -}}{{- end -}}
-{{- $me := dict "n" ($site.Author.name | default $site.Title) "av" ($site.Author.avatar | default "") "user" ($site.Author.username | default "") "fm" $fm -}}
+{{- $me := dict "n" (.me.n | default $site.Title) "av" (.me.av | default "") "user" (.me.user | default "") "fm" $fm -}}
 <script type="application/json" id="hutch-home-data">{{ dict "me" $me "recent" $recent "word" $word "photo" $photo "photos" $photos6 "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>

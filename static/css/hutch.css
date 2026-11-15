@@ -351,7 +351,8 @@ html.hbl-three .hbl-side.r{grid-column:3}
 html.hbl-three .hbl-left,html.hbl-three .hbl-right{grid-column:2;grid-row:1;min-height:0}
 html.hbl-three .hbl-left{max-width:none;margin:0;overflow-y:auto;overscroll-behavior:contain}
 html.hbl-three .hbl-head,html.hbl-three .hbl-tabs{display:none}
-html.hbl-three .hbl-tl,html.hbl-three .hbl-filt{max-width:640px;margin-left:auto;margin-right:auto}
+/* the feed and an opened post share one width, so nothing jumps (Nov 14, Toby) */
+html.hbl-three .hbl-tl,html.hbl-three .hbl-filt{max-width:780px;margin-left:auto;margin-right:auto}
 html.hbl-three .hbl-tl{padding:0 0 24px}
 html.hbl-three .hbl-filt{margin-bottom:10px}
 html.hbl-three.hbl-reading .hbl-left{display:none}
@@ -406,11 +407,14 @@ html.hbl-three #hutch-bar .hb-more,html.hbl-three #hutch-bar .hb-expand{display:
 @media (min-width:601px){
   html.hutch-embed .post-header-inner{display:flow-root}
   html.hutch-embed .post-header-inner:has(.tg-mark) .post-header-title{padding-right:0}
-  html.hutch-embed .tg-mark{position:static;float:right;margin:0 0 10px 18px;--mark-w:220px}
-  html.hutch-embed .tg-mark--ticket{width:220px}
-  html.hutch-embed .tg-mark--stamp{width:172px}
+  /* smaller, to match the phone ticket Toby shrank the same day (custom.css) */
+  html.hutch-embed .tg-mark{position:static;float:right;margin:0 0 10px 18px;--mark-w:160px}
+  html.hutch-embed .tg-mark--ticket{width:160px}
+  html.hutch-embed .tg-mark--stamp{width:130px}
   html.hutch-embed .post-header-title,html.hutch-embed.fonts-70s .post-header--poster .post-header-title{font-size:clamp(2.2rem,5vw,3.6rem);overflow-wrap:normal;word-break:normal;hyphens:manual}
 }
+/* a post in a laptop's middle column reads at Classic's desktop size (Nov 14) */
+html.hutch-embed-wide .post-body,html.hutch-embed-wide .post-body p,html.hutch-embed-wide .post-body li{font-size:1rem}
 /* the conversation a "Reply" link lands on clears the app bar */
 html.hutch #replies{scroll-margin-top:calc(var(--h-bar,56px) + 12px)}
 html.hutch.hutch-embed #replies{scroll-margin-top:12px}

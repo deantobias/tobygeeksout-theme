@@ -2110,6 +2110,15 @@
     })();
 
     render(); layout();
+    /* /?app=blog#open=/2026/08/19/a-post.html opens that post beside the
+       feed or in the middle column (Nov 14, Toby: a way to check any post,
+       an older Blaugust one too, without waiting for it to come up) */
+    var ho = location.hash.match(/^#open=(\/.+)$/);
+    if (ho && paned()) {
+      var hu = ''; try { hu = decodeURIComponent(ho[1]); } catch (e) { hu = ho[1]; }
+      var hx = TL.filter(function (q) { return q.u === hu; })[0] || { u: hu, t: 'Post' };
+      openInPane(hx); navState();
+    }
     /* the tagline list (custom_footer.html) can arrive after the Blog is drawn */
     if (!tg) window.addEventListener('load', function () {
       var w = window.tgoTaglines; if (!w || !w.length) return;
@@ -2156,6 +2165,11 @@
      it tells the Blog app which post it is and how far down you are */
   function buildEmbed() {
     var isPost = PAGE.type === 'post' && PAGE.kind === 'page';
+    /* Nov 14 (Toby: "Classic single body is smaller than Hutch"): in a
+       laptop's middle column the post is drawn about 780px wide, where
+       Classic uses its phone / foldable reading size. The laptop gets
+       the desktop size instead (hutch.css), the same as Classic there. */
+    try { if (window.top !== window && window.top.document.documentElement.classList.contains('hbl-three')) de.classList.add('hutch-embed-wide'); } catch (e) {}
     var h1 = document.querySelector('.post-header-title'), tick = false;
     var main = document.getElementById('main-content');
     if (main && !document.querySelector('.post-header, .newsletter-single')) {

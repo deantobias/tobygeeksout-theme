@@ -7957,14 +7957,20 @@ body.tgo-night .link-card.blog-card:hover {
     position: static;
     float: right;
   }
-  .tg-mark--ticket { width: 200px; margin: 0 0 6px 14px; }
+  /* 200 -> 130px (2026-11-14). At 200 the title only had a narrow
+     column beside the ticket, and 17 of 31 Blaugust titles split a
+     word mid-way on a 412px phone ("Brows / er"). A smaller ticket is
+     also shorter, so fewer title lines squeeze past it: 130 leaves
+     only "Webmentions" breaking. Title size left alone on purpose;
+     shrinking it to even 30px still broke 4. */
+  .tg-mark--ticket { width: 130px; margin: 0 0 6px 14px; }
   .tg-mark--stamp  { width: 142px; margin: 0 0 6px 14px; }
 }
 
 /* Small phones: back off a little so a 152px float doesn't leave the
    headline in a 200px gutter. */
 @media (max-width: 400px) {
-  .tg-mark--ticket { width: 176px; margin: 0 0 6px 12px; }
+  .tg-mark--ticket { width: 120px; margin: 0 0 6px 12px; }   /* was 176 (2026-11-14) */
   .tg-mark--stamp  { width: 122px; margin: 0 0 6px 12px; }
 }
 
@@ -8063,21 +8069,23 @@ body.tgo-night .link-card.blog-card:hover {
      anchored to the right edge and does NOT move with it, clears the tail
      of BLAUGUST. At phone sizes the badge was sitting on the T.
      :has() keeps both of these off posts with no milestone. */
+  /* Scaled with the smaller ticket (2026-11-14): was 30px / 18px
+     against a 200px ticket and 110px badge. */
   .post-header-inner:has(.tg-milestone) .tg-mark--ticket {
-    margin-top: 30px;
-    margin-right: 18px;
+    margin-top: 20px;
+    margin-right: 12px;
   }
 
   .tg-milestone {
     display: block;
     top: 0;
     right: 10px;
-    width: 110px;         /* half-ish the 200px ticket */
+    width: 65px;          /* half the 130px ticket (was 110 vs 200) */
   }
 }
 
 @media (max-width: 400px) {
-  .tg-milestone { width: 96px; }   /* half-ish the 176px ticket */
+  .tg-milestone { width: 60px; }   /* half the 120px ticket (was 96 vs 176) */
 }
 
 /* The .tg-mark hide below is a separate element and does not catch the

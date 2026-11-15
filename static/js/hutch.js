@@ -370,6 +370,7 @@
     }
     if (scrim) scrim.classList.toggle('on', on);
   }
+  function moreHint(sc) { if (sc) sc.classList.toggle('hx-more-below', sc.scrollHeight - sc.clientHeight - sc.scrollTop > 6); }
   function openSheet(s, focusSel) {
     if (openSheetEl === s) return;
     if (openSheetEl) closeSheet(true);
@@ -378,6 +379,7 @@
     syncScrim();
     try { history.pushState({ hutchSheet: 1 }, ''); } catch (e) {}
     if (focusSel) setTimeout(function () { var f = s.querySelector(focusSel); if (f) f.focus(); }, 60);
+    var sc0 = s.querySelector('.hx-scroll'); requestAnimationFrame(function () { moreHint(sc0); }); setTimeout(function () { moreHint(sc0); }, 400);
   }
   function closeSheet(viaCode) {
     if (!openSheetEl) return;
@@ -400,6 +402,10 @@
     s.querySelector('.hx-grab').addEventListener('click', function () { closeSheet(); });
     s.querySelector('.hx-close').addEventListener('click', function () { closeSheet(); });
     swipeDownToClose(s);
+    /* Nov 15 (Toby): a soft fade at the bottom while there is more to
+       scroll (a Mac hides its scrollbar until you scroll) */
+    var sc = s.querySelector('.hx-scroll');
+    if (sc) { sc.addEventListener('scroll', function () { moreHint(sc); }, { passive: true }); window.addEventListener('resize', function () { moreHint(sc); }); }
     document.body.appendChild(s);
     return s;
   }

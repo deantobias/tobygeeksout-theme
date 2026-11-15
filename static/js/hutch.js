@@ -505,6 +505,13 @@
   var settings = null;
   /* the original theme's name in Settings: one place to change when it gets its new name */
   var ORIGINAL = 'Classic';
+  var TESTED = (function () {
+    var p = { phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>', fold: '<rect x="3" y="3.5" width="18" height="17" rx="2.2"/><path d="M12 3.5v17"/>',
+      tab: '<rect x="4" y="2.5" width="16" height="19" rx="2.2"/><path d="M11 18.5h2"/>', lap: '<rect x="4" y="5" width="16" height="11" rx="1.6"/><path d="M2 19h20"/>',
+      web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>' }, o = {};
+    for (var k in p) o[k] = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p[k] + '</svg>';
+    return o;
+  })();
   function openSettings() {
     if (!settings) {
       var m = skyMode();
@@ -527,8 +534,22 @@
         '<button type="button" class="hx-btn hx-go" data-classic>Switch to ' + esc(ORIGINAL) + '</button></div></div>' +
         '<a class="hx-card hx-upd" href="/changelog/">' + tile('tinkering') + '<span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens on a phone or tablet.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
+        /* Nov 15 (Toby, v151): the devices and browsers Hutch is checked on,
+           and a note for anyone using something else: their own screen size
+           shows right here (it changes when they turn the device), to send
+           with a Contact message */
+        '<div class="hx-card hx-tested"><h3>Tested on</h3><p>Every change to Hutch is checked on these before it goes live.</p><ul>' +
+        [['phone', 'Pixel phone', 'Held upright and sideways'], ['fold', 'Pixel Fold', 'Closed, and open upright or sideways'], ['tab', 'TCL tablet', 'Upright and sideways'], ['tab', 'iPad mini', 'Upright and sideways'], ['tab', 'iPad Pro 12.9″', 'Upright and sideways'], ['lap', 'Mac and Windows laptops', 'Small and large screens'], ['web', 'Brave / Chrome and Safari', 'Edge works like Brave and Chrome']].map(function (r) {
+          return '<li><span class="ti">' + TESTED[r[0]] + '</span><span><b>' + r[1] + '</b><small>' + r[2] + '</small></span></li>'; }).join('') +
+        '</ul><div class="hx-tnote"><p>Using something not on this list, and something looks off? <a href="' + esc((APPS.contact && APPS.contact[2]) || '/contact/') + '">Contact me</a> with your screen size held upright and sideways. Yours right now:</p>' +
+        '<p class="vp"><b data-vp></b> <span data-vpo></span></p><p class="hint">Turn your device and this number changes.</p></div></div>' +
         '<div class="hx-card hx-about"><img src="' + esc(avatar) + '" alt=""><div><h3>Hutch OS 0.1</h3><p style="margin:0">Phase 1 · private test build · Nov 2026</p></div></div>' +
         '</div>');
+      var vpShow = function () {
+        var vb = settings.querySelector('[data-vp]'), vo = settings.querySelector('[data-vpo]'); if (!vb) return;
+        vb.textContent = innerWidth + ' × ' + innerHeight; vo.textContent = !(window.matchMedia && matchMedia('(pointer: coarse)').matches) ? 'browser window' : innerWidth > innerHeight ? 'sideways' : 'upright';
+      };
+      vpShow(); window.addEventListener('resize', vpShow);
       settings.addEventListener('click', function (e) {
         var b = e.target.closest('[data-sky]');
         if (b) { ls('tgo-sky', b.getAttribute('data-sky')); location.reload(); return; }

@@ -1844,3 +1844,24 @@ html.hbl-two .hbl-wl>b{font-size:19px}
    the Den (always dark) and the Blog's cards when Hutch is dark. */
 html.fonts-70s .hx-den :is(.summary, .tagline){font-weight:450}
 html.fonts-70s.hx-dark :is(.hbl-html, .hbl-html p, .hbl-html li, .hbl-tx p, .hbl-rv p, .hbl-nw p){font-weight:450}
+
+/* Nov 15 (Toby, v151): Settings > Tested on */
+.hx-tested ul{list-style:none;margin:2px 0 0;padding:0}
+.hx-tested li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(30,45,74,.1)}
+.hx-tested li:first-child{border-top:0}
+.hx-tested .ti{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:rgba(196,98,45,.12);color:#A6481F}
+.hx-tested .ti svg{width:22px;height:22px}
+.hx-tested b{display:block;font:600 15.5px/1.25 var(--h-ui)}
+.hx-tested small{display:block;font:400 13.5px/1.3 var(--h-ui);color:#555B66;margin-top:1px}
+.hx-tnote{margin-top:10px;padding-top:12px;border-top:1px solid rgba(30,45,74,.1)}
+.hx-tnote p{margin:0 0 6px}
+.hx-tnote a{color:#A6481F;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.hx-tnote p.vp{display:flex;gap:8px;align-items:baseline;background:rgba(196,98,45,.1);border-radius:12px;padding:8px 12px;margin:8px 0 4px;color:inherit}
+.hx-tnote .vp b{font:700 20px var(--h-ui)}
+.hx-tnote .vp span{font:500 14px var(--h-ui);color:#555B66}
+.hx-tnote p.hint{font-size:13px;margin:0}
+html.hx-dark .hx-tested li,html.hx-dark .hx-tnote{border-color:rgba(255,255,255,.1)}
+html.hx-dark .hx-tested .ti{background:rgba(242,162,122,.14);color:#F2A27A}
+html.hx-dark .hx-tested small,html.hx-dark .hx-tnote .vp span{color:#A9B2C3}
+html.hx-dark .hx-tnote a{color:#F2A27A}
+html.hx-dark .hx-tnote p.vp{background:rgba(242,162,122,.12)}

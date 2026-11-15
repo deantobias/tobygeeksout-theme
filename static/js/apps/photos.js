@@ -173,7 +173,8 @@
       built = 'feed';
     }
 
-    var stepK = 0, VIEW = true;
+    var stepK = 0, VIEW = true, ahead = {};
+    var VW = (function () { var t = Math.max(innerWidth, innerHeight) * Math.min(window.devicePixelRatio || 1, 2); return t <= 900 ? 800 : t <= 1300 ? 1200 : t <= 1700 ? 1600 : 2000; })();
     function showSplit(i, k) {
       cur = i; stepK = k || 0;
       var p = P[i], n = p.ph.length;
@@ -206,7 +207,10 @@
     function showView(i, k) {
       cur = i; stepK = k || 0;
       var p = P[i], n = p.ph.length;
-      var stage = p.ph.map(function (ph, j) { return '<figure>' + img(ph, 0, alt(p, j), Math.abs(j - stepK) > 1) + '</figure>'; }).join('');
+      /* Nov 15 (Toby: some photos loaded slowly): a size that fits the
+         screen from Micro.blog's resizer, not the original (often several
+         MB); the original is still the fallback if the resized one fails */
+      var stage = p.ph.map(function (ph, j) { return '<figure>' + img(ph, VW, alt(p, j), Math.abs(j - stepK) > 1) + '</figure>'; }).join('');
       det.className = 'hxp-det hxp-view' + (open ? ' on' : '');
       det.innerHTML = '<div class="hxv-top"><button type="button" class="hxv-x" data-close aria-label="Close">' + ic('x') + '</button><span class="hxv-n" aria-live="polite"></span>' +
           '<button type="button" class="hxv-all" data-gallery aria-label="All photos" title="All photos">' + ic('grid') + '</button></div>' +
@@ -222,6 +226,10 @@
         [].forEach.call(det.querySelectorAll('.hxv-dots i'), function (d, j) { d.classList.toggle('on', j === kk); });
         det.querySelector('.hxp-arrow.l').disabled = i === 0 && kk === 0;
         det.querySelector('.hxp-arrow.r').disabled = i === P.length - 1 && kk === n - 1;
+        /* the next photo (or the next post's first) loads ahead, so Next is instant */
+        var nx = kk < n - 1 ? p.ph[kk + 1] : P[i + 1] && P[i + 1].ph[0], pv = kk > 0 ? p.ph[kk - 1] : P[i - 1] && P[i - 1].ph[P[i - 1].ph.length - 1];
+        [nx, pv].forEach(function (q) { if (q && !ahead[q.s]) { ahead[q.s] = 1; var im = new Image(); im.decoding = 'async'; im.src = sz(q.s, VW); } });
+        var cims = det.querySelectorAll('.hxv-stage img'); [kk - 1, kk + 1].forEach(function (m) { if (cims[m]) cims[m].removeAttribute('loading'); });
       };
       var car = wire(det.querySelector('.hxv-stage'), p, sync);
       sync(stepK);

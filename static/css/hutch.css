@@ -1831,3 +1831,10 @@ html.hbl-two .hbl-rv b,html.hbl-two .hbl-nw b{font-size:19px}
    for card text also caught the paragraphs inside a micro. A micro is
    only ever shortened by its fold, which brings Show more. */
 .hbl-tx .hbl-html.mx p{display:block;-webkit-line-clamp:unset;line-clamp:none;overflow:visible}
+
+/* Nov 15 (Toby): "Watch Log" on its card reads as the title, in the same
+   font and size as other titles (an exception: a Watch Log has no title) */
+.hbl-wl>b{display:block;font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:22px;line-height:1.2;letter-spacing:0}
+@media (min-width:1100px){.hbl-wl>b{font-size:24px}}
+html.hbl-two .hbl-wl>b{font-size:19px}
+.hbl-wl>small{margin-top:3px}

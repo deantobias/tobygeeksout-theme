@@ -298,3 +298,10 @@ html.fonts-70s .hx-sm .hx-sm-hero .hx-sm-logo{aspect-ratio:1500/310;object-posit
 .hx-sm .hx-sm-hero .face{width:76px;height:76px;font-size:32px;box-shadow:0 0 0 3px var(--bg),0 0 0 5px #C4622D;margin:5px 0 12px !important}
 html.hx-sm-two .hx-sm-split .hx-sm-hero .face{width:76px;height:76px}
 @media (orientation:landscape) and (max-height:620px){html.hx-sm-two .hx-sm-split .hx-sm-hero .face{width:64px;height:64px}}
+
+/* Nov 15 (Toby: "about me is not using Fraunces"): his own words on About,
+   Contact and Follow read in the reading font like the Blog (Fraunces in
+   70s, Lora in Classic). Labels, facts and row titles keep the app font.
+   At dusk and night it goes to 450, the same as the Blog and the Den. */
+.hx-sm .hx-sm-doc p,.hx-sm .hx-sm-intro p,.hx-sm .hx-sm-doc :is(ul,ol) > li{font-family:var(--font-reading,Georgia,serif)}
+html.fonts-70s.hx-dark .hx-sm :is(.hx-sm-doc p,.hx-sm-intro p,.hx-sm-doc li){font-weight:450}

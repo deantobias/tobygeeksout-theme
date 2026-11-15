@@ -146,3 +146,14 @@ html.hx-dark .hx-ar .ar-fi,html.hx-dark .hx-ar .ar-big{color:color-mix(in srgb,v
   .hx-ar .ar-flist .ar-row b{font-size:17px}
   .hx-ar .ar-flist .ar-row small{font-size:14.5px}
 }
+
+/* Nov 15 (Toby): the same rule as Word Nerd, the Den and Photos. The
+   featured post's title takes the classic title font; his own words
+   (the featured excerpt, the line under each title, and micros, which
+   show their words instead of a title) take the reading font (Fraunces
+   in the 70s look, Lora in Modern), 450 on dark like the Blog. List
+   titles, folders, search, years and dates keep the app font. */
+.hx-ar .ar-feat .ar-h:not(.ar-untitled){font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:25px;line-height:1.15}
+@media (min-width:690px){.hx-ar .ar-feat .ar-h:not(.ar-untitled){font-size:29px}}
+.hx-ar .ar-feat p,.hx-ar .ar-ent .ar-sm,.hx-ar .ar-ent.ar-micro .ar-ln b{font-family:var(--font-reading,Georgia,serif)}
+html.fonts-70s.hx-dark .hx-ar :is(.ar-feat p,.ar-ent .ar-sm,.ar-ent.ar-micro .ar-ln b){font-weight:450}

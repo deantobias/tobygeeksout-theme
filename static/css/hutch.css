@@ -344,7 +344,12 @@ html.hbl-three .hbl-right.hbl-loading .hbl-wait{top:calc(50% + 26px)}
 /* 1200+ and sideways (laptops, iPad Pro): three columns */
 html.hbl-three,html.hbl-three body{overflow:hidden !important;height:100%}
 html.hbl-three #hutch-blog{position:fixed;top:var(--h-bar);left:0;right:0;bottom:0;margin:0 auto;max-width:1600px;
-  display:grid;grid-template-columns:270px minmax(0,1fr) 290px;gap:24px;padding:18px 24px 0}
+  display:grid;grid-template-columns:250px minmax(0,1fr) 250px;gap:12px;padding:14px 16px 0}
+/* Nov 14 (Toby, v143 + v142): columns knit closer for a wider middle;
+   while a post is open the Categories column steps aside, so the post
+   gets Classic's own desktop look (about 1,150px on a 1440 screen) */
+html.hbl-three.hbl-reading #hutch-blog{grid-template-columns:250px minmax(0,1fr)}
+html.hbl-three.hbl-reading .hbl-side.r{display:none}
 html.hbl-three .hbl-side{display:block;overflow-y:auto;overscroll-behavior:contain;padding-bottom:24px;min-height:0}
 html.hbl-three .hbl-side.l{grid-column:1}
 html.hbl-three .hbl-side.r{grid-column:3}
@@ -352,11 +357,11 @@ html.hbl-three .hbl-left,html.hbl-three .hbl-right{grid-column:2;grid-row:1;min-
 html.hbl-three .hbl-left{max-width:none;margin:0;overflow-y:auto;overscroll-behavior:contain}
 html.hbl-three .hbl-head,html.hbl-three .hbl-tabs{display:none}
 /* the feed and an opened post share one width, so nothing jumps (Nov 14, Toby) */
-html.hbl-three .hbl-tl,html.hbl-three .hbl-filt{max-width:780px;margin-left:auto;margin-right:auto}
+html.hbl-three .hbl-tl,html.hbl-three .hbl-filt{max-width:900px;margin-left:auto;margin-right:auto}
 html.hbl-three .hbl-tl{padding:0 0 24px}
 html.hbl-three .hbl-filt{margin-bottom:10px}
 html.hbl-three.hbl-reading .hbl-left{display:none}
-html.hbl-three.hbl-reading .hbl-right{display:flex;flex-direction:column;width:100%;max-width:780px;margin:0 auto;border:1px solid var(--ln);border-bottom:0;border-radius:16px 16px 0 0;overflow:hidden;background:var(--bg)}
+html.hbl-three.hbl-reading .hbl-right{display:flex;flex-direction:column;width:100%;max-width:none;margin:0;border:1px solid var(--ln);border-bottom:0;border-radius:16px 16px 0 0;overflow:hidden;background:var(--bg)}
 html.hbl-three .hbl-pbar{display:flex;flex:none;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;border-bottom:1px solid var(--ln);background:var(--surf)}
 .hbl-pbar button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;font:600 15px var(--h-ui);color:var(--ink);cursor:pointer}
 .hbl-pbar button .hx-ic{width:20px;height:20px}
@@ -408,8 +413,10 @@ html.fonts-70s .hbl-box .hbl-logo{aspect-ratio:1500/310;object-position:50% 34.5
    Toby: "Keep On Blogging" broke mid-word). The pane is fold-sized, so
    Classic kept a column for the Blaugust ticket and squeezed the title.
    Here the ticket floats beside the title instead, the way it does on
-   phones, and the title is a little smaller. Classic itself is untouched. */
-@media (min-width:601px){
+   phones, and the title is a little smaller. Classic itself is untouched.
+   From 1,024px the post area is wide enough for Classic's own desktop
+   look, so these stop there. */
+@media (min-width:601px) and (max-width:1023px){
   html.hutch-embed .post-header-inner{display:flow-root}
   html.hutch-embed .post-header-inner:has(.tg-mark) .post-header-title{padding-right:0}
   /* smaller, to match the phone ticket Toby shrank the same day (custom.css) */
@@ -419,7 +426,7 @@ html.fonts-70s .hbl-box .hbl-logo{aspect-ratio:1500/310;object-position:50% 34.5
   html.hutch-embed .post-header-title,html.hutch-embed.fonts-70s .post-header--poster .post-header-title{font-size:clamp(2.2rem,5vw,3.6rem);overflow-wrap:normal;word-break:normal;hyphens:manual}
 }
 /* a post in a laptop's middle column reads at Classic's desktop size (Nov 14) */
-html.hutch-embed-wide .post-body,html.hutch-embed-wide .post-body p,html.hutch-embed-wide .post-body li{font-size:1rem}
+@media (max-width:1023px){html.hutch-embed-wide .post-body,html.hutch-embed-wide .post-body p,html.hutch-embed-wide .post-body li{font-size:1rem}}
 /* the conversation a "Reply" link lands on clears the app bar */
 html.hutch #replies{scroll-margin-top:calc(var(--h-bar,56px) + 12px)}
 html.hutch.hutch-embed #replies{scroll-margin-top:12px}

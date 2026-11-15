@@ -229,3 +229,9 @@ html.hxp-lock .hx-photos .hxp-det.hxp-view.on ~ .hxp-gal{opacity:0 !important;po
 .hxp-info h1.hxp-logo{margin:0 0 2px;line-height:0}
 .hxp-logo img{display:block;width:100%;max-width:260px;height:auto;aspect-ratio:2000/368;object-fit:cover;object-position:50% 19%}
 html.fonts-70s .hxp-logo img{aspect-ratio:1500/310;object-position:50% 34.5%}
+
+/* Nov 15 (Toby): post titles in Photos (the newest card and the viewer's
+   caption) use the classic title font, like the Blog, Word Nerd and Den */
+.hx-photos .hxp-title{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-size:22px;line-height:1.15}
+.hx-photos[data-mode=port] .hxp-title,.hx-photos[data-mode=land] .hxp-nwords .hxp-title{font-size:25px}
+.hxv-cap b{font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:22px;line-height:1.15}

@@ -26,7 +26,10 @@
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       stack: '<rect x="7" y="7" width="13" height="13" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',
       grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
-      l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>'
+      l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>',
+      x: '<path d="M6 6l12 12M18 6L6 18"/>',
+      link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
     /* Micro.blog's resizer for his uploads (same as the Photos category cards); the original if it fails */
@@ -42,7 +45,7 @@
         (p.t || !feed ? '<h2 class="hxp-title">' + esc(p.t || p.l) + '</h2>' : '') +
         (p.c ? '<p class="hxp-cap">' + esc(p.c) + '</p>' : '');
     }
-    function readMore(p) { return '<a class="hxp-read" href="' + esc(p.u) + '">Read more<span class="hxp-sr"> about ' + esc(p.l) + '</span>' + ic('open') + '</a>'; }
+    function readMore(p) { return '<a class="hxp-read" href="' + esc(p.u) + '">View the post<span class="hxp-sr"> about ' + esc(p.l) + '</span>' + ic('open') + '</a>'; }
 
     function mode() { var w = innerWidth, h = innerHeight; return w >= 800 && w > h ? 'land' : (w >= 520 ? 'port' : 'phone'); }
     var M = mode();
@@ -73,7 +76,7 @@
       '<div class="hxp-nhead"><span class="hxp-chip"><i aria-hidden="true"></i>Newest</span>' + (NA ? '<time class="hxp-ago" datetime="' + esc(N.ts) + '">' + esc(NA) + '</time>' : '') + '</div>' +
       '<div class="hxp-ncard">' +
         '<div class="hxp-nshot" role="link" tabindex="0" aria-label="' + esc('Open ' + N.l + (NN > 1 ? ', ' + NN + ' photos' : '')) + '"><div class="hxp-car">' +
-          N.ph.map(function (ph, k) { return '<figure>' + img(ph, M === 'phone' ? 800 : 1200, alt(N, k), k > 0) + '</figure>'; }).join('') + '</div>' + more(NN) + dots(NN) + '</div>' +
+          N.ph.map(function (ph, k) { return '<figure><span class="hxp-bl" aria-hidden="true" style="background-image:url(&quot;' + esc(sz(ph.s, 400)) + '&quot;)"></span>' + img(ph, M === 'phone' ? 800 : 1200, alt(N, k), k > 0) + '</figure>'; }).join('') + '</div>' + '<span class="hxp-big" aria-hidden="true">' + ic('big') + '</span>' + more(NN) + dots(NN) + '</div>' +
         '<div class="hxp-nwords"><time class="hxp-date" datetime="' + esc(N.d) + '">' + esc(N.dl) + '</time>' +
           (N.t ? '<h2 class="hxp-title">' + esc(N.t) + '</h2>' : '') + (N.c ? '<p class="hxp-cap">' + esc(N.c) + '</p>' : '') +
           (NN > 1 ? '<div class="hxp-thumbs hxp-nthumbs">' + N.ph.map(function (ph, j) { return '<button type="button" data-nk="' + j + '"' + (j ? '' : ' class="on" aria-current="true"') + ' aria-label="Photo ' + (j + 1) + ' of ' + NN + '">' + img(ph, 400, '', true) + '</button>'; }).join('') + '</div>' : '') +
@@ -170,7 +173,7 @@
       built = 'feed';
     }
 
-    var stepK = 0;
+    var stepK = 0, VIEW = true;
     function showSplit(i, k) {
       cur = i; stepK = k || 0;
       var p = P[i], n = p.ph.length;
@@ -193,17 +196,58 @@
       built = 'split';
       if (open) try { history.replaceState({ hxp: 1, i: i }, ''); } catch (e) {}
     }
+    /* ---------- the photo viewer (Nov 15, Toby, v153/v154) ----------
+       Every photo, from the newest card, the grid or the home screen,
+       opens whole on black, the same on every screen. Next / previous
+       (arrows on every screen, or swipe) step through the post's photos,
+       then on into the next or previous post. Under the photo: title,
+       date and up to two lines of the caption, then Permalink, or "View
+       the post" when the post says more than the card shows. */
+    function showView(i, k) {
+      cur = i; stepK = k || 0;
+      var p = P[i], n = p.ph.length;
+      var stage = p.ph.map(function (ph, j) { return '<figure>' + img(ph, 0, alt(p, j), Math.abs(j - stepK) > 1) + '</figure>'; }).join('');
+      det.className = 'hxp-det hxp-view' + (open ? ' on' : '');
+      det.innerHTML = '<div class="hxv-top"><button type="button" class="hxv-x" data-close aria-label="Close">' + ic('x') + '</button><span class="hxv-n" aria-live="polite"></span>' +
+          '<button type="button" class="hxv-all" data-gallery aria-label="All photos" title="All photos">' + ic('grid') + '</button></div>' +
+        '<div class="hxv-stage"><div class="hxp-car">' + stage + '</div>' +
+          '<button type="button" class="hxp-arrow l" data-step="-1" aria-label="Previous">' + ic('l') + '</button>' +
+          '<button type="button" class="hxp-arrow r" data-step="1" aria-label="Next">' + ic('r') + '</button></div>' +
+        '<div class="hxv-dots">' + dots(n) + '</div>' +
+        '<div class="hxv-bot"><div class="hxv-cap"><b>' + esc(p.t || p.l) + '</b><small>' + esc(p.dl) + '</small>' + (p.c ? '<p>' + esc(p.c) + '</p>' : '') + '</div>' +
+          '<a class="hxv-act" href="' + esc(p.u) + '"' + (p.m ? '>View the post' + ic('open') : ' data-pl>' + ic('link') + 'Permalink') + '</a></div>';
+      var sync = function (kk) {
+        stepK = kk;
+        det.querySelector('.hxv-n').textContent = n > 1 ? (kk + 1) + ' of ' + n : '';
+        [].forEach.call(det.querySelectorAll('.hxv-dots i'), function (d, j) { d.classList.toggle('on', j === kk); });
+        det.querySelector('.hxp-arrow.l').disabled = i === 0 && kk === 0;
+        det.querySelector('.hxp-arrow.r').disabled = i === P.length - 1 && kk === n - 1;
+      };
+      var car = wire(det.querySelector('.hxv-stage'), p, sync);
+      sync(stepK);
+      if (car && stepK) requestAnimationFrame(function () { goPhoto(car, stepK, false); });
+      /* a short caption the two lines still cut: offer the post after all */
+      requestAnimationFrame(function () {
+        var c = det.querySelector('.hxv-cap p'), a = det.querySelector('.hxv-act[data-pl]');
+        if (!c || !a) return;
+        var h0 = c.clientHeight; c.style.webkitLineClamp = 'unset'; c.style.display = 'block'; var h1 = c.clientHeight; c.style.webkitLineClamp = ''; c.style.display = '';
+        if (h1 > h0 + 2) { a.removeAttribute('data-pl'); a.innerHTML = 'View the post' + ic('open'); }
+      });
+      built = 'view';
+      if (open) try { history.replaceState({ hxp: 1, i: i, deep: deep ? 1 : 0 }, ''); } catch (e) {}
+    }
     function step(d) {
       var p = P[cur], car = det.querySelector('.hxp-car'), k = car ? at(car) : 0;
       if (d > 0 && k < p.ph.length - 1) return goPhoto(car, k + 1, true);
       if (d < 0 && k > 0) return goPhoto(car, k - 1, true);
       var j = cur + d;
-      if (j >= 0 && j < P.length) showSplit(j, d < 0 ? P[j].ph.length - 1 : 0);
+      if (j >= 0 && j < P.length) showView(j, d < 0 ? P[j].ph.length - 1 : 0);
     }
 
     function openPost(i, push, k) {
       cur = i; k = k || 0;
-      if (M === 'land') showSplit(i, k);
+      if (VIEW) showView(i, k);
+      else if (M === 'land') showSplit(i, k);
       else {
         if (built !== 'feed') buildFeed();
         var a = det.querySelector('.hxp-post[data-i="' + i + '"]');
@@ -219,7 +263,7 @@
       det.classList.add('on');
       det.setAttribute('aria-hidden', 'false');
       de.classList.add('hxp-lock');
-      setTimeout(function () { var f = det.querySelector(M === 'land' ? '.hxp-arrow:not([disabled]), .hxp-read' : '.hxp-read'); if (f && M === 'land') f.focus({ preventScroll: true }); }, 320);
+      setTimeout(function () { var f = det.querySelector(VIEW ? '.hxv-x' : M === 'land' ? '.hxp-arrow:not([disabled]), .hxp-read' : '.hxp-read'); if (f && (VIEW || M === 'land')) f.focus({ preventScroll: true }); }, 320);
     }
     function feedIndex() {
       var best = cur, top = det.getBoundingClientRect().top + 40;
@@ -270,6 +314,7 @@
       if (e.target.closest('.hxp-nshot')) { openPost(0, undefined, NN > 1 ? at(ncar) : 0); return; }
       var nk = e.target.closest('[data-nk]'); if (nk) { goPhoto(ncar, +nk.getAttribute('data-nk'), true); return; }
       var s = e.target.closest('[data-step]'); if (s) { step(+s.getAttribute('data-step')); return; }
+      if (e.target.closest('[data-close]')) { back(); return; }
       if (e.target.closest('[data-gallery]')) { toGallery(); return; }
       var g = e.target.closest('[data-go]'); if (g) { var j = cur + +g.getAttribute('data-go'); if (j >= 0 && j < P.length) showSplit(j, 0); return; }
       var k = e.target.closest('[data-k]'); if (k) { var car = det.querySelector('.hxp-car'); if (car) goPhoto(car, +k.getAttribute('data-k'), true); }
@@ -281,7 +326,7 @@
       if (!open || document.querySelector('.hx-sheet.open')) return;
       if (e.key === 'Escape') back();
       /* J = next, K = previous, like the arrow keys (Nov 3) */
-      else if (built === 'split' && !(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) && /^(ArrowRight|ArrowLeft|j|k)$/.test(e.key)) { e.preventDefault(); step(e.key === 'ArrowRight' || e.key === 'j' ? 1 : -1); }
+      else if ((built === 'split' || built === 'view') && !(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) && /^(ArrowRight|ArrowLeft|j|k)$/.test(e.key)) { e.preventDefault(); step(e.key === 'ArrowRight' || e.key === 'j' ? 1 : -1); }
     });
     /* the app bar's back button closes the post first */
     ctx.bar.addEventListener('click', function (e) {
@@ -308,7 +353,8 @@
         if (open && wasFeed) cur = feedIndex();
         M = m; root.setAttribute('data-mode', m);
         if (!open) { built = ''; return; }
-        if (m === 'land') showSplit(cur, 0);
+        if (VIEW) showView(cur, stepK);
+        else if (m === 'land') showSplit(cur, 0);
         else { if (!wasFeed) buildFeed(); openPost(cur, false); }
       }, 120);
     });

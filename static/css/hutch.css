@@ -1826,3 +1826,8 @@ html.hutch-dk5 #hutch-drawer:not(.q) [data-dk]:not([data-k10]){display:revert !i
 .hbl-df b{font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:26px;letter-spacing:0}
 @media (min-width:1100px){.hbl-rv b,.hbl-nw b{font-size:24px}.hbl-df b{font-size:28px}}
 html.hbl-two .hbl-rv b,html.hbl-two .hbl-nw b{font-size:19px}
+
+/* Nov 15 (Toby: a micro ended "o…" with no Show more): the 3-line limit
+   for card text also caught the paragraphs inside a micro. A micro is
+   only ever shortened by its fold, which brings Show more. */
+.hbl-tx .hbl-html.mx p{display:block;-webkit-line-clamp:unset;line-clamp:none;overflow:visible}

@@ -15348,3 +15348,38 @@ a.cat-more:hover,
   .site-rail .follow-profiles { gap: 3px; }
 }
 /* end section 128 */
+
+
+/* ============================================================
+   129 · REVIEW + BOOK CARDS: DESKTOP SIZE MATCHES POST TEXT
+         (Nov 14, 2026, Toby)
+   ============================================================
+   Section 111 set review card text to 1.2rem (synopsis, my review)
+   and 1rem (tagline, facts, links) everywhere. On phones that sits
+   right with the 1.25rem post text, but on desktop the post text is
+   1rem (20px), so the synopsis read bigger than the post around it
+   (Toby, on Amelia's Children: "too big for desktop"). Desktop now
+   steps the card down one notch so the synopsis matches post text:
+     synopsis, my review / thoughts   1.2rem -> 1rem     (24 -> 20px)
+     tagline, facts, byline, links    1rem   -> .85rem  (20 -> 17px)
+   Labels, top tag and stars are unchanged. Phones and foldables
+   (under 1024px) keep section 111's sizes. A post opened in Hutch's
+   laptop middle column (html.hutch-embed-wide, the ~780px pane that
+   reads at desktop size since tonight's hutch.css change) gets the
+   desktop sizes too. Email and newsletter pages are untouched.
+   ============================================================ */
+@media (min-width: 1024px) {
+  body:not(.type-newsletter) .post-body .review-card :is(.review-synopsis, .review-thoughts) {
+    font-size: 1rem !important;
+  }
+  body:not(.type-newsletter) .post-body .review-card :is(.review-tagline, .review-byline, .review-fact-label, .review-fact-value, .review-progress-page, .review-progress-pct, .review-scale, .review-trailer-link, .review-foot, .review-foot a) {
+    font-size: 0.85rem !important;
+  }
+}
+html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.review-synopsis, .review-thoughts) {
+  font-size: 1rem !important;
+}
+html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.review-tagline, .review-byline, .review-fact-label, .review-fact-value, .review-progress-page, .review-progress-pct, .review-scale, .review-trailer-link, .review-foot, .review-foot a) {
+  font-size: 0.85rem !important;
+}
+/* end section 129 */

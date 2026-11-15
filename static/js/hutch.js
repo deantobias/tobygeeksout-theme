@@ -1933,7 +1933,12 @@
     }
     function match(x) {
       if (cat && (x.cs || [x.c]).indexOf(cat) < 0) return false;
-      return tab === 'all' || (tab === 'posts' ? x.k === 'p' : tab === 'micro' ? x.k === 'm' : (x.ni || 0) > 0);
+      /* Nov 15 (Toby): Posts is every post with a title, however it was
+         posted; Micros and Photos go by his Micro and Photos categories (a
+         movie poster uploaded into a Reel and Remote post had slipped into
+         Photos) */
+      var inCat = function (re) { return (x.cs || [x.c]).some(function (c) { return re.test(c || ''); }); };
+      return tab === 'all' || (tab === 'posts' ? !!x.t : tab === 'micro' ? inCat(/^micro$/i) : inCat(/^photos$/i));
     }
     function shown() { return TL.filter(match); }
     /* Nov 15 (Toby, the Knowember micro): the fade showed on a micro that

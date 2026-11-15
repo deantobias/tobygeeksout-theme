@@ -1903,9 +1903,12 @@
       if (!x) return '';
       var mi = x.mi;
       return '<article tabindex="0" class="hbl-it hbl-arch" data-u="' + esc(x.u) + '"><div class="hbl-mem">' + sv('hist') + '<span>From the archive · ' + esc(x.m) + '</span></div>' +
-        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post</span></div>' +
+        /* Nov 15 (Toby): an archive micro works like the feed's: Show more
+           opens the rest in the card, Permalink beside Reply */
+        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') +
+        (mi ? (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') : '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
-        '<div class="hbl-act"><a class="hbl-a rp" href="' + esc(x.u) + '#replies">' + sv('reply') + '<span>Reply</span></a></div></article>';
+        '<div class="hbl-act">' + (mi ? '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>' : '') + '<a class="hbl-a rp" href="' + esc(x.u) + '#replies">' + sv('reply') + '<span>Reply</span></a></div></article>';
     }
     function match(x) {
       if (cat && (x.cs || [x.c]).indexOf(cat) < 0) return false;
@@ -2033,7 +2036,7 @@
       if (t.closest('.hbl-fx')) { setCat(null); return; }
       var rm = t.closest('.hbl-rm');
       if (rm) {
-        var it0 = TL[+rm.closest('.hbl-it').getAttribute('data-i')], mx = rm.parentNode.querySelector('.mx');
+        var cr = rm.closest('.hbl-it'), it0 = cr.hasAttribute('data-i') ? TL[+cr.getAttribute('data-i')] : picks.filter(function (q) { return q.u === cr.getAttribute('data-u'); })[0], mx = rm.parentNode.querySelector('.mx');
         if (mx && mx.classList.contains('fold')) { mx.classList.remove('fold', 'cut'); rm.remove(); }
         else if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); }
         return;
@@ -2057,7 +2060,7 @@
       if (t.closest('button')) return;
       if (!x) return;
       /* Nov 15 (Toby): a micro that is cut short opens up right there; Read the post opens the post */
-      var rm1 = card0.classList.contains('k-m') && card0.querySelector('.hbl-rm:not([hidden])');
+      var rm1 = (card0.classList.contains('k-m') || card0.classList.contains('hbl-arch')) && card0.querySelector('.hbl-rm:not([hidden])');
       if (rm1) { rm1.click(); return; }
       if (e.ctrlKey || e.metaKey || e.shiftKey) { window.open(x.u, '_blank'); return; }
       if (paned()) { openInPane(x); navState(); return; }

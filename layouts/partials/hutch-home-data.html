@@ -402,7 +402,11 @@
     {{- $x := "" -}}
     {{- if $mi -}}{{- $x = $p.Plain | htmlUnescape | truncate 200 | htmlUnescape -}}{{- else -}}{{- $x = $p.Summary | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}{{- end -}}
     {{- $x = trim (replaceRE `\s+` " " $x) " " -}}
-    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi) -}}
+    {{/* xf (Nov 15, Toby): a micro's whole text when the card only shows
+         the start, so Show more opens it right in the card. A micro is any
+         post without a title, Micro category or not. */}}
+    {{- $axf := "" -}}{{- if and $mi (gt (len $p.Plain) 200) -}}{{- $axf = trim ($p.Plain | htmlUnescape | truncate 2000 | htmlUnescape) " \n\t" -}}{{- end -}}
+    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "xf" $axf) -}}
   {{- end -}}
 {{- end -}}
 

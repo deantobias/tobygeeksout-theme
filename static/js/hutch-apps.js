@@ -1606,6 +1606,9 @@ window.HutchApps = window.HutchApps || {};
     var M = mode();
 
     /* ---------- home: profile + grid ---------- */
+    /* Nov 15 (Toby): the same Toby Geeks Out! logo as the Blog, in place
+       of the name (Photos is always light, so the day logo) */
+    var up = 'https://tobygeeksout.micro.blog/uploads/2026/', LOGO = de.classList.contains('fonts-70s') ? up + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : up + 'tobygeeksoutlogonew.png';
     var face = ctx.page && ctx.page.avatar ? '<img src="' + esc(ctx.page.avatar) + '" alt="">' : 'T';
     var tiles = P.map(function (p, i) {
       if (!i) return ''; /* the newest one has its own card */
@@ -1642,7 +1645,7 @@ window.HutchApps = window.HutchApps || {};
     var counts = '<div class="hxp-counts"><span><strong>' + P.length + '</strong>' + (P.length === 1 ? 'post' : 'posts') + '</span><span><strong>' + D.photos + '</strong>' + (D.photos === 1 ? 'photo' : 'photos') + '</span></div>';
     var root = ctx.el('<div class="hx-photos" data-mode="' + M + '">' +
       '<main class="hxp-home" aria-label="Photos">' +
-        '<header class="hxp-prof"><div class="hxp-face">' + face + '</div><div class="hxp-info"><h1>' + esc((ctx.page && ctx.page.site) || 'Toby Geeks Out!') + '</h1><p class="hxp-bio">' + esc(D.bio || '') + '</p></div>' + counts + '</header>' +
+        '<header class="hxp-prof"><div class="hxp-face">' + face + '</div><div class="hxp-info"><h1 class="hxp-logo"><img src="' + esc(LOGO) + '" alt="' + esc((ctx.page && ctx.page.site) || 'Toby Geeks Out!') + '" width="1500" height="600" decoding="async"></h1><p class="hxp-bio">' + esc(D.bio || '') + '</p></div>' + counts + '</header>' +
         newest + moreHead + (older.length ? '<div class="hxp-grid">' + tiles + '</div>' : '') +
       '</main>' +
       '<section class="hxp-det" aria-label="Photo post" aria-hidden="true"></section></div>');

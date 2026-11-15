@@ -37,6 +37,13 @@
   /* Toby's face: the same picture as the Traditional theme's header and
      rail (Nov 3, Toby: the Micro.blog profile photo is the old one) */
   PAGE.avatar = 'https://tobygeeksout.micro.blog/uploads/2026/tobyavatartrans.png';
+  /* Nov 15 (Toby): one face everywhere, the orange one the Blog shows (his
+     Micro.blog avatar, the site's icon), as a light 200px copy; the
+     cut-out picture above is the fallback */
+  (function () {
+    var ic = document.querySelector('link[rel="icon"]'), u = ic && ic.href;
+    if (u && /^https?:\/\//.test(u) && !/\.(svg|ico)(\?|$)/i.test(u)) PAGE.avatar = u.indexOf('cdn.micro.blog/photos/') < 0 ? 'https://cdn.micro.blog/photos/200x/' + encodeURIComponent(u) : u;
+  })();
   var HOME = J('hutch-home-data');
   var IDX = null;
   if (HOME) { ls('hutch-index', JSON.stringify({ words: HOME.words || [], cats: HOME.cats || [], recent: HOME.recent || [] })); IDX = HOME; }
@@ -1760,7 +1767,10 @@
 
     var wrap = el('<div id="hutch-blog">' +
       '<aside class="hbl-side l" aria-label="About and show">' +
-        '<div class="hbl-box hbl-me">' + logoImg + '<div class="hbl-row">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b>' +
+        /* Nov 15 (Toby, v155): set up like the Photos app: the avatar at
+           Photos' size beside the Toby Geeks Out! logo, which takes the
+           name's place (his name stays on the About page); no logo on top */
+        '<div class="hbl-box hbl-me"><div class="hbl-row">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '<div class="hbl-who">' + logoImg +
           '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div></div>' +
           '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div>' +
         '<div class="hbl-box"><h4>Show</h4><div class="hbl-show" role="group" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" data-f="' + t[0] + '"><span>' + t[1] + '</span><small>' + t[2] + '</small></button>'; }).join('') + '</div></div>' +
@@ -1770,8 +1780,8 @@
           (ME.fm || []).map(function (f) { return f.ic || ''; }).join('') + (ME.fx || []).join('') + '</span>' + sv('chev', 2.4) + '</a></div>' : '') +
       '</aside>' +
       '<div class="hbl-left">' +
-        '<div class="hbl-head">' + logoImg + '<div class="hbl-row"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
-          '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b><p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div>' +
+        '<div class="hbl-head"><div class="hbl-row"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
+          '<div class="hbl-who">' + logoImg + '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div>' +
           '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div></div>' +
         '<div class="hbl-tabs" role="tablist" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" role="tab" data-f="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="hbl-filt" hidden><span>Showing: <b></b></span><button type="button" class="hbl-fx" aria-label="Show everything again" title="Show everything again">' + sv('x', 2.2) + '</button></div>' +

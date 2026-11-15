@@ -224,3 +224,8 @@ html.fonts-70s .hxv-cap p{font-weight:450}
 .hx-photos .hxv-act svg{width:18px;height:18px}
 html.hxp-lock .hx-photos .hxp-det.hxp-view.on ~ .hxp-gal{opacity:0 !important;pointer-events:none !important}
 @media (max-width:519px){.hxv-bot{flex-direction:column;align-items:flex-start;gap:4px}}
+
+/* Nov 15 (Toby): the Toby Geeks Out! logo in the name's place, cropped like the Blog's */
+.hxp-info h1.hxp-logo{margin:0 0 2px;line-height:0}
+.hxp-logo img{display:block;width:100%;max-width:260px;height:auto;aspect-ratio:2000/368;object-fit:cover;object-position:50% 19%}
+html.fonts-70s .hxp-logo img{aspect-ratio:1500/310;object-position:50% 34.5%}

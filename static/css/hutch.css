@@ -1865,3 +1865,17 @@ html.hx-dark .hx-tested .ti{background:rgba(242,162,122,.14);color:#F2A27A}
 html.hx-dark .hx-tested small,html.hx-dark .hx-tnote .vp span{color:#A9B2C3}
 html.hx-dark .hx-tnote a{color:#F2A27A}
 html.hx-dark .hx-tnote p.vp{background:rgba(242,162,122,.12)}
+
+/* Nov 15 (Toby, v155): the Blog's header set up like the Photos app: the
+   avatar at Photos' size (76) with its orange ring, the logo in the name's
+   place beside it, the cycling tagline under the logo; no logo on top */
+.hbl-head .hbl-row,.hbl-box.hbl-me .hbl-row{align-items:center;gap:16px}
+.hbl-head .hbl-av,.hbl-box.hbl-me .hbl-av{width:76px;height:76px;box-shadow:0 0 0 3px var(--bg,#FAF8F5),0 0 0 5px #C4622D;margin:5px}
+.hbl-box.hbl-me .hbl-av{box-shadow:0 0 0 3px var(--surf,#fff),0 0 0 5px #C4622D}
+.hbl-who .hbl-logo{display:block;width:100%;max-width:260px;height:auto;margin:0 0 4px;aspect-ratio:2000/368;object-fit:cover;object-position:50% 19%}
+html.fonts-70s .hbl-who .hbl-logo{aspect-ratio:1500/310;object-position:50% 34.5%}
+html.hbl-mid .hbl-box.hbl-me .hbl-who .hbl-logo{display:block}
+@media (max-height:520px){html.hbl-mid .hbl-box.hbl-me .hbl-av{width:56px;height:56px}}
+.hbl-box.hbl-me .hbl-row{gap:4px}
+.hbl-head .hbl-row{gap:8px}
+html .hh-brand .face{background:#C4622D}

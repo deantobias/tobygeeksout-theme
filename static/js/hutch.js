@@ -1710,7 +1710,14 @@
     var SERIES = CATS.filter(function (c) { return /blaugust|100\s*days/i.test(c.n); });
     var MAINCATS = CATS.filter(function (c) { return SERIES.indexOf(c) < 0; }).slice(0, 8);
     var aboutU = APPS.about[2] || '/about/', den = APPS.den[2] || '/watching/', wordsU = APPS.words[2] || '/categories/word-of-the-day/';
-    var av = ME.av || ((document.querySelector('link[rel="icon"]') || {}).href || '');
+    var av = ME.av || PAGE.avatar || ((document.querySelector('link[rel="icon"]') || {}).href || '');
+    /* Nov 14 (Toby, v141): the Toby Geeks Out! logo tops the "you" box,
+       the same day / night pair as the About app and the Classic header.
+       Blog and About are the only apps that carry the logo. */
+    var is70 = de.classList.contains('fonts-70s'), upl = 'https://tobygeeksout.micro.blog/uploads/2026/';
+    var LOGO = DARK ? (is70 ? upl + 'night-v2-toby-geeks-out-new-logo-1500-x-600-px.png' : upl + 'sunset-toby-geeks-out-new-logo.png')
+                    : (is70 ? upl + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : upl + 'tobygeeksoutlogonew.png');
+    var logoImg = '<img class="hbl-logo" src="' + LOGO + '" alt="' + esc(PAGE.site || 'Toby Geeks Out!') + '" width="1500" height="600" decoding="async">';
     var tg = (window.tgoTaglines && window.tgoTaglines[0]) || '';
     var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures']];
     var I = {
@@ -1727,16 +1734,18 @@
 
     var wrap = el('<div id="hutch-blog">' +
       '<aside class="hbl-side l" aria-label="About and show">' +
-        '<div class="hbl-box hbl-me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '<b class="hbl-nm">' + esc(ME.n || '') + '</b>' +
-          (tg ? '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p>' : '') +
+        '<div class="hbl-box hbl-me">' + logoImg + '<div class="hbl-row">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b>' +
+          '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div></div>' +
           '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div>' +
         '<div class="hbl-box"><h4>Show</h4><div class="hbl-show" role="group" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" data-f="' + t[0] + '"><span>' + t[1] + '</span><small>' + t[2] + '</small></button>'; }).join('') + '</div></div>' +
-        ((ME.fm || []).length ? '<div class="hbl-box"><h4>Follow along</h4><ul class="hbl-fm">' + ME.fm.map(function (f) { return '<li><a href="' + esc(f.u) + '" rel="me noopener" target="_blank">' + (f.ic || '') + '<span>' + esc(f.n) + '</span></a></li>'; }).join('') +
-          (APPS.follow ? '<li><a href="' + esc(APPS.follow[2]) + '">' + sv('chev', 2.2) + '<span>More ways to follow</span></a></li>' : '') + '</ul></div>' : '') +
+        /* Nov 14 (Toby, v141): one row that opens the Follow app, which
+           already has every way to follow; the icons hint at what's there */
+        (APPS.follow ? '<div class="hbl-box"><a class="hbl-follow" href="' + esc(APPS.follow[2]) + '"><span>Follow along</span><span class="fic" aria-hidden="true">' +
+          (ME.fm || []).map(function (f) { return f.ic || ''; }).join('') + (ME.fx || []).join('') + '</span>' + sv('chev', 2.4) + '</a></div>' : '') +
       '</aside>' +
       '<div class="hbl-left">' +
-        '<div class="hbl-head"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
-          '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b>' + (tg ? '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p>' : '') +
+        '<div class="hbl-head">' + logoImg + '<div class="hbl-row"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
+          '<div class="hbl-who"><b class="hbl-nm">' + esc(ME.n || '') + '</b><p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div>' +
           '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div></div>' +
         '<div class="hbl-tabs" role="tablist" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" role="tab" data-f="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
         '<div class="hbl-filt" hidden><span>Showing: <b></b></span><button type="button" class="hbl-fx" aria-label="Show everything again" title="Show everything again">' + sv('x', 2.2) + '</button></div>' +
@@ -1746,7 +1755,7 @@
       '<aside class="hbl-side r" aria-label="Categories and series">' +
         '<div class="hbl-box"><h4>Categories</h4><div class="hbl-cats">' + MAINCATS.map(function (c) { return '<button type="button" data-cat="' + esc(c.n) + '"><span>' + esc(c.n) + '</span><small>' + c.c + ' post' + (c.c === 1 ? '' : 's') + '</small></button>'; }).join('') + '</div>' +
           '<a class="hbl-lnk" href="' + esc(APPS.archive[2] || '/archive/') + '">See all categories' + sv('chev', 2.4) + '</a></div>' +
-        (SERIES.length ? '<div class="hbl-box"><h4>Series</h4><div class="hbl-cats">' + SERIES.map(function (c) { return '<a class="hbl-ser" href="' + esc(/blaugust/i.test(c.n) && APPS.blaugust ? APPS.blaugust[2] : c.u) + '"><span>' + esc(c.n) + '</span><small>' + c.c + ' post' + (c.c === 1 ? '' : 's') + '</small></a>'; }).join('') + '</div></div>' : '') +
+        (SERIES.length ? '<div class="hbl-box"><h4>Series</h4><div class="hbl-cats">' + SERIES.map(function (c) { return '<a class="hbl-ser" href="' + esc(/blaugust/i.test(c.n) && APPS.blaugust ? APPS.blaugust[2] : c.u) + '">' + (/blaugust/i.test(c.n) && APPS.blaugust ? tile('blaugust') : '<span class="hbl-noic" aria-hidden="true"></span>') + '<span class="t"><span>' + esc(c.n) + '</span><small>' + c.c + ' post' + (c.c === 1 ? '' : 's') + '</small></span>' + sv('chev', 2.4) + '</a>'; }).join('') + '</div></div>' : '') +
       '</aside></div>');
     document.body.appendChild(wrap);
     var list = wrap.querySelector('.hbl-tl'), right = wrap.querySelector('.hbl-right'), left = wrap.querySelector('.hbl-left');
@@ -1759,7 +1768,9 @@
     /* a series opens its own page (Blaugust's lives in the Blaugust app):
        its posts are mostly older than the feed's 30 days */
     function seriesU(c) { return /blaugust/i.test(c.n) && APPS.blaugust ? APPS.blaugust[2] : c.u; }
-    function seriesRows(L) { return L.map(function (c) { return '<a class="hbl-opt" href="' + esc(seriesU(c)) + '"><span>' + esc(c.n) + '</span><small>' + c.c + '</small></a>'; }).join(''); }
+    /* Nov 14 (Toby, v141): a series opens somewhere else, so it gets an arrow; Blaugust also gets its app icon */
+    function serIcon(c) { return /blaugust/i.test(c.n) && APPS.blaugust ? tile('blaugust') : '<span class="hbl-noic" aria-hidden="true"></span>'; }
+    function seriesRows(L) { return L.map(function (c) { return '<a class="hbl-opt ser" href="' + esc(seriesU(c)) + '">' + serIcon(c) + '<span>' + esc(c.n) + '</span><small>' + c.c + '</small>' + sv('chev', 2.4) + '</a>'; }).join(''); }
     var moreSheet = sheet('hbl-more', '<div class="hx-scroll hbl-sh">' +
       (SERIES.length ? '<h4>Series</h4>' + seriesRows(SERIES) : '') + '<h4>Categories</h4>' + catRows(MAINCATS) +
       '<a class="hbl-opt all" href="' + esc(APPS.archive[2] || '/archive/') + '">See all categories' + sv('chev', 2.4) + '</a></div>');
@@ -1798,8 +1809,9 @@
           (x.wn.m || []).map(function (m, j) { return '<p>' + (multi ? '<span>' + (j + 1) + '</span>' : '') + esc(m) + '</p>'; }).join('') + '</div>';
       }
       if (x.k === 'wl' && x.wl && x.wl.it) {
+        /* Nov 14 (Toby): each title with its small poster from the post */
         return '<div class="hbl-wl"><b>Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
-          x.wl.it.slice(0, 5).map(function (w) { return '<li><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</li>'; }).join('') +
+          x.wl.it.slice(0, 5).map(function (w) { return '<li>' + (w.p ? '<img class="wp" src="' + esc(w.p) + '" alt="" loading="lazy" decoding="async">' : '<span class="wp"></span>') + '<span class="wt"><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</span></li>'; }).join('') +
           (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div>';
       }
       if ((x.k === 'rv' || x.k === 'rd') && dn.t) {
@@ -1814,22 +1826,30 @@
         var lab = x.k === 'rv' ? '' : kind === 'Book' ? 'Reading' : 'Watching';
         var prog = x.k === 'rd' && kind === 'Book' && dn.page ? '<small class="pg">Page ' + dn.page + (dn.total ? ' of ' + dn.total : '') + (dn.pct >= 0 && dn.total ? ' · ' + dn.pct + '%' : '') + '</small>' : '';
         var line = x.k === 'rv' ? (dn.sum || '') : '';
-        /* a small copy of a TMDB picture is plenty for a card (a review can carry the 1280px backdrop) */
-        var cov = (dn.cover || '').replace(/(image\.tmdb\.org\/t\/p\/)(?:w500|w780|w1280|original)\//, '$1w342/');
-        h = '<div class="hbl-rv">' + (cov ? '<img class="po" src="' + esc(cov) + '" alt="" loading="lazy" decoding="async">' : '<span class="po"></span>') +
+        /* Nov 14 (Toby): a review with a wide backdrop shows it whole at the
+           bottom of the card; otherwise the poster or book cover sits on the
+           left at its own shape, never cut to fit */
+        var bd = x.k === 'rv' && x.bd ? x.bd.replace(/(image\.tmdb\.org\/t\/p\/)(?:w1280|original)\//, '$1w780/') : '';
+        var cov = bd ? '' : (dn.cover || '').replace(/(image\.tmdb\.org\/t\/p\/)(?:w500|w780|w1280|original)\//, '$1w342/');
+        h = '<div class="hbl-rv' + (cov ? '' : ' nopo') + '">' + (cov ? '<img class="po" src="' + esc(cov) + '" alt="" loading="lazy" decoding="async">' : bd ? '' : '<span class="po"></span>') +
           '<div class="rt">' + (lab ? '<span class="lab">' + lab + '</span>' : '') + '<b>' + esc(dn.t) + '</b>' + (meta.length ? '<small>' + esc(meta.join(' · ')) + '</small>' : '') +
           (x.k === 'rv' ? '<span class="st" aria-label="' + (+dn.r || 0) + ' out of 5 stars">' + stars(dn.r) + '</span>' : '') + prog +
-          (line ? '<p>' + esc(line) + '</p>' : '') + '</div></div>';
+          (line ? '<p>' + esc(line) + '</p>' : '') + '</div></div>' +
+          (bd ? '<div class="hbl-bd"><img src="' + esc(bd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
         return h;
       }
+      /* Nov 14 (Toby): micros and titled posts keep their own formatting
+         (bold, italics, links, lists, quotes); a long micro folds at
+         "Read more" */
       if (x.m) {
+        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Read more</button></div>' + pics(x);
         return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Read more</button>' : '') + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post · ' + (x.min || 1) + ' min</span></div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post · ' + (x.min || 1) + ' min</span></div>' + pics(x);
     }
     function actions(x) {
       var b = '';
-      if (x.k === 'rv' || x.k === 'rd' || x.k === 'wl') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
+      if (x.k === 'rv' || x.k === 'rd') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
       if (x.k === 'wd') b += '<a class="hbl-a den" href="' + esc(wordLink(x)) + '">' + sv('word', 2.2) + '<span>Open in Word Nerd</span></a>';
       var v = !!conv[x.u];
       b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
@@ -1845,7 +1865,7 @@
       var mi = x.mi;
       return '<article tabindex="0" class="hbl-it hbl-arch" data-u="' + esc(x.u) + '"><div class="hbl-mem">' + sv('hist') + '<span>From the archive · ' + esc(x.m) + '</span></div>' +
         '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post</span></div>' +
-        (x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
+        (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         '<div class="hbl-act"><a class="hbl-a rp" href="' + esc(x.u) + '#replies">' + sv('reply') + '<span>Reply</span></a></div></article>';
     }
     function match(x) {
@@ -1868,6 +1888,7 @@
       [].forEach.call(wrap.querySelectorAll('[data-f]'), function (b) { var on = b.getAttribute('data-f') === tab; b.classList.toggle('on', on); b.setAttribute(b.getAttribute('role') === 'tab' ? 'aria-selected' : 'aria-pressed', on ? 'true' : 'false'); });
       [].forEach.call(wrap.querySelectorAll('.hbl-side [data-cat]'), function (b) { var on = b.getAttribute('data-cat') === cat; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
       filt.hidden = !cat; if (cat) filt.querySelector('b').textContent = cat;
+      requestAnimationFrame(function () { [].forEach.call(list.querySelectorAll('.hbl-html.fold'), function (f) { var b = f.parentNode.querySelector('.hbl-rm'); if (b) b.hidden = f.scrollHeight <= f.clientHeight + 4; }); });
       if (paneArrows) paneArrows.refresh();
     }
     /* a different random pick for each spot, the same ones until the page reloads */
@@ -1880,7 +1901,14 @@
       [].forEach.call(list.querySelectorAll('.hbl-it'), function (a) { a.classList.toggle('sel', a.getAttribute('data-u') === sel); });
       var u = x.u + (toReplies ? '#replies' : '');
       var f = right.querySelector('iframe');
-      if (!f) { f = document.createElement('iframe'); f.title = 'Post'; right.appendChild(f); }
+      if (!f) {
+        f = document.createElement('iframe'); f.title = 'Post'; right.appendChild(f);
+        /* Nov 14 (Toby: an archive post opened blank): a post that isn't
+           saved yet takes a moment, so the pane says so until it arrives */
+        right.appendChild(el('<div class="hbl-wait" aria-hidden="true"><span></span>Opening the post…</div>'));
+        f.addEventListener('load', function () { right.classList.remove('hbl-loading'); });
+      }
+      if (f.getAttribute('data-u') !== u) { right.classList.add('hbl-loading'); clearTimeout(right.__lt); right.__lt = setTimeout(function () { right.classList.remove('hbl-loading'); }, 15000); }
       /* replace(), not a new src: keeps the browser's back list short (Nov 3) */
       if (!f.getAttribute('src')) f.setAttribute('src', u);
       else if (f.getAttribute('data-u') !== u) { try { f.contentWindow.location.replace(u); } catch (er) { f.setAttribute('src', u); } }
@@ -1935,9 +1963,18 @@
       var cb = t.closest('[data-cat]'); if (cb) { e.preventDefault(); setCat(cb.getAttribute('data-cat') === cat && cb.closest('.hbl-side') ? null : cb.getAttribute('data-cat')); return; }
       if (t.closest('.hbl-fx')) { setCat(null); return; }
       var rm = t.closest('.hbl-rm');
-      if (rm) { var it0 = TL[+rm.closest('.hbl-it').getAttribute('data-i')]; var mx = rm.parentNode.querySelector('.mx'); if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); } return; }
+      if (rm) {
+        var it0 = TL[+rm.closest('.hbl-it').getAttribute('data-i')], mx = rm.parentNode.querySelector('.mx');
+        if (mx && mx.classList.contains('fold')) { mx.classList.remove('fold'); rm.remove(); }
+        else if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); }
+        return;
+      }
       var pc = t.closest('.hbl-pc[data-pi]');
-      if (pc) { var it1 = TL[+pc.closest('.hbl-it').getAttribute('data-i')]; if (it1) viewer(it1, +pc.getAttribute('data-pi')); return; }
+      if (pc) {
+        var c1 = pc.closest('.hbl-it'), it1 = c1.hasAttribute('data-i') ? TL[+c1.getAttribute('data-i')] : picks.filter(function (q) { return q.u === c1.getAttribute('data-u'); })[0];
+        if (it1) viewer(it1, +pc.getAttribute('data-pi'));
+        return;
+      }
       var card0 = t.closest('.hbl-it'); if (!card0) return;
       var a = t.closest('a[href]');
       var x = card0.hasAttribute('data-i') ? TL[+card0.getAttribute('data-i')] : picks.filter(function (q) { return q.u === card0.getAttribute('data-u'); })[0] || null;
@@ -2073,6 +2110,11 @@
     })();
 
     render(); layout();
+    /* the tagline list (custom_footer.html) can arrive after the Blog is drawn */
+    if (!tg) window.addEventListener('load', function () {
+      var w = window.tgoTaglines; if (!w || !w.length) return;
+      [].forEach.call(wrap.querySelectorAll('.hbl-tg'), function (e) { if (!e.textContent) e.textContent = w[0]; });
+    });
     /* back from a post: the feed scrolls to the post you came from and lights it up */
     function showLast() {
       var u = null; try { u = sessionStorage.getItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lastpost'); } catch (e) {}

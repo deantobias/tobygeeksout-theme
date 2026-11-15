@@ -369,7 +369,11 @@ html.hbl-three #hutch-bar .hb-more,html.hbl-three #hutch-bar .hb-expand{display:
 /* side columns */
 .hbl-box{background:var(--surf);border:1px solid var(--ln);border-radius:16px;padding:16px;margin-bottom:12px}
 .hbl-box h4{font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin:0 0 8px}
-.hbl-box .hbl-logo{width:100%;height:auto;max-width:none;margin:0 0 14px}
+/* "you" box tighter (Nov 14, Toby: gaps between and around it). The logo PNGs carry
+   empty space above and below the lettering (70s 1500x600: ink at y110-400; classic
+   2000x500: y35-383), so the box crops it off instead of showing it. */
+.hbl-box .hbl-logo{width:100%;height:auto;max-width:none;margin:0 0 12px;aspect-ratio:2000/368;object-fit:cover;object-position:50% 19%}
+html.fonts-70s .hbl-box .hbl-logo{aspect-ratio:1500/310;object-position:50% 34.5%}
 .hbl-box .hbl-av{width:56px;height:56px}
 .hbl-box .hbl-nm{font-size:18px}
 /* Follow along: one row that opens the Follow app (v141) */
@@ -399,6 +403,7 @@ html.hbl-three #hutch-bar .hb-more,html.hbl-three #hutch-bar .hb-expand{display:
 .hbl-fm a{display:flex;align-items:center;gap:10px;min-height:44px;font:500 15px var(--h-ui);color:var(--ink) !important;text-decoration:none !important}
 .hbl-fm svg{width:19px;height:19px;color:var(--acct);flex:none}
 .hbl-box .hbl-lnk{margin-top:6px}
+.hbl-box.hbl-me .hbl-lnk{margin-top:4px;min-height:30px}
 /* A post shown beside the feed or in the laptop's middle column (Nov 14,
    Toby: "Keep On Blogging" broke mid-word). The pane is fold-sized, so
    Classic kept a column for the Blaugust ticket and squeezed the title.

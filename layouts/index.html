@@ -461,6 +461,10 @@
     {{ range .Params.categories }}
       {{ if eq . "Micro" }}{{ $isMicro = true }}{{ end }}
     {{ end }}
+    {{/* Nov 15, 2026 (Toby): a Watch Log tagged Micro stays out of this
+         box - it shows in Recent Geekouts now (see rg-title.html), so it
+         would be on the home page twice. It is still on /categories/micro/. */}}
+    {{ if in .Content "watch-log-head" }}{{ $isMicro = false }}{{ end }}
     {{ if $isMicro }}{{ $microPool = $microPool | append . }}{{ end }}
   {{ end }}
   {{/* Aug 29, 2026 (Toby): ONE micro, not three. Three full-width

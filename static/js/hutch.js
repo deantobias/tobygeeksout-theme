@@ -2231,6 +2231,20 @@
       var hx = TL.filter(function (q) { return q.u === hu; })[0] || { u: hu, t: 'Post' };
       openInPane(hx); navState();
     }
+    /* Nov 15 (Toby): one line, always: a longer tagline steps its size
+       down a little (never under 13px) to fit before it would be cut */
+    function fitTg() {
+      [].forEach.call(wrap.querySelectorAll('.hbl-tg'), function (t) {
+        if (!t.offsetParent) return;
+        t.style.fontSize = '';
+        var s = parseFloat(getComputedStyle(t).fontSize) || 15;
+        while (t.scrollWidth > t.clientWidth + 1 && s > 13) { s -= 0.5; t.style.fontSize = s + 'px'; }
+      });
+    }
+    if (window.MutationObserver) [].forEach.call(wrap.querySelectorAll('.hbl-tg'), function (t) { new MutationObserver(fitTg).observe(t, { childList: true, characterData: true, subtree: true }); });
+    window.addEventListener('resize', fitTg);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTg);
+    setTimeout(fitTg, 50);
     /* the tagline list (custom_footer.html) can arrive after the Blog is drawn */
     if (!tg) window.addEventListener('load', function () {
       var w = window.tgoTaglines; if (!w || !w.length) return;

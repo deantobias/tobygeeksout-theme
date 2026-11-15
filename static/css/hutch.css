@@ -1879,3 +1879,17 @@ html.hbl-mid .hbl-box.hbl-me .hbl-who .hbl-logo{display:block}
 .hbl-box.hbl-me .hbl-row{gap:4px}
 .hbl-head .hbl-row{gap:8px}
 html .hh-brand .face{background:#C4622D}
+/* Nov 15 (Toby): in the narrow left column the avatar steps down so the
+   logo beside it can be bigger */
+.hbl-box.hbl-me .hbl-av{width:52px;height:52px;margin:4px}
+.hbl-box.hbl-me .hbl-row{gap:6px}
+.hbl-box.hbl-me .hbl-who .hbl-logo{max-width:none}
+/* Nov 15 (Toby): the tagline runs the box's full width under the avatar
+   and logo, so the logo gets the whole row beside the avatar */
+.hbl-box.hbl-me .hbl-row{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"av logo" "tg tg";align-items:center;column-gap:8px}
+.hbl-box.hbl-me .hbl-av{grid-area:av}
+.hbl-box.hbl-me .hbl-who{display:contents}
+.hbl-box.hbl-me .hbl-who .hbl-logo{grid-area:logo;margin:0}
+.hbl-box.hbl-me .hbl-tg{grid-area:tg;margin:10px 0 0}
+/* Nov 15 (Toby): the tagline always stays on one line */
+.hbl-tg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

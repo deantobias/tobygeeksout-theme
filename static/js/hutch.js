@@ -1727,6 +1727,7 @@
     var I = {
       more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
       reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+      link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
       den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 21h6"/>',
       word: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6"/>',
       chev: '<path d="M9 6l6 6-6 6"/>',
@@ -1831,16 +1832,18 @@
           (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div><div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
       }
       /* Nov 15 (Toby, v148 A): one Watching card for every Now Watching
-         post: the backdrop from the post across the top (16:9), then
-         WATCHING, the show, "Season N · Episode N", a line of the story
-         and Read the post. No backdrop: the poster sits on the left. */
+         post: WATCHING, the show, "Season N · Episode N", a line of the
+         story, Read the post, then the backdrop from the post (16:9). No
+         backdrop: the poster sits on the left. */
       if (x.k === 'nw' && x.nw && x.nw.t) {
         var nw = x.nw, nbd = x.bd ? x.bd.replace(/(image\.tmdb\.org\/t\/p\/)(?:w1280|original)\//, '$1w780/') : '';
         var ncv = nbd ? '' : (nw.cv || '').replace(/(image\.tmdb\.org\/t\/p\/)(?:w500|w780|w1280|original)\//, '$1w342/');
-        return '<div class="hbl-nw' + (ncv ? ' po' : '') + '">' + (nbd ? '<div class="bdx"><img src="' + esc(nbd) + '" alt="" loading="lazy" decoding="async"></div>' : '') +
+        /* Nov 15 (Toby): the backdrop sits at the bottom, like reviews and photo posts */
+        return '<div class="hbl-nw' + (ncv ? ' po' : '') + '">' +
           '<div class="nt">' + (ncv ? '<img class="po" src="' + esc(ncv) + '" alt="" loading="lazy" decoding="async">' : '') + '<div class="ntx"><span class="lab">Watching</span><b>' + esc(nw.t) + '</b>' +
           (nw.se ? '<small>' + esc(nw.se) + '</small>' : '') + (nw.syn ? '<p>' + esc(nw.syn) + '</p>' : '') + '</div></div></div>' +
-          '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
+          '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>' +
+          (nbd ? '<div class="hbl-nwbd"><img src="' + esc(nbd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
       }
       if ((x.k === 'rv' || x.k === 'rd') && dn.t) {
         var meta = [], kind = dn.kind === 'TV' ? 'TV' : dn.kind || '';
@@ -1871,15 +1874,19 @@
          (bold, italics, links, lists, quotes); a long micro folds at
          "Read more" */
       if (x.m) {
-        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Read more</button>' + goLink(x) + '</div>' + pics(x);
-        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Read more</button>' : '') + goLink(x) + '</div>' + pics(x);
+        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button></div>' + pics(x);
+        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post · ' + (x.min || 1) + ' min</a></div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1"' + (x.mo ? '' : ' hidden') + '>Read the post · ' + (x.min || 1) + ' min</a></div>' + pics(x);
     }
     function actions(x) {
       var b = '';
       if (x.k === 'rv') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
       if (x.k === 'wd') b += '<a class="hbl-a den" href="' + esc(wordLink(x)) + '">' + sv('word', 2.2) + '<span>Open in Word Nerd</span></a>';
+      /* Nov 15 (Toby, v149): a card that already shows everything (every
+         micro, since Show more opens it in place, and a short post) gets
+         Permalink instead of "Read the post" */
+      if (x.k === 'm' || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
       var v = !!conv[x.u];
       b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
       return '<div class="hbl-act">' + b + '</div>';
@@ -1911,6 +1918,18 @@
         var b = f.parentNode.querySelector('.hbl-rm'), over = f.scrollHeight - f.clientHeight;
         if (over <= 48) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
         f.classList.add('cut'); if (b) b.hidden = false;
+      });
+      [].forEach.call(list.querySelectorAll('.hbl-it.k-p .hbl-kr[hidden]'), function (k) {
+        var t = k.parentNode.querySelector('.hbl-html.ex, p'); if (!t) return;
+        /* a line-clamped box reports its cut height, so measure it once unclamped */
+        var cut = [t].concat([].slice.call(t.querySelectorAll('p, li, blockquote'))).some(function (e) {
+          if (getComputedStyle(e).webkitLineClamp === 'none') return e.scrollHeight > e.clientHeight + 2;
+          var h0 = e.clientHeight; e.style.webkitLineClamp = 'unset'; e.style.display = 'block';
+          var h1 = e.clientHeight; e.style.webkitLineClamp = ''; e.style.display = '';
+          return h1 > h0 + 2;
+        });
+        if (!cut) return;
+        k.hidden = false; var pl = k.closest('.hbl-it').querySelector('.hbl-a.pl'); if (pl) pl.remove();
       });
     }
     function render() {
@@ -1978,6 +1997,12 @@
       label: function (d) { var x = nb(d); return (d < 0 ? 'Older · ' : 'Newer · ') + (x ? (x.t || when(x)) : ''); }
     });
     right.querySelector('.hbl-pback').addEventListener('click', backToFeed);
+    /* Nov 15 (Toby): with a post open in the middle, the top-left arrow
+       goes back to the feed first, like the Den and Word Nerd; the next
+       tap goes Home */
+    bar.addEventListener('click', function (e) {
+      if (three() && de.classList.contains('hbl-reading') && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); backToFeed(); }
+    }, true);
     right.querySelector('.hbl-pnav').addEventListener('click', function (e) {
       var b = e.target.closest('[data-d]'); if (!b) return;
       var x = nb(+b.getAttribute('data-d')); if (x) openInPane(x);

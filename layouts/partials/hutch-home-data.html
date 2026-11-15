@@ -338,7 +338,16 @@
       {{- $cv := "" -}}{{- with $posters -}}{{- $cv = index . 0 -}}{{- end -}}{{- if and (not $cv) $dn -}}{{- with $dn.cover -}}{{- $cv = . -}}{{- end -}}{{- end -}}
       {{- if $nt -}}{{- $k = "nw" -}}{{- $nw = dict "t" $nt "se" $se "syn" $syn "cv" $cv -}}{{- end -}}
     {{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw) -}}
+    {{/* mo: a titled post has more than its card shows (Nov 15, Toby, v149):
+         more words than the card's text, more than 3 photos, or a video,
+         embed or table. Without it the card says Permalink, not "Read the
+         post". The Blog also checks if the card had to cut the text. */}}
+    {{- $mo := false -}}
+    {{- if eq $k "p" -}}
+      {{- $shown := cond (ne $xh "") ($xh | plainify | htmlUnescape) $x -}}
+      {{- if or (gt (countwords .Plain) (add (countwords $shown) 3)) (gt $ni 3) (findRE `(?i)<(iframe|video|audio|table|object)\b` .Content 1) -}}{{- $mo = true -}}{{- end -}}
+    {{- end -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw "mo" $mo) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}

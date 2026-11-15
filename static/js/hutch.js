@@ -1867,10 +1867,9 @@
           (x.k === 'rv' ? '<span class="st" aria-label="' + (+dn.r || 0) + ' out of 5 stars">' + stars(dn.r) + '</span>' : '') + prog +
           (line ? '<p>' + esc(line) + '</p>' : '') + '</div></div>' +
           (bd ? '<div class="hbl-bd"><img src="' + esc(bd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
-        /* Nov 15 (Toby): a book in the Den's Currently reading shows all
-           there is (cover, page, %), so it gets Open in Den and Permalink
-           below instead of "Read the post" */
-        if (x.k === 'rd' && kind !== 'Book') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
+        /* Nov 15 (Toby): reading and watching cards keep "Read the post";
+           a book in the Den's Currently reading also gets Open in Den */
+        if (x.k === 'rd') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
         return h;
       }
       /* Nov 14 (Toby): micros and titled posts keep their own formatting
@@ -1890,7 +1889,7 @@
       /* Nov 15 (Toby, v149): a card that already shows everything (every
          micro, since Show more opens it in place, and a short post) gets
          Permalink instead of "Read the post" */
-      if (x.k === 'm' || book || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
+      if (x.k === 'm' || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
       var v = !!conv[x.u];
       b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
       return '<div class="hbl-act">' + b + '</div>';

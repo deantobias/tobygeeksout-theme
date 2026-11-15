@@ -1711,6 +1711,10 @@
     var MAINCATS = CATS.filter(function (c) { return SERIES.indexOf(c) < 0; }).slice(0, 8);
     var aboutU = APPS.about[2] || '/about/', den = APPS.den[2] || '/watching/', wordsU = APPS.words[2] || '/categories/word-of-the-day/';
     var av = ME.av || PAGE.avatar || ((document.querySelector('link[rel="icon"]') || {}).href || '');
+    /* Nov 14 (Toby: "Blog opens longer than before"): his avatar file is
+       about 280 KB, and the Blog header now shows it. Micro.blog's own
+       resizer hands back a 200px copy, plenty for a 56px circle. */
+    if (/^https?:\/\//.test(av) && av.indexOf('cdn.micro.blog/photos/') < 0) av = 'https://cdn.micro.blog/photos/200x/' + encodeURIComponent(av);
     /* Nov 14 (Toby, v141): the Toby Geeks Out! logo tops the "you" box,
        the same day / night pair as the About app and the Classic header.
        Blog and About are the only apps that carry the logo. */

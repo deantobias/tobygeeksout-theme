@@ -75,6 +75,11 @@
      "Currently Reading:" (with or without an emoji first). So
      /2026/11/15/watchlist-ebenezer.html ("Ebenezer (2026)") shows, and
      "Now Watching: American Horror Story, S13E11" stays out. */}}
+{{/* Nov 15, 2026, later (Toby): Watch Logs come through too. They are
+     found by their own markup (the watch-log-head line Perch writes),
+     with or without a title; an untitled one borrows its first line as
+     the title ("Watch Log · Week of Nov 9") - see partials/rg-title.html.
+     "Watch Log" came off the title list below for the same reason. */}}
 {{ $excluded := slice "Movie Reviews" "TV Reviews" "Book Reviews" "Micro" "Bookshelf" "Currently Reading" "Word of the Day" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
@@ -83,7 +88,8 @@
     {{ if in $excluded . }}{{ $skip = true }}{{ end }}
   {{ end }}
   {{ if not .Title }}{{ $skip = true }}{{ end }}
-  {{ if findRE `(?i)^\W*(now watching|watchlist|watch log|currently reading)\b` .Title 1 }}{{ $skip = true }}{{ end }}
+  {{ if findRE `(?i)^\W*(now watching|watchlist|currently reading)\b` .Title 1 }}{{ $skip = true }}{{ end }}
+  {{ if in .Content "watch-log-head" }}{{ $skip = false }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent
@@ -239,7 +245,8 @@
          cover as its thumbnail. Posts with no photo of their own get
          no thumb at all - the row is simply shorter. */}}
     {{ $posters := slice }}
-    {{ range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
+    {{ $rg := partial "rg-title.html" . }}
+    {{ range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content }}
       {{ $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) }}
     {{ end }}
     {{ $thumb := "" }}
@@ -282,8 +289,8 @@
     <div class="journal-feature journal-feature--spot{{ if $thumb }} has-photo{{ end }}">
       <span class="journal-feature-text">
         <span class="journal-kicker"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "Jan 2" }}</time></span>
-        <a href="{{ .Permalink }}" class="journal-feature-title journal-stretch p-name u-url">{{ .Title }}</a>
-        <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
+        <a href="{{ .Permalink }}" class="journal-feature-title journal-stretch p-name u-url">{{ $rg.t }}</a>
+        <span class="journal-feature-sum">{{ if $rg.s }}{{ $rg.s }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
         {{ if .ReadingTime }}<span class="journal-meta"><span>{{ .ReadingTime }} min read</span></span>{{ end }}
       </span>
       {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
@@ -292,8 +299,8 @@
     <a href="{{ .Permalink }}" class="journal-feature u-url{{ if $thumb }} has-photo{{ end }}">
       <span class="journal-feature-text">
         <span class="journal-kicker"><time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "Jan 2" }}</time></span>
-        <span class="journal-feature-title p-name">{{ .Title }}</span>
-        <span class="journal-feature-sum">{{ partial "clean-summary.html" . }}</span>
+        <span class="journal-feature-title p-name">{{ $rg.t }}</span>
+        <span class="journal-feature-sum">{{ if $rg.s }}{{ $rg.s }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
         {{ if .ReadingTime }}<span class="journal-meta"><span>{{ .ReadingTime }} min read</span></span>{{ end }}
       </span>
       {{ if $thumb }}<img class="journal-feature-img" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="640" height="480">{{ end }}
@@ -308,8 +315,8 @@
       </span>
       {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="168" height="112">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
       <span class="journal-text">
-        <a href="{{ .Permalink }}" class="journal-title journal-stretch u-url">{{ .Title }}</a>
-        <span class="journal-sum">{{ partial "clean-summary.html" . }}</span>
+        <a href="{{ .Permalink }}" class="journal-title journal-stretch u-url">{{ $rg.t }}</a>
+        <span class="journal-sum">{{ if $rg.s }}{{ $rg.s }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
         <span class="journal-meta"><a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>{{ if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}</span>
       </span>
     </div>
@@ -322,8 +329,8 @@
       </span>
       {{ if $thumb }}<img class="journal-thumb" src="{{ $thumb | safeURL }}" alt="" loading="lazy" decoding="async" width="168" height="112">{{ else }}<span class="journal-slot" aria-hidden="true"></span>{{ end }}
       <span class="journal-text">
-        <span class="journal-title">{{ .Title }}</span>
-        <span class="journal-sum">{{ partial "clean-summary.html" . }}</span>
+        <span class="journal-title">{{ $rg.t }}</span>
+        <span class="journal-sum">{{ if $rg.s }}{{ $rg.s }}{{ else }}{{ partial "clean-summary.html" . }}{{ end }}</span>
         {{ if .ReadingTime }}<span class="journal-meta">{{ .ReadingTime }} min read</span>{{ end }}
       </span>
     </a>
@@ -355,7 +362,7 @@
   {{- $archData := slice -}}
   {{- $archFirst := slice -}}
   {{- range first 250 $archAll -}}
-    {{- $archData = $archData | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight") "p" (eq .RelPermalink $pinURL)) -}}
+    {{- $archData = $archData | append (dict "t" (partial "rg-title.html" .).t "u" .RelPermalink "d" (.Date.Format "Jan 2, 2006") "s" (in .Params.categories "Spotlight") "p" (eq .RelPermalink $pinURL)) -}}
     {{- if lt (len $archFirst) 3 -}}{{- $archFirst = $archFirst | append . -}}{{- end -}}
   {{- end -}}
   {{ if $archData }}
@@ -368,7 +375,7 @@
       {{ range $archFirst }}
       <li class="arch-item arch-item--deal">
         <span class="arch-meta">{{ if in .Params.categories "Spotlight" }}<a class="spot-tag" href="{{ $spotURL }}">★ Spotlight</a>{{ end }}<span class="arch-date">{{ .Date.Format "Jan 2, 2006" }}</span></span>
-        <a class="arch-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <a class="arch-link" href="{{ .RelPermalink }}">{{ (partial "rg-title.html" .).t }}</a>
       </li>
       {{ end }}
     </ol>

@@ -1,0 +1,42 @@
+{{/*
+  partials/rg-title.html  (Nov 15, 2026, Toby)
+  The title and blurb a post shows in Classic's Recent Geekouts and From
+  the archive. Every post gives its own title and no blurb here (the row
+  then uses clean-summary as before) EXCEPT a Watch Log:
+    - Watch Logs usually have no title, so the first line of the post
+      ("🍿 Watch Log · Week of Nov 9", the watch-log-head line Perch
+      writes) stands in as the title, without the emoji:
+      "Watch Log · Week of Nov 9".
+    - The blurb is Toby's note when the log has one, otherwise the shows
+      and movies in that week's log, so the row never shows table text.
+  Returns a dict: t = title (plain text), s = blurb (plain text, "" when
+  the row should use clean-summary).
+  Call: {{ $rg := partial "rg-title.html" . }} ... {{ $rg.t }}
+*/}}
+{{- $t := .Title -}}
+{{- $s := "" -}}
+{{- $c := .Content -}}
+{{- if in $c "watch-log-head" -}}
+  {{- if not $t -}}
+    {{- with findRE `(?s)<p[^>]*\bwatch-log-head\b[^>]*>.*?</p>` $c 1 -}}
+      {{- $t = trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t·" -}}
+      {{/* Nov 15 (Toby): no popcorn in the row title, just the words */}}
+      {{- $t = trim (replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}\s]+` "" $t) " \n\t·" -}}
+    {{- end -}}
+    {{- if not $t -}}{{- $t = "Watch Log" -}}{{- end -}}
+  {{- end -}}
+  {{- with findRE `(?s)<p[^>]*\bwatch-log-note\b[^>]*>.*?</p>` $c 1 -}}
+    {{- $s = trim (replaceRE `(?i)<br\s*/?>` " " (index . 0) | plainify | htmlUnescape | htmlUnescape) " \n\t" | truncate 160 -}}
+  {{- end -}}
+  {{- if not $s -}}
+    {{- $names := slice -}}
+    {{- range findRE `(?s)<td[^>]*\bwatch-log-item\b[^>]*>.*?</td>` $c -}}
+      {{- with findRE `(?s)<strong>.*?</strong>` . 1 -}}
+        {{- $n := trim (index . 0 | plainify | htmlUnescape | htmlUnescape) " \n\t" -}}
+        {{- if $n -}}{{- $names = $names | append $n -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- with $names -}}{{- $s = delimit . ", " | truncate 160 -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (dict "t" $t "s" $s) -}}

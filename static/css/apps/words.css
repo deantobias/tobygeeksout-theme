@@ -189,3 +189,9 @@ html.hxw-two .hx-words .hxw-card .hxw-word.xlong{font-size:clamp(30px,5vh,44px)}
 .hx-words .hxw-it .d{font-size:16px}
 .hx-words .hxw-pn button small{font-size:13px}
 @media (min-width:1100px){.hx-words .hxw-it .d{font-size:17px}}
+
+/* Nov 15 (Toby): the headline word (its own page and the Latest alert card)
+   uses the classic title font, like Classic's define card and the Blog's
+   word cards. The list, meanings, examples and roots keep their serif. */
+.hx-words .hxw-word,.hx-words .hxw-card .hxw-word{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-variation-settings:normal;letter-spacing:0}
+.hx-words .hxw-mini .w,html.hxw-two .hx-words .hxw-mini .w{font-family:var(--font-display,var(--h-flex));font-weight:400;font-variation-settings:normal}

@@ -338,3 +338,9 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den .pane.right .eps{display:grid;grid-template-columns:1fr 1fr;column-gap:26px}
   .hx-den .pane.right .ep.now{margin:0;padding:11px 10px;border-radius:10px}
 }
+
+/* Nov 15 (Toby): the title on an item's page uses the classic title font,
+   like Word Nerd's word and the Blog's cards; the lists keep the app font.
+   (The home screen stays in Hutch's own font: it's the phone, not a post.) */
+.hx-den .dtop h2,.hx-den .dhero h2{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-variation-settings:normal;font-size:30px;line-height:1.1}
+@media (min-width:1100px){.hx-den .dtop h2,.hx-den .dhero h2{font-size:34px}}

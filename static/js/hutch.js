@@ -2144,9 +2144,21 @@
     };
 
     /* ---- the photo viewer: full screen, still inside Blog ---- */
-    var vw = null;
+    /* Nov 15 (Toby: swipe didn't work on a multi-photo post): the viewer is
+       built once, so its swipe, arrows, keys and strip used to remember the
+       FIRST post opened. Open a one-photo post first and every later post
+       was stuck on photo 1. The photos and place now live out here, shared. */
+    var vw = null, srcs = [], at = 0, n = 0, vwFor = 0;
+    function step(d) { var k = at + d; if (k >= 0 && k < srcs.length) { at = k; draw(); } }
+    function draw() {
+      vw.querySelector('.vimg img').src = srcs[at] || '';
+      vw.querySelector('.vn').textContent = (at + 1) + ' of ' + Math.max(n, srcs.length);
+      vw.querySelector('.vgo.l').hidden = at <= 0; vw.querySelector('.vgo.r').hidden = at >= srcs.length - 1;
+      vw.querySelector('.vstrip').innerHTML = srcs.map(function (u, j) { return '<button type="button" data-vi="' + j + '"' + (j === at ? ' class="on" aria-current="true"' : '') + ' aria-label="Photo ' + (j + 1) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>'; }).join('');
+    }
     function viewer(x, start) {
-      var srcs = (x.imgs || []).slice(), at = start || 0, n = Math.max(x.ni || 0, srcs.length);
+      srcs = (x.imgs || []).slice(); at = start || 0; n = Math.max(x.ni || 0, srcs.length);
+      var me = ++vwFor;
       if (!vw) {
         vw = el('<div class="hbl-view" role="dialog" aria-modal="true" aria-label="Photo"><div class="vtop"><button type="button" class="vx" aria-label="Close">' + sv('x', 2.4) + '</button><span class="vn"></span><span class="vsp"></span></div>' +
           '<div class="vimg"><img alt=""><button type="button" class="vgo l" aria-label="Previous photo">' + ic('back', 2.4) + '</button><button type="button" class="vgo r" aria-label="Next photo">' + ic('fwd', 2.4) + '</button></div>' +
@@ -2167,14 +2179,7 @@
         });
         window.addEventListener('popstate', function () { if (de.classList.contains('hbl-viewing')) closeViewer(true); });
       }
-      function step(d) { var k = at + d; if (k >= 0 && k < srcs.length) { at = k; draw(); } }
       vw.__step = step;
-      function draw() {
-        vw.querySelector('.vimg img').src = srcs[at] || '';
-        vw.querySelector('.vn').textContent = (at + 1) + ' of ' + Math.max(n, srcs.length);
-        vw.querySelector('.vgo.l').hidden = at <= 0; vw.querySelector('.vgo.r').hidden = at >= srcs.length - 1;
-        vw.querySelector('.vstrip').innerHTML = srcs.map(function (u, j) { return '<button type="button" data-vi="' + j + '"' + (j === at ? ' class="on" aria-current="true"' : '') + ' aria-label="Photo ' + (j + 1) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>'; }).join('');
-      }
       vw.querySelector('.vcap b').textContent = x.t || (x.x || '').slice(0, 80);
       vw.querySelector('.vcap small').textContent = when(x) + (x.c ? ' · ' + x.c : '');
       vw.querySelector('.vpost').href = x.u;
@@ -2190,7 +2195,8 @@
           var u = m.replace(/^[\s\S]*?src="([^"]+)"[\s\S]*$/, '$1').replace(/&amp;/g, '&');
           if ((/cdn\.uploads\.micro\.blog|\/uploads\//.test(u)) && !seen[u]) { seen[u] = 1; all.push(u); }
         });
-        if (all.length > srcs.length && de.classList.contains('hbl-viewing')) { srcs = all; n = all.length; draw(); }
+        /* only if this is still the post on screen */
+        if (me === vwFor && all.length > srcs.length && de.classList.contains('hbl-viewing')) { srcs = all; n = all.length; draw(); }
       }).catch(function () {});
     }
     function closeViewer(viaPop) {

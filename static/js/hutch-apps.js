@@ -2086,7 +2086,7 @@ window.HutchApps = window.HutchApps || {};
   /* ---------------- About ---------------- */
   HutchApps.about = function (ctx) {
     var root = shell(ctx); if (!root) return;
-    var d = ctx.data || {}, name = d.name || '', av = d.avatar || ctx.page.avatar || '';
+    var d = ctx.data || {}, name = d.name || '', av = ctx.page.avatar || d.avatar || ''; /* Nov 15 (Toby): the same orange Micro.blog avatar as everywhere else; d.avatar is only the fallback */
     var face = av ? '<img class="face" src="' + ctx.esc(av) + '" alt="" width="104" height="104" decoding="async">'
                   : '<span class="face face-t">' + ctx.esc((name || 'T').charAt(0)) + '</span>';
     var facts = [];

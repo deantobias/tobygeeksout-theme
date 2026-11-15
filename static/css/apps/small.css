@@ -288,3 +288,13 @@ html.hutch-win .hx-sm.hx-fl-on .hx-sm-panes{padding-top:0}
 .hx-sm-gtk-row small{font:400 14px/1.35 var(--h-ui);color:var(--sub)}
 .hx-sm-gtk-row i{font:400 22px/1 var(--h-ui);font-style:normal;color:var(--sub)}
 .hx-sm-gtk-row:hover b{color:var(--acct)}
+
+/* Nov 15 (Toby: "logo and avatar need to knit closer", avatar "the same
+   size as Photos or Blog"): the logo is cropped to its letters like the
+   Blog and Photos headers, sits right on top of the photo, and the photo
+   is the Blog/Photos size with the same thin orange ring */
+.hx-sm .hx-sm-hero .hx-sm-logo{width:min(260px,74%);aspect-ratio:2000/368;object-fit:cover;object-position:50% 19%;margin:0 auto 10px}
+html.fonts-70s .hx-sm .hx-sm-hero .hx-sm-logo{aspect-ratio:1500/310;object-position:50% 34.5%}
+.hx-sm .hx-sm-hero .face{width:76px;height:76px;font-size:32px;box-shadow:0 0 0 3px var(--bg),0 0 0 5px #C4622D;margin:5px 0 12px !important}
+html.hx-sm-two .hx-sm-split .hx-sm-hero .face{width:76px;height:76px}
+@media (orientation:landscape) and (max-height:620px){html.hx-sm-two .hx-sm-split .hx-sm-hero .face{width:64px;height:64px}}

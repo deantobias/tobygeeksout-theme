@@ -1756,6 +1756,7 @@
       more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
       reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
       link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
       den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 21h6"/>',
       word: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6"/>',
       chev: '<path d="M9 6l6 6-6 6"/>',
@@ -1846,7 +1847,7 @@
         var extra = j === 2 && n > 3 ? '<em>+' + (n - 3) + '</em>' : '';
         /* Nov 14 (Toby, v146): one photo shows whole; a tall one sits in a
            square (640px high at most) with a soft blur of itself in the gaps */
-        return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '"><img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
+        return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '">' + (j === 0 ? '<span class="hbl-big" aria-hidden="true">' + sv('big', 2.2) + '</span>' : '') + '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
       }).join('') + '</div>';
     }
     function body(x) {

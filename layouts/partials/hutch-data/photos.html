@@ -39,6 +39,8 @@
       {{- $cap := partial "clean-summary.html" (dict "page" $p) | plainify | htmlUnescape -}}
       {{- $cap = trim (replaceRE `\s+` " " $cap) " " -}}
       {{- $total = add $total (len $ph) -}}
+      {{/* m (Nov 15, Toby): the post says more than the caption, so the
+           photo viewer offers "View the post" instead of Permalink */}}
       {{- $out = $out | append (dict
             "t" $title
             "l" (cond (ne $title "") $title ($p.Date.Format "January 2, 2006"))
@@ -47,6 +49,7 @@
             "ts" ($p.Date.Format "2006-01-02T15:04:05-07:00")
             "u" $p.RelPermalink
             "c" $cap
+            "m" (gt (countwords $p.Plain) (add (countwords $cap) 3))
             "ph" $ph) -}}
     {{- end -}}
   {{- end -}}

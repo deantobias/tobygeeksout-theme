@@ -189,3 +189,38 @@ html.hxp-lock .hx-photos:not([data-mode=land]) .hxp-gal{transform:none;opacity:1
 .hxp-nav button{white-space:nowrap}
 .hxp-nav .hxp-all{flex:1.2 1 auto}
 @media (max-width:1000px){.hxp-nav{gap:8px;padding-left:16px;padding-right:16px}.hxp-nav button{padding:8px 6px;font-size:14px}}
+
+/* ---------- the photo viewer (Nov 15, Toby, v153/v154) ----------
+   Whole photos on black, the same on every screen; arrows on every
+   screen (swipe works too); caption up to two lines. */
+.hxp-nshot figure{overflow:hidden}
+.hxp-nshot .hxp-bl{position:absolute;inset:-24px;background-size:cover;background-position:center;filter:blur(22px) brightness(.6)}
+.hxp-nshot figure img{z-index:1;object-fit:contain !important}
+.hxp-big{position:absolute;left:12px;top:12px;z-index:3;width:36px;height:36px;border-radius:50%;background:rgba(20,16,12,.6);color:#fff;display:grid;place-items:center;pointer-events:none}
+.hx-photos .hxp-big svg{width:18px;height:18px}
+.hxp-det.hxp-view{top:0;z-index:9000;background:#0D0C10;color:#fff;display:flex;flex-direction:column;overflow:hidden}
+.hxv-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:10px 10px 6px;flex:none}
+.hxv-top button{width:48px;height:48px;border:0;border-radius:50%;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer}
+.hx-photos .hxv-top svg{width:26px;height:26px}
+.hxv-top button:focus-visible{outline:3px solid #F2B58F;outline-offset:-3px}
+.hxv-n{position:absolute;left:60px;right:60px;text-align:center;font:500 17px var(--h-ui);pointer-events:none}
+.hxv-stage{position:relative;flex:1;min-height:0}
+.hxv-stage .hxp-car{position:absolute;inset:0}
+.hxv-stage figure{display:flex;align-items:center;justify-content:center}
+.hxv-stage .hxp-car img{object-fit:contain}
+.hxp-view .hxp-arrow{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+.hxp-view .hxp-arrow:hover{background:rgba(255,255,255,.26)}
+.hxv-dots{flex:none;min-height:22px;position:relative}
+.hxv-dots .hxp-dots{position:static;padding:8px 0 4px}
+.hxv-bot{flex:none;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:6px 20px calc(18px + env(safe-area-inset-bottom))}
+.hxv-cap{min-width:0}
+.hxv-cap b{display:block;font:600 19px/1.25 var(--h-ui)}
+.hxv-cap small{display:block;font:400 15px var(--h-ui);color:#D7D2CC;margin-top:2px}
+.hxv-cap p{margin:6px 0 0;font:400 15.5px/1.45 var(--font-reading,Georgia),Georgia,serif;color:#EDE8E2;max-width:62ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html.fonts-70s .hxv-cap p{font-weight:450}
+.hxv-act{display:inline-flex;align-items:center;gap:8px;flex:none;color:#F2B58F;font:600 16px var(--h-ui);text-decoration:none;padding:8px 0;white-space:nowrap}
+.hxv-act:hover{text-decoration:underline}
+.hxv-act:focus-visible{outline:3px solid #F2B58F;outline-offset:3px;border-radius:4px}
+.hx-photos .hxv-act svg{width:18px;height:18px}
+html.hxp-lock .hx-photos .hxp-det.hxp-view.on ~ .hxp-gal{opacity:0 !important;pointer-events:none !important}
+@media (max-width:519px){.hxv-bot{flex-direction:column;align-items:flex-start;gap:4px}}

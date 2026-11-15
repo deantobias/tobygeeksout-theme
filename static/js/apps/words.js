@@ -139,7 +139,10 @@
       }
       if (!open) {
         open = true; de.classList.add('hxw-open');
-        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        /* opened from a Blog card's link (Nov 15, Toby): no extra back step,
+           so Back goes straight to the Blog feed */
+        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        else if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
       } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
     }
     function close(viaPop) {
@@ -206,7 +209,7 @@
       W.forEach(function (x) { if (wi < 0 && x.u === wu) wi = x.i; });
       try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
     }
-    if (wi >= 0) show(wi);
+    if (wi >= 0) show(wi, 'link');
     else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

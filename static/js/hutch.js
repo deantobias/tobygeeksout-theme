@@ -1764,6 +1764,7 @@
     document.body.appendChild(wrap);
     var list = wrap.querySelector('.hbl-tl'), right = wrap.querySelector('.hbl-right'), left = wrap.querySelector('.hbl-left');
     var filt = wrap.querySelector('.hbl-filt');
+    /* a single photo holds a little room until it loads, then takes its own height */
     var bar = document.getElementById('hutch-bar'), expandBtn = bar.querySelector('.hb-expand');
     /* More, in the bar, before Home */
     var moreBtn = el('<button type="button" class="hb-btn hb-more" aria-label="More: categories and series" title="Categories and series">' + sv('more') + '<span>More</span></button>');
@@ -1782,8 +1783,12 @@
 
     var mq2 = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
     var mq3 = window.matchMedia('(min-width: 1200px) and (min-height: 600px) and (orientation: landscape)');
-    function three() { return mq3.matches; }
-    function two() { return mq2.matches && !three(); }
+    /* Nov 14 (Toby, v144): every sideways screen 840+ wide (Fold, TCL,
+       iPads, laptops) uses the laptop layout: your column, the feed, and a
+       post opens in the feed's place. Under 1200 (or a short screen) there
+       is no room for Categories and Series, so they stay in More (hbl-mid). */
+    function three() { return mq2.matches; }
+    function two() { return false; }
     function paned() { return mq2.matches; } /* a post opens beside or inside the feed, not as its own page */
 
     /* ---- dates: "Today at 11:40 AM", "Yesterday at...", "Nov 11" ---- */
@@ -1794,6 +1799,11 @@
       return d + (x.tm && (dd <= 1 || x.k === 'm') ? ' at ' + x.tm : '');
     }
     function stars(r) { r = +r || 0; var s = ''; for (var i = 1; i <= 5; i++) s += r >= i ? '★' : r >= i - 0.5 ? '½' : '☆'; return s; }
+    /* Nov 15 (Toby): reviews open in the Den and words in Word Nerd; every
+       other card (reading, watching, Watch Logs, micros, posts) gets "Read
+       the post". Older reading and watching posts may no longer be in the
+       Den, so those cards don't send him there. */
+    function goLink(x) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>'; }
     function denLink(x) { return den + '#open=u-' + encodeURIComponent(x.u); }
     function wordLink(x) { return wordsU + '#w=' + encodeURIComponent(x.u); }
     function pics(x) {
@@ -1802,6 +1812,8 @@
       var cls = im.length === 1 ? 'one' : im.length === 2 ? 'two' : 'many';
       return '<div class="hbl-pics ' + cls + '">' + im.map(function (u, j) {
         var extra = j === 2 && n > 3 ? '<em>+' + (n - 3) + '</em>' : '';
+        /* Nov 14 (Toby, v146): one photo shows whole; a tall one sits in a
+           square (640px high at most) with a soft blur of itself in the gaps */
         return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '"><img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
       }).join('') + '</div>';
     }
@@ -1816,7 +1828,19 @@
         /* Nov 14 (Toby): each title with its small poster from the post */
         return '<div class="hbl-wl"><b>Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
           x.wl.it.slice(0, 5).map(function (w) { return '<li>' + (w.p ? '<img class="wp" src="' + esc(w.p) + '" alt="" loading="lazy" decoding="async">' : '<span class="wp"></span>') + '<span class="wt"><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</span></li>'; }).join('') +
-          (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div>';
+          (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div><div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
+      }
+      /* Nov 15 (Toby, v148 A): one Watching card for every Now Watching
+         post: the backdrop from the post across the top (16:9), then
+         WATCHING, the show, "Season N · Episode N", a line of the story
+         and Read the post. No backdrop: the poster sits on the left. */
+      if (x.k === 'nw' && x.nw && x.nw.t) {
+        var nw = x.nw, nbd = x.bd ? x.bd.replace(/(image\.tmdb\.org\/t\/p\/)(?:w1280|original)\//, '$1w780/') : '';
+        var ncv = nbd ? '' : (nw.cv || '').replace(/(image\.tmdb\.org\/t\/p\/)(?:w500|w780|w1280|original)\//, '$1w342/');
+        return '<div class="hbl-nw' + (ncv ? ' po' : '') + '">' + (nbd ? '<div class="bdx"><img src="' + esc(nbd) + '" alt="" loading="lazy" decoding="async"></div>' : '') +
+          '<div class="nt">' + (ncv ? '<img class="po" src="' + esc(ncv) + '" alt="" loading="lazy" decoding="async">' : '') + '<div class="ntx"><span class="lab">Watching</span><b>' + esc(nw.t) + '</b>' +
+          (nw.se ? '<small>' + esc(nw.se) + '</small>' : '') + (nw.syn ? '<p>' + esc(nw.syn) + '</p>' : '') + '</div></div></div>' +
+          '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
       }
       if ((x.k === 'rv' || x.k === 'rd') && dn.t) {
         var meta = [], kind = dn.kind === 'TV' ? 'TV' : dn.kind || '';
@@ -1840,20 +1864,21 @@
           (x.k === 'rv' ? '<span class="st" aria-label="' + (+dn.r || 0) + ' out of 5 stars">' + stars(dn.r) + '</span>' : '') + prog +
           (line ? '<p>' + esc(line) + '</p>' : '') + '</div></div>' +
           (bd ? '<div class="hbl-bd"><img src="' + esc(bd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
+        if (x.k === 'rd') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
         return h;
       }
       /* Nov 14 (Toby): micros and titled posts keep their own formatting
          (bold, italics, links, lists, quotes); a long micro folds at
          "Read more" */
       if (x.m) {
-        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Read more</button></div>' + pics(x);
-        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Read more</button>' : '') + '</div>' + pics(x);
+        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Read more</button>' + goLink(x) + '</div>' + pics(x);
+        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Read more</button>' : '') + goLink(x) + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<span class="hbl-kr">Read the post · ' + (x.min || 1) + ' min</span></div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post · ' + (x.min || 1) + ' min</a></div>' + pics(x);
     }
     function actions(x) {
       var b = '';
-      if (x.k === 'rv' || x.k === 'rd') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
+      if (x.k === 'rv') b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
       if (x.k === 'wd') b += '<a class="hbl-a den" href="' + esc(wordLink(x)) + '">' + sv('word', 2.2) + '<span>Open in Word Nerd</span></a>';
       var v = !!conv[x.u];
       b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
@@ -1877,6 +1902,17 @@
       return tab === 'all' || (tab === 'posts' ? x.k === 'p' : tab === 'micro' ? x.k === 'm' : (x.ni || 0) > 0);
     }
     function shown() { return TL.filter(match); }
+    /* Nov 15 (Toby, the Knowember micro): the fade showed on a micro that
+       fit, with no Read more. Now a micro is faded and gets Read more only
+       when it is really cut; one that runs just a line or two over shows
+       whole. Checked again once fonts and pictures have loaded. */
+    function folds() {
+      [].forEach.call(list.querySelectorAll('.hbl-html.fold'), function (f) {
+        var b = f.parentNode.querySelector('.hbl-rm'), over = f.scrollHeight - f.clientHeight;
+        if (over <= 48) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
+        f.classList.add('cut'); if (b) b.hidden = false;
+      });
+    }
     function render() {
       var items = TL.map(function (x, i) { return [x, i]; }).filter(function (p) { return match(p[0]); });
       var out = '', n = 0;
@@ -1892,7 +1928,7 @@
       [].forEach.call(wrap.querySelectorAll('[data-f]'), function (b) { var on = b.getAttribute('data-f') === tab; b.classList.toggle('on', on); b.setAttribute(b.getAttribute('role') === 'tab' ? 'aria-selected' : 'aria-pressed', on ? 'true' : 'false'); });
       [].forEach.call(wrap.querySelectorAll('.hbl-side [data-cat]'), function (b) { var on = b.getAttribute('data-cat') === cat; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
       filt.hidden = !cat; if (cat) filt.querySelector('b').textContent = cat;
-      requestAnimationFrame(function () { [].forEach.call(list.querySelectorAll('.hbl-html.fold'), function (f) { var b = f.parentNode.querySelector('.hbl-rm'); if (b) b.hidden = f.scrollHeight <= f.clientHeight + 4; }); });
+      requestAnimationFrame(folds);
       if (paneArrows) paneArrows.refresh();
     }
     /* a different random pick for each spot, the same ones until the page reloads */
@@ -1953,7 +1989,8 @@
     function layout() {
       de.classList.toggle('hbl-two', two());
       de.classList.toggle('hbl-three', three());
-      if (!paned()) { de.classList.remove('hbl-full', 'hbl-reading'); bar.classList.remove('titled'); return; }
+      de.classList.toggle('hbl-mid', three() && !mq3.matches);
+      if (!paned()) { de.classList.remove('hbl-full', 'hbl-reading', 'hbl-mid'); bar.classList.remove('titled'); return; }
       if (two()) { de.classList.remove('hbl-reading'); if (!sel && TL.length) openInPane(TL[0]); de.classList.remove('hbl-reading'); }
       if (three()) de.classList.remove('hbl-full');
     }
@@ -1969,7 +2006,7 @@
       var rm = t.closest('.hbl-rm');
       if (rm) {
         var it0 = TL[+rm.closest('.hbl-it').getAttribute('data-i')], mx = rm.parentNode.querySelector('.mx');
-        if (mx && mx.classList.contains('fold')) { mx.classList.remove('fold'); rm.remove(); }
+        if (mx && mx.classList.contains('fold')) { mx.classList.remove('fold', 'cut'); rm.remove(); }
         else if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); }
         return;
       }
@@ -1985,14 +2022,18 @@
       if (a) {
         /* Reply / View replies: beside the feed, the post opens there at its conversation */
         if (a.hasAttribute('data-rp') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x, true); navState(); }
-        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); } catch (er) {}
+        else if (a.hasAttribute('data-op') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x); navState(); }
+        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); } catch (er) {}
         return;
       }
       if (t.closest('button')) return;
       if (!x) return;
+      /* Nov 15 (Toby): a micro that is cut short opens up right there; Read the post opens the post */
+      var rm1 = card0.classList.contains('k-m') && card0.querySelector('.hbl-rm:not([hidden])');
+      if (rm1) { rm1.click(); return; }
       if (e.ctrlKey || e.metaKey || e.shiftKey) { window.open(x.u, '_blank'); return; }
       if (paned()) { openInPane(x); navState(); return; }
-      try { sessionStorage.setItem('hutch-lastpost', x.u); } catch (er) {}
+      try { sessionStorage.setItem('hutch-lastpost', x.u); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); } catch (er) {}
       leaving(); location.href = x.u;
     });
     /* cards are articles, not links (they hold buttons and links of their
@@ -2129,14 +2170,31 @@
       [].forEach.call(wrap.querySelectorAll('.hbl-tg'), function (e) { if (!e.textContent) e.textContent = w[0]; });
     });
     /* back from a post: the feed scrolls to the post you came from and lights it up */
+    /* Nov 15 (Toby): back from the Den or Word Nerd too, and the card comes
+       back to the same spot on the screen it was tapped at. Photos above it
+       finish loading after the feed is drawn and push it down, so it is put
+       back a few times over the first two seconds, until he scrolls. */
     function showLast() {
-      var u = null; try { u = sessionStorage.getItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lastpost'); } catch (e) {}
+      var u = null, y = null; try { u = sessionStorage.getItem('hutch-lastpost'); y = sessionStorage.getItem('hutch-lasttop'); sessionStorage.removeItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lasttop'); } catch (e) {}
       if (!u) return;
       var c = list.querySelector('.hbl-it[data-u="' + u.replace(/"/g, '') + '"]');
       if (!c) return;
-      c.scrollIntoView({ block: 'center' });
+      var top = y !== null && !isNaN(+y) ? Math.max(70, Math.min(+y, innerHeight - 140)) : null, moved = false;
+      var place = function () {
+        if (moved || !c.isConnected) return;
+        if (top === null) { c.scrollIntoView({ block: 'center' }); return; }
+        var d = c.getBoundingClientRect().top - top;
+        if (Math.abs(d) < 2) return;
+        if (paned()) left.scrollTop += d; else window.scrollBy(0, d);
+      };
+      place();
+      [120, 350, 700, 1200, 2000].forEach(function (t) { setTimeout(place, t); });
+      var stop = function () { moved = true; };
+      ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true, once: true }); });
       c.classList.add('hl'); setTimeout(function () { c.classList.remove('hl'); }, 2400);
     }
+    window.addEventListener('load', folds);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(folds);
     showLast();
     window.addEventListener('pageshow', function (e) { if (e.persisted) showLast(); });
     /* new posts arrive without a refresh: redrawn from the newer copy, staying on the card in view */
@@ -2732,7 +2790,8 @@
   }
   /* laptops (Nov 5, Toby picked "line only"): a big screen gets no splash,
      just a quick press on the icon and the line across the top */
-  var SPLASH_MS = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 290;
+  /* Nov 15 (Toby): 290 ms down to 170, so phones start loading the app sooner (the circle grows in .16s) */
+  var SPLASH_MS = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 170;
   function pressIcon(a) { a.classList.remove('hx-press'); void a.offsetWidth; a.classList.add('hx-press'); }
   function loadBar(color) {
     if (document.getElementById('hx-load')) return;

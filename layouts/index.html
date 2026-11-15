@@ -68,7 +68,14 @@
      test the Queue page uses) stays out even if it was never tagged
      Reel and Remote, so watchlist entries can't leak into this feed or
      into From the archive. */}}
-{{ $excluded := slice "Movie Reviews" "TV Reviews" "Micro" "Bookshelf" "Currently Reading" "Book Reviews" "Reel and Remote" "Word of the Day" }}
+{{/* Nov 15, 2026 (Toby): Reel and Remote posts come through now (a new
+     movie on his watchlist, a TV thought). Still out: reviews (by their
+     review categories) and tracker posts, found by the TITLE only, never
+     the body or the address: "Now Watching:", "Watchlist", "Watch Log",
+     "Currently Reading:" (with or without an emoji first). So
+     /2026/11/15/watchlist-ebenezer.html ("Ebenezer (2026)") shows, and
+     "Now Watching: American Horror Story, S13E11" stays out. */}}
+{{ $excluded := slice "Movie Reviews" "TV Reviews" "Book Reviews" "Micro" "Bookshelf" "Currently Reading" "Word of the Day" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
   {{ $skip := false }}
@@ -76,14 +83,7 @@
     {{ if in $excluded . }}{{ $skip = true }}{{ end }}
   {{ end }}
   {{ if not .Title }}{{ $skip = true }}{{ end }}
-  {{ if and (in .Content "movie-card") (findRE `(?i)want to watch` .Content 1) }}{{ $skip = true }}{{ end }}
-  {{/* Oct 7, 2026: new plain review cards carry no "Want to Watch" text;
-       a Watchlist post is a review-card--plain whose title starts
-       "🎥 Watchlist:" / "📺 Watchlist:" (Perch's auto title). */}}
-  {{ if and (in .Content "review-card--plain") (findRE `(?i)^\W*watchlist:` .Title 1) }}{{ $skip = true }}{{ end }}
-  {{/* Oct 9, 2026: "🍿 Now Watching:" posts have their own card and the
-       /watching/ page, so they stay out of this feed like Watchlist ones. */}}
-  {{ if findRE `(?i)^\W*now watching:` .Title 1 }}{{ $skip = true }}{{ end }}
+  {{ if findRE `(?i)^\W*(now watching|watchlist|watch log|currently reading)\b` .Title 1 }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent

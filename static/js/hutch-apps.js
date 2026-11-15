@@ -1187,14 +1187,16 @@ window.HutchApps = window.HutchApps || {};
       try { if (push) history.pushState(hs, ''); else history.replaceState(hs, ''); } catch (e) {}
       render();
     }
-    function openList(sec, id) { go({ view: 'list', sec: sec, id: id || null, filter: 'All' }, true); }
-    function openItem(id) {
+    function openList(sec, id, link) { go({ view: 'list', sec: sec, id: id || null, filter: 'All' }, !link); }
+    /* link: opened from a Blog card (Nov 15, Toby). It takes no extra back
+       step, so Back goes straight to the Blog feed. */
+    function openItem(id, link) {
       var x = get(id); if (!x) return;
       if (two()) {
         if (state.view !== 'home' && state.sec === x.sec) { state.id = id; go(state, false); var rd = vList.querySelector('.rdet'); if (rd) rd.scrollTop = 0; return; }
-        openList(x.sec, id); return;
+        openList(x.sec, id, link); return;
       }
-      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec }, true);
+      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec }, !link);
       vDetail.querySelector('.pscroll').scrollTop = 0;
     }
     window.addEventListener('popstate', function (e) {
@@ -1387,7 +1389,7 @@ window.HutchApps = window.HutchApps || {};
       if (!x) return;
       want = null;
       try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
-      openItem(x.id);
+      openItem(x.id, true);
     }
     if (want) {
       setTimeout(function () { want = null; }, 8000);
@@ -2368,7 +2370,10 @@ window.HutchApps = window.HutchApps || {};
       }
       if (!open) {
         open = true; de.classList.add('hxw-open');
-        if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        /* opened from a Blog card's link (Nov 15, Toby): no extra back step,
+           so Back goes straight to the Blog feed */
+        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        else if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
       } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
     }
     function close(viaPop) {
@@ -2435,7 +2440,7 @@ window.HutchApps = window.HutchApps || {};
       W.forEach(function (x) { if (wi < 0 && x.u === wu) wi = x.i; });
       try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
     }
-    if (wi >= 0) show(wi);
+    if (wi >= 0) show(wi, 'link');
     else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
   };
 })();

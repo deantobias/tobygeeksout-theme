@@ -186,7 +186,12 @@ html.hutch-blog #main-content,html.hutch-own #main-content{display:none !importa
 .hbl-pics{display:grid;gap:3px}
 .hbl-pc{position:relative;display:block;width:100%;padding:0;border:0;background:var(--ln);cursor:zoom-in;overflow:hidden;line-height:0}
 .hbl-pc img{display:block;width:100%;height:100%;object-fit:cover}
+/* Nov 14 (Toby, v146): one photo is never cut. Landscape fills the width;
+   a tall photo stops at a square (640px high at most), with a soft blur of
+   the same photo in the gaps */
 .hbl-pics.one .hbl-pc{aspect-ratio:4/3}
+/* Nov 15 (Toby, v147 B): sideways screens 840+ (laptops, the Fold and tablets held sideways) crop a single photo 16:9, so it no longer fills most of the screen; tapping still shows it whole */
+html.hbl-three .hbl-pics.one .hbl-pc{aspect-ratio:16/9}
 .hbl-pics.two{grid-template-columns:1fr 1fr}.hbl-pics.two .hbl-pc{aspect-ratio:1}
 .hbl-pics.many{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:3/2}
 .hbl-pics.many .hbl-pc{height:100%}
@@ -218,7 +223,9 @@ html.hutch-blog #main-content,html.hutch-own #main-content{display:none !importa
 .hbl-html h2,.hbl-html h3,.hbl-html h4{font:700 17px/1.3 var(--h-ui) !important;margin:.6em 0 .3em}
 .hbl-html code{font:14px ui-monospace,Menlo,monospace;background:color-mix(in srgb,var(--ln) 60%,transparent);padding:1px 4px;border-radius:4px}
 .hbl-html.ex{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.hbl-html.fold{max-height:11.6em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.hbl-html.fold{max-height:11.6em;overflow:hidden}
+.hbl-html.fold.cut{-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.hbl-tx .hbl-rm+.hbl-kr{margin-top:2px}
 .hbl-rm[hidden]{display:none}
 .hbl-rv .rt{min-width:0}
 .hbl-rv .lab{display:block;font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acct);margin-bottom:2px}
@@ -371,6 +378,17 @@ html.hbl-three .hbl-pbar{display:flex;flex:none;align-items:center;justify-conte
 .hbl-pbar button:disabled{color:var(--sub);opacity:.5;cursor:default;background:none}
 html.hbl-three .hbl-right iframe{flex:1;width:100%;min-height:0;border:0;background:var(--bg)}
 html.hbl-three #hutch-bar .hb-more,html.hbl-three #hutch-bar .hb-expand{display:none}
+/* Nov 14 (Toby, v144): sideways Fold, TCL and iPads (840 to 1199 wide, or
+   short screens): two columns, your column and the feed; Categories and
+   Series stay in More */
+html.hbl-three.hbl-mid #hutch-blog,html.hbl-three.hbl-mid.hbl-reading #hutch-blog{grid-template-columns:230px minmax(0,1fr);gap:12px;padding:12px 14px 0}
+html.hbl-three.hbl-mid .hbl-side.r{display:none}
+html.hbl-three.hbl-mid #hutch-bar .hb-more{display:inline-flex}
+@media (max-height:520px){
+  html.hbl-mid .hbl-box.hbl-me .hbl-logo{display:none}
+  html.hbl-mid .hbl-side .hbl-box{padding-top:10px;padding-bottom:10px}
+  html.hbl-mid .hbl-show button{min-height:44px}
+}
 /* side columns */
 .hbl-box{background:var(--surf);border:1px solid var(--ln);border-radius:16px;padding:16px;margin-bottom:12px}
 .hbl-box h4{font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin:0 0 8px}
@@ -1437,10 +1455,10 @@ html.hutch-win #hutch-bar,html.hutch-win .hx-fab,html.hutch-win .hx-top,html.hut
    the icon so a slow connection still looks busy. Links inside an app get a
    thin line in the app's color across the top instead (#hx-load). */
 #hx-splash{position:fixed;inset:0;z-index:2147483000;pointer-events:none;
-  clip-path:circle(var(--r0) at var(--cx) var(--cy));transition:clip-path .28s cubic-bezier(.2,0,0,1)}
+  clip-path:circle(var(--r0) at var(--cx) var(--cy));transition:clip-path .16s cubic-bezier(.2,0,0,1)}
 #hx-splash.go{clip-path:circle(150vmax at var(--cx) var(--cy))}
 #hx-splash .hx-sic{position:absolute;border-radius:50%;background:#fff;display:grid;place-items:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.18);transition:left .28s cubic-bezier(.2,0,0,1),top .28s cubic-bezier(.2,0,0,1),width .28s cubic-bezier(.2,0,0,1),height .28s cubic-bezier(.2,0,0,1)}
+  box-shadow:0 6px 18px rgba(0,0,0,.18);transition:left .16s cubic-bezier(.2,0,0,1),top .16s cubic-bezier(.2,0,0,1),width .16s cubic-bezier(.2,0,0,1),height .16s cubic-bezier(.2,0,0,1)}
 #hx-splash .hx-sic svg{width:74%;height:74%}
 #hx-splash.go .hx-sic{left:calc(50% - var(--big) / 2) !important;top:calc(50% - var(--big) / 2) !important;width:var(--big) !important;height:var(--big) !important}
 #hx-splash .hx-swait{position:absolute;left:50%;top:calc(50% + var(--big) / 2 + 26px);width:56px;height:4px;margin-left:-28px;
@@ -1785,3 +1803,18 @@ html.hutch-dk5 #hutch-drawer:not(.q) [data-dk]:not([data-k10]){display:revert !i
 @media (min-width:520px) and (max-width:1099px) and (min-height:380px) and (max-height:410px) and (orientation:landscape){
   #hutch-home:not(.nonow) .hh-word .defs li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+.hbl-go .hbl-kr{margin-top:0}
+
+/* Nov 15 (Toby, v148 A): the Watching card. Text on the card's own
+   background (not on the picture), so it reads on any backdrop. */
+.hbl-nw .bdx{line-height:0;background:var(--ln);aspect-ratio:16/9;overflow:hidden}
+.hbl-nw .bdx img{width:100%;height:100%;object-fit:cover;display:block}
+.hbl-nw .nt{display:flex;gap:12px;padding:12px 16px 0}
+.hbl-nw.po .nt{padding-top:0}
+.hbl-nw .po{width:74px;height:auto;border-radius:8px;flex:none;display:block;align-self:flex-start}
+.hbl-nw .ntx{min-width:0}
+.hbl-nw .lab{display:block;font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acct);margin-bottom:2px}
+.hbl-nw b{display:block;font:600 19px/1.2 var(--font-reading,Georgia,serif);color:var(--ink)}
+.hbl-nw small{display:block;font:600 14px/1.35 var(--h-ui);color:var(--sub);margin-top:4px}
+.hbl-nw p{margin:6px 0 0;font-size:15.5px;line-height:1.5;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hbl-nw+.hbl-go .hbl-kr{margin-top:8px}

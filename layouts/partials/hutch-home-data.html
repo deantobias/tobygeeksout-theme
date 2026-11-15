@@ -313,7 +313,32 @@
     {{/* bd: a review's wide backdrop picture, shown whole at the bottom of its card */}}
     {{- $bd := "" -}}
     {{- with findRE `<img[^>]*\breview-backdrop\b[^>]*>` $c 1 -}}{{- $bd = htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" (index . 0)) -}}{{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn) -}}
+    {{/* nw: a Now Watching post (Nov 15, Toby, v148 A). Found by its card,
+         not its title: a review or movie card with no stars, in Reel and
+         Remote (or Currently Watching), not in a review category. Before,
+         only each show's newest post was known to the Den, so older ones
+         showed as plain posts. The show's name and "Season N · Episode N"
+         come from the card's byline when it has one, else the title. */}}
+    {{- $nw := dict -}}
+    {{- $revcat := false -}}{{- range $cs -}}{{- if in (slice "Movie Reviews" "TV Reviews" "Book Reviews") . -}}{{- $revcat = true -}}{{- end -}}{{- end -}}
+    {{- if and (not $wn) (not $wl) (not $rs) (not $revcat) (not (in $c "book-card")) (or (in $c "review-card") (in $c "movie-card")) (or (in $cs "Reel and Remote") (in $cs "Currently Watching")) -}}
+      {{- $nt := trim (replaceRE `(?i)^[^\pL\pN]*now watching:\s*` "" .Title) " " -}}
+      {{- $nt = trim (replaceRE `(?i),?\s*(S\d+\s*E\d+|season\s+\d+).*$` "" $nt) " ," -}}
+      {{- with $dn -}}{{- with .t -}}{{- $nt = . -}}{{- end -}}{{- end -}}
+      {{- $by := "" -}}
+      {{- range findRE `(?s)<p[^>]*\b(?:review|movie-card)-byline\b[^>]*>.*?</p>` $c -}}{{- $v := trim (. | plainify | htmlUnescape) " \n\t" -}}{{- if and (not $by) (findRE `(?i)season|episode` $v 1) -}}{{- $by = $v -}}{{- end -}}{{- end -}}
+      {{- $src := printf "%s %s %s" $by $rep .Title -}}
+      {{- $sn := "" -}}{{- $en := "" -}}
+      {{- with findRE `(?i)season\s*\d+|\bS\d+` $src 1 -}}{{- $sn = replaceRE `\D` "" (index . 0) -}}{{- end -}}
+      {{- with findRE `(?i)episode\s*\d+|\bS\d+\s*E\d+` $src 1 -}}{{- $en = replaceRE `^.*?(\d+)$` "$1" (index . 0) -}}{{- end -}}
+      {{- if and (not $sn) $dn -}}{{- with $dn.season -}}{{- $sn = string . -}}{{- end -}}{{- end -}}
+      {{- $se := "" -}}{{- if $sn -}}{{- $se = printf "Season %s" $sn -}}{{- if $en -}}{{- $se = printf "%s · Episode %s" $se $en -}}{{- end -}}{{- end -}}
+      {{- $syn := "" -}}
+      {{- with findRE `(?s)<p[^>]*\breview-synopsis\b[^>]*>.*?</p>` $c 1 -}}{{- $syn = trim (index . 0 | plainify | htmlUnescape) " \n\t" | truncate 240 | htmlUnescape -}}{{- end -}}
+      {{- $cv := "" -}}{{- with $posters -}}{{- $cv = index . 0 -}}{{- end -}}{{- if and (not $cv) $dn -}}{{- with $dn.cover -}}{{- $cv = . -}}{{- end -}}{{- end -}}
+      {{- if $nt -}}{{- $k = "nw" -}}{{- $nw = dict "t" $nt "se" $se "syn" $syn "cv" $cv -}}{{- end -}}
+    {{- end -}}
+    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}

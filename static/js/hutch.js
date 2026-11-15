@@ -2685,6 +2685,7 @@
     var j = t.match(/<script[^>]*id="hutch-(?:app|home)-data"[^>]*>[\s\S]*?<\/script>/g) || [];
     return ((m ? m[0] : t) + j.join('')).replace(/\?\d{9,11}\b/g, '').replace(/\s+/g, ' ');
   }
+  var fcLater = null;
   function freshCheck() {
     if (!swOK || isEmbed || /[?&](hutch|sky|season|fonts)=/.test(location.search)) return;
     var k = location.href.split('#')[0];
@@ -2693,7 +2694,11 @@
         /* a copy the page helper saved moments ago (this very page load,
            or the home screen's renewal) needs no second look (Nov 11) */
         var ht = hit ? +(hit.headers.get('x-hutch-t') || 0) : 0;
-        if (ht && Date.now() - ht < 60000) return;
+        /* Nov 15 (Toby, on the TCL: the Blog didn't show what was new until
+           he refreshed): a copy saved moments ago can still be from just
+           before Micro.blog finished rebuilding, so instead of skipping the
+           look, it is taken once the copy is a minute old */
+        if (ht && Date.now() - ht < 60000) { if (!fcLater) fcLater = setTimeout(function () { fcLater = null; freshCheck(); }, 60000 - (Date.now() - ht) + 3000); return; }
         var was = hit ? hit.text() : Promise.resolve(null);
         return was.then(function (old) {
           return fetch(k, { cache: 'no-store', credentials: 'same-origin' }).then(function (res) {
@@ -2722,7 +2727,8 @@
      At most one automatic reload a minute per page, so a page that never
      matches can't keep reloading. */
   var touched = false;
-  ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, function () { touched = true; }, { passive: true, once: true }); });
+  /* not "once": coming back to the page clears touched, so it must be able to turn on again */
+  ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, function () { touched = true; }, { passive: true }); });
   function gotFresh(fresh) {
     var key = 'hutch-auto:' + location.pathname + location.search, last = 0;
     try { last = +(sessionStorage.getItem(key) || 0); } catch (e) {}
@@ -2797,6 +2803,20 @@
   }
   if (document.readyState === 'complete') setTimeout(freshCheck, 1200);
   else window.addEventListener('load', function () { setTimeout(freshCheck, 1200); });
+  /* Nov 15 (Toby): coming back to an app that was still open (switching
+     back on a phone or tablet, or returning to the tab) counts as opening
+     it: after a minute or more away it looks for something newer. Outside
+     the Blog, a newer copy shows at once if he hasn't touched the screen
+     since coming back; in the Blog, new posts slide in and his spot stays. */
+  var hiddenAt = 0;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (!hiddenAt || Date.now() - hiddenAt < 60000) return;
+    hiddenAt = 0;
+    if (!window.hutchBlogFresh) touched = false;
+    setTimeout(freshCheck, 600);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) { if (!window.hutchBlogFresh) touched = false; setTimeout(freshCheck, 600); } });
   /* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
      Phone and Fold only; laptops get the line (see pressIcon below).
      Toby: "i just dont [want] people think that clicking is not working

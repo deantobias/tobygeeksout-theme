@@ -1838,3 +1838,9 @@ html.hbl-two .hbl-rv b,html.hbl-two .hbl-nw b{font-size:19px}
 @media (min-width:1100px){.hbl-wl>b{font-size:24px}}
 html.hbl-two .hbl-wl>b{font-size:19px}
 .hbl-wl>small{margin-top:3px}
+
+/* Nov 15 (Toby): like classic at dusk and night (custom.css, body.tgo-night),
+   light Fraunces on a dark ground reads thin at 400, so it goes to 450:
+   the Den (always dark) and the Blog's cards when Hutch is dark. */
+html.fonts-70s .hx-den :is(.summary, .tagline){font-weight:450}
+html.fonts-70s.hx-dark :is(.hbl-html, .hbl-html p, .hbl-html li, .hbl-tx p, .hbl-rv p, .hbl-nw p){font-weight:450}

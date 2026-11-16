@@ -1866,8 +1866,11 @@
       if (x.k === 'wl' && x.wl && x.wl.it) {
         /* Nov 14 (Toby): each title with its small poster from the post */
         return '<div class="hbl-wl"><b>Watch Log</b>' + (x.wl.h ? '<small>' + esc(x.wl.h) + '</small>' : '') + '<ul>' +
-          x.wl.it.slice(0, 5).map(function (w) { return '<li>' + (w.p ? '<img class="wp" src="' + esc(w.p) + '" alt="" loading="lazy" decoding="async">' : '<span class="wp"></span>') + '<span class="wt"><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</span></li>'; }).join('') +
-          (x.wl.it.length > 5 ? '<li class="more">+' + (x.wl.it.length - 5) + ' more</li>' : '') + '</ul></div><div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
+          x.wl.it.map(function (w, j) { return '<li' + (j >= 5 ? ' hidden' : '') + '>' + (w.p ? '<img class="wp" src="' + esc(w.p) + '" alt="" loading="lazy" decoding="async">' : '<span class="wp"></span>') + '<span class="wt"><span class="t">' + esc(w.t) + '</span>' + (w.e ? '<span class="e">' + esc(w.e) + '</span>' : '') + '</span></li>'; }).join('') +
+          '</ul>' +
+          /* Nov 16 (Toby): the card is the whole Watch Log, so no "Read the post". The first 5
+             show; Show more opens the rest right here (like a micro), and Permalink sits by Reply */
+          (x.wl.it.length > 5 ? '<button type="button" class="hbl-rm hbl-wlm">Show more</button>' : '') + '</div>';
       }
       /* Nov 15 (Toby, v148 A): one Watching card for every Now Watching
          post: WATCHING, the show, "Season N · Episode N", a line of the
@@ -1927,7 +1930,7 @@
       /* Nov 15 (Toby, v149): a card that already shows everything (every
          micro, since Show more opens it in place, and a short post) gets
          Permalink instead of "Read the post" */
-      if (x.k === 'm' || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
+      if (x.k === 'm' || x.k === 'wl' || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
       var v = !!conv[x.u];
       b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
       return '<div class="hbl-act">' + b + '</div>';
@@ -2080,6 +2083,7 @@
       var rm = t.closest('.hbl-rm');
       if (rm) {
         var cr = rm.closest('.hbl-it'), it0 = cr.hasAttribute('data-i') ? TL[+cr.getAttribute('data-i')] : picks.filter(function (q) { return q.u === cr.getAttribute('data-u'); })[0], mx = rm.parentNode.querySelector('.mx');
+        if (rm.classList.contains('hbl-wlm')) { [].forEach.call(cr.querySelectorAll('.hbl-wl li[hidden]'), function (l) { l.hidden = false; }); rm.remove(); return; }
         if (mx && mx.classList.contains('fold')) { mx.classList.remove('fold', 'cut'); rm.remove(); }
         else if (it0 && mx) { mx.textContent = it0.xf; rm.remove(); }
         return;
@@ -2103,7 +2107,7 @@
       if (t.closest('button')) return;
       if (!x) return;
       /* Nov 15 (Toby): a micro that is cut short opens up right there; Read the post opens the post */
-      var rm1 = (card0.classList.contains('k-m') || card0.classList.contains('hbl-arch')) && card0.querySelector('.hbl-rm:not([hidden])');
+      var rm1 = (card0.classList.contains('k-m') || card0.classList.contains('k-wl') || card0.classList.contains('hbl-arch')) && card0.querySelector('.hbl-rm:not([hidden])');
       if (rm1) { rm1.click(); return; }
       if (e.ctrlKey || e.metaKey || e.shiftKey) { window.open(x.u, '_blank'); return; }
       if (paned()) { openInPane(x); navState(); return; }

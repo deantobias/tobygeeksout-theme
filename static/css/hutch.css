@@ -1904,3 +1904,7 @@ html .hh-brand .face{background:#C4622D}
 /* Nov 16 (Toby): Watch Log card, the rest of the list opens in place */
 .hbl-wl li[hidden]{display:none}
 .hbl-wl .hbl-wlm{padding-top:6px}
+
+/* Nov 16: the strip scrolls its highlighted photo into view */
+.hbl-view .vstrip{position:relative;scrollbar-width:none}
+.hbl-view .vstrip::-webkit-scrollbar{display:none}

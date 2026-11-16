@@ -2154,11 +2154,28 @@
        was stuck on photo 1. The photos and place now live out here, shared. */
     var vw = null, srcs = [], at = 0, n = 0, vwFor = 0;
     function step(d) { var k = at + d; if (k >= 0 && k < srcs.length) { at = k; draw(); } }
+    /* Nov 16 (Toby, iPad: "the preview on the bottom is not showing photos,
+       when I go next it refreshes them again"): the strip was rebuilt on every
+       step, and every thumbnail was the full-size original. Now the strip is
+       built once per post and only its highlight moves; thumbnails are small
+       copies from Micro.blog's resizer, the big photo is screen-sized (like the
+       Photos viewer), and the photos either side load ahead. */
+    function vsz(u, w) { return /cdn\.uploads\.micro\.blog/.test(u) ? 'https://cdn.micro.blog/photos/' + w + 'x/' + encodeURIComponent(u) : u; }
+    var VWB = (function () { var t = Math.max(innerWidth, innerHeight) * Math.min(window.devicePixelRatio || 1, 2); return t <= 900 ? 800 : t <= 1300 ? 1200 : t <= 1700 ? 1600 : 2000; })();
+    var stripKey = '';
     function draw() {
-      vw.querySelector('.vimg img').src = srcs[at] || '';
+      vw.querySelector('.vimg img').src = srcs[at] ? vsz(srcs[at], VWB) : '';
+      [at + 1, at - 1].forEach(function (k) { if (srcs[k]) (new Image()).src = vsz(srcs[k], VWB); });
       vw.querySelector('.vn').textContent = (at + 1) + ' of ' + Math.max(n, srcs.length);
       vw.querySelector('.vgo.l').hidden = at <= 0; vw.querySelector('.vgo.r').hidden = at >= srcs.length - 1;
-      vw.querySelector('.vstrip').innerHTML = srcs.map(function (u, j) { return '<button type="button" data-vi="' + j + '"' + (j === at ? ' class="on" aria-current="true"' : '') + ' aria-label="Photo ' + (j + 1) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>'; }).join('');
+      var strip = vw.querySelector('.vstrip'), key = srcs.join('|');
+      if (key !== stripKey) {
+        stripKey = key;
+        strip.innerHTML = srcs.map(function (u, j) { return '<button type="button" data-vi="' + j + '" aria-label="Photo ' + (j + 1) + '"><img src="' + esc(vsz(u, 200)) + '" alt="" decoding="async"></button>'; }).join('');
+      }
+      [].forEach.call(strip.children, function (b, j) { var on = j === at; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+      var cur = strip.children[at];
+      if (cur && strip.scrollWidth > strip.clientWidth) strip.scrollTo({ left: cur.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
     }
     function viewer(x, start) {
       srcs = (x.imgs || []).slice(); at = start || 0; n = Math.max(x.ni || 0, srcs.length);

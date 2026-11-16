@@ -2174,9 +2174,25 @@
           var g = e.target.closest('.vgo'); if (g) { step(g.classList.contains('r') ? 1 : -1); return; }
           var th = e.target.closest('[data-vi]'); if (th) { at = +th.getAttribute('data-vi'); draw(); }
         });
-        var x0 = null;
-        vw.addEventListener('touchstart', function (e) { x0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
-        vw.addEventListener('touchend', function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
+        /* Nov 16 (Toby: iPad Safari would not swipe): the viewer keeps a
+           sideways move for itself (Safari otherwise takes it as a page pan
+           and may cancel the touch), counts a cancelled swipe too, and lets
+           a two-finger pinch go */
+        var x0 = null, y0 = 0, xl = 0, side = false;
+        function swipeEnd() { if (x0 !== null && side && Math.abs(xl - x0) > 50) step(xl < x0 ? 1 : -1); x0 = null; side = false; }
+        vw.addEventListener('touchstart', function (e) {
+          if (e.touches.length !== 1 || e.target.closest('.vstrip,.vgo,.vx')) { x0 = null; return; }
+          x0 = xl = e.touches[0].clientX; y0 = e.touches[0].clientY; side = false;
+        }, { passive: true });
+        vw.addEventListener('touchmove', function (e) {
+          if (x0 === null) return;
+          if (e.touches.length !== 1) { x0 = null; return; }
+          var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0; xl = t.clientX;
+          if (!side && Math.abs(mx) > 8 && Math.abs(mx) > Math.abs(my)) side = true;
+          if (side && e.cancelable) e.preventDefault();
+        }, { passive: false });
+        vw.addEventListener('touchend', function (e) { if (x0 !== null && e.changedTouches[0]) { xl = e.changedTouches[0].clientX; if (Math.abs(xl - x0) > 50) side = true; } swipeEnd(); }, { passive: true });
+        vw.addEventListener('touchcancel', swipeEnd, { passive: true });
         document.addEventListener('keydown', function (e) {
           if (!de.classList.contains('hbl-viewing')) return;
           if (e.key === 'Escape') closeViewer(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1);

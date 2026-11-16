@@ -164,12 +164,14 @@
   {{- end -}}
 {{- end -}}
 
-{{/* ---- BUILDING: hand-written and evergreen. Edit here. */}}
+{{/* ---- BUILDING: hand-written and evergreen. Edit here.
+     Nov 16, 2026 (Toby): Hutch no longer points to the Tinkering Log
+     (Hutch changes are not logged there yet). */}}
 {{- $up := "https://tobygeeksout.micro.blog/uploads/2026/" -}}
 {{- $builds := slice
   (dict "name" "Perch" "icon" (print $up "icon-192.png") "line" "My own Micro.blog app." "tint" false)
   (dict "name" "Draft Studio" "icon" (print $up "ds-icon.png") "line" "The writing app where my posts start." "tint" false)
-  (dict "name" "Hutch" "icon" (print $up "fb54b5e64c.png") "line" "This site's theme. Every change is in the" "link" (slice "/tinkering/" "/changelog/") "linkText" "Tinkering Log" "tint" true)
+  (dict "name" "Hutch" "icon" (print $up "fb54b5e64c.png") "line" "This site's theme." "tint" true)
   (dict "name" "Focus Mail" "icon" (print $up "icon.svg") "line" "A calmer way to do email." "tint" false)
 -}}
 
@@ -294,6 +296,47 @@
   })();
   </script>
 
+  {{/* TINKERING (Nov 16, 2026, Toby, mockup v157 B): the three newest
+       Tinkering Log entries, read from the changelog page at build time.
+       Micro.blog only rebuilds on publish, so the 30-day check runs in the
+       browser: the card hides itself once the newest entry is older. */}}
+  {{- $tkPage := false }}
+  {{- range site.Pages }}{{ if and (not $tkPage) (or (in .RawContent "{{< changelog") (in .RawContent "{{<changelog") (in (slice "/changelog/" "/tinkering/") .RelPermalink)) }}{{ $tkPage = . }}{{ end }}{{ end }}
+  {{- with $tkPage }}
+  {{- $mon := dict "Jan" "01" "Feb" "02" "Mar" "03" "Apr" "04" "May" "05" "Jun" "06" "Jul" "07" "Aug" "08" "Sep" "09" "Oct" "10" "Nov" "11" "Dec" "12" }}
+  {{- $year := "" }}{{ $tk := slice }}
+  {{- range findRE `clog-month-head">[^<]+<|clog-date">[^<]+</span>\s*<span class="clog-title">[^<]+<` .Content }}
+    {{- if in . "clog-month-head" }}{{ $year = replaceRE `.*(\d{4}).*` "$1" . }}
+    {{- else if lt (len $tk) 3 }}
+      {{- $d := replaceRE `(?s)clog-date">([^<]+)</span>.*` "$1" . | htmlUnescape }}
+      {{- $t := replaceRE `(?s).*clog-title">([^<]+)<` "$1" . | htmlUnescape }}
+      {{- $m := index $mon (substr $d 0 3) }}{{ $day := printf "%02s" (trim (replaceRE `^\D+` "" $d) " ") }}
+      {{- $tk = $tk | append (dict "d" $d "t" $t "iso" (printf "%s-%s-%s" $year $m $day)) }}
+    {{- end }}
+  {{- end }}
+  {{- with $tk }}
+  <section class="tgn-sec" id="tgn-tinkering" aria-labelledby="tgn-tinkering-h" data-newest="{{ (index . 0).iso }}">
+    <div class="tgn-head">
+      <div><span class="tgn-kicker">On the workbench</span><h2 class="tgn-h" id="tgn-tinkering-h">Tinkering</h2></div>
+      <a class="tgn-src" href="{{ $tkPage.RelPermalink }}">from {{ replaceRE `/+$` "" $tkPage.RelPermalink }} ↗</a>
+    </div>
+    <ul class="tgn-tink">
+      {{- range . }}
+      <li><span class="tgn-tink-d">{{ .d }}</span><span class="tgn-tink-t">{{ .t }}</span></li>
+      {{- end }}
+    </ul>
+    <a class="tgn-tink-more" href="{{ $tkPage.RelPermalink }}">See the whole Tinkering Log →</a>
+  </section>
+  <script>
+  (function () {
+    var s = document.getElementById("tgn-tinkering"); if (!s) return;
+    var d = new Date(s.getAttribute("data-newest") + "T12:00:00");
+    if (isNaN(d) || (Date.now() - d) / 864e5 > 30) s.hidden = true;
+  })();
+  </script>
+  {{- end }}
+  {{- end }}
+
   {{- if $bookTitle }}
   <section class="tgn-sec" aria-labelledby="tgn-reading-h">
     <div class="tgn-head">
@@ -390,9 +433,7 @@
       {{- with $u }}
       <a class="tgn-slash" href="{{ . | absURL }}"><code>{{ replaceRE `/+$` "" . }}</code><span>{{ $s.line }}</span></a>
       {{- end }}
-      {{- if eq $i 0 }}{{/* /now always sits second, right after /about */}}
-      <span class="tgn-slash tgn-slash--here" aria-current="page"><code>/now</code><span>What I'm up to. You're here.</span></span>
-      {{- end }}
+      {{/* Nov 16, 2026 (Toby): no /now tile here, you are already on it */}}
       {{- end }}
     </div>
     <div class="tgn-subrow"><span class="tgn-sub">More pages</span></div>

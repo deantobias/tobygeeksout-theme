@@ -1464,7 +1464,10 @@ window.HutchApps = window.HutchApps || {};
       photo: function (sec) {
         var a = $('.tgn-photo a', sec), img = $('.tgn-photo img', sec); if (!a || !img) return '';
         var cap = $('.tgn-photo figcaption', sec), t = txt($('.tgn-cap-title', cap)), d = txt($('time', cap));
-        return '<section class="nw-card" data-k="photo">' + head(sec) + '<a class="nw-photo" href="' + esc(href(a)) + '"><img src="' + esc(img.getAttribute('src')) + '" alt="' + esc(img.getAttribute('alt') || '') + '" loading="lazy" decoding="async">' +
+        /* Nov 16 (Toby): the photo opens whole on black in the Photos viewer,
+           like the home screen photo widget, with View the post from there */
+        var pu = href(a); try { pu = new URL(pu, location.href).pathname; } catch (e) {}
+        return '<section class="nw-card" data-k="photo">' + head(sec) + '<a class="nw-photo" href="/photo/#post=' + encodeURIComponent(pu) + '"><img src="' + esc(img.getAttribute('src')) + '" alt="' + esc(img.getAttribute('alt') || '') + '" loading="lazy" decoding="async">' +
           '<span class="nw-cap"><small>' + esc(d) + '</small>' + (t ? '<b>' + esc(t) + '</b>' : '') + '</span></a></section>';
       },
       writing: function (sec) {
@@ -1503,6 +1506,15 @@ window.HutchApps = window.HutchApps || {};
         return '<section class="nw-card nw-full" data-k="dir">' + head(sec, right) + (slashes ? '<div class="nw-slash">' + slashes + '</div>' : '') +
           (pills ? '<div class="nw-morel">' + esc(txt(subs[1]) || 'More pages') + '</div><div class="nw-pills">' + pills + '</div>' : '') + '</section>';
       },
+      /* Nov 16 (Toby, v157 B): the newest Tinkering Log entries */
+      tinkering: function (sec) {
+        if (sec.hidden) return '';
+        var li = $$('.tgn-tink li', sec); if (!li.length) return '';
+        var more = $('.tgn-tink-more', sec);
+        return '<section class="nw-card" data-k="tinkering">' + head(sec) + '<ul class="nw-tk">' + li.map(function (l) {
+          return '<li><span class="d">' + esc(txt($('.tgn-tink-d', l))) + '</span><span class="t">' + esc(txt($('.tgn-tink-t', l))) + '</span></li>';
+        }).join('') + '</ul>' + (more ? '<a class="nw-mmore" href="' + esc(href(more)) + '">' + esc(txt(more)) + '</a>' : '') + '</section>';
+      },
       /* Nov 16 (Toby, v156): last month's numbers as tiles, each a big
          number with a small label; "Most watched in <month>" as a label over
          one row of posters. Filled late by the Trakt script, so it shows once
@@ -1524,7 +1536,7 @@ window.HutchApps = window.HutchApps || {};
     };
     function kind(sec) {
       var h = $('.tgn-h', sec), id = (h && h.id) || sec.id || '';
-      var m = /tgn-(watching|month|reading|photo|writing|building|making|dir)/.exec(id);
+      var m = /tgn-(watching|month|tinkering|reading|photo|writing|building|making|dir)/.exec(id);
       return m ? m[1] : 'other';
     }
     /* Nov 16 (Toby): Latest photo sits on the left under Reading; on the right,

@@ -1483,7 +1483,8 @@ window.HutchApps = window.HutchApps || {};
         return '<section class="nw-card" data-k="building">' + head(sec) + '<div class="nw-projects">' + bs.map(function (b) {
           var img = $('img', b);
           return '<div class="nw-proj"><span class="nw-pi' + (img && img.classList.contains('tgn-icon--tint') ? ' nw-tint' : '') + '">' + (img ? '<img src="' + esc(img.getAttribute('src')) + '" alt="" loading="lazy" decoding="async">' : '') + '</span>' +
-            '<b>' + esc(txt($('.tgn-build-name', b))) + '</b><small>' + inner($('.tgn-small', b)) + '</small></div>';
+            /* Nov 16 (Toby): a tile can say something else in Hutch (data-hutch) */
+            '<b>' + esc(txt($('.tgn-build-name', b))) + '</b><small>' + (function (sm) { var hl = sm && sm.getAttribute('data-hutch'); return hl ? esc(hl) : inner(sm); })($('.tgn-small', b)) + '</small></div>';
         }).join('') + '</div></section>';
       },
       making: function (sec) {

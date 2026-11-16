@@ -168,10 +168,20 @@
      Nov 16, 2026 (Toby): Hutch no longer points to the Tinkering Log
      (Hutch changes are not logged there yet). */}}
 {{- $up := "https://tobygeeksout.micro.blog/uploads/2026/" -}}
+{{/* Nov 16, 2026 (Toby): Draft Studio's line shortened to one line so the
+     four Building tiles look even. */}}
+{{/* Nov 16, 2026 (Toby): Hutch is one of the site's two looks, so its
+     tile says different things in each:
+       in Hutch    "This site's new look." (the reader is already in it)
+       in Classic  "A new theme in the works." while Hutch isn't finished.
+     When Hutch is ready, change false to true below and Classic says
+     "A new look for this site. Try it", with "Try it" turning Hutch on
+     (?hutch=on). Every version fits on one line from the Fold up. */}}
+{{- $hutchReady := false -}}
 {{- $builds := slice
   (dict "name" "Perch" "icon" (print $up "icon-192.png") "line" "My own Micro.blog app." "tint" false)
-  (dict "name" "Draft Studio" "icon" (print $up "ds-icon.png") "line" "The writing app where my posts start." "tint" false)
-  (dict "name" "Hutch" "icon" (print $up "fb54b5e64c.png") "line" "This site's theme." "tint" true)
+  (dict "name" "Draft Studio" "icon" (print $up "ds-icon.png") "line" "Where my posts start." "tint" false)
+  (dict "name" "Hutch" "icon" (print $up "fb54b5e64c.png") "line" (cond $hutchReady "A new look for this site." "A new theme in the works.") "try" $hutchReady "hutch" "This site's new look." "tint" true)
   (dict "name" "Focus Mail" "icon" (print $up "icon.svg") "line" "A calmer way to do email." "tint" false)
 -}}
 
@@ -407,7 +417,7 @@
         <img class="tgn-icon{{ if .tint }} tgn-icon--tint{{ end }}" src="{{ .icon }}" alt="" width="56" height="56" loading="lazy" decoding="async">
         <div class="tgn-build-body">
           <span class="tgn-build-name">{{ .name }}</span>
-          <span class="tgn-small">{{ .line }}{{ with .link }}{{ $l := "" }}{{ range . }}{{ if and (not $l) (in $have (replaceRE `/+$` "" .)) }}{{ $l = . }}{{ end }}{{ end }}{{ if not $l }}{{ $l = index . (sub (len .) 1) }}{{ end }} <a href="{{ $l | absURL }}">{{ $b.linkText }}</a>.{{ end }}</span>
+          <span class="tgn-small"{{ with .hutch }} data-hutch="{{ . }}"{{ end }}>{{ .line }}{{ if .try }} <a href="{{ "/?hutch=on" | absURL }}">Try it</a>{{ end }}{{ with .link }}{{ $l := "" }}{{ range . }}{{ if and (not $l) (in $have (replaceRE `/+$` "" .)) }}{{ $l = . }}{{ end }}{{ end }}{{ if not $l }}{{ $l = index . (sub (len .) 1) }}{{ end }} <a href="{{ $l | absURL }}">{{ $b.linkText }}</a>.{{ end }}</span>
         </div>
       </div>
       {{- end }}

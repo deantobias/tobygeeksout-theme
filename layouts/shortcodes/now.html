@@ -182,14 +182,22 @@
 {{- range site.Pages -}}{{- $have = $have | append (replaceRE `(\.html|/)+$` "" .RelPermalink) -}}{{- end -}}
 {{- $slashDefs := slice
   (dict "try" (slice "/about/") "line" "Who I am and why I geek out")
-  (dict "try" (slice "/photo/") "line" "My newest shot, swapped out as I go")
+  (dict "try" (slice "/photo/") "line" "Every photo, newest first")
   (dict "try" (slice "/uses/") "line" "The gear and apps I use")
 -}}
 {{- $moreDefs := slice
-  (slice "/the-pulse/" "/pulse/") (slice "/the-long-road/") (slice "/archive/") (slice "/calendar/")
-  (slice "/blaugust/" "/blaugust-2026/") (slice "/watched/") (slice "/the-queue/" "/queue/")
-  (slice "/newsletter/" "/newsletters/" "/subscribe/")
+  (slice "/the-pulse/" "/pulse/") (slice "/the-long-road-here/" "/the-long-road/") (slice "/archive/") (slice "/calendar/")
+  (slice "/blaugust/" "/blaugust-2026/") (slice "/the-queue/" "/queue/")
 -}}
+{{/* Nov 16, 2026 (Toby): no Watched (the Now page already shows what
+     I'm watching) and no Newsletter until that page is updated. The Long
+     Road's real address is /the-long-road-here/. */}}
+{{/* Nov 16, 2026 (Toby): /photo's line no longer repeats the Latest photo
+     card ("Every photo, newest first", which is what /photo shows). */}}
+{{/* Nov 16, 2026 (Toby, v160): Keep in touch at the bottom, Contact and
+     Follow. Follow is the /subscribe/ page; the Newsletter page (email
+     previews) is a different page and stays out for now. */}}
+{{- $touchDefs := slice (slice "/contact/") (slice "/subscribe/" "/follow/") -}}
 {{- $always := slice "/archive/" -}}
 {{- $found := 0 -}}
 {{- $slash := slice -}}
@@ -205,6 +213,13 @@
   {{- range . -}}{{- if and (not $hit) (or (in $always .) (in $have (replaceRE `/+$` "" .))) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
   {{- if and $hit (not (in $always $hit)) -}}{{- $found = add $found 1 -}}{{- end -}}
   {{- $more = $more | append (dict "url" $hit "first" (index . 0)) -}}
+{{- end -}}
+{{- $touch := slice -}}
+{{- range $touchDefs -}}
+  {{- $hit := "" -}}
+  {{- range . -}}{{- if and (not $hit) (in $have (replaceRE `/+$` "" .)) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
+  {{- if $hit -}}{{- $found = add $found 1 -}}{{- end -}}
+  {{- $touch = $touch | append (dict "url" $hit "first" (index . 0)) -}}
 {{- end -}}
 {{/* If nothing at all was found, page detection itself failed on this
      Hugo version: show every first slug rather than an empty section. */}}
@@ -439,6 +454,13 @@
     <div class="tgn-subrow"><span class="tgn-sub">More pages</span></div>
     <div class="tgn-chips">
       {{- range $more }}
+      {{- $u := cond $trust .url .first }}
+      {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
+      {{- end }}
+    </div>
+    <div class="tgn-subrow"><span class="tgn-sub">Keep in touch</span></div>
+    <div class="tgn-chips">
+      {{- range $touch }}
       {{- $u := cond $trust .url .first }}
       {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
       {{- end }}

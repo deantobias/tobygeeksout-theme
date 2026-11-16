@@ -79,6 +79,8 @@
     mb: '<path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-8.5L6 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V6.5A1.5 1.5 0 0 1 5 5Z"/><path d="M8 9.5h8 M8 12.5h5"/>',
     /* Nov 8 (Toby): The Long Road Here (a winding road) and Knowember (a
        name tag) become apps, like the Classic footer's "Get to know me" */
+    /* Nov 16 (Toby, v159): The Queue, a stack of posters saved for later */
+    queue: '<rect x="3" y="8" width="13" height="13" rx="2"/><path d="M7 4.5h11a2 2 0 0 1 2 2V17"/><path d="M8 12v5l4-2.5z"/>',
     longroad: '<path d="M4 20c3-4 9-3 9-7s-5-3-5-6 3-3 4-4"/><path d="M14 20c2-3 6-4 6-7"/>',
     knowember: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18 M7.5 15h9"/>',
     tinkering: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
@@ -127,6 +129,11 @@
       '<g transform="translate(7 7.5) scale(1.42)"><circle cx="12" cy="10.6" r="4.6" fill="#FFFAB0"/><path d="M12 0C5.4 0 0 4.9 0 10.95 0 17 5.4 21.9 12 21.9c1.4 0 2.85-.25 4.2-.7.15-.05.35 0 .45.1 1 1.35 2.55 2.3 4.25 2.7l.25-.1v-.3a4.65 4.65 0 01.2-5.9C22.9 15.85 24 13.5 24 10.95 24 4.9 18.55 0 12 0zm-.05 5.2c.15 0 .3.1.35.25L13.55 9l3.85.1c.15 0 .3.1.35.2.05.15 0 .3-.15.4L14.55 12l1.1 3.6c.05.15 0 .3-.15.4h-.4l-3.15-2.15L8.8 16h-.4c-.15-.1-.2-.25-.15-.4l1.1-3.6L6.3 9.7c-.15-.1-.2-.25-.15-.4.05-.1.2-.2.35-.2l3.85-.1 1.25-3.55c.05-.15.2-.25.35-.25z" fill="url(#%ID%m)"/></g>',
     tinkering: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.tinkering) + '" fill="#5B6B7A"/></g><circle cx="12" cy="36" r="2" fill="#F2B544"/>',
     settings: '<g transform="translate(5 5) scale(1.58)"><path d="' + svgPath(IC.settings) + '" fill="#6B7280"/><circle cx="12" cy="12" r="3.3" fill="#FFFDF8"/></g>',
+    /* Nov 16 (Toby, v159): The Queue, three posters stacked up with a
+       gold bookmark on the front one, saved to watch later */
+    queue: '<rect x="18" y="6" width="21" height="28" rx="3" fill="#A9B8CF"/><rect x="13.5" y="9.5" width="21" height="28" rx="3" fill="#5C7399"/>' +
+      '<rect x="9" y="13" width="21" height="28" rx="3" fill="#1E2D4A"/><path d="M23.5 13v8l2.25-1.8 2.25 1.8v-8z" fill="#F2B544"/>' +
+      '<path d="M16.5 22.5v9a.8.8 0 0 0 1.2.7l7-4.5a.8.8 0 0 0 0-1.4l-7-4.5a.8.8 0 0 0-1.2.7z" fill="#fff"/>',
     /* Nov 8: a road winding up to the mountains, and a red "Hello" name tag */
     longroad: '<path d="M6 26l9-10 6 5.5 7-8.5 14 13z" fill="#5E7A55"/><circle cx="35" cy="11" r="3.4" fill="#F2B544"/>' +
       '<path d="M6 25.5h36V38a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#A9C08E"/>' +

@@ -1493,18 +1493,31 @@ window.HutchApps = window.HutchApps || {};
           '<span class="nw-cap"><small>' + esc(s) + '</small><b>' + esc(b) + '</b></span></a></section>';
       },
       dir: function (sec) {
-        var APP = { about: ['about', '#1E2D4A'], now: ['now', '#7A8F6A'], photo: ['photos', '#3F7FA6'], uses: ['uses', '#5B7A8C'], contact: ['contact', '#3E7C7A'] };
+        /* Nov 16 (Toby, v159): every page here gets the same full color app
+           icon it has on the home screen, More pages included */
+        var APP = { about: ['about', 'About'], photo: ['photos', 'Photos'], uses: ['uses', 'Uses'],
+          'the-pulse': ['pulse', 'The Pulse'], pulse: ['pulse', 'The Pulse'],
+          'the-long-road-here': ['longroad', 'Long Road'], 'the-long-road': ['longroad', 'Long Road'],
+          archive: ['archive', 'Archive'], calendar: ['calendar', 'Calendar'],
+          blaugust: ['blaugust', 'Blaugust'], 'blaugust-2026': ['blaugust', 'Blaugust'],
+          'the-queue': ['queue', 'The Queue'], queue: ['queue', 'The Queue'],
+          contact: ['contact', 'Contact'], subscribe: ['follow', 'Follow'] };
+        function tile(node, path, showPath, title) {
+          var slug = path.replace(/^\/+|\/+$/g, ''), a = APP[slug];
+          var icon = a ? '<span class="nw-ti hx-full">' + ctx.art(a[0]) + '</span>' : '<span class="nw-ti" style="background:#C4622D">' + ctx.ic('blog') + '</span>';
+          return '<a class="nw-sl" href="' + esc(href(node)) + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' + icon +
+            '<span class="nw-nm">' + esc(a ? a[1] : words(slug)) + '</span>' + (showPath ? '<code>' + esc(path) + '</code>' : '') + '</a>';
+        }
         var what = $('.tgn-subrow .tgn-src', sec);
-        var slashes = $$('.tgn-slash', sec).map(function (s) {
-          var code = txt($('code', s)), slug = code.replace(/^\/+|\/+$/g, ''), a = APP[slug] || ['blog', '#C4622D'], here = !s.getAttribute('href');
-          var tag = here ? 'span aria-current="page"' : 'a href="' + esc(href(s)) + '"';
-          return '<' + tag + ' class="nw-sl' + (here ? ' nw-here' : '') + '" title="' + esc(txt($('span', s))) + '"><span class="nw-ti" style="background:' + a[1] + '">' + ctx.ic(a[0]) + '</span>' + esc(words(slug)) + '<code>' + esc(code) + '</code></' + tag.split(' ')[0] + '>';
-        }).join('');
+        var slashes = $$('.tgn-slash', sec).map(function (s) { return tile(s, txt($('code', s)), true, txt($('span', s))); }).join('');
         var subs = $$('.tgn-subrow .tgn-sub', sec);
-        var pills = $$('.tgn-chip', sec).map(function (c) { return '<a href="' + esc(href(c)) + '">' + esc(words(txt(c))) + '</a>'; }).join('');
+        /* chip groups: More pages, then Keep in touch (Nov 16, v160) */
+        var groups = $$('.tgn-chips', sec).map(function (g) { return $$('.tgn-chip', g).map(function (c) { return tile(c, txt(c), false); }).join(''); });
+        var more = groups[0] || '', touch = groups[1] || '';
         var right = what ? '<a class="nw-what" href="' + esc(href(what)) + '" rel="noopener">' + esc(txt(what)) + '</a>' : '';
         return '<section class="nw-card nw-full" data-k="dir">' + head(sec, right) + (slashes ? '<div class="nw-slash">' + slashes + '</div>' : '') +
-          (pills ? '<div class="nw-morel">' + esc(txt(subs[1]) || 'More pages') + '</div><div class="nw-pills">' + pills + '</div>' : '') + '</section>';
+          (more ? '<div class="nw-morel">' + esc(txt(subs[1]) || 'More pages') + '</div><div class="nw-slash nw-more">' + more + '</div>' : '') +
+          (touch ? '<div class="nw-morel">' + esc(txt(subs[2]) || 'Keep in touch') + '</div><div class="nw-slash nw-more">' + touch + '</div>' : '') + '</section>';
       },
       /* Nov 16 (Toby, v157 B): the newest Tinkering Log entries */
       tinkering: function (sec) {

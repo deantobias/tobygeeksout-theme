@@ -1503,6 +1503,20 @@ window.HutchApps = window.HutchApps || {};
         return '<section class="nw-card nw-full" data-k="dir">' + head(sec, right) + (slashes ? '<div class="nw-slash">' + slashes + '</div>' : '') +
           (pills ? '<div class="nw-morel">' + esc(txt(subs[1]) || 'More pages') + '</div><div class="nw-pills">' + pills + '</div>' : '') + '</section>';
       },
+      /* Nov 16 (Toby, v156): last month's numbers as tiles, each a big
+         number with a small label; "Most watched in <month>" as a label over
+         one row of posters. Filled late by the Trakt script, so it shows once
+         the page script unhides the section (the observer re-renders). */
+      month: function (sec) {
+        if (sec.hidden) return '';
+        var cells = $$('.tgn-month-stats > div', sec); if (!cells.length) return '';
+        var tiles = cells.map(function (c) { return '<div class="nw-tile"><b>' + esc(txt($('b', c))) + '</b><span>' + esc(txt($('span', c))) + '</span></div>'; }).join('');
+        var ps = $$('.tgn-month-poster img', sec).map(function (i) { return '<span class="nw-mp"><img src="' + esc(i.getAttribute('src')) + '" alt="" loading="lazy" decoding="async"></span>'; }).join('');
+        var more = $('.tgn-month-more', sec), lab = $('.tgn-month-label', sec);
+        return '<section class="nw-card" data-k="month">' + head(sec) + '<div class="nw-tiles">' + tiles + '</div>' +
+          (ps ? '<p class="nw-mlab">' + esc(txt(lab)) + '</p><div class="nw-mps" aria-hidden="true">' + ps + '</div>' : '') +
+          (more ? '<a class="nw-mmore" href="' + esc(href(more)) + '">' + esc(txt(more)) + '</a>' : '') + '</section>';
+      },
       other: function (sec) { /* a section added to the page later: its content as is */
         var body = [].slice.call(sec.children).filter(function (c) { return !c.classList.contains('tgn-head'); });
         return '<section class="nw-card nw-other">' + head(sec) + '<div class="nw-raw">' + body.map(function (c) { return c.outerHTML; }).join('') + '</div></section>';
@@ -1510,10 +1524,12 @@ window.HutchApps = window.HutchApps || {};
     };
     function kind(sec) {
       var h = $('.tgn-h', sec), id = (h && h.id) || sec.id || '';
-      var m = /tgn-(watching|reading|photo|writing|building|making|dir)/.exec(id);
+      var m = /tgn-(watching|month|reading|photo|writing|building|making|dir)/.exec(id);
       return m ? m[1] : 'other';
     }
-    var LEFT = { watching: 1, reading: 1, writing: 1 };
+    /* Nov 16 (Toby): Latest photo sits on the left under Reading; on the right,
+       last month's card, then Building */
+    var LEFT = { watching: 1, reading: 1, photo: 1, writing: 1 };
 
     var root = ctx.el('<div class="hx-now" role="main"><div class="nw-scroll"><div class="nw-wrap"></div></div></div>');
     document.body.appendChild(root);

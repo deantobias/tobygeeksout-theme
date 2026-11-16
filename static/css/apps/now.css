@@ -136,3 +136,21 @@ html.hx-dark .hx-now{--acct:#F2A988;--bg:#10141C;--surf:#1A2130;--surf2:#222A3B;
    review; these come last so they win over the sizes above.
    ========================================================================== */
 .hx-now .nw-cv span{font-size:12px}
+
+/* Nov 16 (Toby, v156): last month as tiles */
+.hx-now .nw-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.hx-now .nw-tile{background:var(--surf2);border-radius:16px;padding:14px 4px 12px;text-align:center;min-width:0}
+.hx-now .nw-tile b{display:block;font:400 34px/1 var(--font-display,var(--h-flex));color:var(--acct)}
+.hx-now .nw-tile span{display:block;margin-top:7px;font:700 12.5px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx-now .nw-mlab{font:700 12.5px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin:0 0 10px}
+.hx-now .nw-mps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:8px;row-gap:0;grid-template-rows:auto;grid-auto-rows:0;overflow:hidden}
+.hx-now .nw-mp{display:block;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--surf2)}
+.hx-now .nw-mp img{width:100%;height:100%;object-fit:cover;display:block}
+.hx-now .nw-mmore{display:inline-block;margin-top:14px;font:600 15px var(--h-ui);color:var(--acct) !important;text-decoration:underline !important;text-underline-offset:3px}
+@media (min-width:520px){
+  .hx-now .nw-mps{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  .hx-now .nw-tile{padding:18px 6px 15px}
+  .hx-now .nw-tile b{font-size:42px}
+}
+@media (min-width:840px) and (orientation:landscape){ .hx-now .nw-tile b{font-size:36px} }
+@media (min-width:1200px){ .hx-now .nw-tile b{font-size:44px} }

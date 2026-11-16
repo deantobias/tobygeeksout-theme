@@ -15220,35 +15220,56 @@ a.cat-more:hover,
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+/* Nov 16, 2026 (Toby, mockup v156): each number gets its own tile with a
+   big number in the title font and a 12.5px label (was one strip with
+   ~10px labels, under the 12px floor). Hutch's Now app uses the same. */
 .tg-now .tgn-month-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
   margin-bottom: var(--space-md);
+}
+.tg-now .tgn-month-stats div {
+  min-width: 0;
+  padding: 0.85rem 2px 0.7rem;
+  text-align: center;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: 16px;
   background: var(--color-bg-warm);
 }
-.tg-now .tgn-month-stats div { padding: 0.55rem 0.25rem; text-align: center; }
 .tg-now .tgn-month-stats b {
   display: block;
   font-family: var(--font-display);
-  font-size: 1.45rem;
-  line-height: 1.1;
+  font-weight: 400;
+  font-size: 2.1rem;
+  line-height: 1;
   color: var(--color-terra-text);
 }
 .tg-now .tgn-month-stats span {
+  display: block;
+  margin-top: 0.45rem;
   font-family: var(--font-body);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 640px) {
+  .tg-now .tgn-month-stats { gap: 8px; }
+  .tg-now .tgn-month-stats div { padding: 1.1rem 0.4rem 0.95rem; }
+  .tg-now .tgn-month-stats span { font-size: 13.5px; letter-spacing: 0.08em; }
+  .tg-now .tgn-month-stats b { font-size: 2.7rem; }
 }
 .tg-now p.tgn-month-label {
   margin: 0 0 var(--space-sm);
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }

@@ -166,3 +166,23 @@ html.hx-dark .hx-now .nw-ti.hx-full{background:#F4F1EA;box-shadow:0 0 0 2px rgba
 .hx-now .nw-tk li:first-child{border-top:0;padding-top:2px}
 .hx-now .nw-tk .d{flex:none;width:54px;font:700 12.5px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acct)}
 .hx-now .nw-tk .t{font:600 15.5px/1.35 var(--h-ui);color:var(--ink);min-width:0}
+
+/* Nov 16 (Toby, v161): Let's keep in touch, like the box on the Knowember
+   page, then the Contact line. Button: white on #A65326 (5.4:1) in day and
+   night. */
+.hx-now .nw-fol{border:1.5px solid var(--acc);text-align:center;padding:20px 18px 18px}
+.hx-now .nw-folh{font:700 23px/1.2 var(--font-display,var(--h-flex));color:var(--ink);margin:0 0 6px}
+.hx-now .nw-fol .tgn-fol-pitch{font:400 16px/1.5 var(--font-reading,Georgia),Georgia,serif;color:var(--ink);margin:0 auto 14px;max-width:30em}
+html.fonts-70s.hx-dark .hx-now .nw-fol :is(.tgn-fol-pitch,.nw-folc){font-weight:450}
+.hx-now .tgn-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hx-now .tgn-fol-form{display:flex;flex-wrap:wrap;gap:8px;max-width:440px;margin:0 auto}
+.hx-now .tgn-fol-form input{flex:1 1 180px;min-width:0;font:400 16px var(--h-ui);padding:11px 16px;border:1.5px solid var(--acc);border-radius:999px;background:var(--bg);color:var(--ink)}
+.hx-now .tgn-fol-form input::placeholder{color:var(--sub);opacity:1}
+.hx-now .tgn-fol-form button{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font:700 15px var(--h-ui);padding:11px 18px;border:0;border-radius:999px;background:#A65326;color:#fff;cursor:pointer}
+.hx-now .nw-fol svg{width:16px;height:16px;flex:none}
+.hx-now .tgn-fol-or{font:400 14px var(--h-ui);color:var(--sub);margin:16px 0 10px}
+.hx-now .tgn-fol-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.hx-now .tgn-fol-links a{display:inline-flex;align-items:center;gap:6px;font:600 14px var(--h-ui);padding:8px 14px;border:1.5px solid var(--acc);border-radius:999px;color:var(--acct)}
+.hx-now .tgn-fol-links a:hover{background:var(--accs)}
+.hx-now .nw-folc{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--ln);font:400 16px/1.5 var(--font-reading,Georgia),Georgia,serif;color:var(--ink)}
+.hx-now .nw-folc a{color:var(--acct);font-weight:600;text-decoration:underline;text-underline-offset:3px}

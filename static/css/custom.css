@@ -15333,6 +15333,40 @@ a.cat-more:hover,
   display: inline-block; margin-top: var(--space-sm);
   font-family: var(--font-body); font-weight: 600; color: var(--color-terra-text);
 }
+/* Nov 16, 2026 (Toby, v161): Let's keep in touch, the box from the
+   Knowember page (same words and order), then Toby's Contact line.
+   Subscribe button: white on #A65326 (5.4:1) in every sky. */
+.tg-now .tgn-fol {
+  text-align: center; padding: 1.4rem 1.2rem 1.3rem;
+  border: 1.5px solid var(--color-terra); border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+}
+.tg-now .tgn-fol h2.tgn-h { font-size: 1.35rem; margin: 0 0 0.35rem; }
+.tg-now .tgn-fol-pitch { font-family: var(--font-reading); font-size: 0.95rem; line-height: 1.5; color: var(--color-text); margin: 0 auto 0.9rem; max-width: 30em; }
+.tg-now .tgn-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tg-now .tgn-fol-form { display: flex; flex-wrap: wrap; gap: 8px; max-width: 440px; margin: 0 auto; }
+.tg-now .tgn-fol-form input {
+  flex: 1 1 180px; min-width: 0; font-family: var(--font-body); font-size: 16px;
+  padding: 10px 16px; border: 1.5px solid var(--color-terra); border-radius: 999px;
+  background: var(--color-bg); color: var(--color-text);
+}
+.tg-now .tgn-fol-form button {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: var(--font-body); font-size: 15px; font-weight: 700;
+  padding: 10px 18px; border: 0; border-radius: 999px; background: #A65326; color: #fff; cursor: pointer;
+}
+.tg-now .tgn-fol svg { width: 16px; height: 16px; flex: none; }
+.tg-now .tgn-fol-or { font-family: var(--font-body); font-size: 13.5px; color: var(--color-text-muted); margin: 1rem 0 0.6rem; }
+.tg-now .tgn-fol-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.tg-now .tgn-fol-links a {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  padding: 7px 14px; border: 1.5px solid var(--color-terra); border-radius: 999px; color: var(--color-terra-text);
+}
+.tg-now .tgn-fol-links a:hover { background: color-mix(in srgb, var(--color-terra) 10%, transparent); }
+.tg-now p.tgn-fol-contact { font-family: var(--font-reading); font-size: 0.95rem; line-height: 1.5; color: var(--color-text); margin: 0; text-align: center; }
+.tg-now p.tgn-fol-contact a { color: var(--color-terra-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+html.fonts-70s body.tgo-night .tg-now :is(.tgn-fol-pitch, .tgn-fol-contact) { font-weight: 450; }
 
 
 /* ============================================================

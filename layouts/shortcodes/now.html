@@ -194,10 +194,6 @@
      Road's real address is /the-long-road-here/. */}}
 {{/* Nov 16, 2026 (Toby): /photo's line no longer repeats the Latest photo
      card ("Every photo, newest first", which is what /photo shows). */}}
-{{/* Nov 16, 2026 (Toby, v160): Keep in touch at the bottom, Contact and
-     Follow. Follow is the /subscribe/ page; the Newsletter page (email
-     previews) is a different page and stays out for now. */}}
-{{- $touchDefs := slice (slice "/contact/") (slice "/subscribe/" "/follow/") -}}
 {{- $always := slice "/archive/" -}}
 {{- $found := 0 -}}
 {{- $slash := slice -}}
@@ -213,13 +209,6 @@
   {{- range . -}}{{- if and (not $hit) (or (in $always .) (in $have (replaceRE `/+$` "" .))) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
   {{- if and $hit (not (in $always $hit)) -}}{{- $found = add $found 1 -}}{{- end -}}
   {{- $more = $more | append (dict "url" $hit "first" (index . 0)) -}}
-{{- end -}}
-{{- $touch := slice -}}
-{{- range $touchDefs -}}
-  {{- $hit := "" -}}
-  {{- range . -}}{{- if and (not $hit) (in $have (replaceRE `/+$` "" .)) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
-  {{- if $hit -}}{{- $found = add $found 1 -}}{{- end -}}
-  {{- $touch = $touch | append (dict "url" $hit "first" (index . 0)) -}}
 {{- end -}}
 {{/* If nothing at all was found, page detection itself failed on this
      Hugo version: show every first slug rather than an empty section. */}}
@@ -458,13 +447,36 @@
       {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
       {{- end }}
     </div>
-    <div class="tgn-subrow"><span class="tgn-sub">Keep in touch</span></div>
-    <div class="tgn-chips">
-      {{- range $touch }}
-      {{- $u := cond $trust .url .first }}
-      {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
-      {{- end }}
+  </section>
+
+  {{/* ---- FOLLOW (Nov 16, 2026, Toby, v161): the "Let's keep in touch"
+       box from the Knowember page, same words and same order, then
+       Toby's Contact line. The email form is Micro.blog's own newsletter
+       sign-up; the profile links come from follow-profiles-data.html
+       (one place for every spot). Replaces the Contact and Follow tiles
+       that were in the Directory. */}}
+  {{- $fp := partial "follow-profiles-data.html" (dict) -}}
+  {{- $fpBy := dict -}}{{- range $fp -}}{{- $fpBy = merge $fpBy (dict .icon .url) -}}{{- end -}}
+  {{- $rss := "" -}}{{- with site.Home.OutputFormats.Get "rss" -}}{{- $rss = .Permalink -}}{{- else -}}{{- $rss = printf "%sfeed.xml" site.BaseURL -}}{{- end -}}
+  <section class="tgn-sec tgn-follow" aria-labelledby="tgn-follow-h">
+    <div class="tgn-fol">
+      <h2 class="tgn-h" id="tgn-follow-h">Let's keep in touch</h2>
+      <p class="tgn-fol-pitch">New posts, Word Nerd Alerts, and whatever's on my mind, right to your inbox.</p>
+      <form class="tgn-fol-form" action="https://micro.blog/users/subscribe/95313" method="post">
+        <label class="tgn-vh" for="tgn-fol-email">Email address</label>
+        <input type="email" id="tgn-fol-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+        <button type="submit">{{ partial "icon.html" (dict "name" "mail") }} Subscribe</button>
+      </form>
+      <p class="tgn-fol-or">Or follow along another way:</p>
+      <div class="tgn-fol-links">
+        {{- with index $fpBy "microblog" }}<a href="{{ . }}" rel="me noopener">{{ partial "icon.html" (dict "name" "microblog") }} Follow on Micro.blog</a>{{ end }}
+        {{- with index $fpBy "mastodon" }}<a href="{{ . }}" rel="me noopener">{{ partial "icon.html" (dict "name" "mastodon") }} Mastodon</a>{{ end }}
+        {{- with index $fpBy "bluesky" }}<a href="{{ . }}" rel="me noopener">{{ partial "icon.html" (dict "name" "bluesky") }} Bluesky</a>{{ end }}
+        <a href="{{ $rss }}">{{ partial "icon.html" (dict "name" "rss") }} RSS</a>
+        <a href="{{ printf "%sfeed.json" site.BaseURL }}">{{ partial "icon.html" (dict "name" "json") }} JSON Feed</a>
+      </div>
     </div>
+    <p class="tgn-fol-contact">If you have any questions about my blog site, <a href="{{ "/contact/" | absURL }}">contact me</a>.</p>
   </section>
 
   <p class="tgn-foot">This is a <a href="https://nownownow.com/about">now page</a>. If you have your own site, you should make one too.</p>

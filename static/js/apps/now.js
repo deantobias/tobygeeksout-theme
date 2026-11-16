@@ -89,8 +89,7 @@
           'the-long-road-here': ['longroad', 'Long Road'], 'the-long-road': ['longroad', 'Long Road'],
           archive: ['archive', 'Archive'], calendar: ['calendar', 'Calendar'],
           blaugust: ['blaugust', 'Blaugust'], 'blaugust-2026': ['blaugust', 'Blaugust'],
-          'the-queue': ['queue', 'The Queue'], queue: ['queue', 'The Queue'],
-          contact: ['contact', 'Contact'], subscribe: ['follow', 'Follow'] };
+          'the-queue': ['queue', 'The Queue'], queue: ['queue', 'The Queue'] };
         function tile(node, path, showPath, title) {
           var slug = path.replace(/^\/+|\/+$/g, ''), a = APP[slug];
           var icon = a ? '<span class="nw-ti hx-full">' + ctx.art(a[0]) + '</span>' : '<span class="nw-ti" style="background:#C4622D">' + ctx.ic('blog') + '</span>';
@@ -102,11 +101,23 @@
         var subs = $$('.tgn-subrow .tgn-sub', sec);
         /* chip groups: More pages, then Keep in touch (Nov 16, v160) */
         var groups = $$('.tgn-chips', sec).map(function (g) { return $$('.tgn-chip', g).map(function (c) { return tile(c, txt(c), false); }).join(''); });
-        var more = groups[0] || '', touch = groups[1] || '';
+        var more = groups[0] || '';
         var right = what ? '<a class="nw-what" href="' + esc(href(what)) + '" rel="noopener">' + esc(txt(what)) + '</a>' : '';
         return '<section class="nw-card nw-full" data-k="dir">' + head(sec, right) + (slashes ? '<div class="nw-slash">' + slashes + '</div>' : '') +
           (more ? '<div class="nw-morel">' + esc(txt(subs[1]) || 'More pages') + '</div><div class="nw-slash nw-more">' + more + '</div>' : '') +
-          (touch ? '<div class="nw-morel">' + esc(txt(subs[2]) || 'Keep in touch') + '</div><div class="nw-slash nw-more">' + touch + '</div>' : '') + '</section>';
+          '</section>';
+      },
+      /* Nov 16 (Toby, v161): Let's keep in touch, the Knowember box, then the
+         Contact line. The form and links are copied from the page whole. */
+      follow: function (sec) {
+        var box = $('.tgn-fol', sec), c = $('.tgn-fol-contact', sec);
+        if (!box) return '';
+        var b = box.cloneNode(true), h = $('.tgn-h', b);
+        if (h) { var nh = document.createElement('div'); nh.className = 'nw-folh'; nh.setAttribute('role', 'heading'); nh.setAttribute('aria-level', '2'); nh.textContent = txt(h); h.parentNode.replaceChild(nh, h); }
+        var em = $('input[type=email]', b), lb = $('label', b);
+        if (em) em.id = 'nw-fol-email'; if (lb) lb.setAttribute('for', 'nw-fol-email');
+        [].forEach.call(b.querySelectorAll('.tgn-fol-links a'), function (a) { if (/^https?:/.test(a.getAttribute('href')) && a.getAttribute('href').indexOf(location.host) < 0) a.setAttribute('target', '_blank'); });
+        return '<section class="nw-card nw-full nw-fol" data-k="follow">' + b.innerHTML + (c ? '<p class="nw-folc">' + inner(c) + '</p>' : '') + '</section>';
       },
       /* Nov 16 (Toby, v157 B): the newest Tinkering Log entries */
       tinkering: function (sec) {
@@ -138,7 +149,7 @@
     };
     function kind(sec) {
       var h = $('.tgn-h', sec), id = (h && h.id) || sec.id || '';
-      var m = /tgn-(watching|month|tinkering|reading|photo|writing|building|making|dir)/.exec(id);
+      var m = /tgn-(watching|month|tinkering|reading|photo|writing|building|making|dir|follow)/.exec(id);
       return m ? m[1] : 'other';
     }
     /* Nov 16 (Toby): Latest photo sits on the left under Reading; on the right,
@@ -154,7 +165,9 @@
     function render() {
       var lede = $('.tgn-lede'), upd = $('#tgn-updated') || $('.tgn-updated time');
       var cards = $$('.tgn-sec').map(function (s) { var k = kind(s); return { k: k, h: (CARD[k] || CARD.other)(s) }; }).filter(function (c) { return c.h; });
-      var dir = cards.filter(function (c) { return c.k === 'dir'; }), rest = cards.filter(function (c) { return c.k !== 'dir'; });
+      /* full width at the bottom: the Directory, then Follow (Nov 16, v161) */
+      var FULL = { dir: 1, follow: 1 };
+      var dir = cards.filter(function (c) { return c.k in FULL; }), rest = cards.filter(function (c) { return !(c.k in FULL); });
       var L = '', R = '', nl = 0, nr = 0;
       rest.forEach(function (c) {
         var left = c.k in LEFT ? true : c.k === 'other' ? nl <= nr : false;

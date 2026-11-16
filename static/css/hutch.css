@@ -1908,3 +1908,5 @@ html .hh-brand .face{background:#C4622D}
 /* Nov 16: the strip scrolls its highlighted photo into view */
 .hbl-view .vstrip{position:relative;scrollbar-width:none}
 .hbl-view .vstrip::-webkit-scrollbar{display:none}
+/* Nov 16: the soft stand-in while the sharp photo arrives (the small strip copy, stretched and blurred) */
+.hbl-view .vimg img.soft{width:100%;height:100%;object-fit:contain;filter:blur(8px);transform:scale(1.02)}

@@ -2164,8 +2164,22 @@
     var VWB = (function () { var t = Math.max(innerWidth, innerHeight) * Math.min(window.devicePixelRatio || 1, 2); return t <= 900 ? 800 : t <= 1300 ? 1200 : t <= 1700 ? 1600 : 2000; })();
     var stripKey = '';
     function draw() {
-      vw.querySelector('.vimg img').src = srcs[at] ? vsz(srcs[at], VWB) : '';
-      [at + 1, at - 1].forEach(function (k) { if (srcs[k]) (new Image()).src = vsz(srcs[k], VWB); });
+      /* Nov 16 (Toby: "sometimes it stalls a few seconds"): Micro.blog makes a
+         resized copy the first time it is asked for, which can take a moment.
+         The strip's small copy (already loaded) shows at once, softly, and the
+         sharp photo takes its place as soon as it arrives. Two ahead load early. */
+      var im = vw.querySelector('.vimg img'), want = srcs[at] || '', big = want ? vsz(want, VWB) : '';
+      if (!big) { im.removeAttribute('src'); }
+      else {
+        var pre = new Image(); pre.src = big;
+        if (pre.complete && pre.naturalWidth) { im.src = big; im.classList.remove('soft'); }
+        else {
+          im.src = vsz(want, 200); im.classList.add('soft');
+          pre.onload = function () { if (srcs[at] === want) { im.src = big; im.classList.remove('soft'); } };
+          pre.onerror = function () { if (srcs[at] === want) { im.src = want; im.classList.remove('soft'); } };
+        }
+      }
+      [at + 1, at + 2, at - 1].forEach(function (k) { if (srcs[k]) (new Image()).src = vsz(srcs[k], VWB); });
       vw.querySelector('.vn').textContent = (at + 1) + ' of ' + Math.max(n, srcs.length);
       vw.querySelector('.vgo.l').hidden = at <= 0; vw.querySelector('.vgo.r').hidden = at >= srcs.length - 1;
       var strip = vw.querySelector('.vstrip'), key = srcs.join('|');

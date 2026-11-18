@@ -1919,3 +1919,7 @@ html .hh-brand .face{background:#C4622D}
 #hutch-bar .hb-back.hb-lbl:hover,#hutch-bar .hb-back.hb-lbl:focus-visible{background:rgba(127,127,127,.22)}
 #hutch-bar .hb-back.hb-lbl .hx-ic{width:20px;height:20px}
 #hutch-bar .hb-blbl{font:600 15px/1 var(--h-ui);letter-spacing:0;white-space:nowrap}
+
+/* measuring the room for Latest photos (hutch.js fit, Nov 18): the big
+   Latest photo card isn't on screen with the strip, so it isn't measured */
+#hutch-home.hh-meas .hh-area .hh-photo{display:none !important}

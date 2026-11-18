@@ -1252,9 +1252,14 @@
         /* the cards' full height, measured without the strip (the grid
            squeezes them while it's there) */
         /* Word Nerd's example can step aside for the strip, so it's measured without it */
-        homeEl.classList.add('nostrip', 'noex');
+        /* Nov 18 (Toby: on his Windows laptop the photos came out small
+           one time and big the next): without the strip, the big Latest
+           photo card takes its place in the second row and can be taller
+           than the cards that really show there, so the strip got less
+           room than it had. It stays out of this measuring (hh-meas). */
+        homeEl.classList.add('nostrip', 'noex', 'hh-meas');
         [].forEach.call(a.children, function (c) { if (c !== strip && getComputedStyle(c).display !== 'none') low = Math.max(low, c.getBoundingClientRect().bottom); });
-        homeEl.classList.remove('nostrip', 'noex');
+        homeEl.classList.remove('nostrip', 'noex', 'hh-meas');
         if (th) {
           /* on-screen sizes are shrunk by z; the strip's own sizes are not */
           var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0) * z,

@@ -1253,13 +1253,16 @@
            squeezes them while it's there) */
         /* Word Nerd's example can step aside for the strip, so it's measured without it */
         /* Nov 18 (Toby: on his Windows laptop the photos came out small
-           one time and big the next): without the strip, the big Latest
-           photo card takes its place in the second row and can be taller
-           than the cards that really show there, so the strip got less
-           room than it had. It stays out of this measuring (hh-meas). */
-        homeEl.classList.add('nostrip', 'noex', 'hh-meas');
+           one time and big the next): this used to measure in the no-strip
+           layout, where the big Latest photo card joins the second row and
+           every column is narrower, so Currently and Word Nerd wrapped to
+           more lines and measured taller than they are (about 35px on his
+           screen), and the strip got that much less room. Now the strip
+           just steps out of the real layout while the cards are measured
+           (hh-meas). */
+        homeEl.classList.add('noex', 'hh-meas');
         [].forEach.call(a.children, function (c) { if (c !== strip && getComputedStyle(c).display !== 'none') low = Math.max(low, c.getBoundingClientRect().bottom); });
-        homeEl.classList.remove('nostrip', 'noex', 'hh-meas');
+        homeEl.classList.remove('noex', 'hh-meas');
         if (th) {
           /* on-screen sizes are shrunk by z; the strip's own sizes are not */
           var chrome = th.getBoundingClientRect().top - strip.getBoundingClientRect().top + (parseFloat(getComputedStyle(strip).paddingBottom) || 0) * z,

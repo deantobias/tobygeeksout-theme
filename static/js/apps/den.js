@@ -736,7 +736,34 @@
     }
     function setName(t) { if (hbName) hbName.textContent = t; }
     function show(v, on) { v.classList.toggle('off', !on); v.setAttribute('aria-hidden', on ? 'false' : 'true'); if (!on) v.inert = true; else v.inert = false; }
+    /* ---------- opened from the Blog (Nov 18, Toby, mockup v168) ----------
+       A Blog card's "Open in Den" opens one title. "Browse the Den" opens
+       the Den's main screen from there, and Back goes one step at a time:
+       the main screen, then the title, then the Blog where he left it.
+       Phones: the button sits on a slim line under the app bar (the bar
+       already names the shelf). Laptops: it sits in the app bar. Back says "Blog"
+       while the next tap goes to the Blog. */
+    var brwBtn = null;
+    function brwStrip(x) {
+      return '<div class="hx-brw">' +
+        '<button type="button" class="hx-brw-b" data-browse="1">Browse the Den <span aria-hidden="true">›</span></button></div>';
+    }
+    function browse() { go({ view: 'home', sec: null, id: null, filter: 'All', browse: true }, true); homeEl.scrollTop = 0; }
+    function syncBlog() {
+      var hs = history.state, first = !(hs && hs.hxd) || !!hs.link;
+      if (ctx.backTo) ctx.backTo(ctx.fromBlog && first ? 'Blog' : null);
+      var on = !!state.link && two() && state.view !== 'home';
+      if (on && !brwBtn) {
+        brwBtn = ctx.el('<button type="button" class="hb-brw" data-browse="1">Browse the Den <span aria-hidden="true">›</span></button>');
+        ctx.bar.insertBefore(brwBtn, ctx.bar.querySelector('.hb-home'));
+        brwBtn.addEventListener('click', browse);
+      }
+      if (brwBtn) brwBtn.hidden = !on;
+    }
     function render() {
+      renderView(); syncBlog();
+    }
+    function renderView() {
       var s = state;
       if (s.view === 'home') { show(vList, false); show(vDetail, false); setName(ctx.app[0]); return; }
       var x = s.id ? get(s.id) : null;
@@ -758,18 +785,20 @@
       }
       show(vList, !!s.sec && (s.view === 'list' || (s.view === 'detail' && s.fromList)));
       if (s.view === 'detail' && x) {
-        vDetail.innerHTML = '<div class="pscroll">' + detail(x) + '</div>';
-        show(vDetail, true); setName(x.t);
+        vDetail.innerHTML = (s.link ? brwStrip(x) : '') + '<div class="pscroll">' + detail(x) + '</div>';
+        /* Nov 18 (Toby): the app bar names the shelf, like on laptops; the
+           title is right under it in big type */
+        show(vDetail, true); setName(SECTIONS[x.sec] ? SECTIONS[x.sec].title : ctx.app[0]);
         hydrate(x);
       } else { show(vDetail, false); setName(SECTIONS[s.sec] ? SECTIONS[s.sec].title : ctx.app[0]); }
     }
     function go(next, push) {
       state = next;
-      var hs = next.view === 'home' ? null : { hxd: 1, view: next.view, sec: next.sec, id: next.id, filter: next.filter, fromList: !!next.fromList };
+      var hs = next.view === 'home' && !next.browse ? null : { hxd: 1, view: next.view, sec: next.sec, id: next.id, filter: next.filter, fromList: !!next.fromList, link: !!next.link, browse: !!next.browse };
       try { if (push) history.pushState(hs, ''); else history.replaceState(hs, ''); } catch (e) {}
       render();
     }
-    function openList(sec, id, link) { go({ view: 'list', sec: sec, id: id || null, filter: 'All' }, !link); }
+    function openList(sec, id, link) { go({ view: 'list', sec: sec, id: id || null, filter: 'All', link: !!link }, !link); }
     /* link: opened from a Blog card (Nov 15, Toby). It takes no extra back
        step, so Back goes straight to the Blog feed. */
     function openItem(id, link) {
@@ -778,23 +807,27 @@
         if (state.view !== 'home' && state.sec === x.sec) { state.id = id; go(state, false); var rd = vList.querySelector('.rdet'); if (rd) rd.scrollTop = 0; return; }
         openList(x.sec, id, link); return;
       }
-      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec }, !link);
+      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec, link: !!link }, !link);
       vDetail.querySelector('.pscroll').scrollTop = 0;
     }
     window.addEventListener('popstate', function (e) {
       var s = e.state;
-      state = s && s.hxd ? { view: s.view, sec: s.sec, id: s.id, filter: s.filter || 'All', fromList: s.fromList } : { view: 'home', sec: null, id: null, filter: 'All' };
+      state = s && s.hxd ? { view: s.view, sec: s.sec, id: s.id, filter: s.filter || 'All', fromList: s.fromList, link: !!s.link, browse: !!s.browse } : { view: 'home', sec: null, id: null, filter: 'All' };
       render();
     });
     /* the app bar's back closes the open list / detail first */
     ctx.bar.addEventListener('click', function (e) {
-      if (state.view !== 'home' && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      if ((state.view !== 'home' || state.browse) && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      /* a title opened from the Blog: the Den icon and name open the main
+         screen the same way Browse the Den does (one Back returns here) */
+      else if (state.view !== 'home' && state.link && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); browse(); }
       /* the Den icon and name go all the way back to Den's main screen (Nov 3) */
       else if (state.view !== 'home' && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); history.go(state.view === 'detail' && state.fromList ? -2 : -1); }
     }, true);
 
     root.addEventListener('click', function (e) {
       var t = e.target;
+      if (t.closest('[data-browse]')) { browse(); return; }
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }
@@ -985,7 +1018,7 @@
     renderHome();
     syncWatch();
     var hs0 = history.state;
-    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList }; want = null; }
+    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList, link: !!hs0.link, browse: !!hs0.browse }; want = null; }
     render();
     openWanted();
   };

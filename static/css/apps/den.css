@@ -344,3 +344,14 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
    (The home screen stays in Hutch's own font: it's the phone, not a post.) */
 .hx-den .dtop h2,.hx-den .dhero h2{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-variation-settings:normal;font-size:30px;line-height:1.1}
 @media (min-width:1100px){.hx-den .dtop h2,.hx-den .dhero h2{font-size:34px}}
+
+/* ---------- Browse the Den (Nov 18, Toby, mockup v168) ----------
+   A title opened from a Blog card. Phones: a slim line under the app bar
+   holds the button. Laptops: the button sits in the app bar. */
+.hx-den .hx-brw{flex:none;display:flex;align-items:center;justify-content:flex-end;padding:7px 12px 8px 16px;border-bottom:1px solid var(--ln);background:var(--bg)}
+.hx-den .hx-brw-b,html.hx-den-on #hutch-bar .hb-brw{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:0;
+  background:rgba(242,169,136,.14);color:#F2A988;font:700 14px/1 var(--h-ui);white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hx-den .hx-brw-b:hover,html.hx-den-on #hutch-bar .hb-brw:hover{background:rgba(242,169,136,.22)}
+html.hx-den-on #hutch-bar .hb-brw{flex:none;margin-right:10px}
+html.hx-den-on #hutch-bar .hb-brw[hidden]{display:none}
+html.hx-den-on #hutch-bar .hb-brw:focus-visible{outline:2px solid #E9875F;outline-offset:2px}

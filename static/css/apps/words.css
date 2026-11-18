@@ -195,3 +195,16 @@ html.hxw-two .hx-words .hxw-card .hxw-word.xlong{font-size:clamp(30px,5vh,44px)}
    word cards. The list, meanings, examples and roots keep their serif. */
 .hx-words .hxw-word,.hx-words .hxw-card .hxw-word{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-variation-settings:normal;letter-spacing:0}
 .hx-words .hxw-mini .w,html.hxw-two .hx-words .hxw-mini .w{font-family:var(--font-display,var(--h-flex));font-weight:400;font-variation-settings:normal}
+
+/* ---------- Browse all words (Nov 18, Toby, mockup v168) ----------
+   Phones: a word opened from a Blog card gets a slim line under the app
+   bar: which alert it is, and a button to every word. */
+.hx-words .hxw-brw{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 12px 8px 16px;border-bottom:1px solid var(--wn-ln);background:var(--wn-bg)}
+.hx-words .hxw-brw[hidden]{display:none}
+.hx-words .hx-brw-w{min-width:0;font:600 14px/1.2 var(--h-ui);color:var(--wn-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx-words .hx-brw-b{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:0;
+  background:var(--wn-tint);color:var(--wn-acct);font:700 14px/1 var(--h-ui);white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hx-words .hx-brw-b:focus-visible{outline:2px solid var(--wn-acc);outline-offset:2px}
+/* Nov 18 (Toby): 7:1 or better in the light colors too (WCAG AAA) */
+html.hxw-on:not(.hxw-dk) .hx-words .hx-brw-b{color:#7A3A18}
+html.hxw-on:not(.hxw-dk) .hx-words .hx-brw-w{color:#4B515B}

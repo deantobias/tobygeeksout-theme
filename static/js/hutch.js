@@ -1695,6 +1695,19 @@
        address; an app found another way (a renamed About page from the
        menu) fetches its part here first. */
     var MODFILE = { den: 'den', photos: 'photos', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', follow: 'small' }; /* Uses: Toby's Classic page as is (Nov 8) */
+    /* Nov 18 (Toby, mockup v168): an app opened from a Blog card's link
+       (Open in Den, Open in Word Nerd). The app shows "Blog" on the Back
+       button while the next Back goes to the Blog. */
+    var fromBlog = false;
+    try { var rf = document.referrer ? new URL(document.referrer) : null; fromBlog = !!rf && rf.origin === location.origin && rf.pathname === '/' && /[?&]app=blog\b/.test(rf.search); } catch (e) {}
+    function backTo(t) {
+      var b = bar.querySelector('.hb-back'); if (!b) return;
+      var s = b.querySelector('.hb-blbl');
+      if (t) {
+        if (!s) { s = el('<span class="hb-blbl"></span>'); b.appendChild(s); }
+        s.textContent = t; b.classList.add('hb-lbl'); b.setAttribute('aria-label', 'Back to ' + t);
+      } else if (s) { s.parentNode.removeChild(s); b.classList.remove('hb-lbl'); b.setAttribute('aria-label', 'Back'); }
+    }
     function runApp(mod) {
       try {
         mod({
@@ -1703,7 +1716,8 @@
           own: function () { de.classList.add('hutch-own'); }, /* hide the Traditional page */
           openSheet: openSheet, closeSheet: closeSheet,
           swipe: addSwipe, /* the same older / newer swipe as posts (Nov 3) */
-          arrows: addArrows
+          arrows: addArrows,
+          fromBlog: fromBlog, backTo: backTo
         });
       } catch (err) { de.classList.remove('hutch-own'); if (window.console) console.error('Hutch app ' + k, err); }
     }

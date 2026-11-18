@@ -88,7 +88,12 @@
           '<div class="hxw-seg" role="group" aria-label="Sort"><button type="button" data-sort="new">Newest</button><button type="button" data-sort="az">A–Z</button></div>' +
           '<div class="hxw-list"></div>' +
         '</div></div>' +
-        '<div class="hxw-detail" aria-live="polite"><div class="hxw-dbody"></div><div class="hxw-pn"></div></div>' +
+        '<div class="hxw-detail" aria-live="polite">' +
+          /* opened from the Blog (Nov 18, Toby, mockup v168): which alert
+             this is, and a way to every word. Phones only: on a laptop
+             the list is already on the left. */
+          '<div class="hx-brw hxw-brw" hidden><span class="hx-brw-w"></span><button type="button" class="hx-brw-b" data-browse="1">Browse all words <span aria-hidden="true">›</span></button></div>' +
+          '<div class="hxw-dbody"></div><div class="hxw-pn"></div></div>' +
         /* no Random button (Nov 3, Toby): some posts' cards don't read
            right on their own, so words are only reached from the list */
       '</div>');
@@ -97,7 +102,28 @@
 
     var list = root.querySelector('.hxw-list'), main = root.querySelector('.hxw-main'), detail = root.querySelector('.hxw-detail'),
         dbody = root.querySelector('.hxw-dbody'), pn = root.querySelector('.hxw-pn'), input = root.querySelector('.hxw-search input'),
-        clr = root.querySelector('.hxw-clr');
+        clr = root.querySelector('.hxw-clr'), brw = root.querySelector('.hxw-brw');
+
+    /* ---------- opened from the Blog (Nov 18, Toby, mockup v168) ----------
+       A Blog card's "Open in Word Nerd" opens one word. "Browse all words"
+       shows the whole list, and Back goes one step at a time: the list,
+       then the word, then the Blog where he left it. Back says "Blog"
+       while the next tap goes to the Blog. */
+    function linked() { var st = history.state; return !!(st && st.hxwCard && st.link); }
+    function sync() {
+      var st = history.state, first = !(st && (st.hxwCard || st.hxwList)) || !!st.link;
+      if (ctx.backTo) ctx.backTo(ctx.fromBlog && first ? 'Blog' : null);
+      var on = open && !two() && linked();
+      brw.hidden = !on;
+      if (on) brw.querySelector('.hx-brw-w').textContent = 'Word Nerd Alert · ' + W[sel].d;
+    }
+    function browse() {
+      if (!open) return;
+      open = false; de.classList.remove('hxw-open');
+      try { history.pushState({ hxwList: 1 }, ''); } catch (e) {}
+      main.scrollTop = 0; window.scrollTo(0, 0);
+      sync();
+    }
 
     function item(x) {
       return '<a class="hxw-it' + (two() && x.i === sel ? ' sel' : '') + '" href="' + esc(x.u) + '" data-i="' + x.i + '">' +
@@ -141,27 +167,40 @@
         open = true; de.classList.add('hxw-open');
         /* opened from a Blog card's link (Nov 15, Toby): no extra back step,
            so Back goes straight to the Blog feed */
-        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i, link: 1 }, ''); } catch (e) {} }
         else if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
-      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i, link: history.state.link ? 1 : 0 }, ''); } catch (e) {} }
+      sync();
     }
     function close(viaPop) {
       if (!open) return;
       open = false; de.classList.remove('hxw-open');
       if (!viaPop && history.state && history.state.hxwCard) { try { history.back(); } catch (e) {} }
+      sync();
     }
 
-    window.addEventListener('popstate', function () { if (open) close(true); });
+    window.addEventListener('popstate', function (e) {
+      var st = e.state;
+      /* back from Browse all words: the word he came from opens again */
+      if (st && st.hxwCard && !open && !two() && W[st.i || 0]) { show(st.i || 0, 'nohist'); return; }
+      if (open) close(true); else sync();
+    });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) close(); });
     /* the app bar's back arrow closes the card first */
     ctx.bar.addEventListener('click', function (e) {
-      if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
+      /* a word opened from the Blog: the Word Nerd icon and name show
+         every word, the same as Browse all words */
+      if (open && linked() && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); browse(); }
+      else if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
+      /* the list from Browse all words: Back goes to the word first */
+      else if (!open && history.state && history.state.hxwList && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
     }, true);
 
     root.addEventListener('click', function (e) {
       var t = e.target;
       var s = t.closest('[data-sort]');
       if (s) { sort = s.getAttribute('data-sort'); ctx.ls('hxw-sort', sort); renderList(); return; }
+      if (t.closest('[data-browse]')) { browse(); return; }
       if (t.closest('.hxw-clr')) { input.value = ''; q = ''; clr.hidden = true; renderList(); input.focus(); return; }
       var w = t.closest('[data-i]');
       if (w && !w.disabled) {
@@ -176,7 +215,7 @@
       var t = two();
       de.classList.toggle('hxw-two', t);
       if (t) { if (open) { open = false; de.classList.remove('hxw-open'); } show(sel); }
-      renderList();
+      renderList(); sync();
     }
     if (mq.addEventListener) mq.addEventListener('change', layout); else if (mq.addListener) mq.addListener(layout);
     layout();
@@ -211,5 +250,6 @@
     }
     if (wi >= 0) show(wi, 'link');
     else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
+    sync();
   };
 })();

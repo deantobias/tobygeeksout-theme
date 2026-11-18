@@ -1910,3 +1910,12 @@ html .hh-brand .face{background:#C4622D}
 .hbl-view .vstrip::-webkit-scrollbar{display:none}
 /* Nov 16: the soft stand-in while the sharp photo arrives (the small strip copy, stretched and blurred) */
 .hbl-view .vimg img.soft{width:100%;height:100%;object-fit:contain;filter:blur(8px);transform:scale(1.02)}
+
+/* ---------- Back says "Blog" (Nov 18, Toby, mockup v168) ----------
+   An app opened from a Blog card's link (Open in Den, Open in Word Nerd)
+   labels Back "Blog" while the next tap goes to the Blog. */
+#hutch-bar .hb-back.hb-lbl{width:auto;display:inline-flex;align-items:center;gap:4px;padding:0 12px 0 9px;border-radius:22px;
+  background:rgba(127,127,127,.14);margin-right:4px}
+#hutch-bar .hb-back.hb-lbl:hover,#hutch-bar .hb-back.hb-lbl:focus-visible{background:rgba(127,127,127,.22)}
+#hutch-bar .hb-back.hb-lbl .hx-ic{width:20px;height:20px}
+#hutch-bar .hb-blbl{font:600 15px/1 var(--h-ui);letter-spacing:0;white-space:nowrap}

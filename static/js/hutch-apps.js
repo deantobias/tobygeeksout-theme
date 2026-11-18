@@ -1154,7 +1154,34 @@ window.HutchApps = window.HutchApps || {};
     }
     function setName(t) { if (hbName) hbName.textContent = t; }
     function show(v, on) { v.classList.toggle('off', !on); v.setAttribute('aria-hidden', on ? 'false' : 'true'); if (!on) v.inert = true; else v.inert = false; }
+    /* ---------- opened from the Blog (Nov 18, Toby, mockup v168) ----------
+       A Blog card's "Open in Den" opens one title. "Browse the Den" opens
+       the Den's main screen from there, and Back goes one step at a time:
+       the main screen, then the title, then the Blog where he left it.
+       Phones: the button sits on a slim line under the app bar (the bar
+       already names the shelf). Laptops: it sits in the app bar. Back says "Blog"
+       while the next tap goes to the Blog. */
+    var brwBtn = null;
+    function brwStrip(x) {
+      return '<div class="hx-brw">' +
+        '<button type="button" class="hx-brw-b" data-browse="1">Browse the Den <span aria-hidden="true">›</span></button></div>';
+    }
+    function browse() { go({ view: 'home', sec: null, id: null, filter: 'All', browse: true }, true); homeEl.scrollTop = 0; }
+    function syncBlog() {
+      var hs = history.state, first = !(hs && hs.hxd) || !!hs.link;
+      if (ctx.backTo) ctx.backTo(ctx.fromBlog && first ? 'Blog' : null);
+      var on = !!state.link && two() && state.view !== 'home';
+      if (on && !brwBtn) {
+        brwBtn = ctx.el('<button type="button" class="hb-brw" data-browse="1">Browse the Den <span aria-hidden="true">›</span></button>');
+        ctx.bar.insertBefore(brwBtn, ctx.bar.querySelector('.hb-home'));
+        brwBtn.addEventListener('click', browse);
+      }
+      if (brwBtn) brwBtn.hidden = !on;
+    }
     function render() {
+      renderView(); syncBlog();
+    }
+    function renderView() {
       var s = state;
       if (s.view === 'home') { show(vList, false); show(vDetail, false); setName(ctx.app[0]); return; }
       var x = s.id ? get(s.id) : null;
@@ -1176,18 +1203,20 @@ window.HutchApps = window.HutchApps || {};
       }
       show(vList, !!s.sec && (s.view === 'list' || (s.view === 'detail' && s.fromList)));
       if (s.view === 'detail' && x) {
-        vDetail.innerHTML = '<div class="pscroll">' + detail(x) + '</div>';
-        show(vDetail, true); setName(x.t);
+        vDetail.innerHTML = (s.link ? brwStrip(x) : '') + '<div class="pscroll">' + detail(x) + '</div>';
+        /* Nov 18 (Toby): the app bar names the shelf, like on laptops; the
+           title is right under it in big type */
+        show(vDetail, true); setName(SECTIONS[x.sec] ? SECTIONS[x.sec].title : ctx.app[0]);
         hydrate(x);
       } else { show(vDetail, false); setName(SECTIONS[s.sec] ? SECTIONS[s.sec].title : ctx.app[0]); }
     }
     function go(next, push) {
       state = next;
-      var hs = next.view === 'home' ? null : { hxd: 1, view: next.view, sec: next.sec, id: next.id, filter: next.filter, fromList: !!next.fromList };
+      var hs = next.view === 'home' && !next.browse ? null : { hxd: 1, view: next.view, sec: next.sec, id: next.id, filter: next.filter, fromList: !!next.fromList, link: !!next.link, browse: !!next.browse };
       try { if (push) history.pushState(hs, ''); else history.replaceState(hs, ''); } catch (e) {}
       render();
     }
-    function openList(sec, id, link) { go({ view: 'list', sec: sec, id: id || null, filter: 'All' }, !link); }
+    function openList(sec, id, link) { go({ view: 'list', sec: sec, id: id || null, filter: 'All', link: !!link }, !link); }
     /* link: opened from a Blog card (Nov 15, Toby). It takes no extra back
        step, so Back goes straight to the Blog feed. */
     function openItem(id, link) {
@@ -1196,23 +1225,27 @@ window.HutchApps = window.HutchApps || {};
         if (state.view !== 'home' && state.sec === x.sec) { state.id = id; go(state, false); var rd = vList.querySelector('.rdet'); if (rd) rd.scrollTop = 0; return; }
         openList(x.sec, id, link); return;
       }
-      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec }, !link);
+      go({ view: 'detail', sec: x.sec, id: id, filter: state.filter, fromList: state.view === 'list' && state.sec === x.sec, link: !!link }, !link);
       vDetail.querySelector('.pscroll').scrollTop = 0;
     }
     window.addEventListener('popstate', function (e) {
       var s = e.state;
-      state = s && s.hxd ? { view: s.view, sec: s.sec, id: s.id, filter: s.filter || 'All', fromList: s.fromList } : { view: 'home', sec: null, id: null, filter: 'All' };
+      state = s && s.hxd ? { view: s.view, sec: s.sec, id: s.id, filter: s.filter || 'All', fromList: s.fromList, link: !!s.link, browse: !!s.browse } : { view: 'home', sec: null, id: null, filter: 'All' };
       render();
     });
     /* the app bar's back closes the open list / detail first */
     ctx.bar.addEventListener('click', function (e) {
-      if (state.view !== 'home' && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      if ((state.view !== 'home' || state.browse) && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
+      /* a title opened from the Blog: the Den icon and name open the main
+         screen the same way Browse the Den does (one Back returns here) */
+      else if (state.view !== 'home' && state.link && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); browse(); }
       /* the Den icon and name go all the way back to Den's main screen (Nov 3) */
       else if (state.view !== 'home' && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); history.go(state.view === 'detail' && state.fromList ? -2 : -1); }
     }, true);
 
     root.addEventListener('click', function (e) {
       var t = e.target;
+      if (t.closest('[data-browse]')) { browse(); return; }
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }
@@ -1403,7 +1436,7 @@ window.HutchApps = window.HutchApps || {};
     renderHome();
     syncWatch();
     var hs0 = history.state;
-    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList }; want = null; }
+    if (hs0 && hs0.hxd) { state = { view: hs0.view, sec: hs0.sec, id: hs0.id, filter: hs0.filter || 'All', fromList: hs0.fromList, link: !!hs0.link, browse: !!hs0.browse }; want = null; }
     render();
     openWanted();
   };
@@ -2431,7 +2464,12 @@ window.HutchApps = window.HutchApps || {};
           '<div class="hxw-seg" role="group" aria-label="Sort"><button type="button" data-sort="new">Newest</button><button type="button" data-sort="az">A–Z</button></div>' +
           '<div class="hxw-list"></div>' +
         '</div></div>' +
-        '<div class="hxw-detail" aria-live="polite"><div class="hxw-dbody"></div><div class="hxw-pn"></div></div>' +
+        '<div class="hxw-detail" aria-live="polite">' +
+          /* opened from the Blog (Nov 18, Toby, mockup v168): which alert
+             this is, and a way to every word. Phones only: on a laptop
+             the list is already on the left. */
+          '<div class="hx-brw hxw-brw" hidden><span class="hx-brw-w"></span><button type="button" class="hx-brw-b" data-browse="1">Browse all words <span aria-hidden="true">›</span></button></div>' +
+          '<div class="hxw-dbody"></div><div class="hxw-pn"></div></div>' +
         /* no Random button (Nov 3, Toby): some posts' cards don't read
            right on their own, so words are only reached from the list */
       '</div>');
@@ -2440,7 +2478,28 @@ window.HutchApps = window.HutchApps || {};
 
     var list = root.querySelector('.hxw-list'), main = root.querySelector('.hxw-main'), detail = root.querySelector('.hxw-detail'),
         dbody = root.querySelector('.hxw-dbody'), pn = root.querySelector('.hxw-pn'), input = root.querySelector('.hxw-search input'),
-        clr = root.querySelector('.hxw-clr');
+        clr = root.querySelector('.hxw-clr'), brw = root.querySelector('.hxw-brw');
+
+    /* ---------- opened from the Blog (Nov 18, Toby, mockup v168) ----------
+       A Blog card's "Open in Word Nerd" opens one word. "Browse all words"
+       shows the whole list, and Back goes one step at a time: the list,
+       then the word, then the Blog where he left it. Back says "Blog"
+       while the next tap goes to the Blog. */
+    function linked() { var st = history.state; return !!(st && st.hxwCard && st.link); }
+    function sync() {
+      var st = history.state, first = !(st && (st.hxwCard || st.hxwList)) || !!st.link;
+      if (ctx.backTo) ctx.backTo(ctx.fromBlog && first ? 'Blog' : null);
+      var on = open && !two() && linked();
+      brw.hidden = !on;
+      if (on) brw.querySelector('.hx-brw-w').textContent = 'Word Nerd Alert · ' + W[sel].d;
+    }
+    function browse() {
+      if (!open) return;
+      open = false; de.classList.remove('hxw-open');
+      try { history.pushState({ hxwList: 1 }, ''); } catch (e) {}
+      main.scrollTop = 0; window.scrollTo(0, 0);
+      sync();
+    }
 
     function item(x) {
       return '<a class="hxw-it' + (two() && x.i === sel ? ' sel' : '') + '" href="' + esc(x.u) + '" data-i="' + x.i + '">' +
@@ -2484,27 +2543,40 @@ window.HutchApps = window.HutchApps || {};
         open = true; de.classList.add('hxw-open');
         /* opened from a Blog card's link (Nov 15, Toby): no extra back step,
            so Back goes straight to the Blog feed */
-        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+        if (how === 'link') { try { history.replaceState({ hxwCard: 1, i: i, link: 1 }, ''); } catch (e) {} }
         else if (how !== 'nohist') { try { history.pushState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
-      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i }, ''); } catch (e) {} }
+      } else if (history.state && history.state.hxwCard) { try { history.replaceState({ hxwCard: 1, i: i, link: history.state.link ? 1 : 0 }, ''); } catch (e) {} }
+      sync();
     }
     function close(viaPop) {
       if (!open) return;
       open = false; de.classList.remove('hxw-open');
       if (!viaPop && history.state && history.state.hxwCard) { try { history.back(); } catch (e) {} }
+      sync();
     }
 
-    window.addEventListener('popstate', function () { if (open) close(true); });
+    window.addEventListener('popstate', function (e) {
+      var st = e.state;
+      /* back from Browse all words: the word he came from opens again */
+      if (st && st.hxwCard && !open && !two() && W[st.i || 0]) { show(st.i || 0, 'nohist'); return; }
+      if (open) close(true); else sync();
+    });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) close(); });
     /* the app bar's back arrow closes the card first */
     ctx.bar.addEventListener('click', function (e) {
-      if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
+      /* a word opened from the Blog: the Word Nerd icon and name show
+         every word, the same as Browse all words */
+      if (open && linked() && e.target.closest('.hb-app')) { e.preventDefault(); e.stopPropagation(); browse(); }
+      else if (open && e.target.closest('.hb-back, .hb-app')) { e.preventDefault(); e.stopPropagation(); close(); }
+      /* the list from Browse all words: Back goes to the word first */
+      else if (!open && history.state && history.state.hxwList && e.target.closest('.hb-back')) { e.preventDefault(); e.stopPropagation(); history.back(); }
     }, true);
 
     root.addEventListener('click', function (e) {
       var t = e.target;
       var s = t.closest('[data-sort]');
       if (s) { sort = s.getAttribute('data-sort'); ctx.ls('hxw-sort', sort); renderList(); return; }
+      if (t.closest('[data-browse]')) { browse(); return; }
       if (t.closest('.hxw-clr')) { input.value = ''; q = ''; clr.hidden = true; renderList(); input.focus(); return; }
       var w = t.closest('[data-i]');
       if (w && !w.disabled) {
@@ -2519,7 +2591,7 @@ window.HutchApps = window.HutchApps || {};
       var t = two();
       de.classList.toggle('hxw-two', t);
       if (t) { if (open) { open = false; de.classList.remove('hxw-open'); } show(sel); }
-      renderList();
+      renderList(); sync();
     }
     if (mq.addEventListener) mq.addEventListener('change', layout); else if (mq.addListener) mq.addListener(layout);
     layout();
@@ -2554,5 +2626,6 @@ window.HutchApps = window.HutchApps || {};
     }
     if (wi >= 0) show(wi, 'link');
     else if (hs && hs.hxwCard && W[hs.i || 0]) show(hs.i || 0, 'nohist');
+    sync();
   };
 })();

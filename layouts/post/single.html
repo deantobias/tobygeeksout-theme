@@ -199,7 +199,7 @@
            Blog single posts only: the timeline, RSS and the newsletter
            still carry the prefix, since it lives in the saved post. */}}
       {{ $postContent := .Content }}
-      {{ with .Params.location }}{{ if reflect.IsMap . }}{{ with .name }}
+      {{ with .Params.location }}{{ if reflect.IsMap . }}{{ with (trim (string (.name | default "")) " '\"") }}
         {{/* Two spellings of the name: as escaped, and with the curly
              apostrophe Markdown makes out of ' (Bob's -> Bob&rsquo;s). */}}
         {{ $locEsc := htmlEscape (string .) }}
@@ -253,7 +253,10 @@
        reflect.IsMap guards against a post whose front matter has a
        plain-text "location". Styled in custom.css section 130. */}}
   {{ with .Params.location }}{{ if reflect.IsMap . }}
-    {{ $locName := .name | default "" }}
+    {{/* Nov 19: a check-in sent with a blank name comes back from
+         Micro.blog as the two characters '' (empty quotes). Trim
+         quotes and spaces so a blank name prints no name line. */}}
+    {{ $locName := trim (string (.name | default "")) " '\"" }}
     {{ $locURL := .url | default "" }}
     {{ if and (not $locURL) .latitude .longitude }}
       {{ $locURL = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude }}

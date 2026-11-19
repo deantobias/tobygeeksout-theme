@@ -15490,7 +15490,24 @@ html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.re
 }
 .post-location-maplink {
   display: block;
+  position: relative;
   line-height: 0;
+}
+/* Micro.blog's map picture has no marker on it, so the theme draws
+   the pin: centred, with its tip on the exact spot (the map is
+   always centred on the check-in). Fixed colors, since it sits on
+   the map picture and not on a sky. */
+.post-location-maplink::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 36px;
+  transform: translate(-50%, -100%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 36'%3E%3Cpath d='M14 35C5 24 2 19 2 13a12 12 0 0 1 24 0c0 6-3 11-12 22Z' fill='%23C4622D' stroke='%23FFFFFF' stroke-width='2'/%3E%3Ccircle cx='14' cy='13' r='4.5' fill='%23FFFFFF'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
 }
 .post-location-maplink:focus-visible {
   outline: 3px solid var(--color-terra-text);

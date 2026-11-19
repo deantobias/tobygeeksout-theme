@@ -189,7 +189,13 @@
   {{ $isLongRead := ge $h2Count 3 }}
 
   <div class="{{ if $isLongRead }}post-layout{{ end }}">
-    <div class="post-body e-content">
+    {{/* Nov 19, 2026: when a location card follows, .post-body drops
+         its bottom padding (has-post-location, custom.css section 130)
+         so the card sits close under the photo or embed instead of
+         ~90px below it. Same test as the card itself further down. */}}
+    {{ $hasLocCard := false }}
+    {{ with .Params.location }}{{ if reflect.IsMap . }}{{ if or (trim (string (.name | default "")) " '\"") .map_url }}{{ $hasLocCard = true }}{{ end }}{{ end }}{{ end }}
+    <div class="post-body e-content{{ if $hasLocCard }} has-post-location{{ end }}">
       {{/* Check-in posts (Nov 19, 2026): Micro.blog itself prepends the
            venue name to the post text ("Elkhorn City. Testing.") and
            Perch can't stop it. The location card below already carries

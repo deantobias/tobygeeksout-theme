@@ -15600,4 +15600,15 @@ html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.re
   .post-location-map { display: none !important; }
   .post-location-name { padding: 0; border-top: 0 !important; }
 }
+/* Gap above the card (Nov 19, Toby: "far away from each other").
+   .post-body ends with 60px of padding, which stacked on the card's
+   28px margin. With a card following, the body gives that padding
+   up and the card's own margin is the whole gap. The card takes
+   over the breathing room below it instead. */
+.post-body.has-post-location { padding-bottom: 0 !important; }
+.post-body.has-post-location > :last-child { margin-bottom: 0 !important; }
+.post-location { margin-top: 24px; margin-bottom: 32px; }
+@media print {
+  .post-location { margin: 12px 0 0; }
+}
 /* end section 130 */

@@ -235,3 +235,19 @@ html.fonts-70s .hxp-logo img{aspect-ratio:1500/310;object-position:50% 34.5%}
 .hx-photos .hxp-title{font-family:var(--font-display,var(--h-flex)) !important;font-weight:400;font-size:22px;line-height:1.15}
 .hx-photos[data-mode=port] .hxp-title,.hx-photos[data-mode=land] .hxp-nwords .hxp-title{font-size:25px}
 .hxv-cap b{font-family:var(--font-display,var(--h-flex));font-weight:400;font-size:22px;line-height:1.15}
+/* the check-in place (Nov 19, Toby picked v171). Newest card: a pill
+   under the caption, navy on a light terracotta tint (10.6:1), the pin
+   in the accent. Viewer: after the date, white with a soft underline;
+   on a phone it takes its own line under the date. */
+.hxp-loc{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;max-width:100%;margin-top:12px;padding:6px 11px 6px 8px;border-radius:999px;background:rgba(152,74,32,.10);color:var(--ink);font:600 14px/1.3 var(--h-ui);text-decoration:none}
+.hxp-loc span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hxp-loc svg{width:16px;height:16px;flex:none;color:var(--acct)}
+.hxp-loc svg+span+svg{width:13px;height:13px;color:var(--ink)}
+a.hxp-loc:hover{background:rgba(152,74,32,.18)}
+a.hxp-loc:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.hxv-cap small{display:flex;flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:3px}
+.hxv-loc{display:inline-flex;align-items:center;gap:5px;min-width:0;color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.45);text-underline-offset:3px}
+.hxv-loc svg{width:15px;height:15px;flex:none;color:#F2B58F}
+a.hxv-loc:hover{text-decoration-color:#fff}
+a.hxv-loc:focus-visible{outline:3px solid #F2B58F;outline-offset:2px;border-radius:3px}
+@media (max-width:519px){.hxv-sep{display:none}.hxv-loc{flex-basis:100%}}

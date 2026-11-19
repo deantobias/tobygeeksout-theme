@@ -9,6 +9,9 @@
      Each post: t title ("" if untitled), l label (title or date),
      d ISO date, dl display date, u link, c short plain caption,
      ph every upload in order as {s src, a alt}.
+     ln / lu (Nov 19): the check-in place name and its map link, only
+     when the post has a location. Same cleaning and OpenStreetMap
+     fallback as shortcodes/photo.html and post/single.html.
      ============================================================ */}}
 {{- $posts := where (where site.RegularPages "Type" "post") "Params.categories" "intersect" (slice "Photos") -}}
 {{- $out := slice -}}
@@ -41,7 +44,15 @@
       {{- $total = add $total (len $ph) -}}
       {{/* m (Nov 15, Toby): the post says more than the caption, so the
            photo viewer offers "View the post" instead of Permalink */}}
-      {{- $out = $out | append (dict
+      {{- $locName := "" -}}{{- $locURL := "" -}}
+      {{- with $p.Params.location -}}{{- if reflect.IsMap . -}}
+        {{- $locName = trim (string (.name | default "")) " '\"" -}}
+        {{- $locURL = .url | default "" -}}
+        {{- if and (not $locURL) .latitude .longitude -}}
+          {{- $locURL = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude -}}
+        {{- end -}}
+      {{- end -}}{{- end -}}
+      {{- $item := (dict
             "t" $title
             "l" (cond (ne $title "") $title ($p.Date.Format "January 2, 2006"))
             "d" ($p.Date.Format "2006-01-02")
@@ -51,6 +62,8 @@
             "c" $cap
             "m" (gt (countwords $p.Plain) (add (countwords $cap) 3))
             "ph" $ph) -}}
+      {{- with $locName -}}{{- $item = merge $item (dict "ln" . "lu" $locURL) -}}{{- end -}}
+      {{- $out = $out | append $item -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

@@ -29,7 +29,8 @@
       l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>',
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
       link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
-      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'
+      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
+      pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
     /* Micro.blog's resizer for his uploads (same as the Photos category cards); the original if it fails */
@@ -44,6 +45,14 @@
       return '<time class="hxp-date" datetime="' + esc(p.d) + '">' + esc(p.dl) + '</time>' +
         (p.t || !feed ? '<h2 class="hxp-title">' + esc(p.t || p.l) + '</h2>' : '') +
         (p.c ? '<p class="hxp-cap">' + esc(p.c) + '</p>' : '');
+    }
+    /* the check-in place (Nov 19, Toby picked v171): a pill under the
+       Newest card's caption, and a link after the date in the viewer.
+       Opens the full map. Posts with no location show nothing. */
+    function place(p, cls, ext) {
+      if (!p.ln) return '';
+      var inner = ic('pin') + '<span>' + esc(p.ln) + '</span>' + (ext && p.lu ? ic('open') : '');
+      return p.lu ? '<a class="' + cls + '" href="' + esc(p.lu) + '" aria-label="' + esc(p.ln + ', open the map') + '">' + inner + '</a>' : '<span class="' + cls + '">' + inner + '</span>';
     }
     function readMore(p) { return '<a class="hxp-read" href="' + esc(p.u) + '">View the post<span class="hxp-sr"> about ' + esc(p.l) + '</span>' + ic('open') + '</a>'; }
 
@@ -81,7 +90,7 @@
         '<div class="hxp-nshot" role="link" tabindex="0" aria-label="' + esc('Open ' + N.l + (NN > 1 ? ', ' + NN + ' photos' : '')) + '"><div class="hxp-car">' +
           N.ph.map(function (ph, k) { return '<figure><span class="hxp-bl" aria-hidden="true" style="background-image:url(&quot;' + esc(sz(ph.s, 400)) + '&quot;)"></span>' + img(ph, M === 'phone' ? 800 : 1200, alt(N, k), k > 0) + '</figure>'; }).join('') + '</div>' + '<span class="hxp-big" aria-hidden="true">' + ic('big') + '</span>' + more(NN) + dots(NN) + '</div>' +
         '<div class="hxp-nwords"><time class="hxp-date" datetime="' + esc(N.d) + '">' + esc(N.dl) + '</time>' +
-          (N.t ? '<h2 class="hxp-title">' + esc(N.t) + '</h2>' : '') + (N.c ? '<p class="hxp-cap">' + esc(N.c) + '</p>' : '') +
+          (N.t ? '<h2 class="hxp-title">' + esc(N.t) + '</h2>' : '') + (N.c ? '<p class="hxp-cap">' + esc(N.c) + '</p>' : '') + place(N, 'hxp-loc', true) +
           (NN > 1 ? '<div class="hxp-thumbs hxp-nthumbs">' + N.ph.map(function (ph, j) { return '<button type="button" data-nk="' + j + '"' + (j ? '' : ' class="on" aria-current="true"') + ' aria-label="Photo ' + (j + 1) + ' of ' + NN + '">' + img(ph, 400, '', true) + '</button>'; }).join('') + '</div>' : '') +
           '<div class="hxp-nact">' + readMore(N) + '</div></div>' +
       '</div></section>';
@@ -221,7 +230,7 @@
           '<button type="button" class="hxp-arrow l" data-step="-1" aria-label="Previous">' + ic('l') + '</button>' +
           '<button type="button" class="hxp-arrow r" data-step="1" aria-label="Next">' + ic('r') + '</button></div>' +
         '<div class="hxv-dots">' + dots(n) + '</div>' +
-        '<div class="hxv-bot"><div class="hxv-cap"><b>' + esc(p.t || p.l) + '</b><small>' + esc(p.dl) + '</small>' + (p.c ? '<p>' + esc(p.c) + '</p>' : '') + '</div>' +
+        '<div class="hxv-bot"><div class="hxv-cap"><b>' + esc(p.t || p.l) + '</b><small><span>' + esc(p.dl) + '</span>' + (p.ln ? '<span class="hxv-sep" aria-hidden="true">·</span>' + place(p, 'hxv-loc') : '') + '</small>' + (p.c ? '<p>' + esc(p.c) + '</p>' : '') + '</div>' +
           '<a class="hxv-act" href="' + esc(p.u) + '"' + (p.m ? '>View the post' + ic('open') : ' data-pl>' + ic('link') + 'Permalink') + '</a></div>';
       var sync = function (kk) {
         stepK = kk;

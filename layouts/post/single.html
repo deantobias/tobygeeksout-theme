@@ -190,7 +190,39 @@
 
   <div class="{{ if $isLongRead }}post-layout{{ end }}">
     <div class="post-body e-content">
-      {{ .Content }}
+      {{/* Check-in posts (Nov 19, 2026): Micro.blog itself prepends the
+           venue name to the post text ("Elkhorn City. Testing.") and
+           Perch can't stop it. The location card below already carries
+           the name, so drop that prefix here. It is only removed when
+           the text STARTS with the exact stored name plus a period;
+           anything else is left alone, so Toby's own words are safe.
+           Blog single posts only: the timeline, RSS and the newsletter
+           still carry the prefix, since it lives in the saved post. */}}
+      {{ $postContent := .Content }}
+      {{ with .Params.location }}{{ if reflect.IsMap . }}{{ with .name }}
+        {{/* Two spellings of the name: as escaped, and with the curly
+             apostrophe Markdown makes out of ' (Bob's -> Bob&rsquo;s). */}}
+        {{ $locEsc := htmlEscape (string .) }}
+        {{ $trimmed := strings.TrimLeft " \n\r\t" (string $postContent) }}
+        {{ $done := false }}
+        {{ range (slice $locEsc (replace $locEsc "&#39;" "&rsquo;")) }}{{ if not $done }}
+          {{ $pfxP := printf "<p>%s." . }}
+          {{ $pfxBare := printf "%s." . }}
+          {{ if strings.HasPrefix $trimmed $pfxP }}
+            {{ $rest := strings.TrimLeft " \n\r\t" (strings.TrimPrefix $pfxP $trimmed) }}
+            {{ if strings.HasPrefix $rest "</p>" }}
+              {{ $postContent = strings.TrimPrefix "</p>" $rest | safeHTML }}
+            {{ else }}
+              {{ $postContent = printf "<p>%s" $rest | safeHTML }}
+            {{ end }}
+            {{ $done = true }}
+          {{ else if strings.HasPrefix $trimmed $pfxBare }}
+            {{ $postContent = strings.TrimLeft " \n\r\t" (strings.TrimPrefix $pfxBare $trimmed) | safeHTML }}
+            {{ $done = true }}
+          {{ end }}
+        {{ end }}{{ end }}
+      {{ end }}{{ end }}{{ end }}
+      {{ $postContent }}
       {{/* Blaugust badge (August 1, 2026) — renders only on posts
            categorized "Blaugust <year>". Inside .post-body so it
            inherits the 1.2rem type, but outside .Content so it never

@@ -66,6 +66,19 @@
 {{- $hero := index $shots 0 -}}
 {{- $hp := $hero.page -}}
 {{- $caption := partial "clean-summary.html" (dict "page" $hp) -}}
+{{- /* Check-in location (Nov 19, 2026): when the newest photo post has
+       a location, the caption's meta line ends with a pin and the place
+       name, linked to the full map. Name and link only (Toby's pick);
+       the map picture stays on the post. Same cleaning and OpenStreetMap
+       fallback as post/single.html. */ -}}
+{{- $locName := "" -}}{{- $locURL := "" -}}
+{{- with $hp.Params.location -}}{{- if reflect.IsMap . -}}
+  {{- $locName = trim (string (.name | default "")) " '\"" -}}
+  {{- $locURL = .url | default "" -}}
+  {{- if and (not $locURL) .latitude .longitude -}}
+    {{- $locURL = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude -}}
+  {{- end -}}
+{{- end -}}{{- end -}}
 <div class="tg-photo">
 
   <p class="tgp-intro">This is my /photo page: my newest shot, swapped out whenever I share a new one. Last updated <time class="tgp-ago" datetime="{{ $hp.Date.Format "2006-01-02T15:04:05-07:00" }}">{{ $hp.Date.Format "2 Jan 2006" }}</time>.</p>
@@ -80,6 +93,7 @@
         {{- with $hero.title }}<a class="tgp-cap-title" href="{{ $hp.Permalink }}">{{ . }}</a><span class="tgp-sep" aria-hidden="true">·</span>{{ end -}}
         <time datetime="{{ $hp.Date.Format "2006-01-02" }}">{{ $hp.Date.Format "2 Jan 2006" }}</time>
         {{- if gt $hero.n 1 }}<span class="tgp-sep" aria-hidden="true">·</span><a class="tgp-more" href="{{ $hp.Permalink }}">+{{ sub $hero.n 1 }} more in this post</a>{{ end -}}
+        {{- with $locName }}<span class="tgp-sep" aria-hidden="true">·</span>{{ if $locURL }}<a class="tgp-loc" href="{{ $locURL }}">{{ partial "icon.html" (dict "name" "pin" "class" "tgp-loc-pin") }}{{ . }}</a>{{ else }}<span class="tgp-loc">{{ partial "icon.html" (dict "name" "pin" "class" "tgp-loc-pin") }}{{ . }}</span>{{ end }}{{ end -}}
       </span>
     </figcaption>
   </figure>

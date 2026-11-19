@@ -53,7 +53,9 @@
 {{- $O := "\uE000" -}}
 {{- $C := "\uE001" -}}
 {{- $out := "" -}}
-{{- $content := $p.Content -}}
+{{- /* Nov 19, 2026: a check-in post starts with the venue name Micro.blog
+       adds; drop it so blurbs start with the post's own words. */ -}}
+{{- $content := partial "loc-strip.html" (dict "page" $p "html" $p.Content) -}}
 
 {{- if and (not $cut) $p.Description -}}
   {{- $out = $p.Description -}}
@@ -115,7 +117,7 @@
 
 {{- else -}}
   {{- $src := $content -}}
-  {{- if $cut -}}{{- $src = $p.Summary -}}{{- end -}}
+  {{- if $cut -}}{{- $src = partial "loc-strip.html" (dict "page" $p "html" $p.Summary) -}}{{- end -}}
   {{- $text := partial "marked.html" $src -}}
 
   {{- if $cut -}}

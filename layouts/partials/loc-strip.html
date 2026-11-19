@@ -1,0 +1,40 @@
+{{- /*
+  partials/loc-strip.html (Nov 19, 2026)
+  Micro.blog prepends a check-in's venue name to the post text
+  ("Elkhorn City. Testing."). The location is shown on its own
+  (map card on the post, pin line on the /photo page), so blurbs
+  and captions should start with Toby's own words.
+
+  Call:  {{ partial "loc-strip.html" (dict "page" $p "html" $p.Content) }}
+  Returns the same HTML with that prefix removed. It is removed only
+  when the text STARTS with the exact stored name plus a period
+  (inside the first <p> or bare). Anything else comes back untouched.
+  A page with no location, or a blank name, comes back untouched.
+  Same rule as the inline version in post/single.html.
+*/ -}}
+{{- $html := string .html -}}
+{{- $out := $html -}}
+{{- with .page.Params.location -}}{{- if reflect.IsMap . -}}
+  {{- with (trim (string (.name | default "")) " '\"") -}}
+    {{- $locEsc := htmlEscape . -}}
+    {{- $trimmed := strings.TrimLeft " \n\r\t" $html -}}
+    {{- $done := false -}}
+    {{- range (slice $locEsc (replace $locEsc "&#39;" "&rsquo;") .) -}}{{- if not $done -}}
+      {{- $pfxP := printf "<p>%s." . -}}
+      {{- $pfxBare := printf "%s." . -}}
+      {{- if strings.HasPrefix $trimmed $pfxP -}}
+        {{- $rest := strings.TrimLeft " \n\r\t" (strings.TrimPrefix $pfxP $trimmed) -}}
+        {{- if strings.HasPrefix $rest "</p>" -}}
+          {{- $out = strings.TrimPrefix "</p>" $rest -}}
+        {{- else -}}
+          {{- $out = printf "<p>%s" $rest -}}
+        {{- end -}}
+        {{- $done = true -}}
+      {{- else if strings.HasPrefix $trimmed $pfxBare -}}
+        {{- $out = strings.TrimLeft " \n\r\t" (strings.TrimPrefix $pfxBare $trimmed) -}}
+        {{- $done = true -}}
+      {{- end -}}
+    {{- end -}}{{- end -}}
+  {{- end -}}
+{{- end -}}{{- end -}}
+{{- return $out -}}

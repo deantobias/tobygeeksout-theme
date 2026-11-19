@@ -380,10 +380,46 @@
   {{ if and .Site.Params.include_conversation .Permalink }}
     {{/* id="replies" (Nov 14): the Hutch Blog app's "Reply" / "View replies"
          links land here (post.html#replies) */}}
-    <div class="post-conversation" id="replies">
+    {{/* Nov 19 (speed; Toby: posts from the home page open slowly):
+         Micro.blog's conversation.js used to load right here and the
+         whole page waited for it (0.3 to 0.9 s), because head.html holds
+         the first paint until #page-end is read. Now the post shows first
+         and the conversation fills in once the page has been read.
+         Micro.blog's script writes its markup with document.write, so it
+         runs with document.write collected into this box. It also pushed
+         an extra history step on every visit (a Back press that did
+         nothing); now it only tidies the address when Micro.blog added a
+         ?token= after you sign in to reply, and leaves Back alone. */}}
+    <div class="post-conversation" id="replies" data-conv="https://micro.blog/conversation.js?url={{ .Permalink }}">
       <p class="post-conversation-label">Join the conversation</p>
-      <script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
     </div>
+    <script>
+    (function () {
+      var box = document.getElementById('replies'), url = box && box.getAttribute('data-conv');
+      if (!url) return;
+      function run(code, src) {
+        var buf = '', H = window.History && History.prototype;
+        document.write = function () { buf += [].join.call(arguments, ''); };
+        document.writeln = function () { buf += [].join.call(arguments, '') + '\n'; };
+        var ps = history.pushState;
+        history.pushState = function (st, t, u) { if (location.search && H) H.replaceState.call(history, history.state, t, u); };
+        function done() {
+          delete document.write; delete document.writeln; history.pushState = ps;
+          if (!buf) return;
+          var w = document.createElement('div'); w.innerHTML = buf;
+          while (w.firstChild) box.appendChild(w.firstChild);
+        }
+        var s = document.createElement('script');
+        if (code != null) { s.textContent = code; document.body.appendChild(s); done(); }
+        else { s.src = src; s.onload = s.onerror = done; document.body.appendChild(s); }
+      }
+      function go() {
+        fetch(url).then(function (r) { if (!r.ok) throw r; return r.text(); })
+          .then(function (code) { run(code); }, function () { run(null, url); });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+    })();
+    </script>
   {{ end }}
   {{/* Keep reading (Aug 28, 2026) — titled posts get the category
        pager (keep-reading.html): one previous/next row per category in

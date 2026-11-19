@@ -208,6 +208,43 @@
     {{ end }}
   </div>
 
+  {{/* Check-in location (Nov 19, 2026) — a post published with a
+       Micropub checkin (Perch's Composer sends one) carries
+       .Params.location: name, url, latitude, longitude and map_url,
+       Micro.blog's own static map picture. Shown as a small card at
+       the END of the post, whatever sits above it (photo, Instagram
+       embed, text). It lives OUTSIDE .post-body on purpose: an extra
+       <img> in there would trip the lone-photo rule (section 99) and
+       the two-photo mosaic (section 18). Posts with no location print
+       nothing. Class names are shared with Perch's Composer preview —
+       keep them: post-location, post-location-name, post-location-map.
+       reflect.IsMap guards against a post whose front matter has a
+       plain-text "location". Styled in custom.css section 130. */}}
+  {{ with .Params.location }}{{ if reflect.IsMap . }}
+    {{ $locName := .name | default "" }}
+    {{ $locURL := .url | default "" }}
+    {{ if and (not $locURL) .latitude .longitude }}
+      {{ $locURL = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude }}
+    {{ end }}
+    {{ if or $locName .map_url }}
+    <div class="post-location p-location h-card">
+      {{ with .map_url }}
+        {{ $mapSrc := printf "%s&size=m" . }}
+        {{ $mapAlt := cond (ne $locName "") (printf "Map showing %s" $locName) "Map of the check-in location" }}
+        {{ if $locURL }}<a class="post-location-maplink" href="{{ $locURL }}" aria-label="Open the map{{ with $locName }} of {{ . }}{{ end }}">{{ end }}
+          <img class="post-location-map" src="{{ $mapSrc }}" alt="{{ $mapAlt }}" width="600" height="600" loading="lazy" decoding="async">
+        {{ if $locURL }}</a>{{ end }}
+      {{ end }}
+      {{ with $locName }}
+      <p class="post-location-name">
+        {{ partial "icon.html" (dict "name" "pin" "class" "post-location-pin") }}
+        {{ if $locURL }}<a class="p-name u-url" href="{{ $locURL }}">{{ . }}</a>{{ else }}<span class="p-name">{{ . }}</span>{{ end }}
+      </p>
+      {{ end }}
+    </div>
+    {{ end }}
+  {{ end }}{{ end }}
+
   {{/* This post (Sept 29, 2026) — Copy link + Reply by email moved out
        of Connect & Share to sit right under the post body: they're
        about THIS post, so they come first. Copy link uses

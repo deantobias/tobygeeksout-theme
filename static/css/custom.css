@@ -15460,3 +15460,97 @@ html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.re
   font-size: 0.85rem !important;
 }
 /* end section 129 */
+
+
+/* ============================================================
+   130 · CHECK-IN LOCATION CARD (Nov 19, 2026, Toby)
+   ============================================================
+   A post published with a location (Perch's Composer sends a
+   Micropub checkin) gets a small card at the end of the post:
+   Micro.blog's static map picture on top, a pin and the place name
+   under it. Markup is in post/single.html, outside .post-body, so
+   the photo rules (sections 18 and 99) never see the map.
+   Toby picked "map at the end of the post" from the v2 mockup.
+   - The map arrives square (600x600); aspect-ratio + object-fit
+     crop it to a wide banner. The pin is in the middle, so it stays
+     in view. Card is capped at 600px so the map is never upscaled.
+   - Colors are the sky tokens only, so every sky (and the Halloween
+     look) keeps its contrast floor: name = --color-terra-text
+     (4.5:1 floor from the sky script), card = --color-bg-card.
+   - Class names are shared with Perch's Composer preview. Keep them.
+   - Print: the name stays, the map picture is dropped.
+   ============================================================ */
+.post-location {
+  max-width: 600px;
+  margin: 28px 0 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+.post-location-maplink {
+  display: block;
+  line-height: 0;
+}
+.post-location-maplink:focus-visible {
+  outline: 3px solid var(--color-terra-text);
+  outline-offset: -3px;
+}
+.post-location-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  object-position: center;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-bg-warm);
+}
+.post-location-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.post-location-map + .post-location-name,
+.post-location-maplink + .post-location-name {
+  border-top: 1px solid var(--color-border);
+}
+.post-location-name .post-location-pin {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--color-terra-text);
+}
+.post-location-name a,
+.post-location-name .p-name {
+  color: var(--color-terra-text);
+  font-weight: 600;
+}
+.post-location-name a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.post-location-name a:hover { text-decoration-thickness: 2px; }
+.post-location-name a:focus-visible {
+  outline: 2px solid var(--color-terra-text);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+@media (max-width: 599px) {
+  .post-location-map { aspect-ratio: 5 / 2; }
+}
+@media print {
+  .post-location { border: 0; background: none; margin: 12px 0 0; }
+  .post-location-maplink,
+  .post-location-map { display: none !important; }
+  .post-location-name { padding: 0; border-top: 0 !important; }
+}
+/* end section 130 */

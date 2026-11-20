@@ -378,3 +378,14 @@ html.hx-den-on #hutch-bar .hb-brw:focus-visible{outline:2px solid #E9875F;outlin
   .hx-den .crowd .cell{padding:0 18px}
   .hx-den .crowd .v{font-size:26px}
 }
+
+/* ---------- "This post" (Nov 20, Toby, mockup v174) ----------
+   Any title with a post gets Classic's row: Copy link and Reply by email.
+   Pills like the ghost buttons; label var(--sub) 9.7:1, text 16.3:1. */
+.hx-den .thispost{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:20px}
+.hx-den .thispost .tl{font:700 12.5px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-right:2px}
+.hx-den .thispost .pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border-radius:999px;border:1.5px solid #6B594B;background:transparent;color:var(--ink) !important;font:600 14px var(--h-ui);text-decoration:none !important;cursor:pointer}
+.hx-den .thispost .pill svg{width:15px;height:15px;flex:none;color:var(--acct)}
+.hx-den .thispost .pill:hover{background:rgba(255,255,255,.06)}
+.hx-den .thispost .pill:focus-visible{outline:2px solid var(--acct);outline-offset:2px}
+.hx-den .thispost + .perma{margin-top:20px}

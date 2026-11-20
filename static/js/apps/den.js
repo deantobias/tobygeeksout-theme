@@ -46,7 +46,8 @@
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       out: '<path d="M7 17L17 7M9 7h8v8"/>',
       link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
-      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
     var STAR = '<path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.8l-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/>';
@@ -437,8 +438,11 @@
       return out;
     }
     function readPost(html) {
-      var out = { facts: [], thoughts: [], syn: '', tag: '', bd: '', trailer: '', where: '', tmdb: '', trakt: '', scale: '', isbn: '' };
+      var out = { facts: [], thoughts: [], syn: '', tag: '', bd: '', trailer: '', where: '', tmdb: '', trakt: '', scale: '', isbn: '', rbe: null };
       var doc; try { doc = new DOMParser().parseFromString(String(html || ''), 'text/html'); } catch (e) { return out; }
+      /* the post's own Reply by email link (Micro.blog plugin), reused as is in "This post" */
+      var rb = doc.querySelector('a.reply-by-email[data-meta]');
+      if (rb) out.rbe = { href: rb.getAttribute('href') || '/reply-by-email/', meta: rb.getAttribute('data-meta') || '' };
       var ec = doc.querySelector('.e-content'); if (!ec) return out;
       [].forEach.call(ec.querySelectorAll('script,style,.quoteback-footer'), function (n) { n.parentNode.removeChild(n); });
       var q = function (s) { return ec.querySelector(s); };
@@ -620,6 +624,15 @@
       rows = rows.filter(function (r) { return r && r[1]; });
       return rows.length ? '<dl class="facts">' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' : '';
     }
+    /* "This post" (Nov 20, Toby, mockup v174): any title with a post of his
+       gets Classic's row, Copy link and Reply by email. Reply by email is
+       the post's own link from the Micro.blog plugin (its click script is on
+       every page), so the subject and address are the post's. */
+    function thisPost(x, p) {
+      if (!p || !local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url)) return '';
+      var r = p.rbe && p.rbe.meta ? '<a class="pill reply-by-email" href="' + esc(p.rbe.href) + '" data-meta="' + esc(p.rbe.meta) + '">' + ic('mail') + '<span>Reply by email</span></a>' : '';
+      return '<div class="thispost"><span class="tl">This post</span><button type="button" class="pill" data-copy="' + esc(x.url) + '">' + ic('link') + '<span aria-live="polite">Copy link</span></button>' + r + '</div>';
+    }
     function permaHtml(text, x) {
       var link = local(x.url) && !/^\/(?:reading|watching|watched)\/?$/.test(x.url) ? '<a href="' + esc(x.url) + '">Permalink</a>' : '';
       return text || link ? '<div class="perma">' + (link ? ic('link') : '') + '<span>' + esc(text) + '</span>' + link + '</div>' : '';
@@ -709,8 +722,8 @@
         else if (!local(x.url) && x.url) tb += ext('More on Trakt', x.url);
         if (p && p.where) tb += ext('Where to watch', p.where);
         if (tb) h += '<div class="btns">' + tb + '</div>';
-        if (x.fin) return h + permaHtml('Finished ' + (x.date || x.d) + ' · Not rated yet', x);
-        return h + permaHtml(x.d ? (local(x.url) ? 'Last posted ' : 'Last watched ') + x.d : '', x);
+        if (x.fin) return h + thisPost(x, p) + permaHtml('Finished ' + (x.date || x.d) + ' · Not rated yet', x);
+        return h + thisPost(x, p) + permaHtml(x.d ? (local(x.url) ? 'Last posted ' : 'Last watched ') + x.d : '', x);
       }
       if (x.kind === 'Book') {
         if (!done) {
@@ -726,7 +739,7 @@
         /* "Started" is the first post about the book. Nov 13 (Toby): when the progress log is
            showing, it already gives every date, so the bottom line is the permalink alone */
         var st = x.sdate || x.date || x.d;
-        return h + permaHtml(done ? 'Finished ' + (x.date || x.d) : (!lg && st ? 'Started ' + st : ''), x);
+        return h + thisPost(x, p) + permaHtml(done ? 'Finished ' + (x.date || x.d) : (!lg && st ? 'Started ' + st : ''), x);
       }
       /* Waiting for (Nov 12, Toby): synopsis, release, where to watch, Trakt.
          Trakt does not give out streaming / rent / buy lists without a login
@@ -747,7 +760,7 @@
         var qw = (p && p.where) || (i && i.tmdb ? 'https://www.themoviedb.org/' + (i.type === 'shows' ? 'tv' : 'movie') + '/' + i.tmdb + '/watch' : '');
         var qb = (qw ? ext('Where to watch', qw) : '') + (p && p.trailer ? ext('Trailer', p.trailer) : '') + (p && p.trakt ? ext('More on Trakt', p.trakt) : '');
         if (qb) h += '<div class="btns">' + qb + '</div>' + (qw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
-        return h + permaHtml('On the Waiting for list · ' + relLine(x), x);
+        return h + thisPost(x, p) + permaHtml('On the Waiting for list · ' + relLine(x), x);
       }
       /* a movie or a show he rated, or a movie he is watching */
       if (x.fin) {
@@ -759,7 +772,7 @@
         if (fi && (fi.genres.length || fi.cert)) h += '<div class="chips">' + fi.genres.slice(0, 4).map(cap).concat([fi.cert]).filter(Boolean).map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>';
         var fw = x.tmdb ? 'https://www.themoviedb.org/movie/' + x.tmdb + '/watch' : '';
         h += '<div class="btns">' + (fw ? ext('Where to watch', fw) : '') + ext('More on Trakt', x.url) + '</div>' + (fw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
-        return h + permaHtml('Watched ' + (x.date || x.d) + (x.r ? ' · Rated on Trakt' : ' · Not rated yet'), x);
+        return h + thisPost(x, p) + permaHtml('Watched ' + (x.date || x.d) + (x.r ? ' · Rated on Trakt' : ' · Not rated yet'), x);
       }
       if (done) h += rateHtml(x, p);
       var mf = p && p.facts.length ? p.facts.slice() : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
@@ -780,7 +793,7 @@
       else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
       else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
       if (b) h += '<div class="btns">' + b + '</div>' + (mv1 && mw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
-      return h + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? (x.wdate ? 'Rated ' : 'Finished ') + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
+      return h + thisPost(x, p) + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? (x.wdate ? 'Rated ' : 'Finished ') + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
     }
     function rateHtml(x, p) {
       return '<div class="rate">' + stars(x.r) + '<b>' + rtext(x.r) + ' of 5</b>' + (p && p.scale ? '<a class="scale" href="' + esc(p.scale) + '">My rating scale</a>' : '') + '</div>';
@@ -923,6 +936,13 @@
     root.addEventListener('click', function (e) {
       var t = e.target;
       if (t.closest('[data-browse]')) { browse(); return; }
+      var cp = t.closest('[data-copy]');
+      if (cp) {
+        var cu = new URL(cp.getAttribute('data-copy'), location.href).href, cs = cp.querySelector('span');
+        var said = function (w) { if (cs) { cs.textContent = w; clearTimeout(cp.__t); cp.__t = setTimeout(function () { cs.textContent = 'Copy link'; }, 1800); } };
+        try { navigator.clipboard.writeText(cu).then(function () { said('Copied'); }, function () { said('Copy failed'); }); } catch (er) { said('Copy failed'); }
+        return;
+      }
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }

@@ -961,4 +961,256 @@
 })();
 </script>
 {{ end }}
+{{/* Movie details and "The crowd" on review posts (Nov 20, 2026, Toby,
+     mockup v173 sections 8 and 9) - custom.css section 131.
+     Classic's own copy of the Den's logic (js/apps/den.js is a Hutch
+     app file, so it is not loaded here). On a MOVIE post with one card:
+       1. fills in the rows the card is missing - Director, Starring,
+          Released, Runtime - from Trakt, found through the card's Trakt
+          link, else the TMDB number in "Where to watch", else the
+          title and year;
+       2. adds "The crowd" under the facts: TMDB, IMDb and Rotten
+          Tomatoes from Perch's /crowd lookup. A missing score is left
+          out; with none, or if the call fails, there is no row.
+     Movies only: TV and book posts never get this script (the gate
+     below), and the script also stops if the card links to a TV show.
+     The post is never edited; RSS and the newsletter keep the card as
+     written. Hutch shows this same page from its Blog app, so the rows
+     show there too.
+     Speed: inline, no document.write, and it waits for DOMContentLoaded,
+     so nothing here holds the first paint (head.html rel=expect).
+     Trakt answers are kept 30 days and scores 1 day in localStorage. */}}
+{{ $mvC := .Content }}
+{{ $mvCard := or (in $mvC "review-card") (in $mvC "movie-card") }}
+{{ $mvTV := or (in .Params.categories "TV Reviews") (in $mvC "movie-card-eptag") (in .Title "📺") (findRE `review-fact-label[^>]*>\s*Created by` $mvC 1) }}
+{{ $mvBook := or (in $mvC "book-card") (in $mvC "review-card--book") }}
+{{ $mvYes := or (in $mvC "themoviedb.org/movie/") (in $mvC "trakt.tv/movies/") (in .Params.categories "Movie Reviews") (in .Title "🎬") (in .Title "🎥") (in $mvC "🎬") }}
+{{ if and $mvCard $mvYes (not $mvTV) (not $mvBook) }}
+<script id="tgo-mv-data" data-title="{{ .Title }}">
+(function () {
+  var TKEY = '23c84564f461db4829e7142a226cf1b00b1b1f8a87afb1601b081221f74f29cc'; /* public API key, not a secret */
+  var CROWD = 'https://perch-app.pages.dev/crowd';
+  var HOUR = 3600000, DAY = 24 * HOUR;
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var RT = /trakt\.tv\/movies\/([^\/?#]+)/, RM = /themoviedb\.org\/movie\/(\d+)/;
+
+  /* saved answers: Trakt 30 days, scores 1 day; a thin answer only 6 hours.
+     Storage can be off (private windows), so every touch is in try/catch. */
+  function lsGet(k, ttl) { try { var c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && Date.now() - c.t < (c.e ? Math.min(ttl, 6 * HOUR) : ttl)) return c.v; } catch (e) {} return null; }
+  function lsSet(k, v, empty) { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), v: v, e: empty ? 1 : 0 })); } catch (e) {} }
+  function cached(k, ttl, make, isEmpty) {
+    var c = lsGet(k, ttl); if (c) return Promise.resolve(c);
+    return make().then(function (v) { lsSet(k, v, isEmpty && isEmpty(v)); return v; });
+  }
+  function tget(path) {
+    return fetch('https://api.trakt.tv' + path, { headers: { 'trakt-api-version': '2', 'trakt-api-key': TKEY } }).then(function (r) { if (!r.ok) throw new Error('Trakt ' + r.status); return r.json(); });
+  }
+  function txt(n) { return n ? String(n.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
+  function norm(s) { return String(s || '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, ''); }
+  function dec(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+  function dateOf(iso) { return new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso); }
+  function longDate(iso) {
+    var d = dateOf(iso); if (!iso || isNaN(d)) return '';
+    return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+  function links(root, re) {
+    var out = [];
+    [].forEach.call(root.querySelectorAll('a[href]'), function (a) { var m = String(a.getAttribute('href')).match(re); if (m && out.indexOf(m[1]) < 0) out.push(m[1]); });
+    return out;
+  }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
+
+  function mvOf(m, pp) {
+    var ids = m.ids || {}, dir = [], cast = [];
+    if (pp) {
+      dir = ((pp.crew && pp.crew.directing) || []).filter(function (c) { return (c.jobs || [c.job]).indexOf('Director') >= 0; }).map(function (c) { return c.person && c.person.name; }).filter(Boolean).slice(0, 2);
+      cast = (pp.cast || []).map(function (c) { return c.person && c.person.name; }).filter(Boolean).slice(0, 3);
+    }
+    return { slug: ids.slug || '', tmdb: ids.tmdb || 0, imdb: ids.imdb || '', rel: m.released || '', rt: m.runtime || 0, dir: dir, cast: cast };
+  }
+  /* which movie: a Trakt link, else the TMDB number, else the title and year */
+  function loadMovie(q) {
+    var key = q.slug ? 's:' + q.slug : q.tm ? 't:' + q.tm : q.title ? 'q:' + norm(q.title) + '|' + q.year : '';
+    if (!key) return Promise.reject(0);
+    return cached('tgo_classic_mv_v1_' + key, 30 * DAY, function () {
+      var one = function (a) { if (!a || !a.length || !a[0].movie) throw 0; return a[0].movie; };
+      /* with no year to go on, only an exact title is trusted, and only when
+         one movie has it (a remake shares its name; better no rows than the wrong film) */
+      var same = function (a) { var hits = (a || []).filter(function (r) { return r.movie && norm(r.movie.title) === norm(q.title); }); if (hits.length !== 1) throw 0; return hits[0].movie; };
+      var find = q.slug ? tget('/movies/' + encodeURIComponent(q.slug) + '?extended=full')
+        : q.tm ? tget('/search/tmdb/' + q.tm + '?type=movie&extended=full').then(one)
+        : q.year ? tget('/search/movie?query=' + encodeURIComponent(q.title) + '&years=' + q.year + '&extended=full&limit=1').then(one)
+        : tget('/search/movie?query=' + encodeURIComponent(q.title) + '&extended=full&limit=10').then(same);
+      return find.then(function (m) {
+        if (!m.ids || !m.ids.slug) return mvOf(m, null);
+        return tget('/movies/' + encodeURIComponent(m.ids.slug) + '/people').then(function (pp) { return mvOf(m, pp); }, function () { return mvOf(m, null); });
+      });
+    }, function (v) { return !v.dir.length && !v.cast.length; });
+  }
+  /* Perch keeps the OMDb key on its server. Until Perch has the lookup,
+     that address answers with a web page, the JSON parse fails and no
+     row is drawn; a miss is not asked again for half an hour. */
+  function loadCrowd(mv) {
+    if (!mv || !(mv.tmdb || mv.imdb)) return Promise.reject(0);
+    var q = mv.tmdb ? 'tmdb=' + mv.tmdb : 'imdb=' + encodeURIComponent(mv.imdb), miss = 'tgo_classic_crowd_miss_' + q;
+    try { if (Date.now() - (+sessionStorage.getItem(miss) || 0) < HOUR / 2) return Promise.reject(0); } catch (e) {}
+    var nul = function (v) { return v === null || v === undefined || v === '' || v === 'N/A' || !isFinite(+v) ? null : +v; };
+    return cached('tgo_classic_crowd_v1_' + q, DAY, function () {
+      return fetch(CROWD + '?' + q).then(function (r) { if (r.status === 404) return {}; if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+        if (!j || typeof j !== 'object') throw 0;
+        return { tmdb: nul(j.tmdb), imdb: nul(j.imdb), rt: nul(j.rt) };
+      });
+    }, function (v) { return v.tmdb === null && v.imdb === null && v.rt === null; }).then(null, function (e) {
+      try { sessionStorage.setItem(miss, String(Date.now())); } catch (e2) {}
+      throw e;
+    });
+  }
+
+  /* ---- the card ---- */
+  /* Three card shapes: a review card with a facts cell (.review-facts),
+     a poster card (Watchlist) with its fact rows beside the poster, and
+     the older .movie-card with no fact rows at all. For that last one a
+     facts cell is made just above the stars, and only once there is
+     something to put in it. */
+  function factsOf(card) {
+    var old = !card.classList.contains('review-card'), made = null;
+    function rows() { return [].filter.call(card.querySelectorAll('tr'), function (tr) { var l = tr.querySelector('.review-fact-label'); return l && l.parentNode === tr; }); }
+    function ensure() {
+      var cell = card.querySelector('.review-facts'); if (cell) return cell;
+      var tr = el('tr', 'tgo-mv-row'); cell = el('td', 'review-facts tgo-mv-facts'); cell.colSpan = 9; tr.appendChild(cell); made = tr;
+      var anchor = card.querySelector('.review-about, .review-body, .review-foot, .movie-card-footer');
+      while (anchor && anchor.tagName !== 'TR') anchor = anchor.parentNode;
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(tr, anchor);
+      else (card.tBodies && card.tBodies[0] ? card.tBodies[0] : card).appendChild(tr);
+      return cell;
+    }
+    function body() {
+      var r = rows(); if (r.length) return r[0].parentNode;
+      var c = ensure(), tb = c.querySelector('tbody');
+      if (!tb) { var t = el('table'); t.setAttribute('role', 'presentation'); t.style.cssText = 'border-collapse:collapse;border:0;margin:0;width:auto'; tb = el('tbody'); t.appendChild(tb); c.insertBefore(t, c.firstChild); }
+      return tb;
+    }
+    /* a new row is a copy of a row the card already has, so it looks the same */
+    function make(label, value) {
+      var r = rows(), tr;
+      if (r.length) { tr = r[0].cloneNode(true); tr.removeAttribute('class'); tr.removeAttribute('id'); }
+      else {
+        tr = el('tr'); var a = el('td', 'review-fact-label'), b = el('td', 'review-fact-value');
+        a.style.cssText = 'font-size:14px;line-height:1.5;font-weight:700;width:92px;padding:0 12px 4px 0;vertical-align:top;border:0;text-align:left';
+        b.style.cssText = 'font-size:14px;line-height:1.5;padding:0 0 4px;vertical-align:top;border:0;text-align:left';
+        tr.appendChild(a); tr.appendChild(b);
+      }
+      tr.querySelector('.review-fact-label').textContent = label;
+      tr.querySelector('.review-fact-value').textContent = value;
+      tr.setAttribute('data-tgo-mv', '1');
+      return tr;
+    }
+    function label(tr) { return txt(tr.querySelector('.review-fact-label')); }
+    return {
+      old: old,
+      at: function (re) { var r = rows(); for (var k = 0; k < r.length; k++) if (re.test(label(r[k]))) return r[k]; return null; },
+      /* after the last row matching re; with none, at the top */
+      addAfter: function (re, lab, val) {
+        var tb = body(), r = rows(), last = null;
+        r.forEach(function (tr) { if (re.test(label(tr))) last = tr; });
+        tb.insertBefore(make(lab, val), last ? last.nextSibling : (r[0] || null));
+      },
+      add: function (lab, val) { body().appendChild(make(lab, val)); },
+      /* The crowd: right under the facts. On a poster card the facts sit in
+         the narrow column beside the poster, so it opens the full-width
+         part below instead (still ahead of the tagline and synopsis). */
+      place: function (box) {
+        var cell = card.querySelector('.review-facts'), about = card.querySelector('.review-about'), r = rows(), t = r[0];
+        if (cell) return cell.appendChild(box);
+        if (card.classList.contains('review-card--poster') && about) { box.className += ' tgo-crowd--lead'; return about.insertBefore(box, about.firstChild); }
+        while (t && t.tagName !== 'TABLE') t = t.parentNode;
+        if (t && t.parentNode && t !== card) return t.parentNode.insertBefore(box, t.nextSibling);
+        return ensure().appendChild(box);
+      },
+      tidy: function () { if (made && !made.querySelector('[data-tgo-mv], .tgo-crowd') && made.parentNode) { made.parentNode.removeChild(made); made = null; } }
+    };
+  }
+  /* adds only the rows the card is missing, in this order:
+     Watched, Director, Starring, Released, Runtime */
+  function addRows(card, f, mv) {
+    var WATCHED = /^(?:date\s+)?watched/i, DIR = /^direct/i, CAST = /^(?:starring|stars|cast)/i, REL = /^(?:release|coming|in theat|premier)/i, RUN = /^(?:runtime|running time|length)/i;
+    var hasDir = !!f.at(DIR), hasRel = false, all = txt(card);
+    if (f.old) {
+      /* an older card names its director in a byline line (no digits, no stars) */
+      [].forEach.call(card.querySelectorAll('.movie-card-byline'), function (b) {
+        var s = txt(b); if (s && !/[\d★☆½]/.test(s) && !/production/i.test(s) && !b.classList.contains('movie-card-prodstatus')) hasDir = true;
+      });
+      mv.dir.forEach(function (n) { if (all.indexOf(n) >= 0) hasDir = true; });
+    }
+    if (mv.dir.length && !hasDir) f.addAfter(WATCHED, mv.dir.length > 1 ? 'Directors' : 'Director', mv.dir.join(', '));
+    if (mv.cast.length && !f.at(CAST)) f.addAfter(/^(?:date\s+)?watched|^direct/i, 'Starring', mv.cast.join(', '));
+    var date = longDate(mv.rel);
+    if (date) {
+      var lab = dateOf(mv.rel) > new Date() ? 'Coming' : 'Released', row = f.at(REL);
+      if (f.old && all.indexOf(date) >= 0) hasRel = true;
+      if (row) {
+        var v = row.querySelector('.review-fact-value');
+        if (/^\d{4}$/.test(txt(v))) { v.textContent = date; row.querySelector('.review-fact-label').textContent = lab; }
+      } else if (!hasRel) f.add(lab, date);
+    }
+    if (mv.rt && !f.at(RUN)) f.add('Runtime', mv.rt + ' min');
+  }
+  function drawCrowd(f, c) {
+    var cells = [];
+    if (c.tmdb !== null) cells.push(['TMDB', Math.round(c.tmdb) + '%', '']);
+    if (c.imdb !== null) cells.push(['IMDb', c.imdb.toFixed(1), '/10']);
+    if (c.rt !== null) cells.push(['Rotten Tomatoes', Math.round(c.rt) + '%', '']);
+    if (!cells.length) return;
+    var via = cells.filter(function (k) { return k[0] !== 'TMDB'; }).map(function (k) { return k[0]; });
+    var credit = 'Scores from ' + (c.tmdb !== null ? 'TMDB' + (via.length ? ', and ' : '') : '') + (via.length ? via.join(' and ') + ' through OMDb' : '');
+    var box = el('div', 'tgo-crowd'), dl = el('dl', 'tgo-crowd-cells');
+    box.appendChild(el('div', 'tgo-crowd-label', 'The crowd'));
+    cells.forEach(function (k) {
+      var cell = el('div', 'tgo-crowd-cell'), dd = el('dd', 'tgo-crowd-score', k[1]);
+      if (k[2]) dd.appendChild(el('small', '', k[2]));
+      cell.appendChild(el('dt', 'tgo-crowd-name', k[0])); cell.appendChild(dd); dl.appendChild(cell);
+    });
+    box.appendChild(dl); box.appendChild(el('div', 'tgo-crowd-credit', credit));
+    f.place(box);
+  }
+
+  function start() {
+    var body = document.querySelector('.post-body'); if (!body) return;
+    var cards = body.querySelectorAll('.review-card, .movie-card');
+    if (cards.length !== 1) return;                       /* one movie, one card */
+    var card = cards[0];
+    if (card.getAttribute('data-tgo-mv')) return;
+    /* movies only: TV and books are left exactly as they are */
+    if (card.classList.contains('review-card--book') || card.querySelector('.movie-card-eptag, a[href*="themoviedb.org/tv/"], a[href*="trakt.tv/shows/"]')) return;
+    if (/\uD83D\uDCFA/.test(txt(card.querySelector('.movie-card-emoji')))) return;
+    if ([].some.call(card.querySelectorAll('.review-fact-label'), function (n) { return /^created by/i.test(txt(n)); })) return;
+    card.setAttribute('data-tgo-mv', '1');
+
+    var q = { slug: dec(links(card, RT)[0] || ''), tm: +(links(card, RM)[0] || 0), title: '', year: '' };
+    if (!q.slug && !q.tm) {
+      /* a link in the writing counts only when it is the one movie linked */
+      var bs = links(body, RT), bm = links(body, RM);
+      if (bs.length === 1 && bm.length < 2) q.slug = dec(bs[0]);
+      else if (!bs.length && bm.length === 1) q.tm = +bm[0];
+    }
+    var me = document.getElementById('tgo-mv-data'), raw = (me && me.getAttribute('data-title')) || '';
+    var ym = raw.match(/\((\d{4})\)\s*$/);
+    q.title = raw.replace(/\s*\(\d{4}\)\s*$/, '').replace(/^[^A-Za-z0-9À-ɏ]+/, '').replace(/^(?:watchlist|on my radar|want to watch|watching|watched|did not finish|dnf)\s*:\s*/i, '').trim();
+    if (!q.title) q.title = txt(card.querySelector('.movie-card-title, h3'));
+    q.year = ym ? ym[1] : '';
+    /* no year in the title: the card's own year line, else its Released row (never the Watched date) */
+    if (!q.year) [].forEach.call(card.querySelectorAll('.movie-card-byline, .review-byline'), function (n) { var m = txt(n).match(/\b((?:19|20)\d{2})\b/); if (m && !q.year) q.year = m[1]; });
+    if (!q.year) [].forEach.call(card.querySelectorAll('.review-fact-label'), function (n) { var m = /^(?:release|coming)/i.test(txt(n)) && txt(n.parentNode.querySelector('.review-fact-value')).match(/\b((?:19|20)\d{2})\b/); if (m && !q.year) q.year = m[1]; });
+
+    var f = factsOf(card);
+    loadMovie(q).then(function (mv) {
+      addRows(card, f, mv);
+      return loadCrowd(mv).then(function (c) { drawCrowd(f, c); });
+    }).then(function () { f.tidy(); }, function () { f.tidy(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
+{{ end }}
 {{ end }}

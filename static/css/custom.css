@@ -15612,3 +15612,119 @@ html.hutch-embed-wide body:not(.type-newsletter) .post-body .review-card :is(.re
   .post-location { margin: 12px 0 0; }
 }
 /* end section 130 */
+
+
+/* ============================================================
+   131 · MOVIE DETAILS AND "THE CROWD" ON CLASSIC REVIEW POSTS
+         (Nov 20, 2026, Toby, mockup v173 sections 8 and 9)
+   ============================================================
+   The script at the end of post/single.html fills in the movie rows a
+   review card is missing (Director, Starring, Released, Runtime; from
+   Trakt) and adds "The crowd": TMDB, IMDb and Rotten Tomatoes side by
+   side under the facts, with a small credit line. Movies only; nothing
+   is saved into the post. The Den's own copy is css/apps/den.css.
+
+   New fact rows are copies of a row already in the card, so they need
+   no rules here. Older reviews (.movie-card) have no facts table; the
+   script makes one above the stars (.tgo-mv-facts).
+
+   Contrast, every text color 7:1 or better (checked Nov 20 in every
+   sky, Classic and Hutch, at 390, 720 and 1280 wide):
+   - Day (page #FAF8F5): names + credit #4B515B 7.5:1,
+     scores + label #7A3A18 8.1:1.
+   - Dawn and sunset skies are a darker cream, so both inks step down
+     a shade there (html carries the sky tokens inline): #383D45 and
+     #612D12, 7.9:1 or better.
+   - Night (body.tgo-night): scores + label peach #F5C2A2, names +
+     credit #D5CCC2. A step lighter than the Den's pair, because the
+     dusk sky (#2B3655) is lighter than the Den's near-black: 7.4:1 at
+     dusk, 10:1 at full night.
+   Nothing under 12px. Cells wrap on narrow screens; no sideways scroll.
+   ============================================================ */
+.post-body .tgo-crowd {
+  --crowd-ink: #4B515B;
+  --crowd-score: #7A3A18;
+  margin: 14px 0 0;
+  padding: 0;
+  font-family: var(--font-body, 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif);
+  text-align: left;
+}
+html[style*="--color-bg"] .post-body .tgo-crowd {
+  --crowd-ink: #383D45;
+  --crowd-score: #612D12;
+}
+html body.tgo-night .post-body .tgo-crowd {
+  --crowd-ink: #D5CCC2;
+  --crowd-score: #F5C2A2;
+}
+.post-body .tgo-crowd-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--crowd-score);
+}
+.post-body .tgo-crowd-cells {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+.post-body .tgo-crowd-cell {
+  margin: 0;
+  padding: 0 14px;
+  border-left: 1px solid var(--color-border, #E5DDD5);
+}
+.post-body .tgo-crowd-cell:first-child { padding-left: 0; border-left: 0; }
+.post-body .tgo-crowd-name {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--crowd-ink);
+}
+.post-body .tgo-crowd-score {
+  display: block;
+  margin: 3px 0 0;
+  padding: 0;
+  font-size: 23px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--crowd-score);
+}
+.post-body .tgo-crowd-score small {
+  margin-left: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--crowd-ink);
+}
+.post-body .tgo-crowd-credit {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--crowd-ink);
+}
+/* Poster cards (Watchlist): the row opens the full-width part under the poster */
+.post-body .tgo-crowd--lead { margin: 0 0 14px; }
+@media (min-width: 600px) {
+  .post-body .tgo-crowd-cell { padding: 0 18px; }
+  .post-body .tgo-crowd-score { font-size: 26px; }
+}
+/* Older reviews (.movie-card): the facts table the script adds */
+.post-body .movie-card .tgo-mv-facts td { font-family: var(--font-body, 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif); }
+.post-body .movie-card .tgo-mv-facts { padding: 12px 0 14px; border: 0; background: transparent; text-align: left; }
+.post-body .movie-card .tgo-mv-facts table { margin: 0; width: auto; border: 0; }
+/* Print in day colors, whatever the sky was */
+@media print {
+  html .post-body .tgo-crowd { --crowd-ink: #4B515B !important; --crowd-score: #7A3A18 !important; }
+  .post-body .tgo-crowd { break-inside: avoid; page-break-inside: avoid; }
+}
+/* end section 131 */

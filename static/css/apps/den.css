@@ -107,8 +107,8 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .dtop .sub2{font:500 15px/1.35 var(--h-ui);color:#CFC5BA}
 .hx-den .rate{display:flex;align-items:center;gap:10px;margin-top:10px}
 .hx-den .rate .hxd-stars{margin:0}
-.hx-den .rate .hxd-stars .s{width:22px;height:22px}
-.hx-den .rate b{font:700 15px var(--h-ui);color:#CFC5BA}
+.hx-den .rate .hxd-stars .s{width:30px;height:30px}
+.hx-den .rate b{font:700 16px var(--h-ui);color:#CFC5BA}
 .hx-den .dbody{padding:4px var(--pad) 30px;max-width:760px}
 .hx-den .lbl{font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin:18px 0 6px}
 .hx-den .lbl.first{margin-top:8px}
@@ -355,3 +355,26 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 html.hx-den-on #hutch-bar .hb-brw{flex:none;margin-right:10px}
 html.hx-den-on #hutch-bar .hb-brw[hidden]{display:none}
 html.hx-den-on #hutch-bar .hb-brw:focus-visible{outline:2px solid #E9875F;outline-offset:2px}
+
+/* ---------- every movie's details and "The crowd" (Nov 20, Toby, mockup v173) ----------
+   Posters 25% bigger (phone 118 to 148px, wider screens 150 to 188px) and
+   the rating stars the size of the Classic review card's (30px).
+   The crowd: TMDB, IMDb and Rotten Tomatoes side by side under the facts.
+   Scores peach #F2B58F on the Den's dark (10.5:1), labels var(--sub) (9.7:1).
+   Bigger posters are for movies only (.dtop.mv); TV and books keep theirs. */
+.hx-den .dtop.mv .art{width:148px}
+@media (min-width:520px){.hx-den .dtop.mv .art{width:188px}}
+@media (orientation:landscape) and (max-height:700px) and (min-width:520px){.hx-den .dtop.mv .art{width:150px}}
+.hx-den .crowd{margin:18px 0 2px}
+.hx-den .crowd .lbl{margin:0 0 8px}
+.hx-den .crowd .cells{display:flex;flex-wrap:wrap;row-gap:10px;margin:0}
+.hx-den .crowd .cell{padding:0 14px;border-left:1px solid rgba(255,255,255,.16)}
+.hx-den .crowd .cell:first-child{padding-left:0;border-left:0}
+.hx-den .crowd .k{font:700 12px/1.3 var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
+.hx-den .crowd .v{margin:3px 0 0;font:700 23px/1.2 var(--h-ui);color:#F2B58F}
+.hx-den .crowd .v small{font-size:15px;font-weight:600;color:var(--sub);margin-left:2px}
+.hx-den .crowd .src{font:500 12.5px/1.4 var(--h-ui);color:var(--sub);margin:8px 0 0}
+@media (min-width:520px){
+  .hx-den .crowd .cell{padding:0 18px}
+  .hx-den .crowd .v{font-size:26px}
+}

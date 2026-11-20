@@ -523,6 +523,84 @@
         });
       }).then(function (v) { I[x.url] = v; return v; }, function () { return null; });
     }
+    /* ---------- every movie's details and "The crowd" (Nov 20, Toby, mockup v173) ----------
+       A movie's screen gets the same rows whether he rated it, hasn't rated
+       it yet, or is waiting for it: Watched, Director, Starring, Released
+       and Runtime (only what is missing is added). They come from Trakt,
+       found through the post's Trakt link, else the TMDB number in its
+       "Where to watch" link, else the title and year. "The crowd" shows
+       TMDB, IMDb and Rotten Tomatoes from Perch's /crowd lookup (it keeps
+       the OMDb key on Perch's server). It asks only once a movie's screen
+       is open, after the screen shows; a score that is missing is left
+       out, and with none at all the row stays hidden. Movies only. */
+    var MV = {}, CR = {};
+    var CROWD = 'https://perch-app.pages.dev/crowd';
+    function tmdbOf(p) { var m = String((p && (p.where || p.tmdb)) || '').match(/themoviedb\.org\/movie\/(\d+)/); return m ? +m[1] : 0; }
+    function slugOf(x, p) { var m = String((p && p.trakt) || x.url || '').match(/trakt\.tv\/movies\/([^\/?#]+)/); return m ? decodeURIComponent(m[1]) : ''; }
+    function mvOf(m, pp) {
+      var ids = m.ids || {}, dir = [], cast = [];
+      if (pp) {
+        dir = ((pp.crew && pp.crew.directing) || []).filter(function (c) { return (c.jobs || [c.job]).indexOf('Director') >= 0; }).map(function (c) { return c.person && c.person.name; }).filter(Boolean).slice(0, 2);
+        cast = (pp.cast || []).map(function (c) { return c.person && c.person.name; }).filter(Boolean).slice(0, 3);
+      }
+      return { slug: ids.slug || '', tmdb: ids.tmdb || 0, imdb: ids.imdb || '', rel: m.released || '', rt: m.runtime || 0, dir: dir, cast: cast };
+    }
+    function loadMovie(x, p) {
+      if (x.kind !== 'Movie') return Promise.resolve(null);
+      if (MV[x.url]) return Promise.resolve(MV[x.url]);
+      var slug = slugOf(x, p), tm = tmdbOf(p), yr = /^\d{4}$/.test(String(x.y || '')) ? String(x.y) : '';
+      var key = slug ? 's:' + slug : tm ? 't:' + tm : x.t ? 'q:' + String(x.t).toLowerCase() + '|' + yr : '';
+      if (!key) return Promise.resolve(null);
+      return cached('tgo_den_mv_v1_' + key, 30 * DAY, function () {
+        var one = function (a) { if (!a || !a.length || !a[0].movie) throw 0; return a[0].movie; };
+        var find = slug ? tget('/movies/' + encodeURIComponent(slug) + '?extended=full')
+          : tm ? tget('/search/tmdb/' + tm + '?type=movie&extended=full').then(one)
+          : tget('/search/movie?query=' + encodeURIComponent(x.t) + (yr ? '&years=' + yr : '') + '&extended=full&limit=1').then(one);
+        return find.then(function (m) {
+          if (!m.ids || !m.ids.slug) return mvOf(m, null);
+          return tget('/movies/' + encodeURIComponent(m.ids.slug) + '/people').then(function (pp) { return mvOf(m, pp); }, function () { return mvOf(m, null); });
+        });
+      }, function (v) { return !v.dir.length && !v.cast.length; }).then(function (v) { MV[x.url] = v; return v; }, function () { return null; });
+    }
+    function loadCrowd(x, mv) {
+      if (x.kind !== 'Movie' || !mv || !(mv.tmdb || mv.imdb)) return Promise.resolve(null);
+      if (CR[x.url]) return Promise.resolve(CR[x.url]);
+      var q = mv.tmdb ? 'tmdb=' + mv.tmdb : 'imdb=' + encodeURIComponent(mv.imdb);
+      var nul = function (v) { return v === null || v === undefined || v === '' || v === 'N/A' || !isFinite(+v) ? null : +v; };
+      return cached('tgo_den_crowd_v1_' + q, DAY, function () {
+        return fetch(CROWD + '?' + q).then(function (r) { if (r.status === 404) return {}; if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+          return { tmdb: nul(j.tmdb), imdb: nul(j.imdb), rt: nul(j.rt) };
+        });
+      }, function (v) { return v.tmdb === null && v.imdb === null && v.rt === null; }).then(function (v) { CR[x.url] = v; return v; }, function () { return null; });
+    }
+    /* adds only the movie rows a screen is missing, in this order:
+       Watched, Director, Starring, Released, Runtime */
+    function movieRows(x, rows, watched) {
+      if (x.kind !== 'Movie') return rows;
+      var mv = MV[x.url] || null, fi = I[x.url] || null, out = rows.filter(Boolean).slice();
+      var at = function (re) { for (var k = 0; k < out.length; k++) if (re.test(out[k][0])) return k; return -1; };
+      if (watched && at(/^(?:date\s+)?watched/i) < 0) out.unshift(['Watched', watched]);
+      var after = function (re) { var k = -1; out.forEach(function (r, j) { if (re.test(r[0])) k = j; }); return k + 1; };
+      if (mv && mv.dir.length && at(/^direct/i) < 0) out.splice(after(/^(?:date\s+)?watched/i), 0, [mv.dir.length > 1 ? 'Directors' : 'Director', mv.dir.join(', ')]);
+      if (mv && mv.cast.length && at(/^(?:starring|stars|cast)/i) < 0) out.splice(after(/^(?:date\s+)?watched|^direct/i), 0, ['Starring', mv.cast.join(', ')]);
+      var rel = (fi && fi.rel) || (mv && mv.rel) || '', rt = (fi && fi.rt) || (mv && mv.rt) || 0, ri = at(/^(?:released|coming|release date)/i);
+      if (rel) { var row = [new Date(rel) > new Date() ? 'Coming' : 'Released', longDate(rel)]; if (ri < 0) out.push(row); else if (/^\d{4}$/.test(String(out[ri][1]))) out[ri] = row; }
+      if (rt && at(/^(?:runtime|running time)/i) < 0) out.push(['Runtime', rt + ' min']);
+      return out;
+    }
+    function crowdHtml(x) {
+      var c = x.kind === 'Movie' ? CR[x.url] : null; if (!c) return '';
+      var cells = [];
+      if (c.tmdb !== null) cells.push(['TMDB', Math.round(c.tmdb) + '%', '']);
+      if (c.imdb !== null) cells.push(['IMDb', c.imdb.toFixed(1), '/10']);
+      if (c.rt !== null) cells.push(['Rotten Tomatoes', Math.round(c.rt) + '%', '']);
+      if (!cells.length) return '';
+      var via = cells.filter(function (k) { return k[0] !== 'TMDB'; }).map(function (k) { return k[0]; });
+      var credit = 'Scores from ' + (c.tmdb !== null ? 'TMDB' + (via.length ? ', and ' : '') : '') + (via.length ? via.join(' and ') + ' through OMDb' : '');
+      return '<div class="crowd"><div class="lbl">The crowd</div><dl class="cells">' + cells.map(function (k) {
+        return '<div class="cell"><dt class="k">' + k[0] + '</dt><dd class="v">' + esc(k[1]) + (k[2] ? '<small>' + k[2] + '</small>' : '') + '</dd></div>';
+      }).join('') + '</dl><p class="src">' + credit + '</p></div>';
+    }
     function longDate(iso) {
       var d = new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso); if (!iso || isNaN(d)) return '';
       return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
@@ -656,9 +734,12 @@
       if (x.sec === 'queue') {
         var i = I[x.url] || null;
         var qf = (p && p.facts.length ? p.facts.slice() : []);
-        if (i && i.rel) qf.push([new Date(i.rel) > new Date() ? 'Coming' : 'Released', longDate(i.rel)]);
-        if (i && i.rt) qf.push(['Runtime', i.rt + ' min']);
-        h += factsHtml(qf);
+        if (x.kind === 'Movie') qf = movieRows(x, qf, '');
+        else {
+          if (i && i.rel) qf.push([new Date(i.rel) > new Date() ? 'Coming' : 'Released', longDate(i.rel)]);
+          if (i && i.rt) qf.push(['Runtime', i.rt + ' min']);
+        }
+        h += factsHtml(qf) + crowdHtml(x);
         var qs = (p && p.syn) || (i && i.ov) || '', qt = (p && p.tag) || (i && i.tag) || '';
         if (qs || qt) h += '<div class="lbl">Synopsis</div>' + (qt ? '<p class="tagline">' + esc(qt) + '</p>' : '') + (qs ? '<p class="summary">' + esc(qs) + '</p>' : '');
         if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (t0) { return '<p class="summary">' + esc(t0) + '</p>'; }).join('') + '</div>';
@@ -672,7 +753,8 @@
       if (x.fin) {
         var fi = I[x.url] || null;
         h += x.r ? rateHtml(x, p) : '<div class="rate"><b>Not rated yet</b></div>';
-        h += factsHtml([['Released', fi && fi.rel ? longDate(fi.rel) : x.y], ['Runtime', fi && fi.rt ? fi.rt + ' min' : '']]);
+        h += x.kind === 'Movie' ? factsHtml(movieRows(x, [], x.date || x.d)) + crowdHtml(x)
+          : factsHtml([['Released', fi && fi.rel ? longDate(fi.rel) : x.y], ['Runtime', fi && fi.rt ? fi.rt + ' min' : '']]);
         if (fi && (fi.ov || fi.tag)) h += '<div class="lbl">Synopsis</div>' + (fi.tag ? '<p class="tagline">' + esc(fi.tag) + '</p>' : '') + (fi.ov ? '<p class="summary">' + esc(fi.ov) + '</p>' : '');
         if (fi && (fi.genres.length || fi.cert)) h += '<div class="chips">' + fi.genres.slice(0, 4).map(cap).concat([fi.cert]).filter(Boolean).map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>';
         var fw = x.tmdb ? 'https://www.themoviedb.org/movie/' + x.tmdb + '/watch' : '';
@@ -682,7 +764,8 @@
       if (done) h += rateHtml(x, p);
       var mf = p && p.facts.length ? p.facts.slice() : [[x.kind === 'TV' ? 'Created by' : 'Director', x.who], ['Released', x.y]];
       if (done && x.wdate && !mf.some(function (r) { return /^(?:date\s+)?(?:watched|finished)(?:\s+date|\s+on)?\s*:?$/i.test(r[0]); })) mf.push([x.kind === 'TV' ? 'Finished' : 'Watched', x.wdate]);
-      h += factsHtml(mf);
+      if (done) mf = movieRows(x, mf, '');
+      h += factsHtml(mf) + (done ? crowdHtml(x) : '');
       h += synHtml(p, x, 'Synopsis');
       var b = '';
       if (p && p.where) b += ext('Where to watch', p.where);
@@ -708,7 +791,7 @@
       var info = '<div class="info"><div class="meta">' + meta + '</div><h2>' + esc(x.t) + '</h2>' + (sub ? '<div class="sub2">' + sub + '</div>' : '') + '</div>';
       if (w) return '<div class="dhero" style="background:' + grad(x) + '">' + img(w, 'hpic') + info + '</div>';
       var bg = x.cover ? img(x.cover, 'bgimg') : '';
-      return '<div class="dtop"><div class="bg" style="background:' + (x.kind === 'Book' ? bookBg(x) : grad(x)) + '"></div>' + bg + '<div class="art">' + art(x) + '</div>' + info + '</div>';
+      return '<div class="dtop' + (x.kind === 'Movie' ? ' mv' : '') + '"><div class="bg" style="background:' + (x.kind === 'Book' ? bookBg(x) : grad(x)) + '"></div>' + bg + '<div class="art">' + art(x) + '</div>' + info + '</div>';
     }
     function detail(x) {
       if (!x) return '<p class="none pad">Pick something on the left.</p>';
@@ -733,6 +816,12 @@
       loadPost(x).then(function (p) { if (p) patch(x); if (x.sec === 'queue') loadInfo(x, p).then(function (i) { if (i) patch(x); }); });
       if (x.sec === 'watching' || (x.fin && x.kind === 'TV')) loadShow(x).then(function (t) { if (t) { patch(x); paintCards(); } });
       if (x.fin && x.kind === 'Movie') loadInfo(x, null).then(function (i) { if (i) patch(x); });
+      /* every movie (Nov 20): the missing rows, then The crowd */
+      if (x.kind === 'Movie' && (x.sec === 'history' || x.sec === 'queue')) {
+        loadPost(x).then(function (p) { return loadMovie(x, p); }).then(function (mv) {
+          if (!mv) return null; patch(x); return loadCrowd(x, mv);
+        }).then(function (c) { if (c) patch(x); }, function () {});
+      }
     }
     function setName(t) { if (hbName) hbName.textContent = t; }
     function show(v, on) { v.classList.toggle('off', !on); v.setAttribute('aria-hidden', on ? 'false' : 'true'); if (!on) v.inert = true; else v.inert = false; }

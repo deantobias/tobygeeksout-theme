@@ -768,12 +768,18 @@
       h += factsHtml(mf) + (done ? crowdHtml(x) : '');
       h += synHtml(p, x, 'Synopsis');
       var b = '';
-      if (p && p.where) b += ext('Where to watch', p.where);
+      /* Nov 20 (Toby): a rated movie gets the same buttons as one he hasn't
+         rated yet, Where to watch and More on Trakt, found through Trakt
+         when the post itself has no link for them */
+      var mv1 = done && x.kind === 'Movie' ? MV[x.url] || null : null;
+      var mw = (p && p.where) || (mv1 && mv1.tmdb ? 'https://www.themoviedb.org/movie/' + mv1.tmdb + '/watch' : '');
+      if (mw) b += ext('Where to watch', mw);
       if (p && p.trailer) b += ext('Trailer', p.trailer);
       if (p && p.trakt) b += ext('More on Trakt', p.trakt);
+      else if (mv1 && mv1.slug) b += ext('More on Trakt', 'https://trakt.tv/movies/' + encodeURIComponent(mv1.slug));
       else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
       else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
-      if (b) h += '<div class="btns">' + b + '</div>';
+      if (b) h += '<div class="btns">' + b + '</div>' + (mv1 && mw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
       return h + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? (x.wdate ? 'Rated ' : 'Finished ') + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
     }
     function rateHtml(x, p) {

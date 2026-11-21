@@ -20,6 +20,11 @@
      Per word: w word, pr pronunciation, pos part of speech (as written),
      m meanings [{n, t}], ex example, x extras [{l, t}], u url,
      d "Jan 2", y year, iso date.
+     Nov 21 (Toby, mockup v175): Perch's newer rows are read on their own,
+     since the generic reader lost their links: asl {u link, t "See the
+     sign for ...", h host, i picture} from .define-asl, and sp {t, u} from
+     .define-spotted ("Spotted in:"). The ASL link's p carries define-def,
+     so it is kept out of the meanings.
      ============================================================ */}}
 {{- $out := slice -}}
 {{- $cls := `\bclass=["'][^"']*\b` -}}
@@ -60,6 +65,7 @@
   {{- $tdi := 0 -}}
   {{- $m := slice -}}
   {{- range findRE (printf `(?s)<(?:p|td|div|li)\b[^>]*%sdefine-def\b[^"']*["'][^>]*>.*?</(?:p|td|div|li)>` $cls) $c -}}
+    {{- if not (findRE `^<[^>]*\bdefine-asl` .) -}}
     {{- $num := "" -}}
     {{- with findRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` . 1 -}}
       {{- $num = index . 0 | plainify | htmlUnescape -}}
@@ -72,6 +78,7 @@
     {{- $b := replaceRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` "" . -}}
     {{- $b = trim ($b | plainify | htmlUnescape) ": \n\t " -}}
     {{- if $b -}}{{- $m = $m | append (dict "n" (trim $num " \n\t .:") "t" $b) -}}{{- end -}}
+    {{- end -}}
   {{- end -}}
 
   {{/* example: the example sentence only. Roots, Close cousins and First
@@ -91,6 +98,7 @@
   {{- $known := `(?i)^(roots?|close cousins|cousins|opposites?|first known use|origin|etymology|synonyms?|antonyms?|related)\s*:?\s*` -}}
   {{- $pend := "" -}}
   {{- range $cells -}}
+    {{- if not (findRE `^<[^>]*\bdefine-(?:asl|spotted)\b` .) -}}
     {{- $lab := "" -}}
     {{- $inner := replaceRE `(?s)^<[^>]+>(.*)</\w+>$` "$1" . -}}
     {{- with findRE `(?s)^\s*<(?:b|strong|span)\b[^>]*>.*?</(?:b|strong|span)>` $inner 1 -}}
@@ -108,6 +116,31 @@
       {{- $pend = "" -}}
       {{- $x = $x | append (dict "l" $lab "t" $t) -}}
     {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/* ASL sign and Spotted in (Nov 21, mockup v175) */}}
+  {{- $asl := dict -}}
+  {{- with findRE (printf `(?s)%sdefine-extra[^"']*\bdefine-asl\b.*?%sdefine-asl-host\b[^>]*>.*?</p>` $cls $cls) $c 1 -}}
+    {{- $part := index . 0 -}}
+    {{- $au := "" -}}{{- $at := "" -}}{{- $ah := "" -}}{{- $ai := "" -}}
+    {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-asl-link\b[^>]*>.*?</p>` $cls) $part 1 -}}
+      {{- $lp := index . 0 -}}
+      {{- $at = trim ($lp | plainify | htmlUnescape) " \n\t" -}}
+      {{- with findRE `href=["'][^"']+["']` $lp 1 -}}{{- $au = htmlUnescape (replaceRE `^href=["']([^"']+)["']$` "$1" (index . 0)) -}}{{- end -}}
+    {{- end -}}
+    {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-asl-host\b[^>]*>.*?</p>` $cls) $part 1 -}}{{- $ah = trim (replaceRE `[\s↗]+$` "" (index . 0 | plainify | htmlUnescape)) " \n\t" -}}{{- end -}}
+    {{- with findRE `<img\b[^>]*\bsrc=["']https://[^"']+["']` $part 1 -}}{{- $ai = htmlUnescape (replaceRE `^.*\bsrc=["']([^"']+)["']$` "$1" (index . 0)) -}}{{- end -}}
+    {{- if and $au $at -}}{{- $asl = dict "u" $au "t" $at "h" $ah "i" $ai -}}{{- end -}}
+  {{- end -}}
+  {{- $sp := dict -}}
+  {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-spotted-text\b[^>]*>.*?</p>` $cls) $c 1 -}}
+    {{- $sx := replaceRE (printf `(?s)<span\b[^>]*%sdefine-spotted-label\b[^>]*>.*?</span>` $cls) "" (index . 0) -}}
+    {{- $st := trim ($sx | plainify | htmlUnescape) " \n\t:" -}}
+    {{- $st = trim (replaceRE `(?i)^spotted in\s*:?\s*` "" $st) " " -}}
+    {{- $su := "" -}}
+    {{- with findRE `href=["'][^"']+["']` $sx 1 -}}{{- $su = htmlUnescape (replaceRE `^href=["']([^"']+)["']$` "$1" (index . 0)) -}}{{- end -}}
+    {{- if $st -}}{{- $sp = dict "t" $st "u" $su -}}{{- end -}}
   {{- end -}}
 
   {{/* the spring 2026 hand-made cards (see the word above) */}}
@@ -162,11 +195,15 @@
   {{- $cardW := add (add (countwords $w) (countwords $pos)) (add (countwords $pr) (countwords $ex)) -}}
   {{- range $m -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .n)) -}}{{- end -}}
   {{- range $x -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .l)) -}}{{- end -}}
+  {{- with $asl -}}{{- $cardW = add $cardW (add 2 (add (countwords .t) (countwords .h))) -}}{{- end -}}
+  {{- with $sp -}}{{- $cardW = add $cardW (add 2 (countwords .t)) -}}{{- end -}}
+  {{- $notes := 0 -}}
+  {{- range findRE (printf `%sdefine-note\b[^"']*["']` $cls) $c -}}{{- if not (findRE `\bdefine-(?:asl|spotted)` .) -}}{{- $notes = add $notes 1 -}}{{- end -}}{{- end -}}
   {{- $more := false -}}
-  {{- if or (findRE (printf `%sdefine-note\b` $cls) $c 1) (findRE `<(?:iframe|video)\b` $c 1) -}}{{- $more = true -}}
+  {{- if or (gt $notes 0) (findRE `<(?:iframe|video)\b` $c 1) -}}{{- $more = true -}}
   {{- else if gt (countwords .Plain) (add $cardW 6) -}}{{- $more = true -}}{{- end -}}
   {{- if and (not (findRE (printf `%sdefine-def\b` $cls) $c 1)) (not $lexUsed) -}}{{- $more = true -}}{{- end -}}
-  {{- $out = $out | append (dict "more" $more "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
+  {{- $out = $out | append (dict "more" $more "w" $w "pr" $pr "pos" $pos "m" $m "ex" $ex "x" $x "asl" $asl "sp" $sp "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "iso" (.Date.Format "2006-01-02")) -}}
 {{- end -}}
 {{- $d := dict "words" $out "cat" .RelPermalink -}}
 <script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

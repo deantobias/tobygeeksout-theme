@@ -60,9 +60,12 @@
   {{- if not $w -}}{{- $w = trim (replaceRE `(?i)^\s*word nerd alert\s*:\s*` "" .Title) " \n\t " -}}{{- end -}}
   {{- $senses := slice -}}
   {{- range findRE `(?s)<(?:p|td|div|li|span)\b[^>]*\bclass=["'][^"']*\bdefine-def\b[^"']*["'][^>]*>.*?</(?:p|td|div|li)>` $c -}}
+    {{/* Nov 21: the ASL sign's link also carries define-def; it isn't a meaning */}}
+    {{- if not (findRE `^<[^>]*\bdefine-asl` .) -}}
     {{- $b := replaceRE `(?s)<span\b[^>]*\bdefine-num\b[^>]*>.*?</span>` "" . -}}
     {{- $b = trim ($b | plainify | htmlUnescape) ": \n\t\u00a0" -}}
     {{- if $b -}}{{- $senses = $senses | append $b -}}{{- end -}}
+    {{- end -}}
   {{- end -}}
   {{- $def := "" -}}
   {{- with $senses -}}{{- $def = index . 0 -}}{{- end -}}

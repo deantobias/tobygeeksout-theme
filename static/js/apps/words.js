@@ -59,6 +59,18 @@
         return '<li>' + (multi ? '<span class="hxw-n" aria-hidden="true">' + esc(s.n || String(n + 1)) + '</span>' : '') + esc(s.t) + '</li>';
       }).join('') + '</ol>';
     }
+    /* Nov 21 (Toby, mockup v175): the ASL sign and where he spotted the
+       word, with their links, the way the post shows them */
+    function aslHtml(x) {
+      var a = x.asl; if (!a || !a.u || !a.t) return '';
+      return '<div class="hxw-asl"><dt>ASL sign</dt><dd><a class="hxw-asla" href="' + esc(a.u) + '" target="_blank" rel="noopener">' +
+        (a.i ? '<span class="th"><img src="' + esc(a.i) + '" alt="" loading="lazy" decoding="async"></span>' : '') +
+        '<span class="tx"><b>' + esc(a.t) + '</b>' + (a.h ? '<small>' + esc(a.h) + ' <span aria-hidden="true">↗</span></small>' : '') + '</span></a></dd></div>';
+    }
+    function spotHtml(x) {
+      var s = x.sp; if (!s || !s.t) return '';
+      return '<div class="hxw-spot"><dt>Spotted in</dt><dd>' + (s.u ? '<a href="' + esc(s.u) + '" target="_blank" rel="noopener">' + esc(s.t) + '</a>' : esc(s.t)) + '</dd></div>';
+    }
     function card(x, o) {
       o = o || {};
       return (o.today ? '<div class="hxw-lbl"><span>Latest alert</span><span>' + esc(x.d) + '</span></div>' : '') +
@@ -69,8 +81,8 @@
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +
         /* Roots, Close cousins, First known use... on every card, including
            Latest alert (Nov 2, Toby: Petrichor wasn't showing all) */
-        (x.x.length ? '<dl class="hxw-extra">' + x.x.map(function (e) {
-          return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + '</dl>' : '') +
+        (x.x.length || (x.asl && x.asl.u) || (x.sp && x.sp.t) ? '<dl class="hxw-extra">' + x.x.map(function (e) {
+          return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + aslHtml(x) + spotHtml(x) + '</dl>' : '') +
         /* Read more only when the post has something the card doesn't
            (Toby's own words, a note, a video). Otherwise the date links to
            the post with ∞, like the Traditional Word Nerd page. */

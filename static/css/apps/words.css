@@ -214,7 +214,8 @@ html.hxw-on:not(.hxw-dk) .hx-words .hx-brw-w{color:#4B515B}
    12.7:1); the "signingsavvy.com" line #474C55 in light (7.4:1), the
    card's own gray in dark (8.9:1). */
 .hx-words .hxw-asla{display:flex;align-items:center;gap:12px;margin-top:4px;text-decoration:none !important;color:inherit !important}
-.hx-words .hxw-asla .th{flex:none;width:84px;aspect-ratio:2/1;border-radius:8px;overflow:hidden;background:#1F3B6E}
+.hx-words .hxw-asla .th{flex:none;width:84px;aspect-ratio:3/2;border-radius:8px;overflow:hidden;background:#1F3B6E}
+.hx-words .hxw-asl dd + dd{margin-top:10px}
 .hx-words .hxw-asla .th img{width:100%;height:100%;object-fit:cover;display:block}
 .hx-words .hxw-asla .tx{min-width:0}
 .hx-words .hxw-asla b{display:block;font:700 16px/1.3 var(--h-ui);color:var(--wn-ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px;overflow-wrap:anywhere}

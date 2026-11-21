@@ -62,10 +62,14 @@
     /* Nov 21 (Toby, mockup v175): the ASL sign and where he spotted the
        word, with their links, the way the post shows them */
     function aslHtml(x) {
-      var a = x.asl; if (!a || !a.u || !a.t) return '';
-      return '<div class="hxw-asl"><dt>ASL sign</dt><dd><a class="hxw-asla" href="' + esc(a.u) + '" target="_blank" rel="noopener">' +
-        (a.i ? '<span class="th"><img src="' + esc(a.i) + '" alt="" loading="lazy" decoding="async"></span>' : '') +
-        '<span class="tx"><b>' + esc(a.t) + '</b>' + (a.h ? '<small>' + esc(a.h) + ' <span aria-hidden="true">↗</span></small>' : '') + '</span></a></dd></div>';
+      var a = x.asl, s = a && a.s ? a.s : (a && a.u ? [a] : []);
+      s = s.filter(function (g) { return g && g.u && g.t; });
+      if (!s.length) return '';
+      return '<div class="hxw-asl"><dt>' + esc((a && a.l) || 'ASL sign') + '</dt>' + s.map(function (g) {
+        return '<dd><a class="hxw-asla" href="' + esc(g.u) + '" target="_blank" rel="noopener">' +
+          (g.i ? '<span class="th"><img src="' + esc(g.i) + '" alt="" loading="lazy" decoding="async"></span>' : '') +
+          '<span class="tx"><b>' + esc(g.t) + '</b>' + (g.h ? '<small>' + esc(g.h) + ' <span aria-hidden="true">↗</span></small>' : '') + '</span></a></dd>';
+      }).join('') + '</div>';
     }
     function spotHtml(x) {
       var s = x.sp; if (!s || !s.t) return '';
@@ -81,7 +85,7 @@
         (x.ex ? '<p class="hxw-ex">' + esc(x.ex) + '</p>' : '') +
         /* Roots, Close cousins, First known use... on every card, including
            Latest alert (Nov 2, Toby: Petrichor wasn't showing all) */
-        (x.x.length || (x.asl && x.asl.u) || (x.sp && x.sp.t) ? '<dl class="hxw-extra">' + x.x.map(function (e) {
+        (x.x.length || (x.asl && (x.asl.u || (x.asl.s && x.asl.s.length))) || (x.sp && x.sp.t) ? '<dl class="hxw-extra">' + x.x.map(function (e) {
           return '<div>' + (e.l ? '<dt>' + esc(e.l) + '</dt>' : '') + '<dd>' + esc(e.t) + '</dd></div>'; }).join('') + aslHtml(x) + spotHtml(x) + '</dl>' : '') +
         /* Read more only when the post has something the card doesn't
            (Toby's own words, a note, a video). Otherwise the date links to

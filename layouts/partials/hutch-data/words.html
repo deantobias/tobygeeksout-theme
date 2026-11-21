@@ -21,8 +21,8 @@
      m meanings [{n, t}], ex example, x extras [{l, t}], u url,
      d "Jan 2", y year, iso date.
      Nov 21 (Toby, mockup v175): Perch's newer rows are read on their own,
-     since the generic reader lost their links: asl {u link, t "See the
-     sign for ...", h host, i picture} from .define-asl, and sp {t, u} from
+     since the generic reader lost their links: asl {l label, s signs [{u
+     link, t "See the sign for ...", h host, i picture}]} from .define-asl, and sp {t, u} from
      .define-spotted ("Spotted in:"). The ASL link's p carries define-def,
      so it is kept out of the meanings.
      ============================================================ */}}
@@ -121,17 +121,24 @@
 
   {{/* ASL sign and Spotted in (Nov 21, mockup v175) */}}
   {{- $asl := dict -}}
-  {{- with findRE (printf `(?s)%sdefine-extra[^"']*\bdefine-asl\b.*?%sdefine-asl-host\b[^>]*>.*?</p>` $cls $cls) $c 1 -}}
+  {{/* Nov 21: a word can have more than one sign (Perch: "ASL sign: BONUS +
+       GIFT", one picture + link + host line per sign, all in one cell) */}}
+  {{- with findRE (printf `(?s)%sdefine-extra[^"']*\bdefine-asl\b.*?(?:%sdefine-extra\b|\z)` $cls $cls) $c 1 -}}
     {{- $part := index . 0 -}}
-    {{- $au := "" -}}{{- $at := "" -}}{{- $ah := "" -}}{{- $ai := "" -}}
-    {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-asl-link\b[^>]*>.*?</p>` $cls) $part 1 -}}
-      {{- $lp := index . 0 -}}
-      {{- $at = trim ($lp | plainify | htmlUnescape) " \n\t" -}}
+    {{- $al := "ASL sign" -}}
+    {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-asl-label\b[^>]*>.*?</p>` $cls) $part 1 -}}{{- with trim (index . 0 | plainify | htmlUnescape) " \n\t:" -}}{{- $al = . -}}{{- end -}}{{- end -}}
+    {{- $hosts := findRE (printf `(?s)<p\b[^>]*%sdefine-asl-host\b[^>]*>.*?</p>` $cls) $part -}}
+    {{- $imgs := findRE `<img\b[^>]*\bsrc=["']https://[^"']+["']` $part -}}
+    {{- $signs := slice -}}
+    {{- range $k, $lp := findRE (printf `(?s)<p\b[^>]*%sdefine-asl-link\b[^>]*>.*?</p>` $cls) $part -}}
+      {{- $at := trim ($lp | plainify | htmlUnescape) " \n\t" -}}
+      {{- $au := "" -}}{{- $ah := "" -}}{{- $ai := "" -}}
       {{- with findRE `href=["'][^"']+["']` $lp 1 -}}{{- $au = htmlUnescape (replaceRE `^href=["']([^"']+)["']$` "$1" (index . 0)) -}}{{- end -}}
+      {{- if lt $k (len $hosts) -}}{{- $ah = trim (replaceRE `[\s↗]+$` "" (index $hosts $k | plainify | htmlUnescape)) " \n\t" -}}{{- end -}}
+      {{- if lt $k (len $imgs) -}}{{- $ai = htmlUnescape (replaceRE `^.*\bsrc=["']([^"']+)["']$` "$1" (index $imgs $k)) -}}{{- end -}}
+      {{- if and $au $at -}}{{- $signs = $signs | append (dict "u" $au "t" $at "h" $ah "i" $ai) -}}{{- end -}}
     {{- end -}}
-    {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-asl-host\b[^>]*>.*?</p>` $cls) $part 1 -}}{{- $ah = trim (replaceRE `[\s↗]+$` "" (index . 0 | plainify | htmlUnescape)) " \n\t" -}}{{- end -}}
-    {{- with findRE `<img\b[^>]*\bsrc=["']https://[^"']+["']` $part 1 -}}{{- $ai = htmlUnescape (replaceRE `^.*\bsrc=["']([^"']+)["']$` "$1" (index . 0)) -}}{{- end -}}
-    {{- if and $au $at -}}{{- $asl = dict "u" $au "t" $at "h" $ah "i" $ai -}}{{- end -}}
+    {{- if $signs -}}{{- $asl = dict "l" $al "s" $signs -}}{{- end -}}
   {{- end -}}
   {{- $sp := dict -}}
   {{- with findRE (printf `(?s)<p\b[^>]*%sdefine-spotted-text\b[^>]*>.*?</p>` $cls) $c 1 -}}
@@ -195,7 +202,7 @@
   {{- $cardW := add (add (countwords $w) (countwords $pos)) (add (countwords $pr) (countwords $ex)) -}}
   {{- range $m -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .n)) -}}{{- end -}}
   {{- range $x -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .l)) -}}{{- end -}}
-  {{- with $asl -}}{{- $cardW = add $cardW (add 2 (add (countwords .t) (countwords .h))) -}}{{- end -}}
+  {{- with $asl -}}{{- $cardW = add $cardW (countwords .l) -}}{{- range .s -}}{{- $cardW = add $cardW (add (countwords .t) (countwords .h)) -}}{{- end -}}{{- end -}}
   {{- with $sp -}}{{- $cardW = add $cardW (add 2 (countwords .t)) -}}{{- end -}}
   {{- $notes := 0 -}}
   {{- range findRE (printf `%sdefine-note\b[^"']*["']` $cls) $c -}}{{- if not (findRE `\bdefine-(?:asl|spotted)` .) -}}{{- $notes = add $notes 1 -}}{{- end -}}{{- end -}}

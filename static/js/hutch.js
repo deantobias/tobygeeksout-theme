@@ -47,13 +47,13 @@
      caught for a moment and kept as HTML; its consts sit in a block so it
      can run again for another post on the same page. */
   var hxConv = (function () {
-    var got = {}, data = {}, open = {}, scrollTo = null;
+    var got = {}, data = {}, open = {}, pin = null;
     /* Nov 22 (Toby): Reply / "2 replies" on a Blog card for a Den or Word
        Nerd post opens that app with the conversation already open. The
        Blog leaves a note; the first bar drawn in the next few seconds
        takes it (a book's screen can belong to a different progress post). */
-    var wantOpen = false;
-    try { var wo = JSON.parse(sessionStorage.getItem('hx-replies-open') || 'null'); sessionStorage.removeItem('hx-replies-open'); wantOpen = wo && Date.now() - wo.t < 15000 ? wo.t : 0; } catch (e) {}
+    var wantOpen = 0, wantU = '';
+    try { var wo = JSON.parse(sessionStorage.getItem('hx-replies-open') || 'null'); sessionStorage.removeItem('hx-replies-open'); if (wo && Date.now() - wo.t < 15000) { wantOpen = wo.t; wantU = wo.u || ''; } } catch (e) {}
     var SV = {
       mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
       link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
@@ -99,7 +99,17 @@
        post's own Reply by email link from the Micro.blog plugin */
     function bar(u, rbe) {
       var k = key(u), n = known(k);
-      if (wantOpen && Date.now() - wantOpen < 20000) { wantOpen = 0; open[k] = true; scrollTo = k; setTimeout(function () { if (data[k]) paint(k); }, 60); }
+      if (wantOpen && Date.now() - wantOpen < 20000) {
+        wantOpen = 0; open[k] = true; if (!data[k]) get(k).catch(function () {});
+        /* the screen keeps settling on the bar for a few seconds (the post's
+           words can arrive above it), until the reader scrolls or taps */
+        pin = { k: k, until: Date.now() + 5000 };
+        ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) { window.addEventListener(ev, function () { pin = null; }, { passive: true, once: true, capture: true }); });
+      }
+      if (pin && pin.k === k && Date.now() < pin.until) setTimeout(function () {
+        var tp = pin && document.querySelector('[data-tp="' + k.replace(/"/g, '') + '"]');
+        if (tp) tp.scrollIntoView({ block: 'start', behavior: 'auto' }); if (data[k]) paint(k);
+      }, 60);
       var r = rbe && rbe.meta ? '<a class="reply-by-email" href="' + esc(rbe.href || '/reply-by-email/') + '" data-meta="' + esc(rbe.meta) + '">' + sv('mail') + '<span>Reply by email</span></a>' : '';
       return '<div class="hx-tp" data-tp="' + esc(k) + '"><span class="tl">This post</span><div class="hx-tpb">' + r +
         '<button type="button" data-copy="' + esc(k) + '">' + sv('link') + '<span aria-live="polite">Copy link</span></button>' +
@@ -115,10 +125,6 @@
       [].forEach.call(document.querySelectorAll('[data-cvbox="' + k.replace(/"/g, '') + '"]'), function (bx) {
         var t = document.createElement('div'); t.innerHTML = box(k); bx.parentNode.replaceChild(t.firstChild, bx);
       });
-      if (scrollTo === k && d) {
-        var tp = document.querySelector('[data-tp="' + k.replace(/"/g, '') + '"]');
-        if (tp) { scrollTo = null; setTimeout(function () { tp.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' }); }, 120); }
-      }
     }
     document.addEventListener('click', function (e) {
       var t = e.target, c = t.closest && t.closest('.hx-tp [data-conv]');
@@ -137,6 +143,9 @@
     });
     /* the count, fetched quietly once a post's screen is up */
     function count(u) { var k = key(u); if (!data[k]) setTimeout(function () { get(k).catch(function () {}); }, 400); }
+    /* Nov 22 (Toby: Reply from the Blog "is delayed a bit"): the
+       conversation starts loading as the app opens, alongside it */
+    if (wantU) get(wantU).catch(function () {});
     return { bar: bar, count: count, get: get, label: label, key: key };
   })();
   window.hxConv = hxConv;
@@ -2117,7 +2126,15 @@
         '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') +
         (mi ? (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') : '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
-        '<div class="hbl-act">' + (mi ? '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>' : '') + '<a class="hbl-a rp" href="' + esc(x.u) + '#replies">' + sv('reply') + '<span>Reply</span></a></div></article>';
+        archActs(x) + '</article>';
+    }
+    /* Nov 22 (Toby): the same Reply rule as the feed. A titled archive post
+       says "Read the post", so it gets no Reply (only "2 replies" when it
+       has some); an archive micro shows it all and keeps Permalink and Reply. */
+    function archActs(x) {
+      var v = conv[x.u];
+      if (!x.mi && !v) return '';
+      return '<div class="hbl-act">' + (x.mi ? '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>' : '') + '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
     }
     function match(x) {
       if (cat && (x.cs || [x.c]).indexOf(cat) < 0) return false;
@@ -2271,7 +2288,7 @@
         /* Reply / View replies: beside the feed, the post opens there at its conversation */
         if (a.hasAttribute('data-rp') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x, true); navState(); }
         else if (a.hasAttribute('data-op') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x); navState(); }
-        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); if (a.hasAttribute('data-rapp') && !(e.ctrlKey || e.metaKey || e.shiftKey)) sessionStorage.setItem('hx-replies-open', JSON.stringify({ t: Date.now() })); } catch (er) {}
+        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); if (a.hasAttribute('data-rapp') && !(e.ctrlKey || e.metaKey || e.shiftKey)) sessionStorage.setItem('hx-replies-open', JSON.stringify({ t: Date.now(), u: card0.getAttribute('data-u') })); } catch (er) {}
         return;
       }
       if (t.closest('button')) return;
@@ -2443,9 +2460,10 @@
     }
     function applyConv() {
       [].forEach.call(list.querySelectorAll('.hbl-it[data-i]'), function (c) { var x = TL[+c.getAttribute('data-i')]; if (x) actsFor(c, x); });
-      [].forEach.call(list.querySelectorAll('.hbl-arch .hbl-a.rp'), function (a) {
-        var v = conv[a.closest('.hbl-it').getAttribute('data-u')];
-        a.classList.toggle('vr', !!v); a.querySelector('span').textContent = rlab(v);
+      [].forEach.call(list.querySelectorAll('.hbl-arch'), function (c) {
+        var x = picks.filter(function (q) { return q.u === c.getAttribute('data-u'); })[0]; if (!x) return;
+        var old = c.querySelector('.hbl-act'), h = archActs(x);
+        if (old) { if (h) old.outerHTML = h; else old.remove(); } else if (h) c.insertAdjacentHTML('beforeend', h);
       });
     }
     /* Nov 22 (Toby, v189): how many replies. Micro.blog's list only says a

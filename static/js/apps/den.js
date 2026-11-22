@@ -632,9 +632,11 @@
        (hutch.js, hxConv): Reply by email, Copy link, and Reply / "2
        replies", which opens the post's conversation right here. */
     function thisPost(x, p) {
-      if (!p || !local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url) || !window.hxConv) return '';
+      /* Nov 22: drawn before the post has loaded too (Reply from the Blog
+         lands here); Reply by email joins it once the post is read */
+      if (!local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url) || !window.hxConv) return '';
       hxConv.count(x.url);
-      return hxConv.bar(x.url, p.rbe);
+      return hxConv.bar(x.url, p && p.rbe);
     }
     function permaHtml(text, x) {
       var link = local(x.url) && !/^\/(?:reading|watching|watched)\/?$/.test(x.url) ? '<a href="' + esc(x.url) + '">Permalink</a>' : '';

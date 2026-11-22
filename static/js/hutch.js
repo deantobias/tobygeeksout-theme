@@ -47,7 +47,13 @@
      caught for a moment and kept as HTML; its consts sit in a block so it
      can run again for another post on the same page. */
   var hxConv = (function () {
-    var got = {}, data = {}, open = {};
+    var got = {}, data = {}, open = {}, scrollTo = null;
+    /* Nov 22 (Toby): Reply / "2 replies" on a Blog card for a Den or Word
+       Nerd post opens that app with the conversation already open. The
+       Blog leaves a note; the first bar drawn in the next few seconds
+       takes it (a book's screen can belong to a different progress post). */
+    var wantOpen = false;
+    try { var wo = JSON.parse(sessionStorage.getItem('hx-replies-open') || 'null'); sessionStorage.removeItem('hx-replies-open'); wantOpen = wo && Date.now() - wo.t < 15000 ? wo.t : 0; } catch (e) {}
     var SV = {
       mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
       link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
@@ -93,6 +99,7 @@
        post's own Reply by email link from the Micro.blog plugin */
     function bar(u, rbe) {
       var k = key(u), n = known(k);
+      if (wantOpen && Date.now() - wantOpen < 20000) { wantOpen = 0; open[k] = true; scrollTo = k; setTimeout(function () { if (data[k]) paint(k); }, 60); }
       var r = rbe && rbe.meta ? '<a class="reply-by-email" href="' + esc(rbe.href || '/reply-by-email/') + '" data-meta="' + esc(rbe.meta) + '">' + sv('mail') + '<span>Reply by email</span></a>' : '';
       return '<div class="hx-tp" data-tp="' + esc(k) + '"><span class="tl">This post</span><div class="hx-tpb">' + r +
         '<button type="button" data-copy="' + esc(k) + '">' + sv('link') + '<span aria-live="polite">Copy link</span></button>' +
@@ -108,6 +115,10 @@
       [].forEach.call(document.querySelectorAll('[data-cvbox="' + k.replace(/"/g, '') + '"]'), function (bx) {
         var t = document.createElement('div'); t.innerHTML = box(k); bx.parentNode.replaceChild(t.firstChild, bx);
       });
+      if (scrollTo === k && d) {
+        var tp = document.querySelector('[data-tp="' + k.replace(/"/g, '') + '"]');
+        if (tp) { scrollTo = null; setTimeout(function () { tp.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' }); }, 120); }
+      }
     }
     document.addEventListener('click', function (e) {
       var t = e.target, c = t.closest && t.closest('.hx-tp [data-conv]');
@@ -2085,9 +2096,10 @@
     function actions(x) {
       /* Nov 22 (Toby, v183): no "Open in Den" / "Open in Word Nerd" (the card
          opens the app) and no Permalink (the date opens the post) */
-      var v = conv[x.u];
+      var v = conv[x.u], al = appLink(x);
       if (!v && !whole(x)) return '';
-      return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
+      /* a Den or Word Nerd post: its conversation opens in the app (Nov 22, Toby) */
+      return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al || x.u + '#replies') + '"' + (al ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
     }
     function card(x, i) {
       var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '">' + esc(x.c) + '</button>' : '';
@@ -2259,7 +2271,7 @@
         /* Reply / View replies: beside the feed, the post opens there at its conversation */
         if (a.hasAttribute('data-rp') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x, true); navState(); }
         else if (a.hasAttribute('data-op') && paned() && x && !(e.ctrlKey || e.metaKey || e.shiftKey)) { e.preventDefault(); openInPane(x); navState(); }
-        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); } catch (er) {}
+        else if (!a.hasAttribute('data-rp')) try { sessionStorage.setItem('hutch-lastpost', card0.getAttribute('data-u')); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); if (a.hasAttribute('data-rapp') && !(e.ctrlKey || e.metaKey || e.shiftKey)) sessionStorage.setItem('hx-replies-open', JSON.stringify({ t: Date.now() })); } catch (er) {}
         return;
       }
       if (t.closest('button')) return;

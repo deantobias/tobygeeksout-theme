@@ -9619,7 +9619,7 @@ body.tgo-night {
    The plain rem line stays as the fallback for browsers without cq units. */
 .a-words .fact-value{font-size:3rem;white-space:nowrap;overflow-wrap:normal}
 @supports (font-size:1cqi){
-  .a-words .fact-value{font-size:min(3rem,22cqi)}
+  .a-words .fact-value{font-size:min(3rem,20cqi)}
 }
 .a-first .fact-value,.a-recent .fact-value,.a-long .fact-value{font-size:1.9rem}
 .a-read .fact-value{font-size:1.9rem}
@@ -9641,6 +9641,17 @@ body.tgo-night {
   max-height:2.64em;
   overflow:hidden;
   margin:0.15rem 0 0.1rem;
+}
+/* First post + Most recent: show the whole title on up to two lines,
+   ending in a real ellipsis if it is longer than that (the template no
+   longer cuts untitled posts at 34 characters). */
+.a-first .fact-value--title,
+.a-recent .fact-value--title{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  overflow-wrap:break-word;
 }
 .fact span.fact-value a{color:var(--color-navy);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
 .fact span.fact-value a:hover{color:var(--color-terra-text)}
@@ -9901,12 +9912,17 @@ body.tgo-night .fact-value{color:var(--color-text)}
       "read streak"
       "short short"
       "long long";
-    grid-template-rows:96px 96px 108px 108px 96px 96px 96px 108px 108px;
+    /* title rows grow with a two-line title instead of clipping the
+       label and date (seen on iPhone Safari with page zoom) */
+    grid-template-rows:96px 96px minmax(108px,auto) minmax(108px,auto) 96px 96px 96px minmax(108px,auto) minmax(108px,auto);
     gap:8px;
   }
-  .a-words .fact-value{font-size:2.1rem}
+  .a-words .fact-value{font-size:1.9rem}
+  .a-words .fact-label{white-space:nowrap}
   @supports (font-size:1cqi){
-    .a-words .fact-value{font-size:min(2.1rem,22cqi)}
+    .a-words .fact-value{font-size:min(1.9rem,20cqi)}
+    /* "WORDS THIS YEAR" stays on one line in the half-width tile */
+    .a-words .fact-label{font-size:min(0.62rem,7cqi)}
   }
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
   .a-gap .fact-value,.a-perday .fact-value,

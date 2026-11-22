@@ -323,11 +323,14 @@
         cells += '<i class="' + (fin ? 'f' : L.length ? 'r' : '') + (d === now.getDate() ? ' t' : '') + '"></i>';
       }
       var mon = now.toLocaleDateString('en-US', { month: 'long' });
-      return '<button type="button" class="it it-cal" data-rcopen="1" aria-label="Reading calendar: ' + n + (n === 1 ? ' day' : ' days') + ' of reading in ' + mon + '. Opens the full calendar.">' +
+      /* Nov 22 (Toby): "Last read Nov 21" (his latest update) rather than a
+         count of days, which undersold the days he read without posting */
+      var last = Object.keys(B.by).sort().pop() || '', lp = last.split('-'), lastTxt = last ? MON[+lp[1] - 1] + ' ' + (+lp[2]) + (+lp[0] !== y ? ', ' + lp[0] : '') : '';
+      return '<button type="button" class="it it-cal" data-rcopen="1" aria-label="Reading calendar' + (lastTxt ? ', last read ' + lastTxt : '') + '. Opens the full calendar.">' +
         '<span class="mcal" aria-hidden="true"><span class="rmh">' + esc(mon.slice(0, 3).toUpperCase()) + '<span class="rmx">' + ic('grow') + '</span></span><span class="rmg">' + cells + '</span>' +
         /* says what a tap does, like the Blog photo's expand corner (Nov 22, Toby: "how do people know?") */
         '<span class="rmo">See the month' + ic('chev') + '</span></span>' +
-        '<span class="cap"><span class="tt">Calendar</span><span class="tm">' + n + (n === 1 ? ' day' : ' days') + ' in ' + esc(mon.slice(0, 3)) + '</span></span></button>';
+        '<span class="cap"><span class="tt">Calendar</span><span class="tm">' + (lastTxt ? 'Last read ' + esc(lastTxt) : esc(mon)) + '</span></span></button>';
     }
     var rcModal = null, rcBack = null;
     function rcOpen() {

@@ -261,6 +261,14 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .btns .btn{margin-top:0;min-height:44px;padding:10px 18px}
 .hx-den .btn.ghost{background:transparent;border:1.5px solid #6B594B;color:var(--ink) !important}
 .hx-den .btn.ghost:hover{background:rgba(255,255,255,.06);filter:none}
+/* Nov 22 (Toby): on an iPhone, Where to watch and More on Trakt went onto
+   two lines. Hutch uses the phone's own font, and the iPhone's is wider than
+   Android's Roboto, so the pair didn't fit. On phones they sit a little
+   closer and their words never wrap, so both stay on one line */
+@media (max-width:440px){
+  .hx-den .btns{gap:8px}
+  .hx-den .btns .btn{padding:10px 12px;gap:5px;white-space:nowrap}
+}
 .hx-den .hint{font:500 13.5px/1.45 var(--h-ui);color:var(--sub);margin:8px 0 0}
 .hx-den .perma{display:flex;align-items:center;gap:8px;margin-top:22px;padding-top:14px;border-top:1px solid var(--ln);font:500 14px/1.4 var(--h-ui);color:var(--sub)}
 .hx-den .perma svg{width:15px;height:15px;flex:none}

@@ -206,9 +206,14 @@
       {{- end -}}
     {{- end -}}
     {{- $micro := not .Title -}}
+    {{/* sc (Nov 22, Toby): the post's HTML without the check-in name
+         Micro.blog puts in front ("1114 Florida Ave NE. Took it..."); the
+         card shows the place as its own pill (ln), like the Photos app */}}
+    {{- $sc := partial "loc-strip.html" (dict "page" . "html" .Content) -}}
+    {{- $scPlain := $sc | plainify | htmlUnescape -}}
     {{- $x := "" -}}
     {{/* truncate escapes quotes (&#39;), so unescape again after it */}}
-    {{- if $micro -}}{{- $x = .Plain | htmlUnescape | truncate 280 | htmlUnescape -}}{{- else -}}{{- $x = .Summary | plainify | htmlUnescape | truncate 170 | htmlUnescape -}}{{- end -}}
+    {{- if $micro -}}{{- $x = $scPlain | truncate 280 | htmlUnescape -}}{{- else -}}{{- $x = partial "loc-strip.html" (dict "page" . "html" .Summary) | plainify | htmlUnescape | truncate 170 | htmlUnescape -}}{{- end -}}
     {{/* Card posts (Nov 3, Toby: "M3GAN 2.0" read as "★★★☆☆My Rating
          Scale ↗ DirectorGerard JohnstoneStarring..."). The plain-text
          excerpt runs a card's boxes together, so card posts get a short
@@ -303,7 +308,7 @@
     {{- else if and $rs (or (in $c "review-card") (in $c "movie-card") (in $c "book-card")) -}}{{- $k = "rv" -}}
     {{- end -}}
     {{- $xf := "" -}}
-    {{- if and $micro (gt (len .Plain) 280) -}}{{- $xf = .Plain | htmlUnescape | truncate 2000 | htmlUnescape -}}{{- end -}}
+    {{- if and $micro (gt (len $scPlain) 280) -}}{{- $xf = $scPlain | truncate 2000 | htmlUnescape -}}{{- end -}}
     {{/* xh (Nov 14, Toby: "if there is a blockquote show it as a blockquote,
          if it has bold, show it"): the post's own HTML for micros (all of
          it) and titled posts (the opening two blocks), so the feed keeps
@@ -312,7 +317,7 @@
          embeds and inline styles. Card posts keep their own layouts. */}}
     {{- $xh := "" -}}
     {{- if or (eq $k "m") (eq $k "p") -}}
-      {{- $h := string .Content -}}
+      {{- $h := string $sc -}}
       {{- $h = replaceRE `(?is)<(script|style|iframe|video|audio|figure|picture|object|noscript)\b.*?</(script|style|iframe|video|audio|figure|picture|object|noscript)>` "" $h -}}
       {{- $h = replaceRE `(?i)<(img|source|embed|input|br\s+class="[^"]*")\b[^>]*>` "" $h -}}
       {{- $h = replaceRE `(?i)\s(style|onclick|onload|onerror)="[^"]*"` "" $h -}}
@@ -363,10 +368,20 @@
       {{- $shown := cond (ne $xh "") ($xh | plainify | htmlUnescape) $x -}}
       {{/* Nov 22 (Toby, the Lego Shadows post): the "▶ View on Instagram"
            line under an embedded photo isn't more to read, so it doesn't count */}}
-      {{- $pl := .Content | replaceRE `(?s)<span\b[^>]*\bsocial-embed-caption\b[^>]*>.*?</span>` "" | plainify | htmlUnescape -}}
+      {{- $pl := $sc | replaceRE `(?s)<span\b[^>]*\bsocial-embed-caption\b[^>]*>.*?</span>` "" | plainify | htmlUnescape -}}
       {{- if or (gt (countwords $pl) (add (countwords $shown) 3)) (gt $ni 3) (findRE `(?i)<(iframe|video|audio|table|object)\b` .Content 1) -}}{{- $mo = true -}}{{- end -}}
     {{- end -}}
-    {{- $tl = $tl | append (dict "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw "mo" $mo) -}}
+    {{/* ln / lu (Nov 22, Toby): the check-in place and its map link, the
+         same as the Photos app's (hutch-data/photos.html) */}}
+    {{- $ln := "" -}}{{- $lu := "" -}}
+    {{- with .Params.location -}}{{- if reflect.IsMap . -}}
+      {{- $ln = trim (string (.name | default "")) " '\"" -}}
+      {{- $lu = .url | default "" -}}
+      {{- if and (not $lu) .latitude .longitude -}}
+        {{- $lu = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude -}}
+      {{- end -}}
+    {{- end -}}{{- end -}}
+    {{- $tl = $tl | append (dict "ln" $ln "lu" $lu "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw "mo" $mo) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}
@@ -419,13 +434,20 @@
     {{- $mi := not $p.Title -}}
     {{/* a micro's own words stand in for the title (mi) */}}
     {{- $x := "" -}}
-    {{- if $mi -}}{{- $x = $p.Plain | htmlUnescape | truncate 200 | htmlUnescape -}}{{- else -}}{{- $x = $p.Summary | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}{{- end -}}
+    {{/* sh (Nov 22, Toby): a titled post of 600 characters or less shows
+         whole on the card, like a short On This Day post in the feed (no
+         "Read the post"); longer ones keep it. Counted without the check-in
+         name Micro.blog puts in front and the "View on Instagram" line. */}}
+    {{- $apl := partial "loc-strip.html" (dict "page" $p "html" $p.Content) | replaceRE `(?s)<span\b[^>]*\bsocial-embed-caption\b[^>]*>.*?</span>` "" | plainify | htmlUnescape -}}
+    {{- $apl = trim (replaceRE `\s+` " " $apl) " " -}}
+    {{- $sh := and (not $mi) (le (strings.RuneCount $apl) 600) (ne $apl "") -}}
+    {{- if $mi -}}{{- $x = $apl | truncate 200 | htmlUnescape -}}{{- else if $sh -}}{{- $x = $apl -}}{{- else -}}{{- $x = partial "loc-strip.html" (dict "page" $p "html" $p.Summary) | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}{{- end -}}
     {{- $x = trim (replaceRE `\s+` " " $x) " " -}}
     {{/* xf (Nov 15, Toby): a micro's whole text when the card only shows
          the start, so Show more opens it right in the card. A micro is any
          post without a title, Micro category or not. */}}
     {{- $axf := "" -}}{{- if and $mi (gt (len $p.Plain) 200) -}}{{- $axf = trim ($p.Plain | htmlUnescape | truncate 2000 | htmlUnescape) " \n\t" -}}{{- end -}}
-    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "xf" $axf) -}}
+    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "sh" $sh "xf" $axf) -}}
   {{- end -}}
 {{- end -}}
 

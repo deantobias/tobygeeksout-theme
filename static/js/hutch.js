@@ -1921,6 +1921,8 @@
       hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
       photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
       tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/>',
+      pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+      open: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       hand: '<path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.7 0-4.2-1.4-5.5-3.6L3.8 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/>'
     };
     function sv(k, w) { return '<svg viewBox="0 0 24 24" fill="' + (k === 'more' ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; }
@@ -2018,6 +2020,13 @@
       if (x.cut) return false;
       return x.k === 'm' || x.k === 'wl' || (x.k === 'p' && !x.mo) || (x.k === 'wd' && !wordIn(x).more) || (x.k === 'rd' && x.dn && x.dn.kind === 'Book');
     }
+    /* Nov 22 (Toby): a post with a check-in shows its place, the same pill
+       as the Photos app (a link to the map when there is one) */
+    function place(x, cls, ext) {
+      if (!x.ln) return '';
+      var inner = sv('pin', 2) + '<span>' + esc(x.ln) + '</span>' + (ext && x.lu ? sv('open', 2) : '');
+      return x.lu ? '<a class="' + cls + '" href="' + esc(x.lu) + '" target="_blank" rel="noopener" aria-label="' + esc(x.ln + ', open the map') + '">' + inner + '</a>' : '<span class="' + cls + '">' + inner + '</span>';
+    }
     function pics(x) {
       var im = x.imgs || [], n = x.ni || im.length;
       if (!im.length) return '';
@@ -2094,10 +2103,10 @@
          (bold, italics, links, lists, quotes); a long micro folds at
          "Read more" */
       if (x.m) {
-        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button></div>' + pics(x);
-        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' + pics(x);
+        if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' + place(x, 'hbl-loc', true) + '</div>' + pics(x);
+        return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '</div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
     }
     /* Nov 22 (Toby, v189): the Micro.blog timeline's words, "Reply" and
        "2 replies". "Replies" while the count is still on its way. */
@@ -2134,7 +2143,9 @@
         '<a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(x.m) + '</span></a></div>' +
         /* Nov 15 (Toby): an archive micro works like the feed's: Show more
            opens the rest in the card, Permalink beside Reply */
-        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') +
+        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
+        /* a short titled one: two lines, Show more opens the rest here (Nov 22, Toby) */
+        (x.sh ? '<button type="button" class="hbl-rm">Show more</button>' : '') +
         (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
@@ -2145,7 +2156,8 @@
     function archActs(x) {
       var v = conv[x.u];
       /* Nov 22 (Toby): "Read the post" sits in the bottom row like every card's button */
-      if (!x.mi) return '<div class="hbl-act wgo">' + goLink(x) + (v ? '<a class="hbl-a rp vr" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
+      /* a short titled one (sh, 600 characters or less) shows whole: Reply, like a micro */
+      if (!x.mi && !x.sh) return '<div class="hbl-act wgo">' + goLink(x) + (v ? '<a class="hbl-a rp vr" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
       return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
     }
     function match(x) {
@@ -2163,6 +2175,10 @@
        when it is really cut; one that runs just a line or two over shows
        whole. Checked again once fonts and pictures have loaded. */
     function folds() {
+      [].forEach.call(list.querySelectorAll('.hbl-arch p.mx.fold'), function (f) {
+        if (f.scrollHeight > f.clientHeight + 2) return;
+        f.classList.remove('fold'); var b = f.parentNode.querySelector('.hbl-rm'); if (b) b.remove();
+      });
       [].forEach.call(list.querySelectorAll('.hbl-html.fold'), function (f) {
         var b = f.parentNode.querySelector('.hbl-rm'), over = f.scrollHeight - f.clientHeight;
         if (over <= 48) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
@@ -2448,7 +2464,8 @@
       }
       vw.__step = step;
       vw.querySelector('.vcap b').textContent = x.t || (x.x || '').slice(0, 80);
-      vw.querySelector('.vcap small').textContent = when(x) + (x.c ? ' · ' + x.c : '');
+      /* Nov 22 (Toby): the place too, like the Photos app's viewer */
+      vw.querySelector('.vcap small').innerHTML = '<span>' + esc(when(x) + (x.c ? ' · ' + x.c : '')) + '</span>' + (x.ln ? '<span class="vsep" aria-hidden="true">·</span>' + place(x, 'vloc') : '');
       vw.querySelector('.vpost').href = x.u;
       de.classList.add('hbl-viewing');
       try { history.pushState({ hblView: 1 }, ''); } catch (e) {}

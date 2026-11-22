@@ -167,7 +167,16 @@
     {{- with transform.Unmarshal $j -}}
       {{- range .words -}}
         {{- $ms := slice -}}{{- range first 3 .m -}}{{- $ms = $ms | append .t -}}{{- end -}}
-        {{- $wnBy = merge $wnBy (dict .u (dict "w" .w "pos" .pos "m" $ms "more" (gt (len .m) 3))) -}}
+        {{/* Nov 22 (Toby, mockups v178-v179 B+A): what else the word's
+             post has, for the card's "Also inside" chips: in = labels in
+             the post's order, na = how many ASL signs, pm = the post has
+             his own notes or a video the card doesn't show */}}
+        {{- $in := slice -}}
+        {{- if .ex -}}{{- $in = $in | append "Example" -}}{{- end -}}
+        {{- range .x -}}{{- with .l -}}{{- $in = $in | append (cond (eq (lower .) "close cousins") "Cousins" .) -}}{{- end -}}{{- end -}}
+        {{- $na := 0 -}}{{- with .asl -}}{{- with .s -}}{{- $na = len . -}}{{- end -}}{{- end -}}
+        {{- $spi := false -}}{{- with .sp -}}{{- if .t -}}{{- $spi = true -}}{{- end -}}{{- end -}}
+        {{- $wnBy = merge $wnBy (dict .u (dict "w" .w "pos" .pos "m" $ms "more" (gt (len .m) 3) "in" $in "na" $na "sp" $spi "pm" .more)) -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}

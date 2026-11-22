@@ -625,13 +625,16 @@
       return rows.length ? '<dl class="facts">' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' : '';
     }
     /* "This post" (Nov 20, Toby, mockup v174): any title with a post of his
-       gets Classic's row, Copy link and Reply by email. Reply by email is
-       the post's own link from the Micro.blog plugin (its click script is on
-       every page), so the subject and address are the post's. */
+       gets a row like Classic's. Reply by email is the post's own link from
+       the Micro.blog plugin (its click script is on every page), so the
+       subject and address are the post's.
+       Nov 22 (Toby, mockups v184-v189): one bar shared with Word Nerd
+       (hutch.js, hxConv): Reply by email, Copy link, and Reply / "2
+       replies", which opens the post's conversation right here. */
     function thisPost(x, p) {
-      if (!p || !local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url)) return '';
-      var r = p.rbe && p.rbe.meta ? '<a class="pill reply-by-email" href="' + esc(p.rbe.href) + '" data-meta="' + esc(p.rbe.meta) + '">' + ic('mail') + '<span>Reply by email</span></a>' : '';
-      return '<div class="thispost"><span class="tl">This post</span><button type="button" class="pill" data-copy="' + esc(x.url) + '">' + ic('link') + '<span aria-live="polite">Copy link</span></button>' + r + '</div>';
+      if (!p || !local(x.url) || /^\/(?:reading|watching|watched)\/?$/.test(x.url) || !window.hxConv) return '';
+      hxConv.count(x.url);
+      return hxConv.bar(x.url, p.rbe);
     }
     function permaHtml(text, x) {
       var link = local(x.url) && !/^\/(?:reading|watching|watched)\/?$/.test(x.url) ? '<a href="' + esc(x.url) + '">Permalink</a>' : '';
@@ -936,13 +939,7 @@
     root.addEventListener('click', function (e) {
       var t = e.target;
       if (t.closest('[data-browse]')) { browse(); return; }
-      var cp = t.closest('[data-copy]');
-      if (cp) {
-        var cu = new URL(cp.getAttribute('data-copy'), location.href).href, cs = cp.querySelector('span');
-        var said = function (w) { if (cs) { cs.textContent = w; clearTimeout(cp.__t); cp.__t = setTimeout(function () { cs.textContent = 'Copy link'; }, 1800); } };
-        try { navigator.clipboard.writeText(cu).then(function () { said('Copied'); }, function () { said('Copy failed'); }); } catch (er) { said('Copy failed'); }
-        return;
-      }
+      if (t.closest('.hx-tp, .hx-cv')) return; /* Copy link and the replies: hutch.js (Nov 22) */
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }

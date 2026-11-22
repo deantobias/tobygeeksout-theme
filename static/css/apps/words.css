@@ -224,3 +224,7 @@ html.hxw-on.hxw-dk .hx-words .hxw-asla small{color:var(--wn-sub)}
 .hx-words .hxw-asla:hover b{text-decoration-thickness:2.5px}
 .hx-words .hxw-asla:focus-visible{outline:2px solid var(--wn-acct);outline-offset:3px;border-radius:8px}
 .hx-words .hxw-spot a{color:var(--wn-ink) !important;text-decoration:underline;text-underline-offset:3px}
+/* "This post" bar and replies (Nov 22, Toby, v184-v189): shared in hutch.css; Word Nerd's colors */
+.hx-words .hx-tp,.hx-words .hx-cv{--tp-ink:var(--wn-ink);--tp-acc:#7A3A18;--tp-lab:#7A3A18;--tp-bd:#CDB59F;--tp-sep:#E9DACB;--tp-bg:var(--wn-surf);--tp-on:var(--wn-chip)}
+html.hxw-dk .hx-words .hx-tp,html.hxw-dk .hx-words .hx-cv{--tp-acc:var(--wn-acct);--tp-lab:var(--wn-acct);--tp-bd:#4A5468;--tp-sep:var(--wn-ln)}
+.hx-words .hx-tp + .hx-cv + .hxw-posted,.hx-words .hx-tp + .hx-cv[hidden] + .hxw-posted{margin-top:16px}

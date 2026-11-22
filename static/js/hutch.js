@@ -33,6 +33,103 @@
   function el(html) { var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
   var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- "This post" and its replies inside the apps (Nov 22, Toby, mockups v184-v189) ----------
+     The Den and Word Nerd end a post's screen with one bar: Reply by
+     email, Copy link, and Reply (or "2 replies" once someone has
+     replied). That last one opens the post's own Micro.blog conversation
+     right there, under the bar, so nobody has to leave the app to read
+     the replies or join in: the same box the post page shows, with the
+     same sign-in to reply. Its heading says "Join the conversation"
+     while it's empty and "Replies" once there are some.
+     The conversation is one small request to Micro.blog, made when the
+     post's screen opens (to know the count), and drawn only when tapped.
+     Micro.blog's script writes its HTML with document.write, so that is
+     caught for a moment and kept as HTML; its consts sit in a block so it
+     can run again for another post on the same page. */
+  var hxConv = (function () {
+    var got = {}, data = {}, open = {};
+    var SV = {
+      mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+      link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+      reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'
+    };
+    function sv(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SV[k] + '</svg>'; }
+    function key(u) { try { return new URL(u, location.href).pathname; } catch (e) { return u; } }
+    function label(n) { return n > 1 ? n + ' replies' : n === 1 ? '1 reply' : 'Reply'; }
+    /* what the Blog app already learned (hbl-conv-v2), so the label is right at once */
+    function known(u) {
+      if (data[key(u)]) return data[key(u)].n;
+      try { var c = JSON.parse(localStorage.getItem('hbl-conv-v2') || 'null'); if (c && c.c && c.c[key(u)] > 0) return c.c[key(u)]; } catch (e) {}
+      return 0;
+    }
+    function run(code) {
+      var buf = '', ps = history.pushState, s = document.createElement('script');
+      document.write = function () { buf += [].join.call(arguments, ''); };
+      document.writeln = function () { buf += [].join.call(arguments, '') + '\n'; };
+      history.pushState = function () {}; /* it only clears a sign-in ?token from the address; an app has none */
+      try { s.textContent = '{\n' + code + '\n}'; document.head.appendChild(s); }
+      finally { delete document.write; delete document.writeln; history.pushState = ps; if (s.parentNode) s.parentNode.removeChild(s); }
+      return buf;
+    }
+    function get(u) {
+      var k = key(u);
+      if (got[k]) return got[k];
+      got[k] = fetch('https://micro.blog/conversation.js?url=' + encodeURIComponent(new URL(k, location.href).href))
+        .then(function (r) { if (!r.ok) throw r; return r.text(); })
+        .then(function (code) {
+          var html = run(code);
+          var d = { n: (html.match(/class=["']microblog_post["']/g) || []).length, html: html };
+          data[k] = d; paint(k); return d;
+        }, function (er) { delete got[k]; throw er; });
+      return got[k];
+    }
+    function head(n) { return n > 0 ? 'Replies' : 'Join the conversation'; }
+    function box(k) {
+      var d = data[k];
+      return '<div class="hx-cv"' + (open[k] ? '' : ' hidden') + ' data-cvbox="' + esc(k) + '"><h3>' + head(d ? d.n : known(k)) + '</h3>' +
+        (d && d.html ? d.html : '<p class="hx-cv-wait">' + (d ? 'The replies didn’t load. <a href="' + esc(k) + '#replies">Open them on the post</a>.' : 'Loading the replies…') + '</p>') + '</div>';
+    }
+    /* the bar and (closed or open) conversation for a post; rbe = the
+       post's own Reply by email link from the Micro.blog plugin */
+    function bar(u, rbe) {
+      var k = key(u), n = known(k);
+      var r = rbe && rbe.meta ? '<a class="reply-by-email" href="' + esc(rbe.href || '/reply-by-email/') + '" data-meta="' + esc(rbe.meta) + '">' + sv('mail') + '<span>Reply by email</span></a>' : '';
+      return '<div class="hx-tp" data-tp="' + esc(k) + '"><span class="tl">This post</span><div class="hx-tpb">' + r +
+        '<button type="button" data-copy="' + esc(k) + '">' + sv('link') + '<span aria-live="polite">Copy link</span></button>' +
+        '<button type="button" class="cv' + (open[k] ? ' on' : '') + '" data-conv="' + esc(k) + '" aria-expanded="' + (open[k] ? 'true' : 'false') + '">' + sv('reply') + '<span>' + (open[k] ? 'Hide' : label(n)) + '</span></button></div></div>' + box(k);
+    }
+    /* refresh every bar and box for a post that's on screen */
+    function paint(k) {
+      var d = data[k], n = d ? d.n : known(k);
+      [].forEach.call(document.querySelectorAll('[data-conv="' + k.replace(/"/g, '') + '"]'), function (b) {
+        b.classList.toggle('on', !!open[k]); b.setAttribute('aria-expanded', open[k] ? 'true' : 'false');
+        b.querySelector('span').textContent = open[k] ? 'Hide' : label(n);
+      });
+      [].forEach.call(document.querySelectorAll('[data-cvbox="' + k.replace(/"/g, '') + '"]'), function (bx) {
+        var t = document.createElement('div'); t.innerHTML = box(k); bx.parentNode.replaceChild(t.firstChild, bx);
+      });
+    }
+    document.addEventListener('click', function (e) {
+      var t = e.target, c = t.closest && t.closest('.hx-tp [data-conv]');
+      if (c) {
+        var k = c.getAttribute('data-conv'); open[k] = !open[k]; paint(k);
+        if (open[k] && !data[k]) get(k).catch(function () { data[k] = { n: known(k), html: '' }; paint(k); });
+        if (open[k]) { var bx = document.querySelector('[data-cvbox="' + k.replace(/"/g, '') + '"]'); if (bx && bx.scrollIntoView) setTimeout(function () { bx.scrollIntoView({ block: 'nearest', behavior: calm ? 'auto' : 'smooth' }); }, 30); }
+        return;
+      }
+      var cp = t.closest && t.closest('.hx-tp [data-copy]');
+      if (cp) {
+        var cu = new URL(cp.getAttribute('data-copy'), location.href).href, cs = cp.querySelector('span');
+        var said = function (w) { if (cs) { cs.textContent = w; clearTimeout(cp.__t); cp.__t = setTimeout(function () { cs.textContent = 'Copy link'; }, 1800); } };
+        try { navigator.clipboard.writeText(cu).then(function () { said('Copied'); }, function () { said('Copy failed'); }); } catch (er) { said('Copy failed'); }
+      }
+    });
+    /* the count, fetched quietly once a post's screen is up */
+    function count(u) { var k = key(u); if (!data[k]) setTimeout(function () { get(k).catch(function () {}); }, 400); }
+    return { bar: bar, count: count, get: get, label: label, key: key };
+  })();
+  window.hxConv = hxConv;
+
   var PAGE = J('hutch-page') || {};
   /* Toby's face: the same picture as the Traditional theme's header and
      rail (Nov 3, Toby: the Micro.blog profile photo is the old one) */
@@ -1757,6 +1854,11 @@
          get "Open in Word Nerd". Every card ends with "Reply", or "View
          replies" when Micro.blog says the post has a conversation (one
          request for the whole feed). Both open the post at #replies.
+         Nov 22 (Toby, mockups v176-v189): a review, a book and a word
+         open in the Den or Word Nerd when tapped (a label on the card
+         names the app; no "Open in..." buttons); the date opens the
+         original post (no Permalink button); Reply only where the card
+         shows the whole post; "View replies" is now "2 replies".
        A photo opens a viewer inside Blog; "See all photos" opens Photos.
      Layouts:
        phone / upright: one column; a card opens the post itself.
@@ -1797,7 +1899,8 @@
       chev: '<path d="M9 6l6 6-6 6"/>',
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
       hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
-      photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'
+      photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+      hand: '<path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.7 0-4.2-1.4-5.5-3.6L3.8 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/>'
     };
     function sv(k, w) { return '<svg viewBox="0 0 24 24" fill="' + (k === 'more' ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; }
 
@@ -1874,6 +1977,25 @@
     function goLink(x) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>'; }
     function denLink(x) { return den + '#open=u-' + encodeURIComponent(x.u); }
     function wordLink(x) { return wordsU + '#w=' + encodeURIComponent(x.u); }
+    /* Nov 22 (Toby, mockup v183): a review, a book in the Den, and a Word
+       Nerd word belong to an app, so tapping the card opens it there (no
+       "Open in..." button). A small label on the card names the app; the
+       date opens the original post. */
+    function appOf(x) { return x.k === 'wd' ? 'words' : x.k === 'rv' || (x.k === 'rd' && x.dn && x.dn.kind === 'Book') ? 'den' : ''; }
+    function appLink(x) { var a = appOf(x); return a === 'den' ? denLink(x) : a === 'words' ? wordLink(x) : ''; }
+    /* a word whose post has more than its card (v179 B+A): the chips */
+    function wordIn(x) {
+      var w = x.wn || {}, L = (w.more ? ['More meanings'] : []).concat(w.in || []);
+      return { L: L, na: +w.na || 0, sp: !!w.sp, more: !!(L.length || w.na || w.sp || w.pm) };
+    }
+    /* v176 / v177: Reply only on a card that shows the whole post: a
+       micro (Show more opens it in place), a Watch Log, a short post, a
+       word with nothing more, a book's progress update. Elsewhere people
+       reply after reading, in the post or in its app. */
+    function whole(x) {
+      if (x.cut) return false;
+      return x.k === 'm' || x.k === 'wl' || (x.k === 'p' && !x.mo) || (x.k === 'wd' && !wordIn(x).more) || (x.k === 'rd' && x.dn && x.dn.kind === 'Book');
+    }
     function pics(x) {
       var im = x.imgs || [], n = x.ni || im.length;
       if (!im.length) return '';
@@ -1885,12 +2007,18 @@
         return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '">' + (j === 0 ? '<span class="hbl-big" aria-hidden="true">' + sv('big', 2.2) + '</span>' : '') + '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
       }).join('') + '</div>';
     }
+    function inside(x) {
+      var w = wordIn(x);
+      if (!w.L.length && !w.na && !w.sp) return '';
+      return '<div class="hbl-win"><span class="lbl">Also inside</span><span class="ch">' + w.L.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') +
+        (w.na ? '<span class="hi">' + sv('hand', 1.8) + (w.na > 1 ? w.na + ' ASL signs' : 'ASL sign') + '</span>' : '') + (w.sp ? '<span>Spotted in</span>' : '') + '</span></div>';
+    }
     function body(x) {
       var dn = x.dn || {}, h = '';
       if (x.k === 'wd' && x.wn) {
         var multi = (x.wn.m || []).length > 1;
         return '<div class="hbl-df"><div class="k">Word Nerd Alert</div><b>' + esc(x.wn.w) + '</b>' + (x.wn.pos ? '<i>' + esc(x.wn.pos) + '</i>' : '') +
-          (x.wn.m || []).map(function (m, j) { return '<p>' + (multi ? '<span>' + (j + 1) + '</span>' : '') + esc(m) + '</p>'; }).join('') + '</div>';
+          (x.wn.m || []).map(function (m, j) { return '<p>' + (multi ? '<span>' + (j + 1) + '</span>' : '') + esc(m) + '</p>'; }).join('') + inside(x) + '</div>';
       }
       if (x.k === 'wl' && x.wl && x.wl.it) {
         /* Nov 14 (Toby): each title with its small poster from the post */
@@ -1939,7 +2067,7 @@
           (bd ? '<div class="hbl-bd"><img src="' + esc(bd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
         /* Nov 15 (Toby): reading and watching cards keep "Read the post";
            a book in the Den's Currently reading also gets Open in Den */
-        if (x.k === 'rd') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
+        if (x.k === 'rd' && kind !== 'Book') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
         return h;
       }
       /* Nov 14 (Toby): micros and titled posts keep their own formatting
@@ -1951,23 +2079,22 @@
       }
       return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1"' + (x.mo ? '' : ' hidden') + '>Read the post · ' + (x.min || 1) + ' min</a></div>' + pics(x);
     }
+    /* Nov 22 (Toby, v189): the Micro.blog timeline's words, "Reply" and
+       "2 replies". "Replies" while the count is still on its way. */
+    function rlab(v) { return v > 0 ? hxConv.label(v) : v ? 'Replies' : 'Reply'; }
     function actions(x) {
-      var b = '';
-      var book = x.k === 'rd' && x.dn && x.dn.kind === 'Book';
-      if (x.k === 'rv' || book) b += '<a class="hbl-a den" href="' + esc(denLink(x)) + '">' + sv('den', 2.2) + '<span>Open in Den</span></a>';
-      if (x.k === 'wd') b += '<a class="hbl-a den" href="' + esc(wordLink(x)) + '">' + sv('word', 2.2) + '<span>Open in Word Nerd</span></a>';
-      /* Nov 15 (Toby, v149): a card that already shows everything (every
-         micro, since Show more opens it in place, and a short post) gets
-         Permalink instead of "Read the post" */
-      if (x.k === 'm' || x.k === 'wl' || (x.k === 'p' && !x.mo)) b += '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>';
-      var v = !!conv[x.u];
-      b += '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + (v ? 'View replies' : 'Reply') + '</span></a>';
-      return '<div class="hbl-act">' + b + '</div>';
+      /* Nov 22 (Toby, v183): no "Open in Den" / "Open in Word Nerd" (the card
+         opens the app) and no Permalink (the date opens the post) */
+      var v = conv[x.u];
+      if (!v && !whole(x)) return '';
+      return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
     }
     function card(x, i) {
       var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '">' + esc(x.c) + '</button>' : '';
-      return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
-        '<div class="hbl-k">' + esc(when(x)) + c + '</div>' + body(x) + actions(x) + '</article>';
+      var app = appOf(x);
+      return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (app ? ' app' : '') + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
+        '<div class="hbl-k"><span class="hbl-kl"><a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(when(x)) + '</span></a>' + c + '</span>' +
+        (app ? '<span class="hbl-app">' + sv(app === 'den' ? 'den' : 'word', 2.2) + '<span>' + (app === 'den' ? 'Den' : 'Word Nerd') + '</span></span>' : '') + '</div>' + body(x) + actions(x) + '</article>';
     }
     function archCard(x) {
       if (!x) return '';
@@ -2010,7 +2137,9 @@
           return h1 > h0 + 2;
         });
         if (!cut) return;
-        k.hidden = false; var pl = k.closest('.hbl-it').querySelector('.hbl-a.pl'); if (pl) pl.remove();
+        k.hidden = false;
+        var cd = k.closest('.hbl-it'), xi = TL[+cd.getAttribute('data-i')];
+        if (xi) { xi.cut = true; actsFor(cd, xi); }
       });
     }
     function render() {
@@ -2135,6 +2264,13 @@
       }
       if (t.closest('button')) return;
       if (!x) return;
+      /* Nov 22 (Toby, v183): a Den or Word Nerd card opens in its app, on every screen */
+      var al = appLink(x);
+      if (al) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey) { window.open(al, '_blank'); return; }
+        try { sessionStorage.setItem('hutch-lastpost', x.u); sessionStorage.setItem('hutch-lasttop', String(Math.round(card0.getBoundingClientRect().top))); } catch (er) {}
+        leaving(); location.href = al; return;
+      }
       /* Nov 15 (Toby): a micro that is cut short opens up right there; Read the post opens the post */
       var rm1 = (card0.classList.contains('k-m') || card0.classList.contains('k-wl') || card0.classList.contains('hbl-arch')) && card0.querySelector('.hbl-rm:not([hidden])');
       if (rm1) { rm1.click(); return; }
@@ -2288,29 +2424,47 @@
     /* ---- Reply → View replies: one request to Micro.blog for the whole
        feed (Nov 14, tested on his account: its list marks every post that
        has a conversation). Saved for 30 minutes. ---- */
+    function actsFor(c, x) {
+      var old = c.querySelector('.hbl-act'), h = actions(x);
+      if (old) { if (h) old.outerHTML = h; else old.remove(); }
+      else if (h) c.insertAdjacentHTML('beforeend', h);
+    }
     function applyConv() {
-      [].forEach.call(list.querySelectorAll('.hbl-it[data-u]'), function (c) {
-        var a = c.querySelector('.hbl-a.rp'); if (!a) return;
-        var v = !!conv[c.getAttribute('data-u')];
-        a.classList.toggle('vr', v); a.querySelector('span').textContent = v ? 'View replies' : 'Reply';
+      [].forEach.call(list.querySelectorAll('.hbl-it[data-i]'), function (c) { var x = TL[+c.getAttribute('data-i')]; if (x) actsFor(c, x); });
+      [].forEach.call(list.querySelectorAll('.hbl-arch .hbl-a.rp'), function (a) {
+        var v = conv[a.closest('.hbl-it').getAttribute('data-u')];
+        a.classList.toggle('vr', !!v); a.querySelector('span').textContent = rlab(v);
+      });
+    }
+    /* Nov 22 (Toby, v189): how many replies. Micro.blog's list only says a
+       post has a conversation, so each of those (a few at most) asks for
+       its own conversation, the same one the post shows, and counts. */
+    function countConv() {
+      var ks = Object.keys(conv).filter(function (k) { return conv[k] === -1 && TL.some(function (x) { return x.u === k; }); }), left = ks.length;
+      ks.forEach(function (k) {
+        hxConv.get(k).then(function (d) { conv[k] = d.n || -1; }, function () {}).then(function () {
+          applyConv();
+          if (--left === 0) { var done = {}; Object.keys(conv).forEach(function (q) { if (conv[q] > 0) done[q] = conv[q]; }); ls('hbl-conv-v2', JSON.stringify({ t: Date.now(), c: done, all: Object.keys(conv) })); }
+        });
       });
     }
     (function loadConv() {
       if (!ME.user) { var rm = document.querySelector('link[rel="me"][href*="micro.blog/"]'); if (rm) ME.user = (rm.getAttribute('href').match(/micro\.blog\/([^\/?#]+)/) || [])[1] || ''; }
       if (!ME.user) return;
-      var KEY = 'hbl-conv-v1', got = null;
+      /* v2 (Nov 22): the counts too; "all" lists every post with a conversation */
+      var KEY = 'hbl-conv-v2', got = null;
       try { got = JSON.parse(ls(KEY) || 'null'); } catch (e) {}
-      if (got && got.t && Date.now() - got.t < 30 * 60000 && got.c) { conv = got.c; applyConv(); return; }
+      if (got && got.t && Date.now() - got.t < 30 * 60000 && got.all) { conv = {}; got.all.forEach(function (k) { conv[k] = (got.c || {})[k] || -1; }); applyConv(); countConv(); return; }
       fetch('https://micro.blog/posts/' + encodeURIComponent(ME.user) + '?count=' + Math.min(200, TL.length + 20), { credentials: 'omit' })
         .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
           if (!j || !j.items) return;
           var c = {};
           j.items.forEach(function (it) {
             if (!it._microblog || !it._microblog.is_conversation || !it.url) return;
-            try { var u = new URL(it.url); if (u.host !== 'micro.blog') c[u.pathname] = 1; } catch (e) {} /* micro.blog/user/123 are his replies to others */
+            try { var u = new URL(it.url); if (u.host !== 'micro.blog') c[u.pathname] = -1; } catch (e) {} /* micro.blog/user/123 are his replies to others */
           });
-          conv = c; try { ls(KEY, JSON.stringify({ t: Date.now(), c: c })); } catch (e) {}
-          applyConv();
+          conv = c; try { ls(KEY, JSON.stringify({ t: Date.now(), c: {}, all: Object.keys(c) })); } catch (e) {}
+          applyConv(); countConv();
         }).catch(function () {});
     })();
 

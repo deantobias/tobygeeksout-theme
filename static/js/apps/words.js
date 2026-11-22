@@ -91,6 +91,10 @@
            (Toby's own words, a note, a video). Otherwise the date links to
            the post with ∞, like the Traditional Word Nerd page. */
         (x.more ? '<div class="hxw-acts"><a class="hxw-btn" href="' + esc(x.u) + '">Read more' + ic('open') + '<span class="hxw-sr"> about ' + esc(x.w) + '</span></a></div>' : '') +
+        /* Nov 22 (Toby, mockups v184-v189): the word's own post, from
+           here: Reply by email, Copy link, Reply / "2 replies" (opens the
+           conversation right on the card). Shared with the Den (hutch.js). */
+        (o.tp && window.hxConv ? hxConv.bar(x.u, RBE[x.u]) : '') +
         '<a class="hxw-posted" href="' + esc(x.u) + '">' + (o.big ? 'Posted ' + esc(x.fd) + ' in Word Nerd Alert' : esc(x.fd)) + ' <span aria-hidden="true">∞</span></a>';
     }
 
@@ -169,9 +173,25 @@
     function pnBtn(x, dir) {
       return '<button type="button" class="' + dir + '"' + (x ? ' data-i="' + x.i + '"' : ' disabled') + '><small>' + (dir === 'newer' ? '‹ Newer' : 'Older ›') + '</small><b>' + (x ? esc(x.w) : (dir === 'newer' ? 'This is the newest' : 'This is the first')) + '</b></button>';
     }
+    /* the post's Reply by email link (the Micro.blog plugin's, with the
+       post's own subject), read from the post page once per word */
+    var RBE = {};
+    function loadRbe(x) {
+      if (RBE[x.u] || RBE[x.u] === false || !window.hxConv) return;
+      RBE[x.u] = false;
+      fetch(x.u, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (h) {
+        var m = h.match(/<a\b[^>]*\bclass=["'][^"']*\breply-by-email\b[^>]*>/); if (!m) return;
+        var a = new DOMParser().parseFromString(m[0] + '</a>', 'text/html').querySelector('a'); if (!a || !a.getAttribute('data-meta')) return;
+        RBE[x.u] = { href: a.getAttribute('href') || '/reply-by-email/', meta: a.getAttribute('data-meta') };
+        if (W[sel] !== x) return;
+        var old = dbody.querySelector('.hx-tp'), t = document.createElement('div'); if (!old) return;
+        t.innerHTML = hxConv.bar(x.u, RBE[x.u]); old.parentNode.replaceChild(t.querySelector('.hx-tp'), old);
+      }).catch(function () { delete RBE[x.u]; });
+    }
     function show(i, how) {
       sel = i; var x = W[i];
-      dbody.innerHTML = '<article class="hxw-card">' + card(x, { today: i === 0, big: true }) + '</article>';
+      dbody.innerHTML = '<article class="hxw-card">' + card(x, { today: i === 0, big: true, tp: true }) + '</article>';
+      if (window.hxConv) { loadRbe(x); hxConv.count(x.u); }
       dbody.scrollTop = 0;
       pn.innerHTML = pnBtn(W[i - 1], 'newer') + pnBtn(W[i + 1], 'older');
       if (two()) {

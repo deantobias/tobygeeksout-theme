@@ -413,6 +413,10 @@
           delete document.write; delete document.writeln; history.pushState = ps;
           if (!buf) return;
           var w = document.createElement('div'); w.innerHTML = buf;
+          /* Nov 22 (Toby, mockup v189): "Replies" over a conversation that
+             has replies; "Join the conversation" stays while it's empty */
+          var lb = box.querySelector('.post-conversation-label');
+          if (lb && w.querySelector('.microblog_post')) lb.textContent = 'Replies';
           while (w.firstChild) box.appendChild(w.firstChild);
         }
         var s = document.createElement('script');

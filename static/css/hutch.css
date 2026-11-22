@@ -259,6 +259,23 @@ html.hbl-three .hbl-pics.one .hbl-pc{aspect-ratio:16/9}
 .hbl-a svg{width:19px;height:19px;flex:none}
 .hbl-a.den,.hbl-a.vr{color:var(--acct) !important}
 .hbl-a:hover,.hbl-a:focus-visible{background:color-mix(in srgb,var(--acc) 10%,transparent);outline:none}
+/* Nov 22 (Toby, mockups v183, v179 B+A, v189): the date opens the
+   original post (link icon); a Den or Word Nerd card names its app on
+   the right (tapping the card opens it); a word with more inside lists
+   what's there. New text is 7:1 or better in every sky. */
+.hbl-k{display:flex;align-items:center;justify-content:space-between;gap:6px 10px;flex-wrap:wrap}
+.hbl-kl{min-width:0}
+.hbl-dt{display:inline-flex;align-items:center;gap:5px;min-height:32px;margin:-6px 0;color:color-mix(in srgb,var(--sub) 50%,var(--ink)) !important;text-decoration:underline !important;text-decoration-color:color-mix(in srgb,var(--sub) 45%,transparent) !important;text-underline-offset:3px}
+.hbl-dt svg{width:14px;height:14px;flex:none;color:var(--acct)}
+.hbl-dt:hover span,.hbl-dt:focus-visible span{text-decoration-color:currentColor}
+.hbl-app{display:inline-flex;align-items:center;gap:5px;flex:none;font:600 13px var(--h-ui);color:var(--ink);background:color-mix(in srgb,var(--acc) 15%,var(--surf));padding:4px 10px 4px 8px;border-radius:999px}
+.hbl-app svg{width:15px;height:15px;color:var(--acct)}
+.hbl-win{margin-top:10px}
+.hbl-win .lbl{display:block;font:700 12px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--acct) 65%,var(--ink));margin:0 0 6px}
+.hbl-win .ch{display:flex;flex-wrap:wrap;gap:6px}
+.hbl-win .ch>span{display:inline-flex;align-items:center;gap:4px;font:600 13px var(--h-ui);color:var(--ink);padding:3px 10px;border-radius:999px;border:1.5px solid color-mix(in srgb,var(--acc) 35%,var(--ln))}
+.hbl-win .ch>span.hi{background:color-mix(in srgb,var(--acc) 16%,var(--surf));border-color:transparent}
+.hbl-win svg{width:15px;height:15px;color:var(--acct)}
 /* one older post, picked at random */
 .hbl-arch{background:color-mix(in srgb,#E8A040 9%,var(--surf));border-color:color-mix(in srgb,#E8A040 35%,var(--ln))}
 .hbl-mem{display:flex;gap:8px;align-items:center;padding:10px 16px;font:700 12.5px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acct);border-bottom:1px solid color-mix(in srgb,#E8A040 35%,var(--ln));margin-bottom:12px}
@@ -1924,3 +1941,45 @@ html .hh-brand .face{background:#C4622D}
    steps out of the real layout for a moment, so the cards above it are
    measured at their real widths */
 #hutch-home.hh-meas .hh-area .hh-strip{display:none !important}
+
+/* ---------- "This post" bar and replies in the apps (Nov 22, Toby, mockups v184-v189) ----------
+   Den and Word Nerd: Reply by email, Copy link, Reply / "2 replies".
+   Phones: the label on its own line, the three sharing one bar, icon over
+   the words. 600px and wider: the label beside a bar only as wide as it
+   needs. Each app sets the --tp- colors. The Micro.blog plugin styles
+   every .reply-by-email with !important, so the bar's own rules say it
+   louder (that pill went pale on the Den, Nov 22). */
+.hx-tp,.hx-cv{--tp-ink:#1E2D4A;--tp-acc:#7A3A18;--tp-lab:#7A3A18;--tp-bd:#CDB59F;--tp-sep:#E3D3C3;--tp-bg:#FFFFFF;--tp-on:#F3E3D3}
+.hx-tp{margin-top:20px}
+.hx-tp .tl{display:block;font:700 12px var(--h-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--tp-lab);margin:0 0 8px}
+.hx-tpb{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1.5px solid var(--tp-bd);border-radius:14px;background:var(--tp-bg);overflow:hidden}
+.hx-tp .hx-tpb>button,.hx-tp .hx-tpb>a,.hx-tp .hx-tpb>a.reply-by-email,.hx-tp .hx-tpb>a.reply-by-email:hover{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:4px !important;min-width:0;min-height:60px !important;margin:0 !important;padding:8px 4px !important;border:0 !important;border-radius:0 !important;background:transparent !important;color:var(--tp-ink) !important;font:600 13px/1.2 var(--h-ui) !important;letter-spacing:normal !important;text-transform:none !important;text-align:center;text-decoration:none !important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hx-tp .hx-tpb>*+*{box-shadow:inset 1.5px 0 0 var(--tp-sep) !important}
+.hx-tp .hx-tpb>:hover,.hx-tp .hx-tpb>a.reply-by-email:hover,.hx-tp .hx-tpb>.cv.on{background:var(--tp-on) !important}
+.hx-tp .hx-tpb>:focus-visible{outline:2px solid var(--tp-acc);outline-offset:-3px}
+.hx-tpb svg{width:18px;height:18px;flex:none;color:var(--tp-acc)}
+@media (min-width:600px){
+  .hx-tp{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+  .hx-tp .tl{margin:0}
+  .hx-tpb{display:inline-grid;grid-auto-columns:auto}
+  .hx-tp .hx-tpb>button,.hx-tp .hx-tpb>a,.hx-tp .hx-tpb>a.reply-by-email,.hx-tp .hx-tpb>a.reply-by-email:hover{flex-direction:row !important;gap:7px !important;min-height:44px !important;padding:8px 16px !important;font-size:14px !important}
+}
+.hx-cv{margin-top:12px;border:1.5px solid var(--tp-sep);border-radius:14px;background:var(--tp-bg);padding:12px 14px}
+.hx-cv[hidden]{display:none}
+.hx-cv h3{font:700 12px/1.3 var(--h-ui) !important;letter-spacing:.1em !important;text-transform:uppercase;color:var(--tp-lab) !important;margin:0 0 10px !important;padding:0 !important;border:0 !important}
+.hx-cv-wait{font:500 14.5px/1.45 var(--h-ui);color:var(--tp-ink);margin:0}
+.hx-cv-wait a{color:var(--tp-ink) !important;text-decoration:underline !important}
+.hx-cv .microblog_conversation{max-width:none;margin:0}
+.hx-cv .microblog_post{background:transparent;border:0;border-top:1px solid var(--tp-sep);border-radius:0;padding:12px 0 2px;margin:0}
+.hx-cv .microblog_post:first-of-type{border-top:0;padding-top:2px}
+.hx-cv .microblog_fullname,.hx-cv .microblog_text,.hx-cv .microblog_text p{color:var(--tp-ink) !important}
+.hx-cv .microblog_time,.hx-cv .microblog_time a,.hx-cv .microblog_reply_signin{color:var(--tp-lab) !important}
+.hx-cv .microblog_reply_signin a,.hx-cv .microblog_text a{color:var(--tp-acc) !important;text-decoration-color:currentColor !important}
+.hx-cv .microblog_reply_textarea textarea{background:var(--tp-bg);color:var(--tp-ink);border-color:var(--tp-bd)}
+.hx-cv form{margin:0 0 6px}
+.hx-cv .microblog_reply_signin{font:400 14.5px/1.45 var(--h-ui) !important;margin:0 0 10px}
+.hx-cv .microblog_fullname{font:700 15px/1.25 var(--h-ui) !important}
+.hx-cv .microblog_text,.hx-cv .microblog_text p{font:400 15px/1.5 var(--h-ui) !important}
+.hx-cv .microblog_time,.hx-cv .microblog_time a{font:500 13px var(--h-ui) !important}
+.hx-cv .microblog_avatar{width:32px !important;height:32px !important}
+.hx-cv .microblog_text,.hx-cv .microblog_time{margin-left:40px}

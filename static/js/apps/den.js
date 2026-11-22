@@ -43,6 +43,7 @@
     function bookBg(x) { return BOOK[hash(x.t) % BOOK.length]; }
     var IC = {
       chev: '<path d="M9 6l6 6-6 6"/>',
+      prev: '<path d="M15 6l-6 6 6 6"/>',
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       out: '<path d="M7 17L17 7M9 7h8v8"/>',
       link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -249,6 +250,62 @@
       return '<section class="sec sec-months"><div class="shead-row">' + head + (page ? '<a class="sall" href="' + esc(page) + '">See all ›</a>' : '') + '</div>' +
         '<div class="row">' + cards + next + '</div></section>';
     }
+    /* ---------- Reading calendar (Nov 22, Toby, mockup v194) ----------
+       A month of reading: each day he posted a reading update shows that
+       book's cover, days without one stay empty, and the day he finished a
+       book (100%, or the day he rated it) gets a green check. Opens on this
+       month; the arrows go back as far as his first update. Tapping a day
+       opens that day's update. From the same reading posts as the
+       progress log (page data rcal), plus finished books from History. */
+    var RC = D.rcal || [], RCB = null, rcMonth = null;
+    function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    function rcBuild() {
+      if (RCB) return RCB;
+      var cov = {}, by = {}, first = null;
+      RC.forEach(function (r) { if (r.c && !cov[r.n]) cov[r.n] = r.c; });
+      HIST.forEach(function (h) { if (h.kind === 'Book' && h.cover && !cov[norm(h.t)]) cov[norm(h.t)] = h.cover; });
+      function add(day, e) {
+        if (!day) return;
+        var L = by[day] = by[day] || [], o = null;
+        L.forEach(function (q) { if (q.n === e.n) o = q; });
+        if (o) { if (e.fin) o.fin = true; if ((e.pg || 0) > (o.pg || 0)) { o.pg = e.pg; o.pct = e.pct; } return; }
+        L.push(e);
+        if (!first || day < first) first = day;
+      }
+      RC.forEach(function (r) { add(r.iso, { n: r.n, t: r.t, pg: r.pg, pct: r.pct, u: r.u, fin: r.pct >= 100 }); });
+      HIST.forEach(function (h) { if (h.kind === 'Book' && h.iso) add(h.iso, { n: norm(h.t), t: h.t, pg: 0, pct: 100, u: h.url, fin: true }); });
+      Object.keys(by).forEach(function (d) { by[d].forEach(function (e) { e.c = cov[e.n] || ''; }); });
+      return RCB = { by: by, first: first };
+    }
+    function rcCover(e) {
+      return '<span class="rcv"' + (e.c ? '' : ' style="background:' + bookBg({ t: e.t }) + '"') + '>' + (e.c ? '<img src="' + esc(e.c) + '" alt="" loading="lazy" decoding="async">' : '') +
+        (e.fin ? '<i class="rdone"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' : '') + '</span>';
+    }
+    function rcalSection() {
+      if (!RC.length) return '';
+      var B = rcBuild(), now = new Date(), todayIso = iso(now);
+      if (!rcMonth) rcMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      var y = rcMonth.getFullYear(), m = rcMonth.getMonth(), days = new Date(y, m + 1, 0).getDate(), lead = new Date(y, m, 1).getDay();
+      var firstM = B.first ? B.first.slice(0, 7) : iso(now).slice(0, 7), thisM = iso(rcMonth).slice(0, 7), nowM = todayIso.slice(0, 7);
+      var label = rcMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      var nRead = 0, nFin = 0, cells = '';
+      for (var i = 0; i < lead; i++) cells += '<span class="rc0"></span>';
+      for (var d = 1; d <= days; d++) {
+        var key = thisM + '-' + ('0' + d).slice(-2), L = B.by[key] || [], tday = key === todayIso ? ' today' : '';
+        if (!L.length) { cells += '<span class="rc' + tday + '"><b>' + d + '</b></span>'; continue; }
+        nRead++; L.forEach(function (e) { if (e.fin) nFin++; });
+        var top = L[0], lab = L.map(function (e) { return e.t + (e.fin ? ', finished' : e.pg ? ', page ' + e.pg : ''); }).join('; ');
+        var pg = L.length === 1 ? (top.fin ? '100%' : top.pg ? 'p. ' + top.pg : top.pct >= 0 ? top.pct + '%' : '') : '';
+        cells += '<a class="rc on' + tday + (L.length > 1 ? ' two' : '') + '" href="' + esc(top.u) + '" aria-label="' + esc(label.split(' ')[0] + ' ' + d + ': ' + lab) + '"><b>' + d + '</b><span class="rcs">' + L.slice(0, 2).map(rcCover).join('') + '</span>' + (pg ? '<small>' + esc(pg) + '</small>' : '') + '</a>';
+      }
+      var sum = nRead ? nRead + (nRead === 1 ? ' day' : ' days') + ' reading' + (nFin ? ' · ' + nFin + (nFin === 1 ? ' book' : ' books') + ' finished' : '') : 'No reading updates this month';
+      return '<section class="sec sec-rcal"><div class="rcal"><div class="rch"><h2>Reading calendar</h2><div class="rnav">' +
+        '<button type="button" data-rcal="-1" aria-label="Earlier month"' + (thisM <= firstM ? ' disabled' : '') + '>' + ic('prev') + '</button><span aria-live="polite">' + esc(label) + '</span>' +
+        '<button type="button" data-rcal="1" aria-label="Later month"' + (thisM >= nowM ? ' disabled' : '') + '>' + ic('chev') + '</button></div></div>' +
+        '<p class="rsum">' + esc(sum) + '</p><div class="rdow" aria-hidden="true">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (w, j) { return '<span data-l="' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][j] + '">' + w + '</span>'; }).join('') + '</div>' +
+        '<div class="rgrid">' + cells + '</div>' +
+        '<div class="rkey"><span><i class="k1"></i>A day you read</span><span><i class="k2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Finished</span></div></div></section>';
+    }
     function fillPosters() {
       if (!window.tgoPoster) return;
       [].forEach.call(homeEl.querySelectorAll('.mfp:not(.on)'), function (slot) {
@@ -268,7 +325,7 @@
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
       applyQueue();
-      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
+      homeEl.innerHTML = section('reading', bookTile) + rcalSection() + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
       fillPosters();
       WATCH.slice(0, 8).forEach(function (x) { if (x.kind === 'TV') loadShow(x).then(function () { paintCards(); }); });
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
@@ -942,6 +999,14 @@
       var t = e.target;
       if (t.closest('[data-browse]')) { browse(); return; }
       if (t.closest('.hx-tp, .hx-cv')) return; /* Copy link and the replies: hutch.js (Nov 22) */
+      var rn = t.closest('[data-rcal]');
+      if (rn) {
+        if (rn.disabled) return;
+        rcMonth = new Date(rcMonth.getFullYear(), rcMonth.getMonth() + (+rn.getAttribute('data-rcal')), 1);
+        var old = homeEl.querySelector('.sec-rcal'); if (old) { var tmp = document.createElement('div'); tmp.innerHTML = rcalSection(); old.parentNode.replaceChild(tmp.firstChild, old); }
+        var nb = homeEl.querySelector('[data-rcal="' + rn.getAttribute('data-rcal') + '"]'); if (nb && !nb.disabled) nb.focus();
+        return;
+      }
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }
       var o = t.closest('[data-open]'); if (o) { openList(o.getAttribute('data-open')); return; }
       var f = t.closest('[data-f]'); if (f) { state.filter = f.getAttribute('data-f'); state.id = null; go(state, false); return; }

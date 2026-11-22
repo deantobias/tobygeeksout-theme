@@ -192,6 +192,11 @@
      left out. */}}
 {{- $reading := slice -}}
 {{- $seenBooks := slice -}}
+{{/* rcal (Nov 22, Toby, mockup v194): every reading update, finished
+     books included, for the Den's Reading calendar: n the book (as norm),
+     iso the day, t title, c cover (when that post has one), pg page, pct
+     percent, u the post. Newest first, like $posts. */}}
+{{- $rcal := slice -}}
 {{- $bk := newScratch -}}
 {{- range $posts -}}
   {{- if and (in .Params.categories "Currently Reading") .Title (not (findRE `(?i)want to read` .Title 1)) -}}
@@ -210,7 +215,8 @@
     {{- with $who -}}{{- $t = trim (strings.TrimSuffix (printf " by %s" .) $t) " " -}}{{- end -}}
     {{- $norm := replaceRE `[^\pL\pN]+` "" (lower $t) -}}
     {{- $done := index $bookDone $norm -}}
-    {{- if and $norm (not (and $done (ge $done .Date.Unix))) -}}
+    {{- if $norm -}}
+      {{- $past := and $done (ge $done .Date.Unix) -}}
       {{- if true -}}
         {{- $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify -}}
         {{- $page := 0 -}}{{- $total := 0 -}}{{- $pct := -1 -}}
@@ -231,8 +237,10 @@
         {{- with findRE `(?s)<[^>]*review-(?:synopsis|about)[^>]*>.*?</(?:p|div|td)>` .Content 1 -}}{{- $syn = trim (replaceRE `\s+` " " (htmlUnescape (replaceRE `(?s)<[^>]*>` " " (index . 0)))) " " -}}{{- end -}}
         {{- $sum = $syn -}}
         {{- if not $sum -}}{{- $sum = trim (replaceRE `\s+` " " (replaceRE `(?s)Page \d+ of \d+|\d{1,3}%` "" (replaceRE `(?s)<h3[^>]*>.*?</h3>|<p[^>]*book-card-(?:byline|emoji)[^>]*>.*?</p>|<p[^>]*review-tag[^>]*>.*?</p>` "" .Content | plainify))) " " -}}{{- end -}}
+        {{- $rcal = $rcal | append (dict "n" $norm "iso" (.Date.Format "2006-01-02") "t" $t "c" $cover "pg" $page "pct" $pct "u" .RelPermalink) -}}
         {{- $step := dict "d" (.Date.Format "Jan 2") "page" $page "total" $total "pct" $pct "url" .RelPermalink -}}
-        {{- if not (in $seenBooks $norm) -}}
+        {{- if $past -}}
+        {{- else if not (in $seenBooks $norm) -}}
           {{- $seenBooks = $seenBooks | append $norm -}}
           {{- $bk.Set $norm (dict "kind" "Book" "t" $t "who" $who "cover" $cover "page" $page "total" $total "pct" $pct "url" .RelPermalink "d" (.Date.Format "Jan 2") "date" (.Date.Format "January 2, 2006") "sdate" (.Date.Format "January 2, 2006") "sum" (truncate 320 $sum | htmlUnescape) "syn" (ne $syn "") "surl" (cond (ne $syn "") .RelPermalink "") "log" (slice $step)) -}}
         {{- else -}}
@@ -307,5 +315,5 @@
       "rel" .rel "out" (eq .groupKey "0") "dk" .dateKey "k" (printf "%s|%s" (cond (eq .groupKey "0") "0" "1") .dateKey) "qn" .qn "at" .at) -}}
 {{- end -}}
 {{- $queue = sort $queue "k" -}}
-{{- $d := dict "reading" $reading "watching" $watching "history" $history "queue" $queue "links" (dict "reading" ("/reading/" | relURL) "queue" ("/the-queue/" | relURL) "history" ("/watched/" | relURL) "months" ("/watched/#watched-months" | relURL)) -}}
+{{- $d := dict "rcal" $rcal "reading" $reading "watching" $watching "history" $history "queue" $queue "links" (dict "reading" ("/reading/" | relURL) "queue" ("/the-queue/" | relURL) "history" ("/watched/" | relURL) "months" ("/watched/#watched-months" | relURL)) -}}
 <script type="application/json" id="hutch-app-data">{{ $d | jsonify | safeJS }}</script>

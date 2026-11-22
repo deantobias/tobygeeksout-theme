@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------
    CALENDAR app (Hutch OS, Nov 2, 2026, mockup v39)
    An Android-style calendar of Toby's posts, three views:
-     Schedule  one long list, newest first, only days with posts, a
+     Days      one long list, newest first, only days with posts, a
                banner per month (Blaugust tagged)
      Month     posts as colored chips in each day (colored by category),
                tap a day for its agenda; swipe or arrows for months
@@ -78,7 +78,7 @@
 
     var root = ctx.el('<div class="hx-cal" role="main">' +
       '<div class="ca-tb"><button type="button" class="ca-title" aria-live="polite"></button>' +
-        '<span class="ca-seg" role="group" aria-label="View"><button type="button" data-v="schedule">Schedule</button><button type="button" data-v="month">Month</button><button type="button" data-v="year">Year</button></span>' +
+        '<span class="ca-seg" role="group" aria-label="View"><button type="button" data-v="schedule">Days</button><button type="button" data-v="month">Month</button><button type="button" data-v="year">Year</button></span>' +
         '<button type="button" class="ca-todaybtn" data-today title="Today" aria-label="Today, ' + MN[TM] + ' ' + TD + '">' + TD + '</button>' +
         '<button type="button" class="ca-nav" data-go="-1" aria-label="Previous">' + ic('l') + '</button><button type="button" class="ca-nav" data-go="1" aria-label="Next">' + ic('r') + '</button></div>' +
       '<div class="ca-main"></div></div>');
@@ -139,7 +139,9 @@
         '<div class="ca-ystats"><b>' + total + '</b> ' + (total === 1 ? 'post' : 'posts') + ' on <b>' + days + '</b> ' + (days === 1 ? 'day' : 'days') + ' in ' + yr + '</div></div>';
     }
 
-    /* ---------- schedule ---------- */
+    /* ---------- Days (Nov 22, Toby: was "Schedule", but nothing here is
+       planned; it's the days he posted. Inside, the view is still called
+       'schedule', so a saved choice keeps working) ---------- */
     function scheduleHTML() {
       var out = '', curM = null, buf = '', n = 0;
       function flush() {
@@ -164,7 +166,7 @@
       [].forEach.call(root.querySelectorAll('[data-v]'), function (b) { var on = b.getAttribute('data-v') === view; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
       var a = ym(cur);
       title.innerHTML = view === 'month' ? '<span>' + MN[a[1]] + (mqPhone.matches && a[0] === TY ? '' : ' ' + a[0]) + '</span>' + ic('down')
-        : view === 'schedule' ? '<span>Schedule</span>' : '<span>' + yr + '</span>' + ic('down');
+        : view === 'schedule' ? '<span>Days</span>' : '<span>' + yr + '</span>' + ic('down');
       title.disabled = view === 'schedule';
       root.setAttribute('data-view', view);
       main.innerHTML = view === 'month' ? '<div class="ca-mwrap">' + monthHTML() + agendaHTML() + '</div>' : view === 'schedule' ? scheduleHTML() : yearHTML();

@@ -1490,14 +1490,16 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   .hx-set h2,#hutch-win .hx-wtitle{margin:0 48px 14px 4px;line-height:40px}
   #hutch-search .hx-field{margin-right:52px}
 }
-/* Blog's More sheet (Nov 22, Toby: on an iPhone, Safari makes swiping
-   the sheet down hard), so it gets the ✕ on phones and tablets too */
+/* Blog's More sheet and Settings (Nov 22, Toby: on an iPhone, Safari makes
+   swiping a sheet down hard), so they get the ✕ on phones and tablets too;
+   swiping still works */
 @media not all and (hover:hover) and (pointer:fine) and (min-width:1000px){
-  #hbl-more .hx-close{display:grid;place-items:center;position:absolute;top:12px;right:14px;z-index:2;width:40px;height:40px;border:0;border-radius:50%;
+  :is(#hbl-more,#hutch-settings) .hx-close{display:grid;place-items:center;position:absolute;top:12px;right:14px;z-index:2;width:40px;height:40px;border:0;border-radius:50%;
     background:#F2ECE5;color:#1E2D4A;cursor:pointer}
-  #hbl-more .hx-close .hx-ic{width:20px;height:20px}
-  #hbl-more .hx-close:focus-visible{outline:3px solid #C4622D;outline-offset:2px}
-  html.hx-dark #hbl-more .hx-close{background:#222A3B;color:#F3EEE7}
+  :is(#hbl-more,#hutch-settings) .hx-close .hx-ic{width:20px;height:20px}
+  :is(#hbl-more,#hutch-settings) .hx-close:focus-visible{outline:3px solid #C4622D;outline-offset:2px}
+  html.hx-dark :is(#hbl-more,#hutch-settings) .hx-close{background:#222A3B;color:#F3EEE7}
+  #hutch-settings .hx-set h2{margin-right:52px}
 }
 @media (hover:hover) and (pointer:fine) and (min-width:1000px) and (prefers-reduced-motion:reduce){
   .hx-sheet,.hx-sheet.open{transition:none}

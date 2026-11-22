@@ -1331,3 +1331,44 @@ document.addEventListener('click', function (e) {
   else init();
 })();
 </script>
+
+<script>
+/* Big titles fit the phone (Nov 22, 2026, Toby). custom.css section
+   132 sizes .page-title / .cat-title to the screen, which fits most
+   titles. This catches the rare one whose longest single word is
+   still wider than the column (Neurodivergence, Sustainability): it
+   measures the title with word breaking off and scales the type down
+   just enough. Runs at load, again once the web fonts arrive
+   (Caprasimo is wider than the fallback), and on resize, per the
+   measure-on-resize rule for this theme. */
+(function () {
+  var MIN = 28;   /* px; never smaller than this, the word breaks instead */
+  function fit() {
+    var els = document.querySelectorAll('.page-title, .cat-title');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      el.style.fontSize = '';
+      var room = el.clientWidth;
+      if (!room) continue;
+      el.style.overflowWrap = 'normal';
+      el.style.wordBreak = 'normal';
+      el.style.hyphens = 'manual';
+      var need = el.scrollWidth;
+      if (need > room + 0.5) {
+        var size = parseFloat(getComputedStyle(el).fontSize);
+        var next = Math.floor(size * (room - 2) / need * 10) / 10;   /* 2px spare: scrollWidth is rounded */
+        el.style.fontSize = Math.max(MIN, next) + 'px';
+      }
+      el.style.overflowWrap = '';
+      el.style.wordBreak = '';
+      el.style.hyphens = '';
+    }
+  }
+  var t;
+  function schedule() { clearTimeout(t); t = setTimeout(fit, 120); }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  window.addEventListener('load', fit);
+  window.addEventListener('resize', schedule);
+})();
+</script>

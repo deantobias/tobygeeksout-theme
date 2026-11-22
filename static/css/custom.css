@@ -15755,3 +15755,23 @@ html body.tgo-night .post-body .tgo-crowd {
   .post-body .tgo-crowd { break-inside: avoid; page-break-inside: avoid; }
 }
 /* end section 131 */
+
+/* ============================================================
+   132 · BIG PAGE TITLES FIT THE PHONE   (Nov 22, 2026, Toby)
+   ============================================================
+   The big page and category titles had a 3rem floor, and the root
+   font is 20px, so that floor is 60px. In Caprasimo "Knowember" is
+   366px wide at 60px: it fit Toby's Android (412px wide, 372px of
+   column) but not his iPhone (375px wide, 335px of column), where
+   the last letter dropped to its own line.
+   The size now also follows the screen: 14vw on narrow phones
+   (52px at 375, 58px at 412), and from 430px up it is exactly the
+   size it was before. Rare longer single words (Neurodivergence,
+   Sustainability) are shrunk to fit by the small script at the end
+   of custom_footer.html; with no JS they still break inside the
+   column as before (section 104 I). */
+.page-title,
+.cat-title {
+  font-size: min(clamp(3rem, 8vw, 5.5rem), 14vw);
+}
+/* end section 132 */

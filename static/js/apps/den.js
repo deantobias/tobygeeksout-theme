@@ -44,6 +44,9 @@
     var IC = {
       chev: '<path d="M9 6l6 6-6 6"/>',
       prev: '<path d="M15 6l-6 6 6 6"/>',
+      x: '<path d="M6 6l12 12M18 6L6 18"/>',
+      grow: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
+      cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       out: '<path d="M7 17L17 7M9 7h8v8"/>',
       link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
@@ -210,7 +213,7 @@
         ? '<a class="shead" href="' + esc(page) + '"><h2>' + S.title + '</h2>' + ic('chev') + (count ? '<small>' + items.length + '</small>' : '') + '</a>'
         : '<button type="button" class="shead" data-open="' + key + '"><h2>' + S.title + '</h2>' + ic('chev') + (count ? '<small>' + items.length + '</small>' : '') + '</button>';
       return '<section class="sec sec-' + key + '"><div class="shead-row">' + head + (page ? '<a class="sall" href="' + esc(page) + '">See all ›</a>' : '') + '</div>' +
-        (items.length ? '<div class="row">' + items.slice(0, 24).map(tiles).join('') + '</div>' : '<p class="none">' + S.empty + '</p>') + '</section>';
+        (items.length ? '<div class="row">' + items.slice(0, 24).map(tiles).join('') + (key === 'reading' ? rcalTile() : '') + '</div>' : '<p class="none">' + S.empty + '</p>') + '</section>';
     }
     /* Waiting for leaves out what Toby has started (Nov 5): anything
        watched on Trakt after it was queued (partials/queue-trakt.html), or
@@ -299,13 +302,46 @@
         cells += '<a class="rc on' + tday + (L.length > 1 ? ' two' : '') + '" href="' + esc(top.u) + '" aria-label="' + esc(label.split(' ')[0] + ' ' + d + ': ' + lab) + '"><b>' + d + '</b><span class="rcs">' + L.slice(0, 2).map(rcCover).join('') + '</span>' + (pg ? '<small>' + esc(pg) + '</small>' : '') + '</a>';
       }
       var sum = nRead ? nRead + (nRead === 1 ? ' day' : ' days') + ' reading' + (nFin ? ' · ' + nFin + (nFin === 1 ? ' book' : ' books') + ' finished' : '') : 'No reading updates this month';
-      return '<section class="sec sec-rcal"><div class="rcal"><div class="rch"><h2>Reading calendar</h2><div class="rnav">' +
+      return '<div class="rcal" role="dialog" aria-modal="true" aria-label="Reading calendar"><div class="rch"><h2>Reading calendar</h2><button type="button" class="rx" data-rcclose="1" aria-label="Close">' + ic('x') + '</button></div><div class="rnav">' +
         '<button type="button" data-rcal="-1" aria-label="Earlier month"' + (thisM <= firstM ? ' disabled' : '') + '>' + ic('prev') + '</button><span aria-live="polite">' + esc(label) + '</span>' +
-        '<button type="button" data-rcal="1" aria-label="Later month"' + (thisM >= nowM ? ' disabled' : '') + '>' + ic('chev') + '</button></div></div>' +
+        '<button type="button" data-rcal="1" aria-label="Later month"' + (thisM >= nowM ? ' disabled' : '') + '>' + ic('chev') + '</button></div>' +
         '<p class="rsum">' + esc(sum) + '</p><div class="rdow" aria-hidden="true">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (w, j) { return '<span data-l="' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][j] + '">' + w + '</span>'; }).join('') + '</div>' +
         '<div class="rgrid">' + cells + '</div>' +
-        '<div class="rkey"><span><i class="k1"></i>A day you read</span><span><i class="k2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Finished</span></div></div></section>';
+        '<div class="rkey"><span><i class="k1"></i>A day you read</span><span><i class="k2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Finished</span></div></div>';
     }
+    /* Nov 22 (Toby: the calendar "takes so much space"): a small tile next to
+       the book covers in Currently reading, this month in tiny squares; tap
+       it and the full calendar opens over the Den */
+    function rcalTile() {
+      if (!RC.length) return '';
+      var B = rcBuild(), now = new Date(), todayIso = iso(now), ym = todayIso.slice(0, 7);
+      var y = now.getFullYear(), m = now.getMonth(), days = new Date(y, m + 1, 0).getDate(), lead = new Date(y, m, 1).getDay(), cells = '', n = 0;
+      for (var i = 0; i < lead; i++) cells += '<i class="e"></i>';
+      for (var d = 1; d <= days; d++) {
+        var L = B.by[ym + '-' + ('0' + d).slice(-2)] || [], fin = L.some(function (e) { return e.fin; });
+        if (L.length) n++;
+        cells += '<i class="' + (fin ? 'f' : L.length ? 'r' : '') + (d === now.getDate() ? ' t' : '') + '"></i>';
+      }
+      var mon = now.toLocaleDateString('en-US', { month: 'long' });
+      return '<button type="button" class="it it-cal" data-rcopen="1" aria-label="Reading calendar: ' + n + (n === 1 ? ' day' : ' days') + ' of reading in ' + mon + '. Opens the full calendar.">' +
+        '<span class="mcal" aria-hidden="true"><span class="rmh">' + esc(mon.slice(0, 3).toUpperCase()) + '<span class="rmx">' + ic('grow') + '</span></span><span class="rmg">' + cells + '</span>' +
+        /* says what a tap does, like the Blog photo's expand corner (Nov 22, Toby: "how do people know?") */
+        '<span class="rmo">See the month' + ic('chev') + '</span></span>' +
+        '<span class="cap"><span class="tt">Calendar</span><span class="tm">' + n + (n === 1 ? ' day' : ' days') + ' in ' + esc(mon.slice(0, 3)) + '</span></span></button>';
+    }
+    var rcModal = null, rcBack = null;
+    function rcOpen() {
+      rcBack = document.activeElement; rcMonth = null;
+      if (!rcModal) { rcModal = document.createElement('div'); rcModal.className = 'rc-modal'; root.appendChild(rcModal); }
+      rcModal.innerHTML = rcalSection(); rcModal.hidden = false; de.classList.add('hxd-rcal');
+      var x = rcModal.querySelector('.rx'); if (x) x.focus();
+    }
+    function rcClose() {
+      if (!rcModal || rcModal.hidden) return;
+      rcModal.hidden = true; de.classList.remove('hxd-rcal');
+      if (rcBack && rcBack.focus) rcBack.focus();
+    }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && rcModal && !rcModal.hidden) rcClose(); });
     function fillPosters() {
       if (!window.tgoPoster) return;
       [].forEach.call(homeEl.querySelectorAll('.mfp:not(.on)'), function (slot) {
@@ -325,7 +361,7 @@
       var keepX = {};
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { keepX[r.parentNode.className] = r.scrollLeft; });
       applyQueue();
-      homeEl.innerHTML = section('reading', bookTile) + rcalSection() + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
+      homeEl.innerHTML = section('reading', bookTile) + section('watching', watchCard) + (QUEUE.length ? section('queue', queueTile, true) : '') + monthsSection() + section('history', histTile, true);
       fillPosters();
       WATCH.slice(0, 8).forEach(function (x) { if (x.kind === 'TV') loadShow(x).then(function () { paintCards(); }); });
       [].forEach.call(homeEl.querySelectorAll('.row'), function (r) { if (keepX[r.parentNode.className]) r.scrollLeft = keepX[r.parentNode.className]; });
@@ -999,12 +1035,14 @@
       var t = e.target;
       if (t.closest('[data-browse]')) { browse(); return; }
       if (t.closest('.hx-tp, .hx-cv')) return; /* Copy link and the replies: hutch.js (Nov 22) */
+      if (t.closest('[data-rcopen]')) { rcOpen(); return; }
+      if (t.closest('[data-rcclose]') || (rcModal && t === rcModal)) { rcClose(); return; }
       var rn = t.closest('[data-rcal]');
       if (rn) {
         if (rn.disabled) return;
         rcMonth = new Date(rcMonth.getFullYear(), rcMonth.getMonth() + (+rn.getAttribute('data-rcal')), 1);
-        var old = homeEl.querySelector('.sec-rcal'); if (old) { var tmp = document.createElement('div'); tmp.innerHTML = rcalSection(); old.parentNode.replaceChild(tmp.firstChild, old); }
-        var nb = homeEl.querySelector('[data-rcal="' + rn.getAttribute('data-rcal') + '"]'); if (nb && !nb.disabled) nb.focus();
+        rcModal.innerHTML = rcalSection();
+        var nb = rcModal.querySelector('[data-rcal="' + rn.getAttribute('data-rcal') + '"]'); if (nb && !nb.disabled) nb.focus(); else { var x0 = rcModal.querySelector('.rx'); if (x0) x0.focus(); }
         return;
       }
       var em = t.closest('[data-eps]'); if (em) { var ex = get(em.getAttribute('data-eps')); if (ex) { OPENEPS[ex.id] = !OPENEPS[ex.id]; patch(ex); } return; }

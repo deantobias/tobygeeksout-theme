@@ -71,7 +71,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
 .hx-den .hxd-stars .half{position:absolute;inset:0;clip-path:inset(0 50% 0 0)}
 /* Nov 12: "Not rated yet" sits where the stars go, at the same height, so tiles in a row stay level */
 .hx-den .it .unr{display:block;margin-top:5px;line-height:14px}
-.hx-den .it-book{width:112px}
+.hx-den .it-book,.hx-den .it-cal{width:112px}
 .hx-den .it-hist{width:116px}
 
 /* ---------- currently watching: see the Nov 12 block at the end ---------- */
@@ -125,7 +125,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den{--pad:26px}
   .hx-den .shead h2{font-size:22px}
   .hx-den .shead small{font-size:15px}
-  .hx-den .it-book{width:126px}
+  .hx-den .it-book,.hx-den .it-cal{width:126px}
   .hx-den .it-hist{width:130px}
   .hx-den .cover .ct{font-size:16px}
   .hx-den .poster .pn{font-size:16px}
@@ -153,7 +153,7 @@ html.hx-den-on #hutch-bar.scrolled{box-shadow:0 1px 0 #2F2822,0 4px 14px rgba(0,
   .hx-den .sec:first-child{margin-top:8px}
   .hx-den .shead{margin-bottom:6px;min-height:36px}
   .hx-den .shead h2{font-size:20px}
-  .hx-den .it-book{width:92px}
+  .hx-den .it-book,.hx-den .it-cal{width:92px}
   .hx-den .it-hist{width:98px}
   .hx-den .cover{padding:9px 8px}.hx-den .cover .ct{font-size:13.5px}.hx-den .cover .ca{font-size:9px}
   .hx-den .poster .pn{font-size:13px}
@@ -385,8 +385,34 @@ html.hx-den-on #hutch-bar .hb-brw:focus-visible{outline:2px solid #E9875F;outlin
 /* "This post" bar and replies (Nov 22, Toby, v184-v189): shared with Word Nerd in hutch.css; the Den's colors */
 .hx-den .hx-tp,.hx-den .hx-cv{--tp-ink:var(--ink);--tp-acc:var(--acct);--tp-lab:var(--sub);--tp-bd:#6B594B;--tp-sep:#3F352D;--tp-bg:transparent;--tp-on:rgba(242,169,136,.14)}
 .hx-den .hx-cv + .perma,.hx-den .hx-tp + .hx-cv[hidden] + .perma{margin-top:20px}
-/* Reading calendar (Nov 22, Toby, mockup v194): under Currently reading */
-.hx-den .rcal{margin:0 var(--pad);background:var(--surf);border:1px solid var(--ln);border-radius:16px;padding:14px 12px 12px;max-width:760px}
+/* Reading calendar (Nov 22, Toby, mockups v194, v195): a small tile beside the
+   book covers; tapping it opens the full month over the Den */
+.hx-den .mcal{display:block;position:relative;overflow:hidden;box-sizing:border-box;aspect-ratio:2/3;border-radius:10px;background:var(--surf);border:1px solid var(--ln);padding:8px 7px;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.hx-den .mcal .rmh{display:flex;font:700 12px var(--h-ui);letter-spacing:.08em;color:var(--acct);margin:0 0 6px 1px;text-align:left}
+.hx-den .mcal .rmg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.hx-den .mcal .rmg i{display:block;aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.07)}
+.hx-den .mcal .rmg i.e{background:transparent}
+.hx-den .mcal .rmg i.r{background:var(--acct)}
+.hx-den .mcal .rmg i.f{background:#7BC49A}
+.hx-den .mcal .rmg i.t{box-shadow:0 0 0 1.5px var(--ink)}
+.hx-den .mcal .rmh{display:flex;align-items:center;justify-content:space-between}
+.hx-den .mcal .rmx{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);color:var(--ink)}
+.hx-den .mcal .rmx svg{width:12px;height:12px}
+.hx-den .mcal .rmo{position:absolute;left:7px;right:7px;bottom:7px;display:flex;align-items:center;gap:2px;font:600 12px var(--h-ui);color:var(--ink);white-space:nowrap}
+.hx-den .mcal .rmo svg{width:13px;height:13px;flex:none}
+.hx-den .it-cal{cursor:pointer}
+.hx-den .it-cal:hover .mcal,.hx-den .it-cal:focus-visible .mcal{border-color:var(--acct)}
+.hx-den .it-cal:focus-visible{outline:none}
+.hx-den .rc-modal{position:fixed;inset:0;z-index:300;background:rgba(8,6,5,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.hx-den .rc-modal[hidden]{display:none}
+html.hxd-rcal,html.hxd-rcal body{overflow:hidden}
+.hx-den .rc-modal .rcal{margin:auto;width:100%;max-width:760px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.hx-den .rx{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;border:0;background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;padding:0}
+.hx-den .rx svg{width:20px;height:20px}
+.hx-den .rx:focus-visible{outline:2px solid var(--acct);outline-offset:2px}
+.hx-den .rc-modal .rnav{justify-content:center;margin-top:6px}
+
+.hx-den .rcal{background:var(--surf);border:1px solid var(--ln);border-radius:16px;padding:14px 12px 12px;max-width:760px}
 .hx-den .rch{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .hx-den .rch h2{font:700 18px/1.2 var(--h-ui);font-family:var(--h-ui) !important;margin:0;color:var(--ink)}
 .hx-den .rnav{display:flex;align-items:center;gap:4px;font:600 14px var(--h-ui);color:var(--ink)}

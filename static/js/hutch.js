@@ -2134,7 +2134,7 @@
     function card(x, i) {
       /* Nov 22 (Toby, mockup v191 B): the category wears a tag in a soft box, so it
          reads as a category (it shows that category's posts), not as the app */
-      var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '" aria-label="Show only ' + esc(x.c) + ' posts">' + sv('tag', 2) + '<span>' + esc(x.c) + '</span></button>' : '';
+      var c = x.c ? '<span class="hbl-dot" aria-hidden="true"> · </span><button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '" aria-label="Show only ' + esc(x.c) + ' posts">' + sv('tag', 2) + '<span>' + esc(x.c) + '</span></button>' : '';
       var app = appOf(x);
       return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (app ? ' app' : '') + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
         '<div class="hbl-k"><span class="hbl-kl"><a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(when(x)) + '</span></a>' + c + '</span>' +

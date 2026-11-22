@@ -277,6 +277,21 @@ html.hbl-three .hbl-pics.one .hbl-pc{aspect-ratio:16/9}
 .hbl-app svg{width:15px;height:15px;color:var(--acct)}
 #hutch-blog .hbl-k .hbl-cat{display:inline-flex;align-items:center;gap:4px;padding:3px 9px 3px 7px;margin:-3px 0;border-radius:6px;background:color-mix(in srgb,var(--acc) 10%,var(--surf));color:color-mix(in srgb,var(--acct) 65%,var(--ink));vertical-align:middle}
 #hutch-blog .hbl-k .hbl-cat svg{width:14px;height:14px;flex:none}
+/* Nov 22 (Toby, v200 A): the date, dot and category sit on one center
+   line (Safari set the category box a little lower than the date). On a
+   phone a Den or Word Nerd card's top is two rows: the date with the app
+   label on the right, then the category (it didn't fit on an iPhone, so
+   the app label fell onto a line of its own) */
+#hutch-blog .hbl-kl{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 6px}
+#hutch-blog .hbl-k .hbl-cat{margin:0}
+@media (max-width:599px){
+  #hutch-blog .hbl-it.app .hbl-k{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;row-gap:8px}
+  #hutch-blog .hbl-it.app .hbl-kl{display:contents}
+  #hutch-blog .hbl-it.app .hbl-dt{grid-column:1;grid-row:1;justify-self:start}
+  #hutch-blog .hbl-it.app .hbl-app{grid-column:2;grid-row:1}
+  #hutch-blog .hbl-it.app .hbl-cat{grid-column:1/3;grid-row:2;justify-self:start}
+  #hutch-blog .hbl-it.app .hbl-dot{display:none}
+}
 #hutch-blog .hbl-k .hbl-cat:hover span{text-decoration:underline}
 .hbl-win{margin-top:10px}
 .hbl-win .lbl{display:block;font:700 12px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--acct) 65%,var(--ink));margin:0 0 6px}

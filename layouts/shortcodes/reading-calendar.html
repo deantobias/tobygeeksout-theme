@@ -1,0 +1,363 @@
+{{/* ------------------------------------------------------------
+     READING CALENDAR (Nov 22, 2026, Toby's design, mockup v4)
+     Shortcode for the Reading page. Two things:
+
+     1. PROGRESS on the Currently Reading shelf: a band on the bottom
+        of each cover with the percent, a bar and the page count
+        (percent and bar only on phones). The book still stands on the
+        plank. Cover sizes, columns and the 24px plank are not touched.
+
+     2. FINISHED CALENDAR: a small month card beside the shelf, NOT on
+        the wood. A day Toby finished a book shows that book's cover
+        with a small check. Previous and next arrows page the months.
+        The year button opens twelve small month calendars under the
+        shelf and closes them again; closed by default.
+
+     FINISHED = the first post for a book at 100%, or a Book Reviews
+     post. Same rule as The Bookmark.
+
+     LAYOUT: with 1 or 2 books on the shelf the card takes the two
+     empty cover spots and the plank ends where the books end. With 3
+     or more books the shelf keeps its full width and the card drops
+     under it. On phones the card always sits under the shelf.
+
+     DATA: the extraction block below is copied word for word from
+     bookmark.html (titles, covers, Page X of Y, NN%). If that block
+     is ever fixed there, copy the fix here too.
+
+     USE: call this shortcode once anywhere on the Reading page, on a
+     line of its own. The script moves the card next to the
+     shelf-reading block by itself. To remove the feature, delete that
+     one line from the page.
+
+     Colors use the theme tokens so the card follows the timed sky.
+     The band and the check use fixed colors because they sit on cover
+     art. No storage APIs.
+     ------------------------------------------------------------ */}}
+
+{{ $events := slice }}
+
+{{ range (where .Site.Pages "Type" "post").ByDate }}
+{{ $cats := .Params.categories }}
+{{ $isCR := false }}{{ $isBR := false }}
+{{ range $cats }}
+  {{ if eq . "Currently Reading" }}{{ $isCR = true }}{{ end }}
+  {{ if eq . "Book Reviews" }}{{ $isBR = true }}{{ end }}
+{{ end }}
+{{ if or $isCR $isBR }}
+
+  {{/* ---- Title: the card's own h3, like the queue. Fallback to the
+       post title minus the "Currently Reading:" prefix. */}}
+  {{ $t := "" }}
+  {{ with findRE `(?s)<h3[^>]*>.*?</h3>` .Content 1 }}
+    {{ $t = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if not $t }}
+    {{ $t = replaceRE `(?i)^.*?currently reading:\s*` "" .Title }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+  {{ end }}
+
+  {{/* ---- Author: the book card's byline. A byline with a digit in
+       it is not an author. */}}
+  {{ $author := "" }}
+  {{ with findRE `(?s)<p[^>]*book-card-byline[^>]*>.*?</p>` .Content 1 }}
+    {{ $author = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (index . 0))) " \n\t" }}
+  {{ end }}
+  {{ if findRE `\d` $author 1 }}{{ $author = "" }}{{ end }}
+  {{/* Oct 7, 2026: new plain cards (review-card--book) keep the author
+       in a facts row, "Author" | name, and the post title carries the
+       book: "📚 Currently Reading: Name", "📚 Want to Read: Name",
+       "📚 Name by Author" (Finished / DNF). */}}
+  {{ if not $author }}
+    {{ with findRE `(?s)review-fact-label[^>]*>\s*Author\s*</td>\s*<td[^>]*review-fact-value[^>]*>.*?</td>` .Content 1 }}
+      {{ $author = trim (htmlUnescape (replaceRE `(?s)<[^>]*>` "" (replaceRE `(?s)^.*?review-fact-value[^>]*>` "" (index . 0)))) " \n\t" }}
+    {{ end }}
+  {{ end }}
+  {{ if in .Content "review-card--plain" }}
+    {{ $t = replaceRE `(?i)^.*?want to read:\s*` "" $t }}
+    {{ $t = replaceRE `^[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]+\s*` "" $t }}
+    {{ with $author }}{{ $t = strings.TrimSuffix (printf " by %s" .) $t }}{{ end }}
+  {{ end }}
+
+  {{/* ---- Progress. Plainify FIRST (the home page's hard-won lesson:
+       raw HTML matches width:100% from the card's own styles). */}}
+  {{/* Oct 7, 2026: tags become spaces first, so the new card's
+       "Page 141 of 496" and "28%" cells don't glue together. */}}
+  {{ $plain := replaceRE `(?s)<[^>]*>` " " .Content | plainify }}
+  {{ $page := 0 }}{{ $total := 0 }}{{ $pct := -1 }}
+  {{ with findRE `Page \d+ of \d+` $plain 1 }}
+    {{ $bits := findRE `\d+` (index . 0) }}
+    {{ $page = int (index $bits 0) }}
+    {{ $total = int (index $bits 1) }}
+  {{ end }}
+  {{ with findRE `\d{1,3}%` $plain 1 }}
+    {{ $pct = int (replaceRE `%` "" (index . 0)) }}
+  {{ end }}
+  {{ if and (eq $pct -1) (gt $total 0) }}
+    {{ $pct = int (math.Round (mul (div (float $page) (float $total)) 100)) }}
+  {{ end }}
+  {{ if eq $pct -1 }}{{ $pct = 0 }}{{ end }}
+
+  {{/* ---- Cover: poster cell first, known hosts second, curl/zoom
+       fixed on the way out. Verbatim from index.html / queue.html. */}}
+  {{ $cover := "" }}
+  {{ with findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content 1 }}
+    {{ $cover = htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" (index . 0)) }}
+  {{ end }}
+  {{ if not $cover }}
+    {{ range findRE `<img[^>]+src="[^"]+"` .Content }}
+      {{ $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) }}
+      {{ if and (not $cover) (or (in $u "books.google.com") (in $u "cdn.micro.blog/books") (in $u "cdn.uploads.micro.blog")) }}{{ $cover = $u }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if $cover }}{{ $cover = replaceRE `&(amp;)?edge=curl` "" $cover }}{{ $cover = replaceRE `zoom=\d` "zoom=2" $cover }}{{ end }}
+
+  {{/* ---- Stars, read the proven way: longest run wins is not needed
+       here because tag-stripped plain text collapses the grey span. */}}
+  {{ $stars := "" }}
+  {{ with findRE `[★☆½]{2,}` $plain 1 }}{{ $stars = index . 0 }}{{ end }}
+
+  {{ $events = $events | append (dict
+      "date" (.Date.Format "2006-01-02")
+      "title" $t
+      "author" $author
+      "cover" $cover
+      "page" $page
+      "total" $total
+      "pct" $pct
+      "stars" $stars
+      "review" $isBR
+      "url" .Permalink) }}
+{{ end }}
+{{ end }}
+
+<div class="rc" id="rc" hidden>
+  <section class="rc-cal" id="rcCal" aria-label="Books finished, by month">
+    <div class="rc-head">
+      <button class="rc-nav" id="rcPrev" type="button" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="rc-title" role="heading" aria-level="2"><span id="rcMonth"></span> <span class="rc-title-year" id="rcYearNum"></span></div>
+      <button class="rc-nav" id="rcNext" type="button" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="rc-dow" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="rc-days" id="rcDays"></div>
+    <div class="rc-foot">
+      <span id="rcCount"></span>
+      <button class="rc-more" id="rcMore" type="button" aria-expanded="false" aria-controls="rcYear"><span id="rcMoreLabel"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+  </section>
+  <section class="rc-year" id="rcYear" hidden aria-label="Books finished, whole year">
+    <div class="rc-year-head">
+      <div class="rc-year-title" id="rcYearTitle" role="heading" aria-level="2"></div>
+      <span class="rc-pill" id="rcYearCount"></span>
+    </div>
+    <div class="rc-months" id="rcMonths"></div>
+  </section>
+</div>
+<style>
+/* READING CALENDAR (Nov 22, 2026). Colors come from the theme tokens so
+   the card follows the timed sky. The progress band and the check use
+   fixed colors because they sit on top of cover art, not on the page. */
+.rc-cal, .rc-year { background: var(--color-bg-card, #FFFFFF); border: 1px solid var(--color-border, #E5DDD5); border-radius: 8px; font-family: var(--font-body, 'Inter', system-ui, sans-serif); margin: 0 0 2rem; }
+.rc-cal { overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); max-width: 520px; }
+.rc-year[hidden] { display: none !important; }
+@media (min-width: 600px) {
+  .rc-row--side { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; align-items: start; }
+  .rc-row--side > #shelf-reading { grid-column: 1 / span 2; min-width: 0; }
+  .rc-row--side > #shelf-reading .bookshelf { grid-template-columns: repeat(2, 1fr) !important; }
+  .rc-row--side > .rc-cal { grid-column: 3 / span 2; max-width: none; margin: 0; }
+}
+.rc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: var(--color-navy, #1E2D4A); color: var(--color-bg, #FAF8F5); }
+.rc-title { margin: 0; font-family: var(--font-display, Georgia, serif); font-size: 1.15rem; font-weight: 400; line-height: 1.2; color: inherit; text-align: center; }
+.rc-title-year { font-family: var(--font-body, 'Inter', system-ui, sans-serif); font-size: .85rem; font-weight: 600; }
+.rc-nav { -webkit-appearance: none; appearance: none; background: transparent; border: 1px solid currentColor; color: inherit; border-radius: 999px; width: 36px; height: 36px; padding: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }
+.rc-nav svg { width: 15px; height: 15px; }
+.rc-nav:disabled { opacity: .35; cursor: default; }
+.rc-nav:focus-visible, .rc-more:focus-visible, .rc-fin:focus-visible { outline: 3px solid var(--color-terra, #C4622D); outline-offset: 2px; }
+.rc-dow, .rc-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.rc-dow { padding: 8px 8px 2px; font-size: .72rem; font-weight: 700; color: var(--color-text-muted, #69635C); }
+.rc-days { grid-auto-rows: 44px; padding: 0 8px 8px; }
+.rc-day { position: relative; display: flex; align-items: center; justify-content: center; font-size: .9rem; color: var(--color-text, #1A1A18); }
+.rc-day--today > span { outline: 2px solid var(--color-terra, #C4622D); border-radius: 999px; padding: 2px 7px; font-weight: 700; }
+.rc .rc-fin, .rc-row .rc-fin, .rc-year .rc-fin { border: 0 !important; background: none !important; text-decoration: none !important; padding: 0 !important; }
+.rc-days .rc-fin { position: absolute; top: 3px; bottom: 3px; left: 0; right: 0; display: flex; justify-content: center; }
+.rc-cw { position: relative; display: block; height: 100%; aspect-ratio: 2 / 3; }
+.rc-cw img, .rc-cw i { display: block; width: 100%; height: 100%; margin: 0; object-fit: cover; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.35); background: #1E2D4A; }
+.rc-chk { position: absolute; right: -6px; bottom: -3px; width: 15px; height: 15px; }
+.rc-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--color-border, #E5DDD5); background: var(--color-bg-warm, #F2EDE8); font-size: .8rem; font-weight: 600; color: var(--color-text-muted, #69635C); }
+.rc-more { -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; margin: 0; padding: 5px 12px; background: transparent; border: 1px solid var(--color-terra-text, #A65326); color: var(--color-terra-text, #A65326); border-radius: 999px; font-family: inherit; font-size: .8rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.rc-more svg { width: 12px; height: 12px; transition: transform .2s; }
+.rc-more[aria-expanded="true"] svg { transform: rotate(180deg); }
+.rc-year { padding: 18px; }
+.rc-year-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.rc-year-title { flex: 1; margin: 0; font-family: var(--font-display, Georgia, serif); font-size: 1.3rem; font-weight: 400; line-height: 1.2; color: var(--color-navy, #1E2D4A); }
+.rc-pill { border: 1px solid var(--color-border, #E5DDD5); background: var(--color-bg-warm, #F2EDE8); border-radius: 999px; padding: 4px 14px; font-size: .85rem; font-weight: 700; color: var(--color-text-muted, #69635C); white-space: nowrap; }
+.rc-months { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 12px; }
+@media (min-width: 600px) { .rc-months { grid-template-columns: repeat(3, 1fr); gap: 18px 16px; } }
+@media (min-width: 900px) { .rc-months { grid-template-columns: repeat(4, 1fr); gap: 20px 22px; } }
+.rc-month { border-top: 2px solid var(--color-border, #E5DDD5); padding-top: 8px; }
+.rc-month--now { border-top-color: var(--color-terra, #C4622D); }
+.rc-month-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 4px; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-terra-text, #A65326); }
+.rc-month-head em { font-style: normal; letter-spacing: 0; text-transform: none; font-weight: 600; font-size: .72rem; color: var(--color-text-muted, #69635C); }
+.rc-mgrid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 24px; text-align: center; font-size: .72rem; color: var(--color-text-muted, #69635C); }
+.rc-mgrid > * { display: flex; align-items: center; justify-content: center; }
+.rc-mgrid .rc-cw { height: 21px; }
+.rc-mgrid .rc-chk { width: 10px; height: 10px; right: -4px; bottom: -2px; }
+@media (max-width: 599px) { .rc-year { padding: 14px 12px 16px; } .rc-cal { max-width: none; } }
+/* progress band: rides on the bottom of the cover, so the book still
+   stands on the plank. Cover sizes, columns and the plank are untouched. */
+#shelf-reading li .rc-prog { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; background: rgba(20,31,53,.93); color: #FFFFFF; padding: 8px 10px 9px; font-family: var(--font-body, 'Inter', system-ui, sans-serif); line-height: 1.2; text-align: left; }
+.rc-prog-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.rc-prog-pct { font-weight: 700; font-size: .95rem; }
+.rc-prog-pages { font-size: .75rem; white-space: nowrap; }
+.rc-prog-bar { display: block; height: 5px; margin-top: 6px; border-radius: 999px; background: rgba(255,255,255,.3); overflow: hidden; }
+.rc-prog-bar i { display: block; height: 100%; background: #F0DDD3; }
+@media (max-width: 599px) {
+  #shelf-reading li .rc-prog { padding: 5px 6px 6px; }
+  .rc-prog-pct { font-size: .78rem; }
+  .rc-prog-pages { display: none; }
+  .rc-prog-bar { height: 4px; margin-top: 4px; }
+}
+</style>
+<script>
+(function () {
+  "use strict";
+  var EVENTS = {{ $events | jsonify | safeJS }};
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var MONL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var CHECK = '<svg class="rc-chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#1E2D4A" stroke="#FFFFFF" stroke-width="2.5"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function norm(s) { return String(s || "").toLowerCase().replace(/&amp;/g, "&").replace(/[^a-z0-9]+/g, ""); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+  // ---- one record per book. The newest post is where the book stands
+  // now; the first post at 100% (or a Book Reviews post) is the finish.
+  var books = {}, FIN = [];
+  EVENTS.forEach(function (e, i) {
+    var k = norm(e.title);
+    if (!k) return;
+    e._i = i;
+    (books[k] = books[k] || { title: e.title, events: [] }).events.push(e);
+  });
+  Object.keys(books).forEach(function (k) {
+    var b = books[k], f = null;
+    b.events.sort(function (a, c) { return a.date < c.date ? -1 : a.date > c.date ? 1 : a._i - c._i; });
+    b.last = b.events[b.events.length - 1];
+    b.cover = "";
+    b.events.forEach(function (e) {
+      if (e.cover) b.cover = e.cover;
+      if (!f && (e.review || e.pct >= 100)) f = e;
+    });
+    if (f) {
+      var p = f.date.split("-");
+      b.done = true;
+      FIN.push({ y: +p[0], m: +p[1] - 1, d: +p[2], title: b.title, cover: b.cover, url: f.url });
+    }
+  });
+  function findBook(t) {
+    var k = norm(t), hit = null;
+    if (!k) return null;
+    if (books[k]) return books[k];
+    Object.keys(books).forEach(function (b) {
+      if (!hit && k.length > 5 && b.length > 5 && (b.indexOf(k) === 0 || k.indexOf(b) === 0)) hit = books[b];
+    });
+    return hit;
+  }
+  // ---- progress band on each Currently Reading cover
+  function bands(shelf) {
+    var lis = shelf.querySelectorAll("li:not(.shelf-ghost)");
+    for (var i = 0; i < lis.length; i++) {
+      var li = lis[i];
+      if (li.querySelector(".rc-prog")) continue;
+      var tEl = li.querySelector(".bookshelf__title"), item = li.querySelector(".bookshelf__item");
+      var t = tEl ? tEl.textContent : (item ? (item.getAttribute("title") || "").replace(/\s+by\s+.*$/, "") : "");
+      var b = findBook(t);
+      if (!b || b.done) continue;
+      var e = b.last, pct = Math.max(0, Math.min(100, e.pct || 0));
+      if (!pct && !e.page) continue;
+      var d = document.createElement("div");
+      d.className = "rc-prog";
+      d.setAttribute("role", "img");
+      d.setAttribute("aria-label", pct + "% through" + (e.total ? ", page " + e.page + " of " + e.total : ""));
+      d.innerHTML = '<span class="rc-prog-top"><span class="rc-prog-pct">' + pct + '%</span>' +
+        (e.total ? '<span class="rc-prog-pages">p. ' + e.page + ' of ' + e.total + '</span>' : '') +
+        '</span><span class="rc-prog-bar"><i style="width:' + pct + '%"></i></span>';
+      if (getComputedStyle(li).position === "static") li.style.position = "relative";
+      li.appendChild(d);
+    }
+  }
+  // ---- calendar
+  var now = new Date(), TY = now.getFullYear(), TM = now.getMonth(), TD = now.getDate();
+  var cy = TY, cm = TM, minY = TY, minM = TM;
+  EVENTS.forEach(function (e) {
+    var p = String(e.date).split("-"), y = +p[0], m = +p[1] - 1;
+    if (y && (y < minY || (y === minY && m < minM))) { minY = y; minM = m; }
+  });
+  function finsIn(y, m) { return FIN.filter(function (f) { return f.y === y && f.m === m; }); }
+  function words(n) { return n === 0 ? "No books finished" : n === 1 ? "1 book finished" : n + " books finished"; }
+  function cell(y, m, d, list) {
+    var hits = list.filter(function (f) { return f.d === d; });
+    if (!hits.length) return "<span>" + d + "</span>";
+    var f = hits[0];
+    var label = "Finished " + hits.map(function (h) { return h.title; }).join(" and ") + ", " + MONL[m] + " " + d;
+    return '<a class="rc-fin" href="' + esc(f.url) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '"><span class="rc-cw">' +
+      (f.cover ? '<img src="' + esc(f.cover) + '" alt="" loading="lazy" onerror="this.outerHTML=\'<i></i>\'">' : "<i></i>") + CHECK + "</span></a>";
+  }
+  function renderYear() {
+    var all = FIN.filter(function (f) { return f.y === cy; }), h = "";
+    $("rcYearTitle").textContent = cy + " in books";
+    $("rcYearCount").textContent = all.length + " finished";
+    for (var i = 0; i < 12; i++) {
+      var list = finsIn(cy, i), first = new Date(cy, i, 1).getDay(), len = new Date(cy, i + 1, 0).getDate();
+      h += '<div class="rc-month' + (cy === TY && i === TM ? " rc-month--now" : "") + '"><div class="rc-month-head"><span>' + MON[i] + "</span><em>" + (list.length ? list.length + " finished" : "") + '</em></div><div class="rc-mgrid">';
+      for (var e = 0; e < first; e++) h += "<span></span>";
+      for (var d = 1; d <= len; d++) h += cell(cy, i, d, list);
+      h += "</div></div>";
+    }
+    $("rcMonths").innerHTML = h;
+  }
+  function render() {
+    var list = finsIn(cy, cm), first = new Date(cy, cm, 1).getDay(), len = new Date(cy, cm + 1, 0).getDate(), h = "";
+    for (var e = 0; e < first; e++) h += '<div class="rc-day"></div>';
+    for (var d = 1; d <= len; d++) {
+      var c = cell(cy, cm, d, list), today = (cy === TY && cm === TM && d === TD && c.charAt(1) === "s");
+      h += '<div class="rc-day' + (today ? " rc-day--today" : "") + '">' + c + "</div>";
+    }
+    $("rcDays").innerHTML = h;
+    $("rcMonth").textContent = MONL[cm];
+    $("rcYearNum").textContent = cy;
+    $("rcPrev").disabled = (cy < minY) || (cy === minY && cm <= minM);
+    $("rcNext").disabled = (cy > TY) || (cy === TY && cm >= TM);
+    $("rcCount").textContent = words(list.length);
+    $("rcMoreLabel").textContent = cy;
+    if (!$("rcYear").hidden) renderYear();
+  }
+  // ---- put the calendar beside the shelf. With 1 or 2 books it takes
+  // the two empty cover spots; with 3 or more it drops under the shelf.
+  function place() {
+    var rc = $("rc"), shelf = $("shelf-reading");
+    if (!rc) return;
+    $("rcPrev").addEventListener("click", function () { if (--cm < 0) { cm = 11; cy--; } render(); });
+    $("rcNext").addEventListener("click", function () { if (++cm > 11) { cm = 0; cy++; } render(); });
+    $("rcMore").addEventListener("click", function () {
+      var y = $("rcYear"), open = y.hidden;
+      y.hidden = !open;
+      this.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) renderYear();
+    });
+    render();
+    if (!shelf || !shelf.parentNode) { rc.hidden = false; return; }
+    var row = document.createElement("div"), cal = $("rcCal"), year = $("rcYear");
+    row.className = "rc-row";
+    shelf.parentNode.insertBefore(row, shelf);
+    row.appendChild(shelf);
+    row.appendChild(cal);
+    row.parentNode.insertBefore(year, row.nextSibling);
+    if (shelf.querySelectorAll("li:not(.shelf-ghost)").length <= 2) row.className += " rc-row--side";
+    bands(shelf);
+    window.addEventListener("load", function () { bands(shelf); });
+    // nudge the empty-shelf script so its blank covers match the new column count
+    setTimeout(function () { try { window.dispatchEvent(new Event("resize")); } catch (err) {} }, 400);
+  }
+  if (document.getElementById("shelf-reading") || document.readyState !== "loading") { place(); }
+  else { document.addEventListener("DOMContentLoaded", place); }
+})();
+</script>

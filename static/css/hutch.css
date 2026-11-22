@@ -283,12 +283,18 @@ html.hbl-three .hbl-pics.one .hbl-pc{aspect-ratio:16/9}
 /* v190 C (Nov 22, Toby): "Read the post", "See the full word / review", "See book details": one rounded box with an arrow */
 .hbl-kr,#hutch-blog .hbl-a.go{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 12px 0 16px;border:1.5px solid color-mix(in srgb,var(--acc) 45%,var(--ln));border-radius:10px;background:transparent;color:color-mix(in srgb,var(--acct) 65%,var(--ink)) !important;font:600 14.5px var(--h-ui);text-decoration:none !important}
 .hbl-kr{margin-top:10px}
+.hbl-act .hbl-kr{margin:0}
+.hbl-nw+.hbl-act{margin-top:12px}
 .hbl-kr svg,#hutch-blog .hbl-a.go svg{width:17px;height:17px;flex:none}
 .hbl-kr:hover,.hbl-kr:focus-visible,#hutch-blog .hbl-a.go:hover,#hutch-blog .hbl-a.go:focus-visible{background:color-mix(in srgb,var(--acc) 10%,transparent);outline:none}
 /* one older post, picked at random */
 .hbl-arch{background:color-mix(in srgb,#E8A040 9%,var(--surf));border-color:color-mix(in srgb,#E8A040 35%,var(--ln))}
 .hbl-mem{display:flex;gap:8px;align-items:center;padding:10px 16px;font:700 12.5px var(--h-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--acct);border-bottom:1px solid color-mix(in srgb,#E8A040 35%,var(--ln));margin-bottom:12px}
 .hbl-mem svg{width:17px;height:17px;flex:none}
+.hbl-mem{gap:6px}
+.hbl-mem>svg{margin-right:2px}
+.hbl-mem .hbl-dt{margin:-8px 0}
+.hbl-mem .hbl-dt svg{width:14px;height:14px}
 /* the end of the 30 days */
 .hbl-more{text-align:center;padding:14px 0 10px}
 .hbl-more p{margin:0 0 10px;font:500 14px var(--h-ui);color:var(--sub)}

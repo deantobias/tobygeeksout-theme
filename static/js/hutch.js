@@ -1996,7 +1996,7 @@
        the post". Older reading and watching posts may no longer be in the
        Den, so those cards don't send him there. */
     /* Nov 22 (Toby, mockup v190 C): "Read the post" is a rounded box with an arrow */
-    function goLink(x) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post' + sv('chev', 2.4) + '</a>'; }
+    function goLink(x, min) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post' + (min ? ' · ' + min + ' min' : '') + sv('chev', 2.4) + '</a>'; }
     function denLink(x) { return den + '#open=u-' + encodeURIComponent(x.u); }
     function wordLink(x) { return wordsU + '#w=' + encodeURIComponent(x.u); }
     /* Nov 22 (Toby, mockup v183): a review, a book in the Den, and a Word
@@ -2062,7 +2062,6 @@
         return '<div class="hbl-nw' + (ncv ? ' po' : '') + '">' +
           '<div class="nt">' + (ncv ? '<img class="po" src="' + esc(ncv) + '" alt="" loading="lazy" decoding="async">' : '') + '<div class="ntx"><span class="lab">Watching</span><b>' + esc(nw.t) + '</b>' +
           (nw.se ? '<small>' + esc(nw.se) + '</small>' : '') + (nw.syn ? '<p>' + esc(nw.syn) + '</p>' : '') + '</div></div></div>' +
-          '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>' +
           (nbd ? '<div class="hbl-nwbd"><img src="' + esc(nbd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
       }
       if ((x.k === 'rv' || x.k === 'rd') && dn.t) {
@@ -2089,7 +2088,6 @@
           (bd ? '<div class="hbl-bd"><img src="' + esc(bd) + '" alt="" loading="lazy" decoding="async"></div>' : '');
         /* Nov 15 (Toby): reading and watching cards keep "Read the post";
            a book in the Den's Currently reading also gets Open in Den */
-        if (x.k === 'rd' && kind !== 'Book') h += '<div class="hbl-tx hbl-go">' + goLink(x) + '</div>';
         return h;
       }
       /* Nov 14 (Toby): micros and titled posts keep their own formatting
@@ -2099,7 +2097,7 @@
         if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button></div>' + pics(x);
         return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1"' + (x.mo ? '' : ' hidden') + '>Read the post · ' + (x.min || 1) + ' min' + sv('chev', 2.4) + '</a></div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '</div>' + pics(x);
     }
     /* Nov 22 (Toby, v189): the Micro.blog timeline's words, "Reply" and
        "2 replies". "Replies" while the count is still on its way. */
@@ -2112,6 +2110,9 @@
          same place a tap on the card goes (v190 C, the same box as "Read the post") */
       var gl = x.k === 'wd' ? (wordIn(x).more ? 'See the full word' : '') : x.k === 'rv' ? 'See the full review' : al ? 'See book details' : '';
       var go = gl ? '<a class="hbl-a go" href="' + esc(al) + '"><span>' + gl + '</span>' + sv('chev', 2.4) + '</a>' : '';
+      /* Nov 22 (Toby): "Read the post" moves down into this row too, in the
+         same place as the cards' other buttons, above the divider line */
+      if (!go && ((x.k === 'p' && (x.mo || x.cut)) || x.k === 'nw' || (x.k === 'rd' && !al))) go = goLink(x, x.k === 'p' ? (x.min || 1) : 0);
       if (!v && !whole(x) && !go) return '';
       /* a Den or Word Nerd post: its conversation opens in the app (Nov 22, Toby) */
       return '<div class="hbl-act' + (go ? ' wgo' : '') + '">' + go + (v || whole(x) ? '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al || x.u + '#replies') + '"' + (al ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
@@ -2128,21 +2129,24 @@
     function archCard(x) {
       if (!x) return '';
       var mi = x.mi;
-      return '<article tabindex="0" class="hbl-it hbl-arch" data-u="' + esc(x.u) + '"><div class="hbl-mem">' + sv('hist') + '<span>From the archive · ' + esc(x.m) + '</span></div>' +
+      return '<article tabindex="0" class="hbl-it hbl-arch" data-u="' + esc(x.u) + '"><div class="hbl-mem">' + sv('hist') + '<span>From the archive ·</span>' +
+        /* Nov 22 (Toby): the month opens the post, like the date on every other card (no Permalink button) */
+        '<a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(x.m) + '</span></a></div>' +
         /* Nov 15 (Toby): an archive micro works like the feed's: Show more
            opens the rest in the card, Permalink beside Reply */
         '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') +
-        (mi ? (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') : '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post' + sv('chev', 2.4) + '</a>') + '</div>' +
+        (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
     }
     /* Nov 22 (Toby): the same Reply rule as the feed. A titled archive post
        says "Read the post", so it gets no Reply (only "2 replies" when it
-       has some); an archive micro shows it all and keeps Permalink and Reply. */
+       has some); an archive micro shows it all and keeps Reply. */
     function archActs(x) {
       var v = conv[x.u];
-      if (!x.mi && !v) return '';
-      return '<div class="hbl-act">' + (x.mi ? '<a class="hbl-a pl" href="' + esc(x.u) + '" data-op="1">' + sv('link') + '<span>Permalink</span></a>' : '') + '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
+      /* Nov 22 (Toby): "Read the post" sits in the bottom row like every card's button */
+      if (!x.mi) return '<div class="hbl-act wgo">' + goLink(x) + (v ? '<a class="hbl-a rp vr" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
+      return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(x.u) + '#replies" data-rp="1">' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
     }
     function match(x) {
       if (cat && (x.cs || [x.c]).indexOf(cat) < 0) return false;
@@ -2164,8 +2168,9 @@
         if (over <= 48) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
         f.classList.add('cut'); if (b) b.hidden = false;
       });
-      [].forEach.call(list.querySelectorAll('.hbl-it.k-p .hbl-kr[hidden]'), function (k) {
-        var t = k.parentNode.querySelector('.hbl-html.ex, p'); if (!t) return;
+      [].forEach.call(list.querySelectorAll('.hbl-it.k-p[data-i]'), function (cd) {
+        var xi = TL[+cd.getAttribute('data-i')]; if (!xi || xi.mo || xi.cut) return;
+        var t = cd.querySelector('.hbl-tx .hbl-html.ex, .hbl-tx p'); if (!t) return;
         /* a line-clamped box reports its cut height, so measure it once unclamped */
         var cut = [t].concat([].slice.call(t.querySelectorAll('p, li, blockquote'))).some(function (e) {
           if (getComputedStyle(e).webkitLineClamp === 'none') return e.scrollHeight > e.clientHeight + 2;
@@ -2174,9 +2179,7 @@
           return h1 > h0 + 2;
         });
         if (!cut) return;
-        k.hidden = false;
-        var cd = k.closest('.hbl-it'), xi = TL[+cd.getAttribute('data-i')];
-        if (xi) { xi.cut = true; actsFor(cd, xi); }
+        xi.cut = true; actsFor(cd, xi);
       });
     }
     function render() {
@@ -2196,6 +2199,17 @@
       filt.hidden = !cat; if (cat) filt.querySelector('b').textContent = cat;
       requestAnimationFrame(folds);
       if (paneArrows) paneArrows.refresh();
+      archConv();
+    }
+    /* Nov 22 (Toby: "every post should include if it has replies"): an
+       archive post is older than Micro.blog's list covers, so each one on
+       screen (one per dozen cards) asks for its own conversation and shows
+       "2 replies" when it has some */
+    function archConv() {
+      [].forEach.call(list.querySelectorAll('.hbl-arch'), function (c) {
+        var u = c.getAttribute('data-u'); if (!u || conv[u] > 0) return;
+        setTimeout(function () { hxConv.get(u).then(function (d) { if (d.n > 0 && conv[u] !== d.n) { conv[u] = d.n; applyConv(); } }, function () {}); }, 800);
+      });
     }
     /* a different random pick for each spot, the same ones until the page reloads */
     var picks = ARCH.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 12);

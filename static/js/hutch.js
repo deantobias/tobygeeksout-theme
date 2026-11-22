@@ -2477,7 +2477,7 @@
         var seen = {}, all = [];
         (post.match(/<img[^>]+src="[^"]+"/g) || []).forEach(function (m) {
           var u = m.replace(/^[\s\S]*?src="([^"]+)"[\s\S]*$/, '$1').replace(/&amp;/g, '&');
-          if ((/cdn\.uploads\.micro\.blog|\/uploads\//.test(u)) && !seen[u]) { seen[u] = 1; all.push(u); }
+          if ((/cdn\.uploads\.micro\.blog|\/uploads\/|images\.unsplash\.com/.test(u)) && !seen[u]) { seen[u] = 1; all.push(u); }
         });
         /* only if this is still the post on screen */
         if (me === vwFor && all.length > srcs.length && de.classList.contains('hbl-viewing')) { srcs = all; n = all.length; draw(); }

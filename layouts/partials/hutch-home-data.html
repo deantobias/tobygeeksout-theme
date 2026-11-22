@@ -197,9 +197,11 @@
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
     {{- end -}}
     {{- $img := "" -}}{{- $imgs := slice -}}{{- $ni := 0 -}}
+    {{/* Nov 22 (Toby: a Tab Dump without its pictures): a post's pictures
+         from Unsplash count too, like his own uploads */}}
     {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
       {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
-      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) (not (in $posters $u)) (not (in $imgs $u)) -}}
+      {{- if and (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/") (in $u "images.unsplash.com")) (not (in $posters $u)) (not (in $imgs $u)) -}}
         {{- if not $img -}}{{- $img = $u -}}{{- end -}}
         {{- $ni = add $ni 1 -}}
         {{- if lt (len $imgs) 3 -}}{{- $imgs = $imgs | append $u -}}{{- end -}}

@@ -225,6 +225,11 @@ html.hbl-three .hbl-pics.one .hbl-pc{aspect-ratio:16/9}
 .hbl-html.ex{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .hbl-html.fold{max-height:11.6em;overflow:hidden}
 .hbl-html.fold.cut{-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+/* a short post with a reblog box (Nov 22, v199): two lines, then Show more */
+.hbl-html.rbx.fold{max-height:3.2em}
+.hbl-html.rbx.fold.cut{-webkit-mask-image:linear-gradient(#000 45%,transparent);mask-image:linear-gradient(#000 45%,transparent)}
+.hbl-html blockquote[class*="reblog"]{margin:10px 0 4px !important;max-width:none !important}
+.hbl-html blockquote[class*="reblog"] a{color:#1a2d42 !important}
 .hbl-tx .hbl-rm+.hbl-kr{margin-top:2px}
 .hbl-rm[hidden]{display:none}
 .hbl-rv .rt{min-width:0}

@@ -45,26 +45,27 @@
     var YLIST = Object.keys(YEARS).sort().reverse();
     if (YLIST.indexOf(String(TY)) < 0) YLIST.unshift(String(TY));
 
-    /* ---------- category colors (like events in Google Calendar) ---------- */
+    /* ---------- colors (Nov 22, Toby, mockup v198) ----------
+       Was a color per category (like Google Calendar), which made a busy,
+       many-colored month. Now only the theme's terracotta and navy, four
+       kinds: posts with a title (terracotta), micros (navy), Den posts
+       (reviews, watching, reading: light terracotta) and Word Nerd Alerts
+       (light navy). At night the strong two turn light (peach, sky blue)
+       and the light two turn into dark tints with a thin outline. */
     var dark = !!ctx.dark;
-    var CAT = { 'blogging': '#C4622D', 'technology': '#5B7A8C', 'tech': '#5B7A8C', 'personal': '#6E8559', 'word of the day': '#A87A1A',
-      'photos': '#7C5A7A', 'movie reviews': dark ? '#4A6596' : '#1E2D4A', 'tv reviews': dark ? '#4A6596' : '#1E2D4A', 'book reviews': dark ? '#4A6596' : '#1E2D4A',
-      'reel and remote': dark ? '#4A6596' : '#1E2D4A', 'micro': '#8C6A4F' };
-    var POOL = ['#3E7C7A', '#A0526B', '#5E6BA8', '#6E8B4A', '#B0662A', '#7A6A9C', '#4F7F9E', '#9A5B3C'];
-    function color(p) {
-      if (p.b) return '#B4501F';
+    var PAL = dark
+      ? { t: ['#F2A988', '#171E30', ''], m: ['#9DB4D8', '#171E30', ''], d: ['#3A2620', '#F6C7AC', 'rgba(246,199,172,.45)'], w: ['#1F2C45', '#C9D8F0', 'rgba(201,216,240,.45)'] }
+      : { t: ['#8B3E18', '#FFFFFF', ''], m: ['#1E2D4A', '#FFFFFF', ''], d: ['#F0DDD3', '#1E2D4A', 'rgba(30,45,74,.14)'], w: ['#DCE3EF', '#1E2D4A', 'rgba(30,45,74,.14)'] };
+    function kind(p) {
       var c = String(p.c || '').toLowerCase();
-      if (CAT[c]) return CAT[c];
-      var h = 0; for (var j = 0; j < c.length; j++) h = (h * 31 + c.charCodeAt(j)) >>> 0;
-      return POOL[h % POOL.length];
+      if (/word nerd|word of the day/.test(c) || /^\W*word nerd alert\b/i.test(p.t)) return 'w';
+      if (/review|reel and remote|currently (?:reading|watching)|bookshelf|watch ?list|watch log|^watching$/.test(c)) return 'd';
+      return p.m ? 'm' : 't';
     }
-    /* WCAG (Nov 9, Toby): white words on a chip need 4.5:1, so the chip's
-       category colour is shaded 18% (same hue, every chip 5:1 or more) */
-    function shade(h) {
-      var m = /^#?([0-9a-f]{6})$/i.exec(h); if (!m) return h;
-      var n = parseInt(m[1], 16), f = function (v) { return Math.round(v * 0.82); };
-      return 'rgb(' + f(n >> 16 & 255) + ',' + f(n >> 8 & 255) + ',' + f(n & 255) + ')';
-    }
+    /* a chip or block: its fill, its words and (light ones) a thin edge */
+    function look(p) { var k = PAL[kind(p)]; return 'background:' + k[0] + ';color:' + k[1] + ' !important' + (k[2] ? ';box-shadow:inset 0 0 0 1px ' + k[2] : ''); }
+    /* the thin bar beside a post in a day's list: light kinds get an outline so they show */
+    function barLook(p) { var k = PAL[kind(p)]; return 'background:' + k[0] + (k[2] ? ';box-shadow:inset 0 0 0 1.5px ' + k[1] : ''); }
     function catName(p) { return p.b ? 'Blaugust' + (p.c && !/blaugust/i.test(p.c) ? ' · ' + p.c : '') : (p.c || 'Post'); }
 
     /* ---------- state ---------- */
@@ -103,7 +104,7 @@
         var lab = MN[m] + ' ' + d + (ps.length ? ', ' + ps.length + (ps.length === 1 ? ' post' : ' posts') : '') + (k === TK ? ', today' : '');
         cells += '<button type="button" class="ca-day' + (k === TK ? ' ca-today' : '') + (k === sel ? ' ca-sel' : '') + '" data-d="' + k + '" aria-label="' + lab + '"' + (k === sel ? ' aria-pressed="true"' : '') + '>' +
           '<span class="ca-n">' + d + '</span>' +
-          ps.slice(0, mx).map(function (p) { return '<span class="ca-chip" style="background:' + shade(color(p)) + '">' + esc(p.t.replace(/^\W*(Word Nerd Alert|Blaugust Day \d+|Now Watching):\s*/i, '')) + '</span>'; }).join('') +
+          ps.slice(0, mx).map(function (p) { return '<span class="ca-chip" style="' + look(p) + '">' + esc(p.t.replace(/^\W*(Word Nerd Alert|Blaugust Day \d+|Now Watching):\s*/i, '')) + '</span>'; }).join('') +
           (ps.length > mx ? '<span class="ca-more">+' + (ps.length - mx) + '</span>' : '') + '</button>';
       }
       return '<div class="ca-month"><div class="ca-wk" aria-hidden="true">' + 'SMTWTFS'.split('').map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div><div class="ca-days">' + cells + '</div></div>';
@@ -113,7 +114,7 @@
       return '<div class="ca-agenda"><div class="ca-ahead"><span class="ca-big">' + dt.getDate() + '</span><span class="ca-wd">' + WD[dt.getDay()] + ' · ' + MN[dt.getMonth()].slice(0, 3) + (dt.getFullYear() !== TY ? ' ' + dt.getFullYear() : '') + '</span>' +
         '<span class="ca-cnt">' + (ps.length ? ps.length + (ps.length > 1 ? ' posts' : ' post') : '') + '</span></div>' +
         (ps.length ? ps.map(function (q) {
-          return '<a class="ca-ev" href="' + esc(q.u) + '"><span class="ca-bar" style="background:' + color(q) + '"></span><span class="ca-tm">' + esc(q.tm) + '</span>' +
+          return '<a class="ca-ev" href="' + esc(q.u) + '"><span class="ca-bar" style="' + barLook(q) + '"></span><span class="ca-tm">' + esc(q.tm) + '</span>' +
             '<span class="ca-tx"><b' + (q.m ? ' class="ca-micro"' : '') + '>' + esc(q.t) + '</b><small>' + esc(catName(q)) + '</small></span></a>';
         }).join('') : '<div class="ca-empty">' + (sel > TK ? 'This day is still ahead.' : 'Nothing posted this day.') + '</div>') + '</div>';
     }
@@ -152,7 +153,7 @@
         n += ps.length;
         var p = k.split('-'), dt = new Date(+p[0], +p[1] - 1, +p[2]);
         buf += '<div class="ca-sday' + (k === TK ? ' ca-today' : '') + '"><div class="ca-dt"><small>' + WD[dt.getDay()].slice(0, 3) + '</small><b>' + dt.getDate() + '</b></div><div class="ca-evs">' +
-          ps.map(function (q) { return '<a class="ca-sev" href="' + esc(q.u) + '" style="background:' + color(q) + '"><b' + (q.m ? ' class="ca-micro"' : '') + '>' + esc(q.t) + '</b><small>' + esc(q.tm) + ' · ' + esc(catName(q)) + '</small></a>'; }).join('') + '</div></div>';
+          ps.map(function (q) { return '<a class="ca-sev" href="' + esc(q.u) + '" style="' + look(q) + '"><b' + (q.m ? ' class="ca-micro"' : '') + '>' + esc(q.t) + '</b><small>' + esc(q.tm) + ' · ' + esc(catName(q)) + '</small></a>'; }).join('') + '</div></div>';
       }
       flush();
       return '<div class="ca-sched">' + out + '<p class="ca-end">That\'s every post, back to ' + MN[+first.slice(5, 7) - 1] + ' ' + first.slice(0, 4) + '.</p></div>';

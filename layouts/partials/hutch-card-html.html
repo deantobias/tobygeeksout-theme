@@ -1,0 +1,22 @@
+{{- /*
+  partials/hutch-card-html.html (Nov 22, 2026, Toby, mockup v199)
+  A post's HTML for a Hutch Blog card: no scripts, embeds, pictures or
+  inline styles (the card shows his photos on their own, and its own
+  type), EXCEPT a reblog box (blockquote.reblog / reblog-new /
+  reblog-v3, made by Perch). That keeps its inline styles and the
+  person's little avatar, so it looks like it does on the post page.
+  Call: {{ partial "hutch-card-html.html" $html }}
+*/ -}}
+{{- $h := string . -}}
+{{- $rbs := findRE `(?is)<blockquote\b[^>]*\bclass=["'][^"']*\breblog[^>]*>.*?</blockquote>` $h -}}
+{{- range $i, $b := $rbs -}}{{- $h = replace $h $b (printf "<!--hxrb%d-->" $i) -}}{{- end -}}
+{{- $h = replaceRE `(?is)<(script|style|iframe|video|audio|figure|picture|object|noscript)\b.*?</(script|style|iframe|video|audio|figure|picture|object|noscript)>` "" $h -}}
+{{- $h = replaceRE `(?i)<(img|source|embed|input|br\s+class="[^"]*")\b[^>]*>` "" $h -}}
+{{- $h = replaceRE `(?i)\s(style|onclick|onload|onerror)="[^"]*"` "" $h -}}
+{{- range $i, $b := $rbs -}}
+  {{- $b2 := replaceRE `(?is)<(script|style|iframe|video|audio|object|noscript)\b.*?</(script|style|iframe|video|audio|object|noscript)>` "" $b -}}
+  {{- $b2 = replaceRE `(?i)\s(onclick|onload|onerror)="[^"]*"` "" $b2 -}}
+  {{- range findRE `(?i)<img\b[^>]*>` $b2 -}}{{- if not (in . "reblog-avatar") -}}{{- $b2 = replace $b2 . "" -}}{{- end -}}{{- end -}}
+  {{- $h = replace $h (printf "<!--hxrb%d-->" $i) $b2 -}}
+{{- end -}}
+{{- return $h -}}

@@ -2106,7 +2106,12 @@
         if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' + place(x, 'hbl-loc', true) + '</div>' + pics(x);
         return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
+      /* Nov 22 (Toby, v199): a short post with a reblog box shows two lines,
+         and Show more opens the rest here, box and all (like a micro). A
+         longer one keeps its preview without the box. */
+      if (x.xh && x.rb && !x.mo) return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3><div class="hbl-html mx fold rbx">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' + place(x, 'hbl-loc', true) + '</div>' + pics(x);
+      var xh = x.xh && x.rb ? x.xh.replace(/<blockquote\b[^>]*class=["'][^"']*\breblog[\s\S]*?<\/blockquote>/gi, '') : x.xh;
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (xh ? '<div class="hbl-html ex">' + xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
     }
     /* Nov 22 (Toby, v189): the Micro.blog timeline's words, "Reply" and
        "2 replies". "Replies" while the count is still on its way. */
@@ -2143,9 +2148,11 @@
         '<a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(x.m) + '</span></a></div>' +
         /* Nov 15 (Toby): an archive micro works like the feed's: Show more
            opens the rest in the card, Permalink beside Reply */
-        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
-        /* a short titled one: two lines, Show more opens the rest here (Nov 22, Toby) */
-        (x.sh ? '<button type="button" class="hbl-rm">Show more</button>' : '') +
+        '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') +
+        /* a short titled one: two lines, Show more opens the rest here (Nov 22,
+           Toby); one with a reblog box keeps its HTML, so the box shows too (v199) */
+        (x.sh && x.xh ? '<div class="hbl-html mx fold rbx">' + x.xh + '</div>' : x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
+        (x.sh ? '<button type="button" class="hbl-rm"' + (x.xh ? ' hidden' : '') + '>Show more</button>' : '') +
         (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
@@ -2569,31 +2576,49 @@
     /* back from a post: the feed scrolls to the post you came from and lights it up */
     /* Nov 15 (Toby): back from the Den or Word Nerd too, and the card comes
        back to the same spot on the screen it was tapped at. Photos above it
-       finish loading after the feed is drawn and push it down, so it is put
-       back a few times over the first two seconds, until he scrolls. */
-    function showLast() {
+       finish loading after the feed is drawn and push it down (Nov 22:
+       see below, no more sliding). */
+    /* Nov 22 (Toby: going back "acts weird, moving then finding the
+       location"): the feed used to be put back a few times over two
+       seconds while photos loaded, so it visibly slid around. Now:
+       - back from the browser's memory (most of the time): the feed is
+         exactly as he left it, so nothing moves at all;
+       - otherwise the card is put in place once, before the feed shows,
+         and the browser's scroll anchoring keeps it there while photos
+         above it load (one quiet check when the page has fully loaded,
+         only if something still pushed it far off). */
+    function lastKeys() {
       var u = null, y = null; try { u = sessionStorage.getItem('hutch-lastpost'); y = sessionStorage.getItem('hutch-lasttop'); sessionStorage.removeItem('hutch-lastpost'); sessionStorage.removeItem('hutch-lasttop'); } catch (e) {}
+      return { u: u, y: y };
+    }
+    function showLast() {
+      var k = lastKeys(), u = k.u, y = k.y;
       if (!u) return;
       var c = list.querySelector('.hbl-it[data-u="' + u.replace(/"/g, '') + '"]');
       if (!c) return;
+      try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
       var top = y !== null && !isNaN(+y) ? Math.max(70, Math.min(+y, innerHeight - 140)) : null, moved = false;
-      var place = function () {
+      var place = function (far) {
         if (moved || !c.isConnected) return;
-        if (top === null) { c.scrollIntoView({ block: 'center' }); return; }
+        if (top === null) { if (!far) c.scrollIntoView({ block: 'center', behavior: 'instant' }); return; }
         var d = c.getBoundingClientRect().top - top;
-        if (Math.abs(d) < 2) return;
-        if (paned()) left.scrollTop += d; else window.scrollBy(0, d);
+        if (Math.abs(d) < (far ? 60 : 2)) return;
+        /* 'instant': Classic's custom.css asks for smooth scrolling on the whole
+           page, which made the timeline slide down to the card (Nov 22) */
+        if (paned()) left.scrollBy({ top: d, behavior: 'instant' }); else window.scrollBy({ top: d, behavior: 'instant' });
       };
-      place();
-      [120, 350, 700, 1200, 2000].forEach(function (t) { setTimeout(place, t); });
+      place(false);
       var stop = function () { moved = true; };
       ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true, once: true }); });
+      if (document.readyState === 'complete') setTimeout(function () { place(true); }, 50);
+      else window.addEventListener('load', function () { place(true); }, { once: true });
       c.classList.add('hl'); setTimeout(function () { c.classList.remove('hl'); }, 2400);
     }
     window.addEventListener('load', folds);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(folds);
     showLast();
-    window.addEventListener('pageshow', function (e) { if (e.persisted) showLast(); });
+    /* from the browser's memory: already where he left it; just tidy up */
+    window.addEventListener('pageshow', function (e) { if (e.persisted) lastKeys(); });
     /* new posts arrive without a refresh: redrawn from the newer copy, staying on the card in view */
     window.hutchBlogFresh = function (tl) {
       if (!tl || !tl.length) return;

@@ -319,10 +319,8 @@
          embeds and inline styles. Card posts keep their own layouts. */}}
     {{- $xh := "" -}}
     {{- if or (eq $k "m") (eq $k "p") -}}
-      {{- $h := string $sc -}}
-      {{- $h = replaceRE `(?is)<(script|style|iframe|video|audio|figure|picture|object|noscript)\b.*?</(script|style|iframe|video|audio|figure|picture|object|noscript)>` "" $h -}}
-      {{- $h = replaceRE `(?i)<(img|source|embed|input|br\s+class="[^"]*")\b[^>]*>` "" $h -}}
-      {{- $h = replaceRE `(?i)\s(style|onclick|onload|onerror)="[^"]*"` "" $h -}}
+      {{/* Nov 22 (v199): a reblog box keeps its own look (partials/hutch-card-html.html) */}}
+      {{- $h := partial "hutch-card-html.html" $sc -}}
       {{- if eq $k "p" -}}
         {{- $blocks := slice -}}
         {{- range findRE `(?s)<p\b[^>]*>.*?</p>|<blockquote\b.*?</blockquote>|<ul\b.*?</ul>|<ol\b.*?</ol>` $h -}}
@@ -364,14 +362,15 @@
     {{/* mo: a titled post has more than its card shows (Nov 15, Toby, v149):
          more words than the card's text, more than 3 photos, or a video,
          embed or table. Without it the card says Permalink, not "Read the
-         post". The Blog also checks if the card had to cut the text. */}}
+         post". The Blog also checks if the card had to cut the text.
+         Nov 22: a reblog box is built from tables, so it isn't an embed. */}}
     {{- $mo := false -}}
     {{- if eq $k "p" -}}
       {{- $shown := cond (ne $xh "") ($xh | plainify | htmlUnescape) $x -}}
       {{/* Nov 22 (Toby, the Lego Shadows post): the "▶ View on Instagram"
            line under an embedded photo isn't more to read, so it doesn't count */}}
       {{- $pl := $sc | replaceRE `(?s)<span\b[^>]*\bsocial-embed-caption\b[^>]*>.*?</span>` "" | plainify | htmlUnescape -}}
-      {{- if or (gt (countwords $pl) (add (countwords $shown) 3)) (gt $ni 3) (findRE `(?i)<(iframe|video|audio|table|object)\b` .Content 1) -}}{{- $mo = true -}}{{- end -}}
+      {{- if or (gt (countwords $pl) (add (countwords $shown) 3)) (gt $ni 3) (findRE `(?i)<(iframe|video|audio|table|object)\b` (replaceRE `(?is)<blockquote\b[^>]*\bclass=["'][^"']*\breblog.*?</blockquote>` "" .Content) 1) -}}{{- $mo = true -}}{{- end -}}
     {{- end -}}
     {{/* ln / lu (Nov 22, Toby): the check-in place and its map link, the
          same as the Photos app's (hutch-data/photos.html) */}}
@@ -383,7 +382,7 @@
         {{- $lu = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude -}}
       {{- end -}}
     {{- end -}}{{- end -}}
-    {{- $tl = $tl | append (dict "ln" $ln "lu" $lu "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw "mo" $mo) -}}
+    {{- $tl = $tl | append (dict "ln" $ln "lu" $lu "t" .Title "u" .RelPermalink "d" (.Date.Format "Jan 2") "y" (.Date.Format "2006") "tm" (.Date.Format "3:04 PM") "iso" (.Date.Format "2006-01-02") "img" $img "imgs" $imgs "ni" $ni "x" (trim $x " \n\t") "xf" (trim $xf " \n\t") "xh" $xh "bd" $bd "m" $micro "k" $k "min" .ReadingTime "c" $cat "cs" $cs "rs" $rs "wl" $wl "dn" $dn "wn" $wn "nw" $nw "mo" $mo "rb" (in $xh "reblog")) -}}
   {{- end -}}
   {{- end -}}
 {{- end -}}
@@ -449,7 +448,15 @@
          the start, so Show more opens it right in the card. A micro is any
          post without a title, Micro category or not. */}}
     {{- $axf := "" -}}{{- if and $mi (gt (len $p.Plain) 200) -}}{{- $axf = trim ($p.Plain | htmlUnescape | truncate 2000 | htmlUnescape) " \n\t" -}}{{- end -}}
-    {{- $arch = $arch | append (dict "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "sh" $sh "xf" $axf) -}}
+    {{/* axh (Nov 22, Toby, v199): a short titled post with a reblog box
+         keeps its HTML, so the box shows once Show more opens it */}}
+    {{- $axh := "" -}}
+    {{- if and $sh (in $p.Content "reblog") -}}
+      {{- $axh = partial "hutch-card-html.html" (partial "loc-strip.html" (dict "page" $p "html" $p.Content)) -}}
+      {{- $axh = trim (replaceRE `(?s)<p\b[^>]*>\s*</p>` "" $axh) " \n\t" -}}
+      {{- if gt (len $axh) 8000 -}}{{- $axh = "" -}}{{- end -}}
+    {{- end -}}
+    {{- $arch = $arch | append (dict "xh" $axh "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "sh" $sh "xf" $axf) -}}
   {{- end -}}
 {{- end -}}
 

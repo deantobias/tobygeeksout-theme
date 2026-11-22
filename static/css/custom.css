@@ -9582,7 +9582,7 @@ body.tgo-night {
    title is treated as shrinkable and collapses to a few pixels while the
    text is still technically present. Do not remove. */
 .fact > *{flex-shrink:0}
-.a-words{grid-area:words}
+.a-words{grid-area:words;container-type:inline-size}
 .a-first{grid-area:first}
 .a-busy{grid-area:busy}
 .a-avg{grid-area:avg}
@@ -9612,7 +9612,15 @@ body.tgo-night {
   color:var(--color-navy);
   overflow-wrap:anywhere;
 }
-.a-words .fact-value{font-size:3rem}
+/* The word count must never split mid-number (iPhone Safari broke
+   "89,142" as "89,14 / 2" because .fact-value allows overflow-wrap:anywhere
+   and the tile was a few px too narrow). nowrap keeps it whole; the cqi
+   size shrinks it to the tile's own width, with room for a 6-digit count.
+   The plain rem line stays as the fallback for browsers without cq units. */
+.a-words .fact-value{font-size:3rem;white-space:nowrap;overflow-wrap:normal}
+@supports (font-size:1cqi){
+  .a-words .fact-value{font-size:min(3rem,22cqi)}
+}
 .a-first .fact-value,.a-recent .fact-value,.a-long .fact-value{font-size:1.9rem}
 .a-read .fact-value{font-size:1.9rem}
 .a-streak .fact-value{font-size:2.4rem}
@@ -9897,6 +9905,9 @@ body.tgo-night .fact-value{color:var(--color-text)}
     gap:8px;
   }
   .a-words .fact-value{font-size:2.1rem}
+  @supports (font-size:1cqi){
+    .a-words .fact-value{font-size:min(2.1rem,22cqi)}
+  }
   .a-first .fact-value,.a-recent .fact-value{font-size:1.4rem}
   .a-gap .fact-value,.a-perday .fact-value,
   .a-busy .fact-value,.a-avg .fact-value,

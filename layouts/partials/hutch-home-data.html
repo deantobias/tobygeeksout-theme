@@ -444,18 +444,22 @@
     {{- $sh := and (not $mi) (le (strings.RuneCount $apl) 600) (ne $apl "") -}}
     {{- if $mi -}}{{- $x = $apl | truncate 200 | htmlUnescape -}}{{- else if $sh -}}{{- $x = $apl -}}{{- else -}}{{- $x = partial "loc-strip.html" (dict "page" $p "html" $p.Summary) | plainify | htmlUnescape | truncate 120 | htmlUnescape -}}{{- end -}}
     {{- $x = trim (replaceRE `\s+` " " $x) " " -}}
-    {{/* xf (Nov 15, Toby): a micro's whole text when the card only shows
-         the start, so Show more opens it right in the card. A micro is any
-         post without a title, Micro category or not. */}}
-    {{- $axf := "" -}}{{- if and $mi (gt (len $p.Plain) 200) -}}{{- $axf = trim ($p.Plain | htmlUnescape | truncate 2000 | htmlUnescape) " \n\t" -}}{{- end -}}
-    {{/* axh (Nov 22, Toby, v199): a short titled post with a reblog box
-         keeps its HTML, so the box shows once Show more opens it */}}
+    {{/* axh (Nov 22, Toby): a post the card shows whole (a short titled
+         post, or a micro) keeps its own formatting, like the feed: paragraphs,
+         links, bold, lists, quotes, a reblog box (partials/hutch-card-html.html).
+         Longer posts are a two-line preview and stay plain text. Kept under
+         3000 characters, so 80 archive posts don't weigh down the home page;
+         a longer micro falls back to plain text (xf). */}}
     {{- $axh := "" -}}
-    {{- if and $sh (in $p.Content "reblog") -}}
+    {{- if or $sh $mi -}}
       {{- $axh = partial "hutch-card-html.html" (partial "loc-strip.html" (dict "page" $p "html" $p.Content)) -}}
       {{- $axh = trim (replaceRE `(?s)<p\b[^>]*>\s*</p>` "" $axh) " \n\t" -}}
-      {{- if gt (len $axh) 8000 -}}{{- $axh = "" -}}{{- end -}}
+      {{- if gt (len $axh) 3000 -}}{{- $axh = "" -}}{{- end -}}
     {{- end -}}
+    {{/* xf (Nov 15, Toby): a micro's whole text when the card only shows
+         the start, so Show more opens it right in the card. A micro is any
+         post without a title, Micro category or not. Only when there's no axh. */}}
+    {{- $axf := "" -}}{{- if and $mi (not $axh) (gt (len $p.Plain) 200) -}}{{- $axf = trim ($p.Plain | htmlUnescape | truncate 2000 | htmlUnescape) " \n\t" -}}{{- end -}}
     {{- $arch = $arch | append (dict "xh" $axh "t" ($p.Title | plainify | htmlUnescape) "u" $p.RelPermalink "iso" ($p.Date.Format "2006-01-02") "m" ($p.Date.Format "January 2006") "img" $img "imgs" $imgs "ni" $ni "x" $x "mi" $mi "sh" $sh "xf" $axf) -}}
   {{- end -}}
 {{- end -}}

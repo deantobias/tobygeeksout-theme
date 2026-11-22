@@ -2109,7 +2109,7 @@
       /* Nov 22 (Toby, v199): a short post with a reblog box shows two lines,
          and Show more opens the rest here, box and all (like a micro). A
          longer one keeps its preview without the box. */
-      if (x.xh && x.rb && !x.mo) return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3><div class="hbl-html mx fold rbx">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' + place(x, 'hbl-loc', true) + '</div>' + pics(x);
+      if (x.xh && x.rb && !x.mo) return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3><div class="hbl-html mx fold two">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' + place(x, 'hbl-loc', true) + '</div>' + pics(x);
       var xh = x.xh && x.rb ? x.xh.replace(/<blockquote\b[^>]*class=["'][^"']*\breblog[\s\S]*?<\/blockquote>/gi, '') : x.xh;
       return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (xh ? '<div class="hbl-html ex">' + xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + place(x, 'hbl-loc', true) + '</div>' + pics(x);
     }
@@ -2151,9 +2151,13 @@
         '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') +
         /* a short titled one: two lines, Show more opens the rest here (Nov 22,
            Toby); one with a reblog box keeps its HTML, so the box shows too (v199) */
-        (x.sh && x.xh ? '<div class="hbl-html mx fold rbx">' + x.xh + '</div>' : x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
-        (x.sh ? '<button type="button" class="hbl-rm"' + (x.xh ? ' hidden' : '') + '>Show more</button>' : '') +
-        (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' +
+        /* Nov 22 (Toby): a post the card shows whole keeps its formatting (xh),
+           like the feed: a short titled one folds at two lines, a micro at the
+           feed's micro height; folds() hides Show more when it all fits */
+        (x.xh ? '<div class="hbl-html mx fold' + (mi ? '' : ' two') + '">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button>' :
+        (x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
+        (x.sh ? '<button type="button" class="hbl-rm">Show more</button>' : '') +
+        (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '')) + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
     }
@@ -2188,7 +2192,8 @@
       });
       [].forEach.call(list.querySelectorAll('.hbl-html.fold'), function (f) {
         var b = f.parentNode.querySelector('.hbl-rm'), over = f.scrollHeight - f.clientHeight;
-        if (over <= 48) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
+        /* a two-line fold (short titled posts) shows Show more as soon as there's a third line */
+        if (over <= (f.classList.contains('two') ? 2 : 48)) { f.classList.remove('fold', 'cut'); if (b) b.hidden = true; return; }
         f.classList.add('cut'); if (b) b.hidden = false;
       });
       [].forEach.call(list.querySelectorAll('.hbl-it.k-p[data-i]'), function (cd) {

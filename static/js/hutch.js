@@ -1920,6 +1920,7 @@
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
       hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
       photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+      tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/>',
       hand: '<path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.7 0-4.2-1.4-5.5-3.6L3.8 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/>'
     };
     function sv(k, w) { return '<svg viewBox="0 0 24 24" fill="' + (k === 'more' ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; }
@@ -1994,7 +1995,8 @@
        other card (reading, watching, Watch Logs, micros, posts) gets "Read
        the post". Older reading and watching posts may no longer be in the
        Den, so those cards don't send him there. */
-    function goLink(x) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>'; }
+    /* Nov 22 (Toby, mockup v190 C): "Read the post" is a rounded box with an arrow */
+    function goLink(x) { return '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post' + sv('chev', 2.4) + '</a>'; }
     function denLink(x) { return den + '#open=u-' + encodeURIComponent(x.u); }
     function wordLink(x) { return wordsU + '#w=' + encodeURIComponent(x.u); }
     /* Nov 22 (Toby, mockup v183): a review, a book in the Den, and a Word
@@ -2097,7 +2099,7 @@
         if (x.xh) return '<div class="hbl-tx"><div class="hbl-html mx fold">' + x.xh + '</div><button type="button" class="hbl-rm" hidden>Show more</button></div>' + pics(x);
         return '<div class="hbl-tx"><p class="mx">' + esc(x.x) + '</p>' + (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') + '</div>' + pics(x);
       }
-      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1"' + (x.mo ? '' : ' hidden') + '>Read the post · ' + (x.min || 1) + ' min</a></div>' + pics(x);
+      return '<div class="hbl-tx"><h3>' + esc(x.t) + '</h3>' + (x.xh ? '<div class="hbl-html ex">' + x.xh + '</div>' : x.x ? '<p>' + esc(x.x) + '</p>' : '') + '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1"' + (x.mo ? '' : ' hidden') + '>Read the post · ' + (x.min || 1) + ' min' + sv('chev', 2.4) + '</a></div>' + pics(x);
     }
     /* Nov 22 (Toby, v189): the Micro.blog timeline's words, "Reply" and
        "2 replies". "Replies" while the count is still on its way. */
@@ -2106,12 +2108,18 @@
       /* Nov 22 (Toby, v183): no "Open in Den" / "Open in Word Nerd" (the card
          opens the app) and no Permalink (the date opens the post) */
       var v = conv[x.u], al = appLink(x);
-      if (!v && !whole(x)) return '';
+      /* Nov 22 (Toby): a card whose app has more says how to get to it; the
+         same place a tap on the card goes (v190 C, the same box as "Read the post") */
+      var gl = x.k === 'wd' ? (wordIn(x).more ? 'See the full word' : '') : x.k === 'rv' ? 'See the full review' : al ? 'See book details' : '';
+      var go = gl ? '<a class="hbl-a go" href="' + esc(al) + '"><span>' + gl + '</span>' + sv('chev', 2.4) + '</a>' : '';
+      if (!v && !whole(x) && !go) return '';
       /* a Den or Word Nerd post: its conversation opens in the app (Nov 22, Toby) */
-      return '<div class="hbl-act"><a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al || x.u + '#replies') + '"' + (al ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a></div>';
+      return '<div class="hbl-act' + (go ? ' wgo' : '') + '">' + go + (v || whole(x) ? '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al || x.u + '#replies') + '"' + (al ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
     }
     function card(x, i) {
-      var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '">' + esc(x.c) + '</button>' : '';
+      /* Nov 22 (Toby, mockup v191 B): the category wears a tag in a soft box, so it
+         reads as a category (it shows that category's posts), not as the app */
+      var c = x.c ? ' · <button type="button" class="hbl-cat" data-cat="' + esc(x.c) + '" aria-label="Show only ' + esc(x.c) + ' posts">' + sv('tag', 2) + '<span>' + esc(x.c) + '</span></button>' : '';
       var app = appOf(x);
       return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (app ? ' app' : '') + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
         '<div class="hbl-k"><span class="hbl-kl"><a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(when(x)) + '</span></a>' + c + '</span>' +
@@ -2124,7 +2132,7 @@
         /* Nov 15 (Toby): an archive micro works like the feed's: Show more
            opens the rest in the card, Permalink beside Reply */
         '<div class="hbl-tx">' + (mi ? '' : '<h3>' + esc(x.t) + '</h3>') + (x.x ? '<p' + (mi ? ' class="mx"' : '') + '>' + esc(x.x) + '</p>' : '') +
-        (mi ? (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') : '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post</a>') + '</div>' +
+        (mi ? (x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '') : '<a class="hbl-kr" href="' + esc(x.u) + '" data-op="1">Read the post' + sv('chev', 2.4) + '</a>') + '</div>' +
         (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
     }

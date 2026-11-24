@@ -3060,9 +3060,10 @@
     var j = t.match(/<script[^>]*id="hutch-(?:app|home)-data"[^>]*>[\s\S]*?<\/script>/g) || [];
     return ((m ? m[0] : t) + j.join('')).replace(/\?\d{9,11}\b/g, '').replace(/\s+/g, ' ');
   }
-  var fcLater = null;
+  var fcLater = null, fcLast = 0;
   function freshCheck() {
     if (!swOK || isEmbed || /[?&](hutch|sky|season|fonts)=/.test(location.search)) return;
+    fcLast = Date.now();
     var k = location.href.split('#')[0];
     caches.open(SW_CACHE).then(function (c) {
       return c.match(k).then(function (hit) {
@@ -3192,6 +3193,12 @@
     setTimeout(freshCheck, 600);
   });
   window.addEventListener('pageshow', function (e) { if (e.persisted) { if (!window.hutchBlogFresh) touched = false; setTimeout(freshCheck, 600); } });
+  /* Nov 23 (Toby): a tab left open on screen (a laptop on the desk) never
+     "comes back", so it looks for something newer every 5 minutes, only
+     while it's on screen (in the background or closed, nothing runs; coming
+     back is handled above). Same rules: new posts slide into the Blog;
+     elsewhere the page updates only if the reader hasn't touched it. */
+  setInterval(function () { if (document.visibilityState === 'visible' && Date.now() - fcLast > 270000) freshCheck(); }, 300000);
   /* ---------- tap to open (Nov 5, 2026; Toby picked B from mockup v67) ----------
      Phone and Fold only; laptops get the line (see pressIcon below).
      Toby: "i just dont [want] people think that clicking is not working

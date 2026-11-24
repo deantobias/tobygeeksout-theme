@@ -1447,9 +1447,14 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 @media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
   #hutch-home .hh-posts .hh-row{padding:9px 0;gap:16px}
   #hutch-home .hh-posts .hh-row img{width:56px;height:56px;border-radius:14px}
-  #hutch-home .hh-posts .hh-row .t{font-size:18.5px;line-height:1.25}
+  /* Nov 24 (Toby: the Latest photos strip had shrunk): long titles in
+     Recent Geekouts wrapped and made the top row tall, so the photos got
+     what was left (80px on his Lenovo). Titles a size smaller, still whole:
+     the newest 22px (was 26px), the others 17px (was 18.5px) */
+  #hutch-home .hh-posts .hh-row .t{font-size:17px;line-height:1.25}
   #hutch-home .hh-posts .hh-row .d{font-size:12.5px;margin-top:4px}
   #hutch-home .hh-posts .hh-row.feat{font-size:20px;align-items:flex-start;padding:4px 0 14px}
+  #hutch-home .hh-posts .hh-row.feat .t.t{font-size:1.1em}
   #hutch-home .hh-posts .hh-row.feat .d{font-size:13px;margin-top:6px}
   #hutch-home .hh-posts .hh-row.feat img{width:104px;height:104px;border-radius:20px;order:2}
   #hutch-home .hh-posts .hh-row.feat .x{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 16px/1.45 var(--h-ui);color:#4A5468;margin-top:6px}

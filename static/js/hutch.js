@@ -840,6 +840,20 @@
      about 130 MB once decoded, more than iPad Safari allows a tab. Micro.blog's
      resizer gives a copy about the size shown (twice that, for sharp screens). */
   function hsz(u, w) { return /cdn\.uploads\.micro\.blog/.test(u || '') ? 'https://cdn.micro.blog/photos/' + w + 'x/' + encodeURIComponent(u) : u; }
+  /* Nov 24 (Toby): the home Word Nerd card says what else is inside, with the
+     Blog card's pills (Example, Roots, Cousins…, ASL sign with its hand);
+     wordFitIn() shows them only where they fit, one row, "+N" for the rest */
+  function wInside(w) {
+    var t = (HOME.tl || []).filter(function (x) { return x.wn && x.u === w.u; })[0], n = t && t.wn;
+    if (!n) return '';
+    var L = (n.more ? ['More meanings'] : []).concat(n.in || []);
+    if (!L.length && !n.na && !n.sp) return '';
+    var hand = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.7 0-4.2-1.4-5.5-3.6L3.8 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/></svg>';
+    return '<div class="hh-win"><span class="lbl">Also inside</span><span class="ch">' +
+      (n.na ? '<span class="hi">' + hand + (n.na > 1 ? n.na + ' ASL signs' : 'ASL sign') + '</span>' : '') +
+      L.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') + (n.sp ? '<span>Spotted in</span>' : '') +
+      '<span class="pl" hidden></span></span></div>';
+  }
   function archPick(n) {
     if (!archOrder) { archOrder = ARCH.map(function (x, i) { return i; }); for (var i = archOrder.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = archOrder[i]; archOrder[i] = archOrder[j]; archOrder[j] = t; } }
     var out = []; for (var k = 0; k < n && ARCH.length; k++) { out.push(ARCH[archOrder[archAt % archOrder.length]]); archAt++; }
@@ -1028,7 +1042,7 @@
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
         /* big desktop: the example and a way in, so the card never ends in empty space */
-        (w.ex ? '<p class="wex"><span class="rt">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</span></p>' : '') + '</a>'
+        (w.ex ? '<p class="wex"><span class="rt">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</span></p>' : '') + wInside(w) + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -1069,7 +1083,10 @@
     /* drag up anywhere on the bottom area (or the handle) opens All apps */
     var y0 = null;
     homeEl.addEventListener('touchstart', function (e) { y0 = e.touches[0].clientY > innerHeight * 0.55 ? e.touches[0].clientY : null; }, { passive: true });
-    homeEl.addEventListener('touchend', function (e) { if (y0 !== null && y0 - e.changedTouches[0].clientY > 60) openDrawer(); y0 = null; }, { passive: true });
+    /* Nov 24 (Toby, iPad): no swipe up for All apps where every app is
+       already on the home screen (the All apps button is hidden there) */
+    var hasDrawer = function () { var hd = homeEl.querySelector('.hh-handle'); return !!(hd && hd.offsetParent && getComputedStyle(hd).display !== 'none'); };
+    homeEl.addEventListener('touchend', function (e) { if (y0 !== null && y0 - e.changedTouches[0].clientY > 60 && hasDrawer()) openDrawer(); y0 = null; }, { passive: true });
     homeEl.addEventListener('touchmove', function (e) { if (!e.target.closest('.hh-area')) e.preventDefault(); }, { passive: false });
 
     homeEl.classList.toggle('nonow', !homeEl.querySelector('.hh-now'));
@@ -1331,7 +1348,7 @@
     homeEl.classList.remove('fit1', 'fit2', 'nostrip');
     /* Word Nerd's quote box stays out while the cards are fitted; it comes
        back at the end wherever it fits (Nov 6) */
-    homeEl.classList.add('noex');
+    homeEl.classList.add('noex', 'nowin');
     /* the upright Fold's short mode, from the height actually visible (Nov 3) */
     var vh = (window.visualViewport && visualViewport.height) || innerHeight;
     homeEl.classList.toggle('short', innerWidth >= 520 && innerWidth < 840 && vh < 760);
@@ -1544,6 +1561,33 @@
       if (clipped() && pt) pt.style.display = 'none';
       if (clipped()) def.style.webkitLineClamp = '1';
       if (clipped()) def.style.display = 'none';
+    }
+    /* Nov 24 (Toby): "Also inside" comes back where it fits without making
+       any card taller or cutting anything off; pills that would wrap to a
+       second row become "+N" (the ASL pill, first, always stays) */
+    var wi = wc && wc.querySelector('.hh-win');
+    if (wi) {
+      var wb = [getComputedStyle(a).gridTemplateRows, a.getBoundingClientRect().height];
+      homeEl.classList.remove('nowin');
+      var pills = [].slice.call(wi.querySelectorAll('.ch > span:not(.pl)')), pl = wi.querySelector('.ch > .pl'), hid = 0;
+      pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
+      var row1 = function () { var t0 = pills[0].offsetTop; return ![].some.call(wi.querySelectorAll('.ch > span:not([hidden])'), function (p) { return p.offsetTop > t0 + 2; }); };
+      for (var pk = pills.length - 1; pk > 0 && !row1(); pk--) {
+        if (pills[pk].classList.contains('hi')) continue;
+        pills[pk].hidden = true; hid++; pl.hidden = false; pl.textContent = '+' + hid;
+      }
+      var wok = function () {
+        var wpb0 = parseFloat(getComputedStyle(wc).paddingBottom) || 0, wcr0 = wc.getBoundingClientRect(), abr0 = a.getBoundingClientRect();
+        var wcut = [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > abr0.bottom + 1; });
+        return !wcut && getComputedStyle(a).gridTemplateRows === wb[0] && Math.abs(abr0.height - wb[1]) <= 1 && wi.getBoundingClientRect().bottom <= wcr0.bottom - wpb0 / 2 + 1;
+      };
+      wi.classList.remove('line');
+      if (!(row1() && wok())) {
+        /* no room for pills: one line of words instead ("Also inside
+           Cousins · Roots · ASL sign", cut with … if long), as on laptops */
+        wi.classList.add('line'); pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
+        if (!wok()) { wi.classList.remove('line'); homeEl.classList.add('nowin'); }
+      }
     }
     /* Word Nerd's example sentence shows on every screen where it fits under the meanings without making the
        card taller or cutting anything off (Nov 6, Toby: a one-meaning word

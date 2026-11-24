@@ -2064,3 +2064,21 @@ html .hh-brand .face{background:#C4622D}
 .hx-cv .microblog_time,.hx-cv .microblog_time a{font:500 13px var(--h-ui) !important}
 .hx-cv .microblog_avatar{width:32px !important;height:32px !important}
 .hx-cv .microblog_text,.hx-cv .microblog_time{margin-left:40px}
+
+/* Nov 24 (Toby): the home Word Nerd card's "Also inside" pills, like the
+   Blog's word card; hutch.js shows them only where they fit (one row) */
+#hutch-home .hh-word .hh-win{margin-top:12px;zoom:var(--tz,1)}
+#hutch-home.nowin .hh-word .hh-win{display:none}
+#hutch-home .hh-word .hh-win .lbl{display:block;font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:#984A20;margin:0 0 6px}
+#hutch-home .hh-word .hh-win .ch{display:flex;flex-wrap:wrap;gap:6px}
+#hutch-home .hh-word .hh-win .ch>span{display:inline-flex;align-items:center;gap:4px;font:600 12.5px/1.2 var(--h-ui);color:#1E2D4A;padding:3px 10px;border-radius:999px;border:1.5px solid #E3CFC2;background:#fff;white-space:nowrap}
+#hutch-home .hh-word .hh-win .ch>span[hidden]{display:none}
+#hutch-home .hh-word .hh-win .ch>span.hi{background:#F6E2D6;border-color:transparent}
+#hutch-home .hh-word .hh-win svg{width:14px;height:14px;color:#984A20}
+#hutch-home .hh-word .hh-win.line{margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 13px/1.4 var(--h-ui);color:#4B515B}
+#hutch-home .hh-word .hh-win.line .lbl{display:inline;margin:0 8px 0 0}
+#hutch-home .hh-word .hh-win.line .ch{display:inline}
+#hutch-home .hh-word .hh-win.line .ch>span{display:inline;padding:0;border:0;background:none;font:inherit;color:inherit}
+#hutch-home .hh-word .hh-win.line .ch>span:not(:last-of-type):not([hidden])::after{content:" · "}
+#hutch-home .hh-word .hh-win.line svg{display:none}
+@media (max-width:599px){#hutch-home .hh-word .hh-win{display:none !important}}

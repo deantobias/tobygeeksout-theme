@@ -862,6 +862,7 @@
     }
     /* a smaller picture and a one-line note, when that makes room for one more */
     l.classList.remove('tight', 't2', 't3');
+    rows.forEach(function (r) { r.classList.remove('ex', 'm2'); });
     var roomy = lay(), want = Math.min(3, rows.length);
     l.classList.add('tight');
     if (lay() <= roomy) { l.classList.remove('tight'); lay(); }
@@ -871,6 +872,13 @@
     if (Math.max(roomy, lay()) < want) {
       l.classList.add('tight');
       ['t2', 't3'].some(function (c) { l.classList.add(c); return lay() >= want; });
+      /* then whatever room is left goes back, top down (Nov 24, Toby: a
+         titled post's excerpt line, a micro's second line), as long as all
+         three still fit */
+      rows.slice(0, want).forEach(function (r) {
+        var c = r.classList.contains('mi') ? (l.classList.contains('t3') ? 'm2' : '') : (r.querySelector('em') ? 'ex' : '');
+        if (!c) return; r.classList.add(c); if (lay() < want) r.classList.remove(c);
+      });
     }
   }
   /* ---------- Currently: skip shows he has finished (Nov 3) ----------

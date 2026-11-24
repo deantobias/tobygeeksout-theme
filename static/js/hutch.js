@@ -992,13 +992,16 @@
     var now = new Date();
     var day = now.toLocaleDateString('en-US', { weekday: 'long' }), mon = now.toLocaleDateString('en-US', { month: 'long' });
     /* the featured post's first lines: the Blog list's clean excerpt when it has this post */
-    var feat0 = HOME.recent && HOME.recent[0], tlx = feat0 && (HOME.tl || []).filter(function (t) { return t.u === feat0.u; })[0];
-    if (feat0 && tlx && tlx.x && !(tlx.wl && tlx.wl.it)) feat0.x = tlx.x;
+    /* Nov 24 (Toby): the next two posts get their first lines too (laptops show one line) */
+    (HOME.recent || []).slice(0, 3).forEach(function (r) {
+      var tlx = (HOME.tl || []).filter(function (t) { return t.u === r.u; })[0];
+      if (tlx && tlx.x && !(tlx.wl && tlx.wl.it)) r.x = tlx.x;
+    });
     var rows = (HOME.recent || []).map(function (r, i) {
       /* Nov 5 (v64, Toby): the newest post is featured, its title bigger
          than the rest on every screen; the desktop adds its first lines */
       return '<a class="hh-row' + (i ? '' : ' feat') + '" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
-        '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div>' + (!i && r.x ? '<div class="x">' + esc(r.x) + '</div>' : '') + '</div></a>';
+        '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div>' + (i < 3 && r.x ? '<div class="x">' + esc(r.x) + '</div>' : '') + '</div></a>';
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
     var photo = p.src

@@ -1455,6 +1455,11 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
   #hutch-home .hh-posts .hh-row .d{font-size:12.5px;margin-top:4px}
   #hutch-home .hh-posts .hh-row.feat{font-size:20px;align-items:flex-start;padding:4px 0 14px}
   #hutch-home .hh-posts .hh-row.feat .t.t{font-size:1.1em}
+  /* Nov 24 (Toby): the second and third posts show their first line too;
+     a little less padding, so the row stays about the same height */
+  #hutch-home .hh-posts .hh-row:not(.feat){padding:6px 0}
+  #hutch-home .hh-posts .hh-row:not(.feat) .d{margin-top:2px}
+  #hutch-home .hh-posts .hh-row:not(.feat) .x{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font:400 14.5px/1.4 var(--h-ui);color:#4A5468;margin-top:3px}
   #hutch-home .hh-posts .hh-row.feat .d{font-size:13px;margin-top:6px}
   #hutch-home .hh-posts .hh-row.feat img{width:104px;height:104px;border-radius:20px;order:2}
   #hutch-home .hh-posts .hh-row.feat .x{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 16px/1.45 var(--h-ui);color:#4A5468;margin-top:6px}

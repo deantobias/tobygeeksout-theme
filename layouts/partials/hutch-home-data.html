@@ -36,7 +36,8 @@
        (partials/rg-title.html), so a Watch Log reads "Watch Log · Week of
        Nov 9" here too instead of a bare date */}}
   {{- $rg := partial "rg-title.html" . -}}
-  {{- $x := "" -}}{{- if eq (len $recent) 0 -}}{{- if $rg.s -}}{{- $x = $rg.s -}}{{- else -}}{{- $x = partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 220 | htmlUnescape -}}{{- end -}}{{- end -}}
+  {{/* Nov 24 (Toby): the next two get their first lines too (one line on laptops) */}}
+  {{- $x := "" -}}{{- if lt (len $recent) 3 -}}{{- if $rg.s -}}{{- $x = $rg.s -}}{{- else -}}{{- $x = partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate (cond (eq (len $recent) 0) 220 160) | htmlUnescape -}}{{- end -}}{{- end -}}
   {{- $recent = $recent | append (dict "t" $rg.t "u" .RelPermalink "d" (.Date.Format "Jan 2") "img" $thumb "x" (trim $x " ")) -}}
 {{- end -}}
 

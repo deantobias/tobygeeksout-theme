@@ -45,7 +45,9 @@
 
     var q = '', sort = 'new', sel = 0, open = false;
     try { if (ctx.ls('hxw-sort') === 'az') sort = 'az'; } catch (e) {}
-    var mq = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
+    /* list beside the word: sideways screens 840px+, and big tablets held
+       upright (Nov 24, Toby: the iPad Pro upright has room for the list) */
+    var mq = window.matchMedia('(min-width: 840px) and (orientation: landscape), (min-width: 1000px) and (orientation: portrait)');
     function two() { return mq.matches; }
 
     de.classList.add('hxw-on');

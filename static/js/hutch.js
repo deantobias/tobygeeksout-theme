@@ -850,8 +850,9 @@
     if (!L.length && !n.na && !n.sp) return '';
     var hand = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.7 0-4.2-1.4-5.5-3.6L3.8 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/></svg>';
     return '<div class="hh-win"><span class="lbl">Also inside</span><span class="ch">' +
-      (n.na ? '<span class="hi">' + hand + (n.na > 1 ? n.na + ' ASL signs' : 'ASL sign') + '</span>' : '') +
-      L.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') + (n.sp ? '<span>Spotted in</span>' : '') +
+      /* the full word's order (Nov 24, Toby); the ASL pill never folds into "+N" */
+      L.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') +
+      (n.na ? '<span class="hi">' + hand + (n.na > 1 ? n.na + ' ASL signs' : 'ASL sign') + '</span>' : '') + (n.sp ? '<span>Spotted in</span>' : '') +
       '<span class="pl" hidden></span></span></div>';
   }
   function archPick(n) {
@@ -1564,7 +1565,7 @@
     }
     /* Nov 24 (Toby): "Also inside" comes back where it fits without making
        any card taller or cutting anything off; pills that would wrap to a
-       second row become "+N" (the ASL pill, first, always stays) */
+       second row become "+N" (the ASL pill always stays) */
     var wi = wc && wc.querySelector('.hh-win');
     if (wi) {
       var wb = [getComputedStyle(a).gridTemplateRows, a.getBoundingClientRect().height];

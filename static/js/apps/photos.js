@@ -56,7 +56,10 @@
     }
     function readMore(p) { return '<a class="hxp-read" href="' + esc(p.u) + '">View the post<span class="hxp-sr"> about ' + esc(p.l) + '</span>' + ic('open') + '</a>'; }
 
-    function mode() { var w = innerWidth, h = innerHeight; return w >= 800 && w > h ? 'land' : (w >= 520 ? 'port' : 'phone'); }
+    /* Nov 24 (Toby, mockup v210): a screen 1000px wide or more (the big
+       iPad Pro held upright) gets the sideways layout too: words beside the
+       newest photo, six across in More photos */
+    function mode() { var w = innerWidth, h = innerHeight; return w >= 800 && w > h || w >= 1000 ? 'land' : (w >= 520 ? 'port' : 'phone'); }
     var M = mode();
 
     /* ---------- home: profile + grid ---------- */

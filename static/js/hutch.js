@@ -609,7 +609,7 @@
       var keys = Object.keys(APPS).filter(function (k) { return !NOHOME[k]; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (DK10.indexOf(k) > -1 ? ' data-k10' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (DK10.indexOf(k) > -1 ? ' data-k10' : '') + (TQUAD.indexOf(k) > -1 ? ' data-k5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();
@@ -1026,22 +1026,12 @@
         '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div>' + (i < 3 && r.x ? '<div class="x">' + esc(r.x) + '</div>' : '') + '</div></a>';
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
-    /* iPad mini sideways (Nov 24, Toby, mockup v209): the photo card shows the
-       three newest photos, one big and two small, each with its date. Only
-       that layout shows it (hutch.css); lazy, so other screens never load it. */
-    function pgal() {
-      var g = ((HOME && HOME.photos) || []).slice(0, 3);
-      if (g.length < 2) return '';
-      return '<span class="pg n' + g.length + '" aria-hidden="true">' + g.map(function (x) {
-        return '<span><img src="' + esc(hsz(x.src, 600)) + '" alt="" loading="lazy" decoding="async"><small>' + esc(x.d) + '</small></span>';
-      }).join('') + '</span>';
-    }
     var photo = p.src
       /* the photo is never stretched: it fills its box by cropping, and a
          photo much taller (or wider) than its box shows whole instead, on
          a soft blurred copy of itself (Nov 3, Toby) */
       ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img class="bg" src="' + esc(hsz(p.src, 400)) + '" alt="" aria-hidden="true" decoding="async"><img class="main" src="' + esc(hsz(p.src, 1200)) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
-        '<div class="cap"><small>' + esc(p.d) + '</small><b>' + esc(p.t || 'Latest photo') + '</b></div>' + pgal() + '</a>'
+        '<div class="cap"><small>' + esc(p.d) + '</small><b>' + esc(p.t || 'Latest photo') + '</b></div></a>'
       : '<a class="hh-wg hh-photo" href="/photo/"><span class="ph"></span><div class="cap"><small>Photos</small><b>Open Photos</b></div></a>';
     var word = w.w
       /* one tap: the whole widget opens Word Nerd, where the latest word's
@@ -1206,10 +1196,15 @@
      gets the layout where no name ever has to shrink). */
   var DKFULL = false;
   function dkFive() {
-    var five = DKMQ.matches && innerWidth < 1200;
+    var five = DKMQ.matches && innerWidth < 1200,
+      /* Nov 24 (Toby, mockup v212): the iPad mini sideways (700px tall or
+         less) keeps one row of five by the date; the next five join All apps */
+      fs = five && innerHeight <= 700;
     homeEl.classList.toggle('dk5', five);
-    homeEl.classList.toggle('dk-full', DKFULL && (!five || DKAPPS.length <= DK10.length));
+    homeEl.classList.toggle('dk5s', fs);
+    homeEl.classList.toggle('dk-full', DKFULL && (!five || DKAPPS.length <= (fs ? TQUAD.length : DK10.length)));
     de.classList.toggle('hutch-dk5', five);
+    de.classList.toggle('hutch-dk5s', fs);
   }
   function labelFit() {
     if (!homeEl) return;

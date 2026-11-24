@@ -1731,7 +1731,10 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
    screen fills down to the dock and Word Nerd doesn't look empty. Currently
    keeps its two items side by side, like sideways. */
 @media (min-width:1100px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto repeat(3,minmax(0,1fr));align-content:stretch;row-gap:14px;max-width:none}
+  /* Nov 24 (Toby): no row too tall. Currently and Word Nerd's row gets
+     about 70% of a share, the photo row 85%; the cards stop above the
+     mountains, so the rabbit shows by the dock */
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto minmax(0,1fr) minmax(0,.6fr) minmax(0,.85fr);align-content:stretch;row-gap:14px;max-width:none;margin-bottom:var(--bunroom,64px)}
   #hutch-home:not(.nonow) .hh-photo,#hutch-home:not(.nonow) .hh-word{max-height:none}
   /* Recent posts: more posts when the card has room (hutch.js adds them one at a time) */
   #hutch-home:not(.nonow) .hh-posts .hh-row.on{display:flex}
@@ -1766,11 +1769,14 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home:not(.nonow) .hh-now{padding:16px 18px;display:flex;flex-direction:column}
   #hutch-home:not(.nonow) .hh-now .hh-ntwo{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
   #hutch-home:not(.nonow) .hh-now .hh-ntwo.one{grid-template-columns:1fr}
-  #hutch-home:not(.nonow) .hh-now .hh-nitem{display:flex;flex-direction:column;gap:12px;align-items:flex-start;background:#F6F1EB;border-radius:16px;padding:14px;color:inherit}
-  #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:84px;height:124px;border-radius:10px;object-fit:cover;flex:none;box-shadow:0 3px 10px rgba(15,23,38,.2)}
-  #hutch-home:not(.nonow) .hh-now .hh-nitem .tx{min-width:0;width:100%;flex:1;display:flex;flex-direction:column;gap:3px;align-self:stretch}
+  /* Nov 24 (Toby): cover on the left, words beside it, like sideways, so
+     the row isn't tall; the title may take 3 lines, so it shows whole */
+  #hutch-home:not(.nonow) .hh-now .hh-nitem{display:flex;flex-direction:row;gap:12px;align-items:center;background:#F6F1EB;border-radius:16px;padding:12px;color:inherit}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:72px;height:106px;border-radius:10px;object-fit:cover;flex:none;box-shadow:0 3px 10px rgba(15,23,38,.2)}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem .tx{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;align-self:center}
   #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:11px}
-  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font:700 17px/1.25 var(--h-ui);-webkit-line-clamp:2}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font:700 16px/1.25 var(--h-ui);-webkit-line-clamp:3}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem em{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:14px}
   #hutch-home:not(.nonow) .hh-now .hh-nitem .bar{margin-top:10px}
   /* Word Nerd: bigger word and meanings, with the example */
@@ -2079,6 +2085,6 @@ html .hh-brand .face{background:#C4622D}
 #hutch-home .hh-word .hh-win.line .lbl{display:inline;margin:0 8px 0 0}
 #hutch-home .hh-word .hh-win.line .ch{display:inline}
 #hutch-home .hh-word .hh-win.line .ch>span{display:inline;padding:0;border:0;background:none;font:inherit;color:inherit}
-#hutch-home .hh-word .hh-win.line .ch>span:not(:last-of-type):not([hidden])::after{content:" · "}
+#hutch-home .hh-word .hh-win.line .ch>span:not(.pl)+span:not(.pl)::before{content:" · "}
 #hutch-home .hh-word .hh-win.line svg{display:none}
 @media (max-width:599px){#hutch-home .hh-word .hh-win{display:none !important}}

@@ -877,7 +877,9 @@
          three still fit */
       rows.slice(0, want).forEach(function (r) {
         var c = r.classList.contains('mi') ? (l.classList.contains('t3') ? 'm2' : '') : (r.querySelector('em') ? 'ex' : '');
-        if (!c) return; r.classList.add(c); if (lay() < want) r.classList.remove(c);
+        /* (Nov 24 fix: lay out again after taking it back, or the row that
+           didn't fit stayed hidden and only two showed) */
+        if (!c) return; r.classList.add(c); if (lay() < want) { r.classList.remove(c); lay(); }
       });
     }
   }

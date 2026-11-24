@@ -1668,6 +1668,17 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
    weight, up to 3 lines (2 when the list is tight) (Nov 9, Toby) */
 #hutch-home .hh-area .hh-arow.mi b{font-weight:500;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 #hutch-home .hh-area .hh-alist.tight .hh-arow.mi b{-webkit-line-clamp:2}
+/* Nov 24 (Toby: "keep it three, consistent"): when long titles leave room
+   for only two picks, the list steps down until three fit: t2 = smaller
+   picture, no note line, titles up to 2 lines; t3 = titles on one line
+   with "…". It stops at the first step where three fit (hutch.js archFit) */
+#hutch-home .hh-area .hh-alist.t2 .hh-arow{padding:7px 0;gap:12px}
+#hutch-home .hh-area .hh-alist.t2 .hh-arow:first-child{padding-top:2px}
+#hutch-home .hh-area .hh-alist.t2 .hh-arow img{width:48px;height:48px;border-radius:12px}
+#hutch-home .hh-area .hh-alist.t2 .hh-arow em{display:none}
+#hutch-home .hh-area .hh-alist.t2 .hh-arow b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#hutch-home .hh-area .hh-alist.t3 .hh-arow img{width:44px;height:44px}
+#hutch-home .hh-area .hh-alist.t3 .hh-arow b,#hutch-home .hh-area .hh-alist.t3 .hh-arow.mi b{-webkit-line-clamp:1}
 #hutch-home .hh-area .hh-now .hh-nitem.ctr{align-items:center}
 #hutch-home .hh-area .hh-now .hh-nitem.ctr .tx{align-self:center}
 #hutch-home .hh-area .hh-now .hh-nitem.ctrc{justify-content:center}

@@ -861,10 +861,17 @@
       return n;
     }
     /* a smaller picture and a one-line note, when that makes room for one more */
-    l.classList.remove('tight');
-    var roomy = lay();
+    l.classList.remove('tight', 't2', 't3');
+    var roomy = lay(), want = Math.min(3, rows.length);
     l.classList.add('tight');
     if (lay() <= roomy) { l.classList.remove('tight'); lay(); }
+    /* Nov 24 (Toby: "keep it three, consistent"): still fewer than three
+       (long titles)? Step down until three fit: t2 (smaller picture, no
+       note, titles up to 2 lines), then t3 (titles on one line) */
+    if (Math.max(roomy, lay()) < want) {
+      l.classList.add('tight');
+      ['t2', 't3'].some(function (c) { l.classList.add(c); return lay() >= want; });
+    }
   }
   /* ---------- Currently: skip shows he has finished (Nov 3) ----------
      Toby: American Horror Story showed as Watching after he finished it.

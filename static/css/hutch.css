@@ -1710,9 +1710,10 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
    archive read a little smaller, and a Latest photos card like the
    desktop's runs under them, six photos across in the desktop's shape. */
 #hutch-home.dk5s .hh-dk2{display:none}
+.hh-nitem .sn{display:none}
 html.hutch-dk5s #hutch-drawer:not(.q) [data-dk]:not([data-k5]){display:revert !important}
 @media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-area{grid-template-areas:"hello posts arch" "now posts arch" "word strip strip";grid-template-rows:auto minmax(0,1fr) 180px;align-content:stretch;row-gap:12px}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-area{grid-template-areas:"hello posts arch" "now posts arch" "word strip strip";grid-template-rows:auto minmax(0,1fr) 184px;align-content:stretch;row-gap:12px}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-hello .hh-tx{flex:none}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-hello .hh-s{font-size:30px}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-dkapps{margin-top:8px}
@@ -1733,6 +1734,8 @@ html.hutch-dk5s #hutch-drawer:not(.q) [data-dk]:not([data-k5]){display:revert !i
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem small{font-size:12px;letter-spacing:.06em}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem b{font-size:13.5px;line-height:1.2;-webkit-line-clamp:2;white-space:normal}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem i,#hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem em{font-size:12px;line-height:1.25;white-space:normal;overflow:visible}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem .sn{display:inline}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem .epn,#hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-nitem .tx:has(.sn) > i{display:none}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-row.feat .t.t{font-size:18px;line-height:1.2}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-row .t{font-size:15px;line-height:1.25}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-row .x{font-size:14px;line-height:1.4}
@@ -2118,6 +2121,12 @@ html .hh-brand .face{background:#C4622D}
 #hutch-home .hh-word .hh-win .ch>span[hidden]{display:none}
 #hutch-home .hh-word .hh-win .ch>span.hi{background:#F6E2D6;border-color:transparent}
 #hutch-home .hh-word .hh-win svg{width:14px;height:14px;color:#984A20}
+/* where the label over the pills is too tall, the label sits beside them
+   (hutch.js, Nov 24); pills that don't fit fold into "+N more" (Toby) */
+#hutch-home .hh-word .hh-win.side{display:flex;align-items:center;gap:8px;margin-top:8px}
+#hutch-home .hh-word .hh-win.side .lbl{margin:0;flex:none}
+#hutch-home .hh-word .hh-win.side .ch{flex:1;min-width:0}
+#hutch-home .hh-word .hh-win .pl::after{content:" more"}
 #hutch-home .hh-word .hh-win.line{margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 13px/1.4 var(--h-ui);color:#4B515B}
 #hutch-home .hh-word .hh-win.line .lbl{display:inline;margin:0 8px 0 0}
 #hutch-home .hh-word .hh-win.line .ch{display:inline}

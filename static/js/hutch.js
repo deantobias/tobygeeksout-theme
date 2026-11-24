@@ -975,10 +975,12 @@
     var w = nowWatch(traktRated(), N);
     if (w || r) {
       var den = APPS.den[2] || '/watching/', item = function (x, kind) {
-        var meta = '', by = '', pct = -1, pc = '';
+        var meta = '', by = '', pct = -1, pc = '', sn = '', epn = '';
         if (kind === 'w') {
           by = x.kind === 'TV' ? (x.season ? 'Season ' + x.season : 'TV') : (x.y || 'Movie');
-          if (x.ep) { meta = 'Episode ' + x.ep + (x.eps ? ' of ' + x.eps : '') + (x.epn ? ' · ' + x.epn : ''); if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
+          /* Nov 24 (Toby): the iPad mini sideways shows "Season 1 · Episode 4"
+             on one line and leaves out the episode's name (hutch.css, .sn / .epn) */
+          if (x.ep) { meta = 'Episode\u00a0' + x.ep + (x.eps ? ' of ' + x.eps : ''); epn = x.epn || ''; if (x.season) sn = 'Season\u00a0' + x.season + ' · '; if (x.eps) pct = Math.round(x.ep / x.eps * 100); }
           else meta = x.d ? 'Since ' + x.d : '';
         } else {
           by = x.who ? 'by ' + x.who : '';
@@ -987,7 +989,7 @@
         }
         /* Nov 12 (Toby): a tap opens this title's own screen in the Den, not the Den's first screen */
         return '<a class="hh-nitem" href="' + esc(den + '#open=' + kind + '-' + encodeURIComponent(x.n || tnorm(x.t))) + '">' + (x.cover ? '<img src="' + esc(x.cover) + '" alt="" loading="lazy" decoding="async">' : '<span class="cv"></span>') +
-          '<span class="tx"><small>' + (kind === 'w' ? 'Watching' : 'Reading') + '</small><b>' + esc(x.t) + '</b>' + (by ? '<i>' + esc(by) + '</i>' : '') + (meta ? '<em>' + esc(meta) + '</em>' : '') +
+          '<span class="tx"><small>' + (kind === 'w' ? 'Watching' : 'Reading') + '</small><b>' + esc(x.t) + '</b>' + (by ? '<i>' + esc(by) + '</i>' : '') + (meta ? '<em>' + (sn ? '<span class="sn">' + esc(sn) + '</span>' : '') + esc(meta) + (epn ? '<span class="epn"> · ' + esc(epn) + '</span>' : '') + '</em>' : '') +
           (pct >= 0 ? (pc ? '<span class="brow">' : '') + '<span class="bar"><i style="width:' + Math.max(3, Math.min(100, pct)) + '%"></i></span>' + (pc ? '<span class="pc">' + pc + '</span></span>' : '') : '') + '</span></a>';
       };
       out += '<section class="hh-wg hh-now" aria-label="Currently"><div class="hh-wtag">Currently<a href="' + esc(den) + '">Den ›</a></div><div class="hh-ntwo' + (w && r ? '' : ' one') + '">' +
@@ -1576,21 +1578,37 @@
       var wb = [getComputedStyle(a).gridTemplateRows, a.getBoundingClientRect().height];
       homeEl.classList.remove('nowin');
       var pills = [].slice.call(wi.querySelectorAll('.ch > span:not(.pl)')), pl = wi.querySelector('.ch > .pl'), hid = 0;
-      pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
-      var row1 = function () { var t0 = pills[0].offsetTop; return ![].some.call(wi.querySelectorAll('.ch > span:not([hidden])'), function (p) { return p.offsetTop > t0 + 2; }); };
-      for (var pk = pills.length - 1; pk > 0 && !row1(); pk--) {
-        if (pills[pk].classList.contains('hi')) continue;
-        pills[pk].hidden = true; hid++; pl.hidden = false; pl.textContent = '+' + hid;
-      }
+      var row1 = function () { var t0 = wi.querySelector('.ch > span:not([hidden])').offsetTop; return ![].some.call(wi.querySelectorAll('.ch > span:not([hidden])'), function (p) { return p.offsetTop > t0 + 2; }); };
       var wok = function () {
         var wpb0 = parseFloat(getComputedStyle(wc).paddingBottom) || 0, wcr0 = wc.getBoundingClientRect(), abr0 = a.getBoundingClientRect();
         var wcut = [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > abr0.bottom + 1; });
         return !wcut && getComputedStyle(a).gridTemplateRows === wb[0] && Math.abs(abr0.height - wb[1]) <= 1 && wi.getBoundingClientRect().bottom <= wcr0.bottom - wpb0 / 2 + 1;
       };
-      wi.classList.remove('line');
-      if (!(row1() && wok())) {
+      var fold = function (p) { p.hidden = true; hid++; pl.hidden = false; pl.textContent = '+' + hid; };
+      var tryPills = function () {
+        pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true; hid = 0;
+        for (var pk = pills.length - 1; pk > 0 && !row1(); pk--) { if (!pills[pk].classList.contains('hi')) fold(pills[pk]); }
+        /* Nov 24 (Toby): the first pill may fold into "+N more" too, as
+           long as the ASL pill is still there to show */
+        if (!row1() && pills[0] && !pills[0].classList.contains('hi') && wi.querySelector('.ch > span.hi:not([hidden])')) fold(pills[0]);
+        return row1() && wok();
+      };
+      wi.classList.remove('line', 'side');
+      /* the label over the pills; if that's too tall, the label beside them
+         (Nov 24, Toby: laptops and the iPad mini sideways had lost the pills
+         and the ASL icon to the one-line fallback). Still too tall: the
+         pills win over a second or third meaning in the list (the "More
+         meanings" pill says there are more) */
+      var both = function () { wi.classList.remove('side'); if (tryPills()) return true; wi.classList.add('side'); if (tryPills()) return true; wi.classList.remove('side'); return false; };
+      var ok2 = both();
+      if (!ok2) {
+        var lis = [].slice.call(wc.querySelectorAll('.defs li')).filter(function (li) { return li.offsetParent; }), cut2 = [];
+        for (var li2 = lis.length - 1; li2 > 0 && !ok2; li2--) { lis[li2].style.display = 'none'; cut2.push(lis[li2]); ok2 = both(); }
+        if (!ok2) cut2.forEach(function (li) { li.style.display = ''; });
+      }
+      if (!ok2) {
         /* no room for pills: one line of words instead ("Also inside
-           Cousins · Roots · ASL sign", cut with … if long), as on laptops */
+           Cousins · Roots · ASL sign", cut with … if long) */
         wi.classList.add('line'); pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
         if (!wok()) { wi.classList.remove('line'); homeEl.classList.add('nowin'); }
       }

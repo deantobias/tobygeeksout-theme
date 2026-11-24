@@ -835,6 +835,11 @@
     var y = Math.floor(m / 12); return y + (y === 1 ? ' year ago' : ' years ago');
   }
   var ARCH = (HOME && HOME.arch) || [], archAt = 0, archOrder = null;
+  /* Nov 24 (Toby: iPad Safari reloaded the home page, "a problem
+     occurred"): photos came in at full size (1800 x 2400) to show 122 x 85,
+     about 130 MB once decoded, more than iPad Safari allows a tab. Micro.blog's
+     resizer gives a copy about the size shown (twice that, for sharp screens). */
+  function hsz(u, w) { return /cdn\.uploads\.micro\.blog/.test(u || '') ? 'https://cdn.micro.blog/photos/' + w + 'x/' + encodeURIComponent(u) : u; }
   function archPick(n) {
     if (!archOrder) { archOrder = ARCH.map(function (x, i) { return i; }); for (var i = archOrder.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = archOrder[i]; archOrder[i] = archOrder[j]; archOrder[j] = t; } }
     var out = []; for (var k = 0; k < n && ARCH.length; k++) { out.push(ARCH[archOrder[archAt % archOrder.length]]); archAt++; }
@@ -843,9 +848,9 @@
   function archRows(n) {
     return archPick(n).map(function (x) {
       /* a micro (Nov 9): its own words where the title goes, then the date */
-      if (x.mi) return '<a class="hh-arow mi" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') +
+      if (x.mi) return '<a class="hh-arow mi" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(hsz(x.img, 200)) + '" alt="" loading="lazy" decoding="async">' : '') +
         '<span class="tx"><b>' + esc(x.x) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small></span></a>';
-      return '<a class="hh-arow" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async">' : '') +
+      return '<a class="hh-arow" href="' + esc(x.u) + '">' + (x.img ? '<img src="' + esc(hsz(x.img, 200)) + '" alt="" loading="lazy" decoding="async">' : '') +
         '<span class="tx"><b>' + esc(x.t) + '</b><small>' + esc(x.m) + ' · ' + esc(agoText(x.iso)) + '</small>' + (x.x ? '<em>' + esc(x.x) + '</em>' : '') + '</span></a>';
     }).join('');
   }
@@ -986,7 +991,7 @@
       cats.map(function (c) { return '<a href="' + esc(c.u) + '">' + esc(c.n) + '<span>' + c.c + '</span></a>'; }).join('') + '</div></section>';
     var ph = (HOME && HOME.photos) || [];
     if (ph.length > 2) out += '<section class="hh-wg hh-strip" aria-label="Latest photos"><div class="hh-wtag">Latest photos<a href="' + esc(APPS.photos[2]) + '">Photos ›</a></div><div class="hh-thumbs">' +
-      ph.slice(0, 10).map(function (p) { return '<a href="/photo/#post=' + encodeURIComponent(p.u) + '" aria-label="' + esc(p.t || 'Photo') + '"><img src="' + esc(p.src) + '" alt="" loading="lazy" decoding="async"><small>' + esc(p.d) + '</small></a>'; }).join('') + '</div></section>';
+      ph.slice(0, 10).map(function (p) { return '<a href="/photo/#post=' + encodeURIComponent(p.u) + '" aria-label="' + esc(p.t || 'Photo') + '"><img src="' + esc(hsz(p.src, 600)) + '" alt="" loading="lazy" decoding="async"><small>' + esc(p.d) + '</small></a>'; }).join('') + '</div></section>';
     return out;
   }
 
@@ -1002,7 +1007,7 @@
     var rows = (HOME.recent || []).map(function (r, i) {
       /* Nov 5 (v64, Toby): the newest post is featured, its title bigger
          than the rest on every screen; the desktop adds its first lines */
-      return '<a class="hh-row' + (i ? '' : ' feat') + '" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
+      return '<a class="hh-row' + (i ? '' : ' feat') + '" href="' + esc(r.u) + '">' + (r.img ? '<img src="' + esc(hsz(r.img, i ? 200 : 400)) + '" alt="" loading="' + (i < 3 ? 'eager' : 'lazy') + '" decoding="async">' : '') +
         '<div><div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div>' + (i < 3 && r.x ? '<div class="x">' + esc(r.x) + '</div>' : '') + '</div></a>';
     }).join('') || '<div class="hh-empty">No posts yet.</div>';
     var p = HOME.photo || {}, w = HOME.word || {};
@@ -1010,7 +1015,7 @@
       /* the photo is never stretched: it fills its box by cropping, and a
          photo much taller (or wider) than its box shows whole instead, on
          a soft blurred copy of itself (Nov 3, Toby) */
-      ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img class="bg" src="' + esc(p.src) + '" alt="" aria-hidden="true" decoding="async"><img class="main" src="' + esc(p.src) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
+      ? '<a class="hh-wg hh-photo" href="/photo/#post=' + encodeURIComponent(p.u || '') + '" aria-label="Photos: ' + esc(p.t || 'latest photo') + '"><img class="bg" src="' + esc(hsz(p.src, 400)) + '" alt="" aria-hidden="true" decoding="async"><img class="main" src="' + esc(hsz(p.src, 1200)) + '" alt="" decoding="async">' + (p.n > 1 ? '<span class="n">+' + (p.n - 1) + '</span>' : '') +
         '<div class="cap"><small>' + esc(p.d) + '</small><b>' + esc(p.t || 'Latest photo') + '</b></div></a>'
       : '<a class="hh-wg hh-photo" href="/photo/"><span class="ph"></span><div class="cap"><small>Photos</small><b>Open Photos</b></div></a>';
     var word = w.w
@@ -2055,7 +2060,7 @@
         var extra = j === 2 && n > 3 ? '<em>+' + (n - 3) + '</em>' : '';
         /* Nov 14 (Toby, v146): one photo shows whole; a tall one sits in a
            square (640px high at most) with a soft blur of itself in the gaps */
-        return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '">' + (j === 0 ? '<span class="hbl-big" aria-hidden="true">' + sv('big', 2.2) + '</span>' : '') + '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
+        return '<button type="button" class="hbl-pc" data-pi="' + j + '" aria-label="Photo ' + (j + 1) + ' of ' + n + '">' + (j === 0 ? '<span class="hbl-big" aria-hidden="true">' + sv('big', 2.2) + '</span>' : '') + '<img src="' + esc(hsz(u, im.length === 1 ? 1200 : 700)) + '" alt="" loading="lazy" decoding="async">' + extra + '</button>';
       }).join('') + '</div>';
     }
     function inside(x) {
@@ -2178,7 +2183,7 @@
         (x.x ? '<p' + (mi ? ' class="mx"' : x.sh ? ' class="mx fold"' : '') + '>' + esc(x.x) + '</p>' : '') +
         (x.sh ? '<button type="button" class="hbl-rm">Show more</button>' : '') +
         (mi && x.xf ? '<button type="button" class="hbl-rm">Show more</button>' : '')) + '</div>' +
-        (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
+        (x.imgs && x.imgs.length ? pics(x) : x.img ? '<div class="hbl-pics one"><span class="hbl-pc"><img src="' + esc(hsz(x.img, 1200)) + '" alt="" loading="lazy" decoding="async"></span></div>' : '') +
         archActs(x) + '</article>';
     }
     /* Nov 22 (Toby): the same Reply rule as the feed. A titled archive post

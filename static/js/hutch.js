@@ -2001,7 +2001,9 @@
                     : (is70 ? upl + 'toby-geeks-out-newest-v2-logo-1500-x-600-px.png' : upl + 'tobygeeksoutlogonew.png');
     var logoImg = '<img class="hbl-logo" src="' + LOGO + '" alt="' + esc(PAGE.site || 'Toby Geeks Out!') + '" width="1500" height="600" decoding="async">';
     var tg = (window.tgoTaglines && window.tgoTaglines[0]) || '';
-    var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures']];
+    /* Nov 24 (Toby, v214): Reel and Remote, his movie and TV posts; the
+       tabs on phones say "Reel & Remote" (the fourth item) */
+    var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures'], ['reel', 'Reel and Remote', 'movies and TV', 'Reel &amp; Remote']];
     var I = {
       more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
       reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
@@ -2038,7 +2040,7 @@
         '<div class="hbl-head"><div class="hbl-row"><a class="hbl-me1" href="' + esc(aboutU) + '" aria-label="About me">' + (av ? '<img class="hbl-av" src="' + esc(av) + '" alt="">' : '') + '</a>' +
           '<div class="hbl-who">' + logoImg + '<p class="hbl-tg tgo-tagline-cycle" aria-live="polite">' + esc(tg) + '</p></div>' +
           '<a class="hbl-lnk" href="' + esc(aboutU) + '">About me' + sv('chev', 2.4) + '</a></div></div>' +
-        '<div class="hbl-tabs" role="tablist" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" role="tab" data-f="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+        '<div class="hbl-tabs" role="tablist" aria-label="Show">' + TABS.map(function (t) { return '<button type="button" role="tab" data-f="' + t[0] + '">' + (t[3] || t[1]) + '</button>'; }).join('') + '</div>' +
         '<div class="hbl-filt" hidden><span>Showing: <b></b></span><button type="button" class="hbl-fx" aria-label="Show everything again" title="Show everything again">' + sv('x', 2.2) + '</button></div>' +
         '<div class="hbl-tl"></div></div>' +
       '<div class="hbl-right"><div class="hbl-pbar"><button type="button" class="hbl-pback">' + ic('back') + '<span>Back to the feed</span></button>' +
@@ -2271,7 +2273,7 @@
          movie poster uploaded into a Reel and Remote post had slipped into
          Photos) */
       var inCat = function (re) { return (x.cs || [x.c]).some(function (c) { return re.test(c || ''); }); };
-      return tab === 'all' || (tab === 'posts' ? !!x.t : tab === 'micro' ? inCat(/^micro$/i) : inCat(/^photos$/i));
+      return tab === 'all' || (tab === 'posts' ? !!x.t : tab === 'micro' ? inCat(/^micro$/i) : tab === 'reel' ? inCat(/^reel and remote$/i) : inCat(/^photos$/i));
     }
     function shown() { return TL.filter(match); }
     /* Nov 15 (Toby, the Knowember micro): the fade showed on a micro that

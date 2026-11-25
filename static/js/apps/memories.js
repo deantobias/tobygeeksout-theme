@@ -194,7 +194,7 @@
       var im = page.querySelector('.hxm-car img'), sheet = page.querySelector('.hxm-sheet');
       if (!sheet || page.hidden) return;
       /* side by side: wide screens, and phones held sideways */
-      var wide = innerWidth >= 900 || (innerWidth > innerHeight && innerWidth >= 560 && innerHeight <= 520);
+      var wide = innerWidth > innerHeight && (innerWidth >= 900 || (innerWidth >= 560 && innerHeight <= 520));
       var px = function (el, a, b) { var c = getComputedStyle(el); return (parseFloat(c[a]) || 0) + (parseFloat(c[b]) || 0); };
       var bar = parseFloat(getComputedStyle(root).paddingTop) || 0;
       var pgh = innerHeight - bar, inner = pgh - px(page, 'paddingTop', 'paddingBottom') - px(sheet, 'paddingTop', 'paddingBottom');
@@ -213,6 +213,9 @@
       var nw = im.naturalWidth, nh = im.naturalHeight;
       /* several photos share one frame as wide as the first photo at that height */
       page.style.setProperty('--phw', (nw && nh ? Math.min(cw, Math.round(h * nw / nh)) : cw) + 16 + 'px');
+      /* side by side: the words are never taller than the photo, so the page
+         is the same height on every memory (a long post scrolls) */
+      if (wide) page.style.setProperty('--wmax', Math.min(inner, pp.offsetHeight) + 'px');
       /* a long post: a soft fade shows the words keep going */
       var wd = page.querySelector('.hxm-wd');
       if (wd) requestAnimationFrame(function () { wd.classList.toggle('scrolls', wd.scrollHeight > wd.clientHeight + 2); });

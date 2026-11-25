@@ -80,6 +80,12 @@
      with or without a title; an untitled one borrows its first line as
      the title ("Watch Log · Week of Nov 9") - see partials/rg-title.html.
      "Watch Log" came off the title list below for the same reason. */}}
+{{/* Nov 25, 2026 (Toby): On This Day posts are out of this pool too
+     (so out of Recent Geekouts AND From the archive). They have their
+     own "On This Day" section further down and the Memories page.
+     Found by the "On This Day" category, or a title starting with
+     "On This Day" for any post missing the category. They keep the
+     Photos category; nothing about the posts changes. */}}
 {{ $excluded := slice "Movie Reviews" "TV Reviews" "Book Reviews" "Micro" "Bookshelf" "Currently Reading" "Word of the Day" }}
 {{ $recentPool := slice }}
 {{ range where .Site.Pages.ByDate.Reverse "Type" "post" }}
@@ -90,6 +96,7 @@
   {{ if not .Title }}{{ $skip = true }}{{ end }}
   {{ if findRE `(?i)^\W*(now watching|watchlist|currently reading)\b` .Title 1 }}{{ $skip = true }}{{ end }}
   {{ if in .Content "watch-log-head" }}{{ $skip = false }}{{ end }}
+  {{ if or (in (lower (delimit (.Params.categories | default (slice)) "|")) "on this day") (hasPrefix (trim .Title " ") "On This Day") }}{{ $skip = true }}{{ end }}
   {{ if not $skip }}{{ $recentPool = $recentPool | append . }}{{ end }}
 {{ end }}
 {{/* PINNED SPOTLIGHT (Sept 30, 2026, Toby picked "top of Recent
@@ -418,6 +425,40 @@
     })();
     </script>
   </section>
+  {{ end }}
+  {{/* ============================================================
+       ON THIS DAY (Nov 25, 2026, Toby, mockup v4, option 1A)
+       Its own section, right after From the archive: the newest
+       memory on lined paper as a taped polaroid, then the three
+       before it as small polaroids. "All memories" shows once a page
+       exists at /memories/ (the page that uses the memories
+       shortcode). List: partials/otd-items.html. Card:
+       partials/otd-card.html. Styles: custom.css section 133.
+       ============================================================ */}}
+  {{ $otdItems := partial "otd-items.html" . }}
+  {{ if gt (len $otdItems) 0 }}
+  <div class="otd-section">
+    <div class="feed-head">
+      <h2 class="feed-label">On This Day</h2>
+      {{ with site.GetPage "/memories" }}<a class="feed-more" href="{{ .RelPermalink }}">All memories →</a>{{ end }}
+    </div>
+    {{ partial "otd-card.html" (dict "item" (index $otdItems 0)) }}
+    {{ with first 3 (after 1 $otdItems) }}
+    <ul class="otd-week">
+      {{ range . }}
+      <li class="otd-week-item">
+        <a class="otd-week-link" href="{{ .u }}">
+          <span class="otd-pol otd-pol--sm"><img src="{{ .img | safeURL }}" alt="" loading="lazy" decoding="async"><span class="otd-pol-cap">{{ .taken }}</span></span>
+          <span class="otd-week-tx">
+            {{ if gt .y 0 }}<span class="otd-week-ago">{{ .y }} {{ cond (eq .y 1) "year" "years" }} ago</span>{{ end }}
+            <span class="otd-week-title">{{ .t }}</span>
+          </span>
+        </a>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+  </div>
   {{ end }}
   {{/* Sept 30, 2026 (Toby): moved up from the foot of the page to sit
        right after From the archive - browsing by topic belongs with

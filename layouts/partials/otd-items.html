@@ -1,0 +1,55 @@
+{{/* ON THIS DAY ITEMS (Nov 25, 2026, Toby). One list of every On This
+     Day post, newest first, shared by the home page section
+     (layouts/index.html) and the Memories page
+     (layouts/shortcodes/memories.html).
+
+     A post counts when it is in the "On This Day" category, or its
+     title starts with "On This Day" (for any post missing the
+     category). Posts with no uploaded photo are left out.
+
+     Each item:
+       t     the title without "On This Day: "
+       u     link to the post        iso   2026-11-25 (day it was posted)
+       y     how many years ago, read from "Took it 14 years ago today"
+             (0 when the post does not say)
+       taken "Nov 25, 2012" (posted day minus y years; no year when y is 0)
+       ty    2012 (0 when y is 0)
+       img   his first upload        alt   its alt text, cleaned up
+       ln    the check-in place, else the place in "... today in X."
+       x     the post's first lines
+       mk    "2026-11" (month it was posted)    mn   "November"
+     Same reading rules as the Hutch card in hutch-home-data.html. */}}
+{{- $items := slice -}}
+{{- range (where site.RegularPages "Type" "post").ByDate.Reverse -}}
+  {{- $title := trim .Title " \n\t" -}}
+  {{- if or (in (lower (delimit (.Params.categories | default (slice)) "|")) "on this day") (hasPrefix $title "On This Day") -}}
+    {{- $img := "" -}}{{- $alt := "" -}}
+    {{- range findRE `<img[^>]+>` .Content -}}
+      {{- $tag := . -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" $tag) -}}
+      {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) -}}
+        {{- $img = $u -}}
+        {{- with findRE `alt="[^"]*"` $tag 1 -}}{{- $alt = htmlUnescape (replaceRE `^alt="(.*)"$` "$1" (index . 0)) -}}{{- end -}}
+        {{- $alt = replaceRE `^Auto-generated description:\s*` "" $alt -}}
+        {{- if findRE `(?i)^[\w.\-]+\.(jpe?g|png|webp|gif|heic)$` $alt 1 -}}{{- $alt = "" -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $img -}}
+      {{- $t := trim (replaceRE `^On This Day\s*[:\-–—]?\s*` "" $title) " " -}}
+      {{- if not $t -}}{{- $t = .Date.Format "January 2" -}}{{- end -}}
+      {{- if not $alt -}}{{- $alt = $t -}}{{- end -}}
+      {{- $plain := trim (replaceRE `\s+` " " (.Plain | htmlUnescape)) " " -}}
+      {{- $y := 0 -}}
+      {{- with findRE `(?i)\b(\d{1,3})\s+years?\s+ago` $plain 1 -}}{{- $y = int (replaceRE `(?i)^(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
+      {{- $ty := 0 -}}
+      {{- $taken := .Date.Format "Jan 2" -}}
+      {{- if gt $y 0 -}}{{- $ty = sub .Date.Year $y -}}{{- $taken = printf "%s, %d" (.Date.Format "Jan 2") $ty -}}{{- end -}}
+      {{- $ln := "" -}}
+      {{- with .Params.location -}}{{- if reflect.IsMap . -}}{{- $ln = trim (string (.name | default "")) " '\"" -}}{{- end -}}{{- end -}}
+      {{- if not $ln -}}{{- with findRE `(?i)\bago today in ([^.!?]+)` $plain 1 -}}{{- $ln = trim (replaceRE `(?i)^ago today in ` "" (index . 0)) " ," -}}{{- end -}}{{- end -}}
+      {{- $x := partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 220 | htmlUnescape -}}
+      {{- $items = $items | append (dict "t" $t "u" .RelPermalink "iso" (.Date.Format "2006-01-02") "y" $y "taken" $taken "ty" $ty "img" $img "alt" $alt "ln" $ln "x" (trim $x " ") "mk" (.Date.Format "2006-01") "mn" (.Date.Format "January")) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $items -}}

@@ -20,6 +20,9 @@
      - A post whose text says "Credit:" is someone else's photo
        (the Orion nebula post, Mar 2026) and is left out.
      - A post with no uploaded photo (the Instagram embed) is left out.
+     - On This Day posts are left out (Nov 25, 2026); they are old
+       photos and belong to Memories, so the big photo is always a
+       new one.
      - Alt text that is only a filename ("4261.jpg") or starts with
        Micro.blog's "Auto-generated description:" is cleaned up;
        empty alt falls back to the post title or date.
@@ -34,7 +37,11 @@
 {{- $shots := slice -}}
 {{- range $posts.ByDate.Reverse -}}
   {{- $p := . -}}
-  {{- if not (in (lower $p.Content) "credit:") -}}
+  {{- /* Nov 25, 2026 (Toby): On This Day posts keep the Photos category
+         but stay off this page; they live on Memories. Matched by the
+         "On This Day" category, or the title for any post missing it. */ -}}
+  {{- $otd := or (in (lower (delimit ($p.Params.categories | default (slice)) "|")) "on this day") (hasPrefix (trim $p.Title " \n\t") "On This Day") -}}
+  {{- if and (not (in (lower $p.Content) "credit:")) (not $otd) -}}
     {{- $posters := slice -}}
     {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
@@ -120,6 +127,13 @@
       {{- end }}
     </ul>
   </section>
+  {{- end }}
+
+  {{- /* Memories link (Nov 25, 2026, Toby): On This Day photos are not
+         on this page, so point to where they live. Shows only once a
+         page exists at /memories/, so there is never a dead link. */ -}}
+  {{- with site.GetPage "/memories" }}
+  <p class="tgp-mem"><a class="tgp-mem-link" href="{{ .RelPermalink }}">Looking for the old ones? Memories{{ partial "icon.html" (dict "name" "arrow-right" "class" "tgp-mem-arrow") }}</a></p>
   {{- end }}
 
   <p class="tgp-credit">Inspired by <a href="https://robertbirming.com/photo/">Robert Birming’s /photo page</a>, where you can also find a whole directory of them.</p>

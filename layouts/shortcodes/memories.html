@@ -1,0 +1,136 @@
+{{/* MEMORIES PAGE (Nov 25, 2026, Toby, mockup v4). Every On This Day
+     post in one place. One shared page: Classic links here from the
+     home page and the Photo page, and Hutch links here too.
+     Pairs with custom.css section 133.
+
+     Usage on the Micro.blog page at /memories/ : the shortcode named
+     memories, with nothing inside it. An optional intro="..." replaces
+     the line under the page title.
+
+     What it shows, top to bottom:
+     - the intro line, then a count line (how many memories, the
+       oldest year, the latest day)
+     - the newest memory as the lined-paper card (partials/otd-card.html)
+     - filters by how long ago the photo was taken (need JavaScript;
+       hidden without it)
+     - every other memory as a polaroid, grouped by the month it was
+       posted, newest month first. Only the three newest months show
+       at first, with a "Show older memories" button for the others
+       (without JavaScript, every month shows).
+
+     The list comes from partials/otd-items.html.
+     Renders nothing when there are no On This Day posts. */}}
+{{- $items := partial "otd-items.html" . -}}
+{{- if gt (len $items) 0 -}}
+{{- $hero := index $items 0 -}}
+{{- $rest := after 1 $items -}}
+{{- $oldest := 0 -}}
+{{- range $items -}}{{- if and (gt .ty 0) (or (eq $oldest 0) (lt .ty $oldest)) -}}{{- $oldest = .ty -}}{{- end -}}{{- end -}}
+{{- $counts := dict -}}
+{{- range $items -}}{{- $counts = merge $counts (dict .mk (add (index $counts .mk | default 0) 1)) -}}{{- end -}}
+{{- $intro := .Get "intro" | default "Old photos of mine, shared again on the day I took them." -}}
+<div class="tg-mem">
+
+  <p class="tgm-intro">{{ $intro }}</p>
+  <p class="tgm-line"><span>{{ len $items }} {{ cond (eq (len $items) 1) "memory" "memories" }}</span>{{ if gt $oldest 0 }}<span>Going back to {{ $oldest }}</span>{{ end }}<span>Latest: {{ (time $hero.iso).Format "Jan 2" }}</span></p>
+
+  {{ partial "otd-card.html" (dict "item" $hero) }}
+
+  {{- if gt (len $rest) 0 }}
+  <div class="tgm-filters" role="group" aria-label="Filter memories by how long ago" hidden>
+    <button type="button" class="tgm-f is-on" data-f="all" aria-pressed="true">All</button>
+    <button type="button" class="tgm-f" data-f="a" aria-pressed="false">1–5 years ago</button>
+    <button type="button" class="tgm-f" data-f="b" aria-pressed="false">6–10 years ago</button>
+    <button type="button" class="tgm-f" data-f="c" aria-pressed="false">More than 10</button>
+  </div>
+  <p class="tgm-none" hidden>No memories that far back yet.</p>
+
+  {{- $cur := "" -}}
+  {{- $n := 0 -}}
+  {{- range $rest -}}
+    {{- if ne .mk $cur -}}
+      {{- if $cur }}
+    </ul>
+  </section>
+      {{- end -}}
+      {{- $cur = .mk -}}
+      {{- $n = add $n 1 -}}
+      {{- $c := index $counts .mk }}
+  <section class="tgm-month{{ if gt $n 3 }} tgm-month--old{{ end }}">
+    <h2 class="tgm-head">{{ .mn }}{{ if ne (substr .mk 0 4) (now.Format "2006") }} {{ substr .mk 0 4 }}{{ end }}</h2>
+    <p class="tgm-count">{{ $c }} {{ cond (eq $c 1) "memory" "memories" }}</p>
+    <ul class="tgm-grid">
+    {{- end }}
+      <li class="tgm-tile" data-y="{{ .y }}">
+        <a class="tgm-link" href="{{ .u }}">
+          <span class="otd-pol otd-pol--tile"><img src="{{ .img | safeURL }}" alt="{{ if ne .alt .t }}{{ .alt }}{{ end }}" loading="lazy" decoding="async"><span class="otd-pol-cap">{{ .taken }}</span></span>
+          <span class="tgm-t">{{ .t }}</span>
+          {{- if gt .y 0 }}
+          <span class="tgm-ago">{{ .y }} {{ cond (eq .y 1) "year" "years" }} ago</span>
+          {{- end }}
+        </a>
+      </li>
+  {{- end }}
+    </ul>
+  </section>
+  {{- if gt $n 3 }}
+  <p class="tgm-more-wrap" hidden><button type="button" class="tgm-more">Show older memories</button></p>
+  {{- end }}
+  {{- end }}
+
+</div>
+<script>
+(function () {
+  var root = document.querySelector('.tg-mem');
+  if (!root) return;
+  var bar = root.querySelector('.tgm-filters');
+  var none = root.querySelector('.tgm-none');
+  var moreWrap = root.querySelector('.tgm-more-wrap');
+  var months = root.querySelectorAll('.tgm-month');
+  var tiles = root.querySelectorAll('.tgm-tile');
+  /* Older months tuck away until asked for. */
+  if (moreWrap) {
+    root.classList.add('is-short');
+    moreWrap.hidden = false;
+    moreWrap.querySelector('.tgm-more').addEventListener('click', function () {
+      root.classList.remove('is-short');
+      moreWrap.hidden = true;
+    });
+  }
+  if (!bar) return;
+  bar.hidden = false;
+  function fits(y, f) {
+    if (f === 'all') return true;
+    if (f === 'a') return y >= 1 && y <= 5;
+    if (f === 'b') return y >= 6 && y <= 10;
+    return y > 10;
+  }
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.tgm-f') : null;
+    if (!b) return;
+    var f = b.getAttribute('data-f');
+    var all = bar.querySelectorAll('.tgm-f');
+    for (var i = 0; i < all.length; i++) {
+      var on = all[i] === b;
+      all[i].classList.toggle('is-on', on);
+      all[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    var shown = 0;
+    for (var t = 0; t < tiles.length; t++) {
+      var ok = fits(parseInt(tiles[t].getAttribute('data-y'), 10) || 0, f);
+      tiles[t].hidden = !ok;
+      if (ok) shown++;
+    }
+    for (var m = 0; m < months.length; m++) {
+      months[m].hidden = !months[m].querySelector('.tgm-tile:not([hidden])');
+    }
+    /* A filter looks through every month, not only the newest three. */
+    if (f !== 'all' && moreWrap && root.classList.contains('is-short')) {
+      root.classList.remove('is-short');
+      moreWrap.hidden = true;
+    }
+    if (none) none.hidden = shown > 0;
+  });
+})();
+</script>
+{{- end -}}

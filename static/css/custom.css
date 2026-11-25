@@ -14329,6 +14329,29 @@ html.season-hal .section.section-newsletters #main-content::before {
 }
 .tg-photo p.tgp-credit a { color: var(--color-terra-text); }
 
+/* ---- Memories link (Nov 25, 2026): a quiet pill above the credit line.
+   Same text and border tokens as the rest of the page, so it follows
+   every sky. ---- */
+.tg-photo p.tgp-mem { margin: var(--space-2xl) 0 0; }
+.tg-photo p.tgp-mem + p.tgp-credit { margin-top: var(--space-lg); }
+.tg-photo a.tgp-mem-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-terra-text);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.tg-photo a.tgp-mem-link:hover { border-color: var(--color-terra); }
+.tg-photo a.tgp-mem-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.tg-photo .tgp-mem-arrow { width: 1em; height: 1em; flex: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .tg-photo .tgp-tile-img img { transition: none; }
   .tg-photo a.tgp-tile:hover .tgp-tile-img img { transform: none; }
@@ -15775,3 +15798,373 @@ html body.tgo-night .post-body .tgo-crowd {
   font-size: min(clamp(3rem, 8vw, 5.5rem), 14vw);
 }
 /* end section 132 */
+
+
+/* ============================================================
+   133. ON THIS DAY + MEMORIES  (Nov 25, 2026, Toby - mockup v4)
+   ------------------------------------------------------------
+   Three pieces, one look (lined paper + polaroids, borrowed from
+   the Hutch On This Day card):
+     .otd-card      the newest memory on lined paper
+                    (partials/otd-card.html)
+     .otd-section   the home page section: card + three small
+                    polaroids (layouts/index.html)
+     .tg-mem        the Memories page (shortcodes/memories.html)
+   Ink and surfaces are tokens, so the paper follows every sky and
+   both looks. The polaroid frame is the one fixed thing: it stays
+   white with dark writing in every sky, like a real print (#4A453F
+   on #FFFFFF is 9.4:1). The button uses the theme's own button
+   tokens (--color-terra-btn / --color-btn-ink, section 2).
+   Page selectors carry .tg-mem plus an element so .page-body
+   p / ul / h2 and the LINKS group can't leak in (section 93 lesson).
+   ============================================================ */
+
+/* ---- polaroid ---- */
+.otd-pol {
+  position: relative;
+  display: block;
+  background: #FFFFFF;
+  padding: 0.55rem 0.55rem 0;
+  box-shadow: 0 1px 2px rgba(30, 45, 74, 0.14), 0 14px 26px -14px rgba(30, 45, 74, 0.4);
+  transform: rotate(-1.6deg);
+}
+.otd-pol img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #E8E1D9;
+}
+.otd-pol .otd-pol-cap {
+  display: block;
+  padding: 0.4rem 0 0.5rem;
+  text-align: center;
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: #4A453F;
+}
+.otd-tape {
+  position: absolute;
+  left: 50%;
+  top: -0.6rem;
+  width: 4.8rem;
+  height: 1.3rem;
+  margin-left: -2.4rem;
+  background: #E8D5AE;
+  opacity: 0.92;
+  transform: rotate(-3deg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ---- the lined-paper card ---- */
+a.otd-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 2rem;
+  align-items: center;
+  padding: 1.7rem 1.8rem 1.5rem;
+  background-color: var(--color-bg-card);
+  background-color: color-mix(in srgb, var(--color-bg-card) 55%, var(--color-bg));
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 1.65rem, var(--color-border-light) 1.65rem, var(--color-border-light) calc(1.65rem + 1px));
+  background-position: 0 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 10px 26px -20px rgba(30, 45, 74, 0.4);
+  text-decoration: none;
+  color: inherit;
+}
+.otd-card .otd-tx { display: block; min-width: 0; }
+.otd-card .otd-kick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.otd-card .otd-kick::before { content: ""; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--color-terra); flex: none; }
+.otd-card .otd-ago {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  line-height: 1.15;
+  color: var(--color-terra-text);
+}
+.otd-card .otd-title {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 2.6vw, 1.55rem);
+  line-height: 1.15;
+  color: var(--color-navy);
+  transition: color 0.15s;
+}
+a.otd-card:hover .otd-title,
+a.otd-card:focus .otd-title { color: var(--color-terra-text); }
+.otd-card .otd-place {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.otd-card .otd-pin { width: 1em; height: 1em; flex: none; color: var(--color-terra-text); }
+.otd-card .otd-text {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-family: var(--font-reading);
+  font-size: 0.95rem;
+  line-height: 1.65rem;
+  color: var(--color-text);
+}
+.otd-card .otd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--color-terra-btn);
+  color: var(--color-btn-ink);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.otd-card .otd-btn-arrow { width: 1em; height: 1em; flex: none; }
+a.otd-card:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+
+/* ---- home page section ---- */
+.otd-section { margin-top: var(--space-2xl); }
+.otd-section a.otd-card { margin-top: var(--space-xl); }
+.otd-week {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.3rem;
+  margin: 1.6rem 0 0.6rem;
+  padding: 0;
+}
+.otd-week-item { margin: 0; padding: 0; }
+a.otd-week-link {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.otd-pol.otd-pol--sm { padding: 0.3rem 0.3rem 0; transform: rotate(-2deg); }
+.otd-pol.otd-pol--sm img { aspect-ratio: 1 / 1; }
+.otd-pol.otd-pol--sm .otd-pol-cap { font-size: 0.6rem; padding: 0.2rem 0 0.3rem; }
+.otd-week-item:nth-child(2) .otd-pol { transform: rotate(1.6deg); }
+.otd-week-item:nth-child(3) .otd-pol { transform: rotate(-0.8deg); }
+.otd-week-ago {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-terra-text);
+}
+.otd-week-title {
+  display: block;
+  font-family: var(--font-reading);
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: var(--color-navy);
+  transition: color 0.15s;
+}
+a.otd-week-link:hover .otd-week-title,
+a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
+
+/* ---- Memories page ---- */
+.tg-mem { margin: 0 0 var(--space-2xl); }
+.tg-mem p.tgm-intro {
+  font-family: var(--font-reading);
+  font-size: 1.2rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  margin: 0 0 var(--space-md);
+}
+.tg-mem p.tgm-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.55rem;
+  margin: 0 0 var(--space-xl);
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.tg-mem p.tgm-line span + span::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-right: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-terra);
+  vertical-align: middle;
+}
+.tg-mem a.otd-card { border-bottom: 1px solid var(--color-border); background-color: var(--color-bg-card); background-color: color-mix(in srgb, var(--color-bg-card) 55%, var(--color-bg)); }
+
+.tg-mem .tgm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: var(--space-xl) 0 0;
+}
+.tg-mem .tgm-filters[hidden] { display: none; }
+.tg-mem button.tgm-f,
+.tg-mem button.tgm-more {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.tg-mem button.tgm-f:hover,
+.tg-mem button.tgm-more:hover { border-color: var(--color-terra); }
+.tg-mem button.tgm-f.is-on {
+  background: var(--color-terra-btn);
+  border-color: var(--color-terra-btn);
+  color: var(--color-btn-ink);
+}
+.tg-mem button.tgm-f:focus-visible,
+.tg-mem button.tgm-more:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.tg-mem p.tgm-none {
+  margin: var(--space-xl) 0 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+.tg-mem p.tgm-more-wrap { margin: var(--space-2xl) 0 0; }
+
+.tg-mem section.tgm-month { margin: var(--space-xl) 0 0; }
+.tg-mem section.tgm-month[hidden] { display: none; }
+.tg-mem.is-short section.tgm-month--old { display: none; }
+.tg-mem h2.tgm-head {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-navy);
+}
+.tg-mem p.tgm-count {
+  margin: 0.1rem 0 var(--space-lg);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.tg-mem ul.tgm-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.6rem 1rem;
+  margin: 0;
+  padding: 0;
+}
+.tg-mem ul.tgm-grid > li.tgm-tile { margin: 0; padding: 0; list-style: none; }
+.tg-mem ul.tgm-grid > li.tgm-tile::before { content: none; }
+.tg-mem ul.tgm-grid > li.tgm-tile[hidden] { display: none; }
+.tg-mem a.tgm-link {
+  display: block;
+  text-decoration: none;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+.tg-mem .otd-pol.otd-pol--tile { padding: 0.35rem 0.35rem 0; transform: rotate(-1.8deg); }
+.tg-mem .otd-pol.otd-pol--tile img { aspect-ratio: 4 / 3; }
+.tg-mem .otd-pol.otd-pol--tile .otd-pol-cap { font-size: 0.65rem; padding: 0.25rem 0 0.35rem; }
+.tg-mem li.tgm-tile:nth-child(4n+2) .otd-pol { transform: rotate(1.2deg); }
+.tg-mem li.tgm-tile:nth-child(4n+3) .otd-pol { transform: rotate(0.6deg); }
+.tg-mem li.tgm-tile:nth-child(4n+4) .otd-pol { transform: rotate(-1deg); }
+.tg-mem .tgm-t {
+  display: block;
+  margin-top: 0.8rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--color-navy);
+  transition: color 0.15s;
+}
+.tg-mem a.tgm-link:hover .tgm-t,
+.tg-mem a.tgm-link:focus .tgm-t { color: var(--color-terra-text); }
+.tg-mem .tgm-ago {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--font-reading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--color-terra-text);
+}
+
+@media (min-width: 600px) {
+  .tg-mem ul.tgm-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.8rem 1.2rem; }
+}
+@media (min-width: 900px) {
+  .tg-mem ul.tgm-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Phones: the card stacks (photo, then words), the small polaroids
+   go one per row, and the filters stay on one row that slides. */
+@media (max-width: 599px) {
+  a.otd-card { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; padding: 1.5rem 1.1rem 1.2rem; }
+  .otd-tape { width: 4rem; margin-left: -2rem; }
+  .otd-week { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .tg-mem p.tgm-line span:nth-child(3) { display: none; }
+  a.otd-week-link { grid-template-columns: 4.4rem minmax(0, 1fr); }
+  .tg-mem .tgm-filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: calc(var(--page-pad) * -1); padding-right: var(--page-pad); }
+  .tg-mem .tgm-filters::-webkit-scrollbar { display: none; }
+  .tg-mem button.tgm-f { flex: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otd-card .otd-title, .otd-week-title, .tg-mem .tgm-t, .tg-mem button.tgm-f, .tg-mem button.tgm-more { transition: none; }
+}
+@media print {
+  .tg-mem .tgm-filters, .tg-mem p.tgm-more-wrap { display: none; }
+  .tg-mem.is-short section.tgm-month--old { display: block; }
+  .otd-pol { box-shadow: none; border: 1px solid #CCCCCC; }
+}
+/* end section 133 */

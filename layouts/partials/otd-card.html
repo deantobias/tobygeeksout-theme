@@ -1,0 +1,36 @@
+{{/* ON THIS DAY CARD (Nov 25, 2026, Toby, mockup v4): one memory on
+     lined paper, as a taped polaroid with the date the photo was taken
+     written under it. Used by the home page section and the Memories
+     page. Styles: custom.css section 133.
+
+     Usage: partial "otd-card.html" (dict "item" ITEM)
+     ITEM is one entry from partials/otd-items.html.
+
+     The build cannot know what day a reader visits (Micro.blog only
+     rebuilds on publish), so the card is written as "Latest memory"
+     and "14 years ago". The tiny script at the end checks the reader's
+     own date: on the day the memory was posted it changes them to
+     "Today's memory" and "14 years ago today". */}}
+{{- $i := .item -}}
+<a class="otd-card" href="{{ $i.u }}" data-otd-iso="{{ $i.iso }}">
+  <span class="otd-pol">
+    <span class="otd-tape" aria-hidden="true"></span>
+    <img src="{{ $i.img | safeURL }}" alt="{{ $i.alt }}" decoding="async">
+    <span class="otd-pol-cap">{{ $i.taken }}</span>
+  </span>
+  <span class="otd-tx">
+    <span class="otd-kick"><span class="otd-kick-w">Latest memory</span></span>
+    {{- if gt $i.y 0 }}
+    <span class="otd-ago">{{ $i.y }} {{ cond (eq $i.y 1) "year" "years" }} ago<span class="otd-today" hidden> today</span></span>
+    {{- end }}
+    <span class="otd-title">{{ $i.t }}</span>
+    {{- with $i.ln }}
+    <span class="otd-place">{{ partial "icon.html" (dict "name" "pin" "class" "otd-pin") }}{{ . }}</span>
+    {{- end }}
+    {{- with $i.x }}
+    <span class="otd-text">{{ . }}</span>
+    {{- end }}
+    <span class="otd-btn">View the post{{ partial "icon.html" (dict "name" "arrow-right" "class" "otd-btn-arrow") }}</span>
+  </span>
+</a>
+<script>(function(){var c=document.querySelectorAll('.otd-card[data-otd-iso]');if(!c.length)return;var d=new Date(),p=function(n){return(n<10?'0':'')+n;},t=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());for(var i=0;i<c.length;i++){if(c[i].getAttribute('data-otd-iso')!==t)continue;var k=c[i].querySelector('.otd-kick-w');if(k)k.textContent="Today's memory";var a=c[i].querySelector('.otd-today');if(a)a.hidden=false;}})();</script>

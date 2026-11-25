@@ -870,9 +870,10 @@
     var d = new Date(), today = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     var ago = o.y ? o.y + (o.y === 1 ? ' year ago ' : ' years ago ') + (o.iso === today ? 'today' : 'on ' + o.d) : (o.iso === today ? 'Today' : o.d);
     var pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
+    /* Nov 25 (Toby): the label at the top beside the photo, with "Memories ›" at the right like the other widgets */
     return '<a class="hh-otd" href="' + esc(o.u) + '" aria-label="On This Day: ' + esc(o.t) + '">' +
       (o.img ? '<span class="pr"><img src="' + esc(hsz(o.img, 400)) + '" alt="" decoding="async"></span>' : '') +
-      '<span class="tx"><span class="lb">On This Day</span><span class="ago">' + esc(ago) + '</span><b>' + esc(o.t) + '</b>' +
+      '<span class="tx"><span class="hh-wtag">On This Day<span class="wsee"><span class="wl">Memories </span>›</span></span><span class="ago">' + esc(ago) + '</span><b>' + esc(o.t) + '</b>' +
       (o.ln ? '<span class="pl">' + pin + '<span>' + esc(o.ln) + '</span></span>' : '') +
       (o.x ? '<span class="ex">' + esc(o.x) + '</span>' : '') + '</span></a>';
   }

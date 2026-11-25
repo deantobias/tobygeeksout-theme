@@ -255,7 +255,7 @@
   var core = '{{ "js/hutch.min.js" | relURL }}?{{ $hv }}';
   window.hxBase = '{{ "" | relURL }}'; window.hxVer = core.split('?')[1];
   window.hxMod = function (p) {
-    var m = [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/archive/', 'archive'], ['/now/', 'now'],
+    var m = [['/watching/', 'den'], ['/photo/', 'photos'], ['/categories/word-of-the-day/', 'words'], ['/memories/', 'memories'], ['/calendar/', 'calendar'], ['/archive/', 'archive'], ['/now/', 'now'],
       ['/about', 'small'], ['/contact', 'small'], ['/uses/', 'small'], ['/use/', 'small'], ['/subscribe/', 'small'], ['/follow/', 'small']];
     for (var i = 0; i < m.length; i++) if (p.indexOf(m[i][0]) === 0) return m[i][1];
     return '';

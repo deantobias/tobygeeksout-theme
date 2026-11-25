@@ -18,6 +18,7 @@
 {{- if eq $p "/categories/word-of-the-day/" -}}{{ partial "hutch-data/words.html" . }}
 {{- else if eq $p "/watching/" -}}{{ partial "hutch-data/den.html" . }}{{/* Den's Month in review row (Nov 7): window.tgoMonthReview + tgoPoster */}}{{ partial "month-review.html" . }}
 {{- else if eq $p "/photo/" -}}{{ partial "hutch-data/photos.html" . }}
+{{- else if eq $p "/memories/" -}}{{ partial "hutch-data/memories.html" . }}
 {{- else if eq $p "/calendar/" -}}{{ partial "hutch-data/calendar.html" . }}
 {{- else if eq $p "/now/" -}}{{ partial "hutch-data/now.html" . }}
 {{- else if or (in (slice "/about/" "/about-me/" "/contact/" "/subscribe/" "/follow/") $p) $inMenu -}}{{ partial "hutch-data/small.html" . }}

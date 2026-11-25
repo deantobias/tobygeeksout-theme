@@ -1,0 +1,115 @@
+/* ---------- Memories app (/memories/), Nov 25, 2026 (Toby, mockup v225) ----------
+   Always light, like a journal's paper, whatever the sky. Built by
+   static/js/apps/memories.js. html.hxm-on is set only on that page with
+   Hutch on. WCAG: every text color here is at least 7:1 on the paper
+   (#F3ECE1) and the cards (#FFFBF3). */
+html.hxm-on{color-scheme:light}
+html.hxm-on body{background:#F3ECE1}
+html.hxm-on #hutch-bar{background:#F3ECE1;color:#1F2433}
+html.hxm-on #hutch-bar.scrolled{box-shadow:0 1px 0 #E6DCCD,0 4px 14px rgba(31,36,51,.06)}
+
+.hx-mem{--paper:#F3ECE1;--card:#FFFBF3;--ink:#1F2433;--sub:#3F4656;--line:#E6DCCD;--acct:#7A3312;--ago:#7A3312;--btn:#8A3B18;
+  color-scheme:light;background:var(--paper);color:var(--ink);font-family:var(--h-ui);
+  padding-top:var(--h-bar);min-height:100vh;-webkit-font-smoothing:antialiased}
+.hx-mem *,.hx-mem *::before,.hx-mem *::after{box-sizing:border-box}
+.hx-mem svg{width:16px;height:16px;flex:none}
+.hx-mem .hxm-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hx-mem a{color:inherit;text-decoration:none}
+.hx-mem [hidden]{display:none !important}
+.hxm-home,.hxm-page{max-width:1120px;margin:0 auto;padding:16px 16px 48px}
+
+/* ---------- a print: white border, the day it was taken written under it ---------- */
+.hxm-print{position:relative;display:block;background:#fff;padding:8px 8px 30px;border-radius:2px;box-shadow:0 6px 16px rgba(31,36,51,.2)}
+.hxm-print img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--line)}
+.hxm-blank{display:grid;place-items:center;aspect-ratio:4/3;padding:12px;background:var(--line);font:italic 600 16px/1.3 Georgia,'Times New Roman',serif;color:var(--sub);text-align:center}
+.hxm-hand{position:absolute;left:10px;right:10px;bottom:6px;font:italic 400 14px/1.3 Georgia,'Times New Roman',serif;color:#4E3B28;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hxm-tape{position:absolute;z-index:2;top:-10px;left:50%;width:84px;height:22px;margin-left:-42px;background:rgba(232,201,154,.8);transform:rotate(-4deg)}
+
+/* ---------- the newest memory, big ---------- */
+.hxm-today{display:grid;gap:18px;padding:24px 20px 22px;background:var(--card);border:1px solid #EADFCF;border-radius:22px;
+  box-shadow:0 8px 24px rgba(31,36,51,.1);background-image:repeating-linear-gradient(transparent 0 31px,#F0E6D6 31px 32px)}
+.hxm-fprint{display:block;max-width:520px;width:100%;justify-self:center;transform:rotate(-2deg);-webkit-tap-highlight-color:transparent}
+.hxm-fprint:focus-visible{outline:3px solid var(--btn);outline-offset:6px}
+.hxm-fwords,.hxm-pwords{min-width:0}
+.hxm-chip{display:inline-flex;align-items:center;gap:7px;font:700 12px/1.2 var(--h-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--acct)}
+.hxm-chip i{width:8px;height:8px;border-radius:50%;background:#C4622D;flex:none}
+.hxm-ago{font:italic 600 26px/1.15 Georgia,'Times New Roman',serif;color:var(--ago);margin:8px 0 4px}
+.hx-mem .hxm-tt{font:700 22px/1.25 var(--h-ui);font-family:var(--h-ui) !important;color:var(--ink);margin:0;letter-spacing:0}
+.hxm-tt:focus{outline:none}
+.hxm-pl{display:flex;align-items:flex-start;gap:6px;font:500 15px/1.35 var(--h-ui);color:#424B5E;margin-top:8px}
+.hxm-pl svg{margin-top:2px;color:#984A20}
+a.hxm-pl{text-decoration:underline;text-decoration-color:rgba(66,75,94,.35);text-underline-offset:3px}
+a.hxm-pl:hover{text-decoration-color:#424B5E}
+.hxm-wd{font:400 16.5px/1.6 var(--h-ui);color:#3A4256;margin:12px 0 0;white-space:pre-line}
+.hxm-fwords .hxm-wd{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.hxm-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.hx-mem .hxm-go{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border:0;border-radius:999px;
+  background:var(--btn);color:#fff;font:600 15px var(--h-ui);cursor:pointer}
+.hx-mem .hxm-go:hover{background:#6E2F12}
+.hx-mem .hxm-go:focus-visible,.hxm-filters button:focus-visible,.hxm-nav button:focus-visible,.hxm-card:focus-visible{outline:3px solid var(--btn);outline-offset:3px}
+
+/* ---------- filters ---------- */
+.hxm-filters{display:flex;gap:8px;margin:26px 0 4px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.hxm-filters::-webkit-scrollbar{display:none}
+.hxm-filters button{flex:none;min-height:40px;padding:8px 15px;border-radius:999px;background:var(--card);border:1px solid #DCC8B8;color:var(--ink);
+  font:600 14px var(--h-ui);cursor:pointer}
+.hxm-filters button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ---------- months ---------- */
+.hx-mem .hxm-mon{font:italic 600 22px/1.2 Georgia,'Times New Roman',serif;font-family:Georgia,'Times New Roman',serif !important;color:var(--ink);margin:28px 0 2px;letter-spacing:0}
+.hxm-sub{font:500 14px var(--h-ui);color:var(--sub);margin:0 0 16px}
+.hxm-none{font:500 15px var(--h-ui);color:var(--sub);margin:28px 0}
+.hxm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 16px}
+.hxm-card{display:block;min-width:0;-webkit-tap-highlight-color:transparent;border-radius:4px}
+.hxm-card .hxm-print{padding:6px 6px 24px}
+.hxm-card .hxm-hand{font-size:12.5px;bottom:4px}
+.hxm-card:nth-child(4n+1) .hxm-print{transform:rotate(-2.5deg)}
+.hxm-card:nth-child(4n+2) .hxm-print{transform:rotate(1.8deg)}
+.hxm-card:nth-child(4n+3) .hxm-print{transform:rotate(1.2deg)}
+.hxm-card:nth-child(4n) .hxm-print{transform:rotate(-1.6deg)}
+.hxm-card b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:700 15px/1.3 var(--h-ui);margin-top:12px}
+.hxm-card small{display:block;font:italic 600 14px/1.3 Georgia,'Times New Roman',serif;color:var(--ago);margin-top:3px}
+@media (hover:hover){.hxm-card:hover .hxm-print{box-shadow:0 10px 22px rgba(31,36,51,.26)}}
+
+/* ---------- the journal page ---------- */
+.hxm-sheet{display:grid;gap:26px;padding:28px 20px 24px;background:var(--card);border:1px solid #EADFCF;border-radius:22px;
+  box-shadow:0 8px 24px rgba(31,36,51,.1);background-image:repeating-linear-gradient(transparent 0 31px,#F0E6D6 31px 32px)}
+.hxm-pprint{position:relative;max-width:620px;width:100%;justify-self:center}
+.hxm-pprint .hxm-print{transform:rotate(-1.5deg)}
+.hxm-car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hxm-car::-webkit-scrollbar{display:none}
+.hxm-car figure{flex:0 0 100%;margin:0;scroll-snap-align:start}
+.hxm-car img{aspect-ratio:auto;max-height:calc(100svh - var(--h-bar) - 140px);object-fit:contain;background:#fff}
+.hxm-car:focus-visible{outline:3px solid var(--btn);outline-offset:2px}
+.hxm-dots{display:flex;justify-content:center;gap:6px;margin-top:14px}
+.hxm-dots i{width:7px;height:7px;border-radius:50%;background:#CDB9A6}
+.hxm-dots i.on{background:var(--btn)}
+.hxm-n{display:block;text-align:center;font:500 13px var(--h-ui);color:var(--sub);margin-top:6px}
+.hxm-pwords .hxm-ago{font-size:28px}
+.hx-mem .hxm-pwords .hxm-tt{font-size:24px}
+.hxm-nav{display:flex;justify-content:space-between;gap:10px;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.hxm-nav button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #DCC8B8;background:var(--card);
+  color:var(--ink);font:600 15px var(--h-ui);cursor:pointer}
+.hxm-nav button:disabled{visibility:hidden}
+
+/* ---------- tablets upright ---------- */
+@media (min-width:520px){
+  .hxm-home,.hxm-page{padding:22px 28px 56px}
+  .hxm-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 22px}
+  .hxm-today{padding:30px 32px 28px}
+  .hxm-sheet{padding:34px 36px 30px}
+}
+/* ---------- wide: the print beside the words ---------- */
+@media (min-width:900px){
+  .hxm-today,.hxm-sheet{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:center;gap:40px;padding:32px 40px}
+  .hxm-sheet{grid-template-columns:minmax(0,520px) minmax(0,1fr)}
+  .hxm-fprint{max-width:none}
+  .hxm-ago{font-size:30px}
+  .hx-mem .hxm-tt{font-size:26px}
+  .hxm-pwords .hxm-ago{font-size:32px}
+  .hx-mem .hxm-pwords .hxm-tt{font-size:28px}
+  .hxm-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:34px 28px}
+  .hxm-car img{max-height:calc(100svh - var(--h-bar) - 160px)}
+}
+@media (prefers-reduced-motion:reduce){.hxm-car{scroll-behavior:auto}}

@@ -6,6 +6,7 @@
      - only Toby's own uploads count (cdn.uploads.micro.blog or the
        blog's /uploads/), never book or movie card posters
      - a post with no upload of his own is skipped
+     - On This Day posts are skipped (they're in Memories, Nov 25)
      Each post: t title ("" if untitled), l label (title or date),
      d ISO date, dl display date, u link, c short plain caption,
      ph every upload in order as {s src, a alt}.
@@ -18,7 +19,11 @@
 {{- $total := 0 -}}
 {{- range $posts.ByDate.Reverse -}}
   {{- $p := . -}}
-  {{- if not (in (lower $p.Content) "credit:") -}}
+  {{/* Nov 25 (Toby): On This Day posts live in the Memories app now,
+       even when they're also in the Photos category */}}
+  {{- $otdPost := hasPrefix (trim $p.Title " ") "On This Day" -}}
+  {{- range $p.Params.categories -}}{{- if eq (lower (string .)) "on this day" -}}{{- $otdPost = true -}}{{- end -}}{{- end -}}
+  {{- if and (not $otdPost) (not (in (lower $p.Content) "credit:")) -}}
     {{- $posters := slice -}}
     {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}

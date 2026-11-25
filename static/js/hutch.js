@@ -185,6 +185,8 @@
     uses: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/>',
     follow: '<path d="M4.5 4.5a15 15 0 0 1 15 15"/><path d="M4.5 10.8a8.7 8.7 0 0 1 8.7 8.7"/><circle cx="5.3" cy="18.7" r="1.6"/>',
     photos: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-8 8"/>',
+    /* Nov 25 (Toby, v225): Memories, two snapshots */
+    memories: '<rect x="3.5" y="7" width="12" height="13" rx="1" transform="rotate(-8 9.5 13.5)"/><path d="M10 4.5h9.5a1 1 0 0 1 1 1V17a1 1 0 0 1-1 1H17"/><path d="M12 12.5l2.5-2.5 3 3"/>',
     words: '<path d="M4 19L9 5h2l5 14 M6 14h8 M17 9h4 M17 13h4"/>',
     calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18 M8 3v4 M16 3v4"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
@@ -226,6 +228,11 @@
     den: '<rect x="6" y="9" width="36" height="25" rx="5" fill="#7C5A7A"/><rect x="9" y="12" width="30" height="19" rx="3" fill="#9C789A"/><path d="M21 16.5v10.5a.8.8 0 0 0 1.2.7l8.4-5.2a.8.8 0 0 0 0-1.4l-8.4-5.2a.8.8 0 0 0-1.2.6z" fill="#fff"/><path d="M17 39h14" stroke="#7C5A7A" stroke-width="3.2" stroke-linecap="round"/>',
     surprise: '<g transform="rotate(-14 17 23)"><rect x="7" y="13" width="20" height="20" rx="5" fill="#D9A441"/><circle cx="12.5" cy="18.5" r="2" fill="#fff"/><circle cx="17" cy="23" r="2" fill="#fff"/><circle cx="21.5" cy="27.5" r="2" fill="#fff"/></g><g transform="rotate(12 31 27)"><rect x="21" y="17" width="20" height="20" rx="5" fill="#C4622D"/><circle cx="26.5" cy="22.5" r="2" fill="#fff"/><circle cx="35.5" cy="22.5" r="2" fill="#fff"/><circle cx="26.5" cy="31.5" r="2" fill="#fff"/><circle cx="35.5" cy="31.5" r="2" fill="#fff"/></g>',
     photos: '<rect x="7" y="10" width="34" height="28" rx="5" fill="#8FC0E6"/><circle cx="32" cy="18.5" r="4.2" fill="#FCE7B0"/><path d="M7 31l10-11 8 8 5-5 11 11v.5a4.5 4.5 0 0 1-4.5 4.5h-25A4.5 4.5 0 0 1 7 34.5z" fill="#1E2D4A"/><path d="M7 33.5l10-8 8 6.5 5-4 11 8.5v.5a4.5 4.5 0 0 1-4.5 3h-25A4.5 4.5 0 0 1 7 35.5z" fill="#3F7FA6"/>',
+    /* Nov 25 (Toby, v225): Memories, an old print taped over another */
+    memories: '<g transform="rotate(-9 24 25)"><rect x="9" y="11" width="24" height="28" rx="1.5" fill="#F6E2D6"/></g>' +
+      '<g transform="rotate(6 26 24)"><rect x="14" y="8" width="25" height="30" rx="1.5" fill="#fff" stroke="#E2D5C5" stroke-width="1"/><rect x="17" y="11" width="19" height="17" fill="#8FC0E6"/>' +
+      '<path d="M17 28v-4l5-5 5 5 3-3 6 6v1z" fill="#6E8B4A"/><circle cx="31.5" cy="15.5" r="2.3" fill="#FCE7B0"/><path d="M19.5 33h14" stroke="#B9875E" stroke-width="1.4" stroke-linecap="round"/></g>' +
+      '<rect x="21" y="4.5" width="12" height="5" rx=".6" fill="#E8C99A" opacity=".9" transform="rotate(-6 27 7)"/>',
     words: '<rect x="11" y="7" width="26" height="34" rx="3.5" fill="#B07A1E"/><path d="M11 34h26v3.5a3.5 3.5 0 0 1-3.5 3.5h-19A3.5 3.5 0 0 1 11 37.5z" fill="#F6E6C8"/><text x="24" y="27" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="15" fill="#FFF6E3">Aa</text>',
     calendar: '<rect x="8" y="9" width="32" height="31" rx="5" fill="#fff" stroke="#E7DED5" stroke-width="1.5"/><path d="M8 14a5 5 0 0 1 5-5h22a5 5 0 0 1 5 5v5H8z" fill="#CF5C4A"/><path d="M16 6.5v5M32 6.5v5" stroke="#1E2D4A" stroke-width="2.6" stroke-linecap="round"/><text data-live="d" x="24" y="35.5" text-anchor="middle" font-family="Roboto,system-ui,sans-serif" font-weight="700" font-size="15" fill="#1E2D4A"></text>',
     follow: '<rect x="9" y="9" width="30" height="30" rx="8" fill="#E08A3C"/><circle cx="16.5" cy="31.5" r="2.8" fill="#fff"/><path d="M14 23a11 11 0 0 1 11 11M14 15.5a18.5 18.5 0 0 1 18.5 18.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>',
@@ -303,6 +310,8 @@
     uses: ['Uses', '#5B7A8C', '/uses/'],
     follow: ['Follow', '#E08A3C', '/subscribe/'],
     photos: ['Photos', '#3F7FA6', '/photo/'],
+    /* Nov 25 (Toby, v225): his On This Day posts, journal style, on his Memories page (Classic shows the page as he made it) */
+    memories: ['Memories', '#984A20', '/memories/'],
     words: ['Word Nerd', '#B07A1E', '/categories/word-of-the-day/'],
     calendar: ['Calendar', '#CF5C4A', '/calendar/'],
     pulse: ['The Pulse', '#C44D58', '/the-pulse/'],
@@ -335,7 +344,7 @@
       ['archive', /^archive/i, /\/archive/i], ['uses', /^(geek gear|uses?|gear)$/i, /\/uses?\//i],
       ['follow', /^(follow|subscribe)/i, /\/(subscribe|follow)/i], ['surprise', /surprise/i, /\/surprise/i],
       ['blaugust', /^blaugust/i, /\/blaugust/i], ['pulse', /pulse/i, /\/(the-)?pulse\//i], ['reading', /^reading$/i, /\/reading\//i],
-      ['tinkering', /tinkering|changelog/i, /\/(changelog|tinkering)\//i]
+      ['tinkering', /tinkering|changelog/i, /\/(changelog|tinkering)\//i], ['memories', /^memories$/i, /\/memories\//i]
     ];
     rules.forEach(function (r) {
       var hit = null;
@@ -385,14 +394,16 @@
   var DOCK6 = DOCK.indexOf('mb') < 0 && DOCK.length < 6 ? 'mb' : null;
   function offDock(k) { return DOCK.indexOf(k) < 0; }
   /* phones: four by the date (Knowember takes Follow's spot in November) */
-  var QUAD = (KNOW ? ['den', 'surprise', 'settings', 'knowember', 'follow'] : ['den', 'surprise', 'settings', 'follow'])
+  /* Nov 25 (Toby): from December 1, Memories takes Knowember's spot
+     (Knowember moves into About); in November it waits in All apps */
+  var QUAD = (KNOW ? ['den', 'surprise', 'settings', 'knowember', 'follow'] : ['den', 'surprise', 'settings', 'memories', 'follow'])
     .concat(['photos', 'words', 'calendar', 'uses']).filter(offDock).slice(0, 4);
   /* unfolded and tablets keep five by the date (Nov 8, Toby): Den is in
      the dock, so Micro.blog takes its spot; the fifth is Knowember in
      November and Photos the rest of the year (Nov 9: The Long Road Here
      moved into About). */
   var TQUAD = ['den', 'surprise', 'mb', 'settings', 'follow'].filter(function (k) { return offDock(k) && k !== DOCK6; }).slice(0, 4);
-  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : []).concat(['photos', 'words', 'calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
+  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : ['memories']).concat(['photos', 'words', 'calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
   /* Desktop (Nov 3, Toby): a big screen has room for every app on the
      home screen, so all of them sit by the date, Micro.blog before
      Settings, in place of the four. Up to 18; any beyond that stay in All
@@ -411,9 +422,13 @@
      on tablets held sideways or laptops. */
   var NOHOME = { tinkering: 1, reading: 1, longroad: 1, blaugust: 1 };
   if (!KNOW) NOHOME.knowember = 1;
-  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', 'knowember', 'photos', 'words', 'calendar', 'uses', 'pulse'];
+  /* laptops (Nov 25): Memories in Knowember's place from December 1. In
+     November the ten by the date stay as they are, and Memories opens
+     from the On This Day card or Search. */
+  var NODK = KNOW ? { memories: 1 } : {};
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', KNOW ? 'knowember' : 'memories', 'photos', 'words', 'calendar', 'uses', 'pulse'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
-    .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
+    .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && !NODK[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   /* the ten apps by the date on the iPad mini sideways: the unfolded
@@ -435,7 +450,7 @@
     for (var k in APPS) { var u = APPS[k][2]; if (u && u !== '/?app=blog' && u.charAt(u.length - 1) === '/' && path.indexOf(u) === 0) return k; }
     var map = [['/archive/', 'archive'], ['/about-me/', 'about'], ['/about/', 'about'], ['/now/', 'now'], ['/contact/', 'contact'], ['/watching/', 'den'],
       ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/use/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
-      ['/categories/word-of-the-day/', 'words'], ['/calendar/', 'calendar'], ['/the-pulse/', 'pulse'], ['/pulse/', 'pulse'],
+      ['/categories/word-of-the-day/', 'words'], ['/memories/', 'memories'], ['/calendar/', 'calendar'], ['/the-pulse/', 'pulse'], ['/pulse/', 'pulse'],
       ['/reading/', 'reading'], ['/blaugust', 'blaugust'], ['/changelog/', 'tinkering'], ['/tinkering/', 'tinkering']];
     for (var i = 0; i < map.length; i++) if (path.indexOf(map[i][0]) === 0) return map[i][1];
     if (path.indexOf('/categories/') === 0) return 'archive';
@@ -748,7 +763,7 @@
     }
     var ql = q.toLowerCase(), terms = ql.split(/\s+/).filter(Boolean), html = '';
     /* other words that find an app (Nov 8) */
-    var ALSO = { den: ['watching', 'reading'], mb: ['microblog', 'timeline'], follow: ['subscribe', 'newsletter'], longroad: ['the long road here', 'history', 'blogs'], knowember: ['get to know'] };
+    var ALSO = { den: ['watching', 'reading'], mb: ['microblog', 'timeline'], follow: ['subscribe', 'newsletter'], longroad: ['the long road here', 'history', 'blogs'], knowember: ['get to know'], memories: ['on this day', 'journal', 'throwback'] };
     var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && (APPS[k][3] || APPS[k][0]).toLowerCase().indexOf(ql) > -1) || (ALSO[k] || []).some(function (w) { return w.indexOf(ql) === 0; }); });
     if (apps.length) html += '<div class="hx-lab">Apps</div><ul class="hx-res">' + apps.map(function (k) {
       var a = APPS[k], inner = tile(k) + '<span><span class="hx-t">' + hi(a[0], terms) + '</span></span>';
@@ -871,7 +886,8 @@
     var ago = o.y ? o.y + (o.y === 1 ? ' year ago ' : ' years ago ') + (o.iso === today ? 'today' : 'on ' + o.d) : (o.iso === today ? 'Today' : o.d);
     var pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
     /* Nov 25 (Toby): the label at the top beside the photo, with "Memories ›" at the right like the other widgets */
-    return '<a class="hh-otd" href="' + esc(o.u) + '" aria-label="On This Day: ' + esc(o.t) + '">' +
+    /* opens this memory in the Memories app (Nov 25, Toby); Back comes home */
+    return '<a class="hh-otd" href="' + esc((APPS.memories[2] || '/memories/') + '#post=' + encodeURIComponent(o.u)) + '" aria-label="On This Day: ' + esc(o.t) + ', open in Memories">' +
       (o.img ? '<span class="pr"><img src="' + esc(hsz(o.img, 400)) + '" alt="" decoding="async"></span>' : '') +
       '<span class="tx"><span class="hh-wtag">On This Day<span class="wsee"><span class="wl">Memories </span>›</span></span><span class="ago">' + esc(ago) + '</span><b>' + esc(o.t) + '</b>' +
       (o.ln ? '<span class="pl">' + pin + '<span>' + esc(o.ln) + '</span></span>' : '') +
@@ -1163,7 +1179,7 @@
       homeEl.appendChild(mark);
     })();
     /* desktop: every app is already on the screen, so no All apps button */
-    DKFULL = Object.keys(APPS).filter(function (k) { return !NOHOME[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0;
+    DKFULL = Object.keys(APPS).filter(function (k) { return !NOHOME[k] && !NODK[k] && DOCK.indexOf(k) < 0 && k !== DOCK6 && DKAPPS.indexOf(k) < 0; }).length === 0;
     fit();
     /* Nov 11 (Toby: on a refresh the cards flick while they find their
        size): the cards wait out of sight until the fonts and pictures
@@ -1960,7 +1976,7 @@
        speed). head.html and baseof.html load the right ones from the
        address; an app found another way (a renamed About page from the
        menu) fetches its part here first. */
-    var MODFILE = { den: 'den', photos: 'photos', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', follow: 'small' }; /* Uses: Toby's Classic page as is (Nov 8) */
+    var MODFILE = { den: 'den', photos: 'photos', memories: 'memories', words: 'words', calendar: 'calendar', archive: 'archive', now: 'now', about: 'small', contact: 'small', follow: 'small' }; /* Uses: Toby's Classic page as is (Nov 8) */
     /* Nov 18 (Toby, mockup v168): an app opened from a Blog card's link
        (Open in Den, Open in Word Nerd). The app shows "Blog" on the Back
        button while the next Back goes to the Blog. */

@@ -14,7 +14,9 @@
      - filters by how long ago the photo was taken (need JavaScript;
        hidden without it)
      - every other memory as a polaroid, grouped by the month it was
-       posted, newest month first. Only the three newest months show
+       posted, newest month first. The count under each month is the
+       number of polaroids showing there (the big card is not counted,
+       and the count follows the filters). Only the three newest months show
        at first, with a "Show older memories" button for the others
        (without JavaScript, every month shows).
 
@@ -27,7 +29,7 @@
 {{- $oldest := 0 -}}
 {{- range $items -}}{{- if and (gt .ty 0) (or (eq $oldest 0) (lt .ty $oldest)) -}}{{- $oldest = .ty -}}{{- end -}}{{- end -}}
 {{- $counts := dict -}}
-{{- range $items -}}{{- $counts = merge $counts (dict .mk (add (index $counts .mk | default 0) 1)) -}}{{- end -}}
+{{- range $rest -}}{{- $counts = merge $counts (dict .mk (add (index $counts .mk | default 0) 1)) -}}{{- end -}}
 {{- $intro := .Get "intro" | default "Old photos of mine, shared again on the day I took them." -}}
 <div class="tg-mem">
 
@@ -58,12 +60,12 @@
       {{- $c := index $counts .mk }}
   <section class="tgm-month{{ if gt $n 3 }} tgm-month--old{{ end }}">
     <h2 class="tgm-head">{{ .mn }}{{ if ne (substr .mk 0 4) (now.Format "2006") }} {{ substr .mk 0 4 }}{{ end }}</h2>
-    <p class="tgm-count">{{ $c }} {{ cond (eq $c 1) "memory" "memories" }}</p>
+    <p class="tgm-count"><span class="tgm-n">{{ $c }}</span> <span class="tgm-w">{{ cond (eq $c 1) "memory" "memories" }}</span></p>
     <ul class="tgm-grid">
     {{- end }}
       <li class="tgm-tile" data-y="{{ .y }}">
         <a class="tgm-link" href="{{ .u }}">
-          <span class="otd-pol otd-pol--tile"><img src="{{ .img | safeURL }}" alt="{{ if ne .alt .t }}{{ .alt }}{{ end }}" loading="lazy" decoding="async"><span class="otd-pol-cap">{{ .taken }}</span></span>
+          <span class="otd-pol otd-pol--tile"><img src="{{ .img | safeURL }}" alt="" loading="lazy" decoding="async"><span class="otd-pol-cap">{{ .taken }}</span></span>
           <span class="tgm-t">{{ .t }}</span>
           {{- if gt .y 0 }}
           <span class="tgm-ago">{{ .y }} {{ cond (eq .y 1) "year" "years" }} ago</span>
@@ -121,8 +123,13 @@
       tiles[t].hidden = !ok;
       if (ok) shown++;
     }
+    /* Each month's count is what is showing under it right now. */
     for (var m = 0; m < months.length; m++) {
-      months[m].hidden = !months[m].querySelector('.tgm-tile:not([hidden])');
+      var c = months[m].querySelectorAll('.tgm-tile:not([hidden])').length;
+      months[m].hidden = !c;
+      var nEl = months[m].querySelector('.tgm-n'), wEl = months[m].querySelector('.tgm-w');
+      if (nEl) nEl.textContent = c;
+      if (wEl) wEl.textContent = c === 1 ? 'memory' : 'memories';
     }
     /* A filter looks through every month, not only the newest three. */
     if (f !== 'all' && moreWrap && root.classList.contains('is-short')) {

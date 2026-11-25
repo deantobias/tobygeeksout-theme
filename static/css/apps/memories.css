@@ -59,6 +59,12 @@ a.hxm-pl:hover{text-decoration-color:#424B5E}
 .hx-mem .hxm-go{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border:0;border-radius:999px;
   background:var(--btn);color:#fff;font:600 15px var(--h-ui);cursor:pointer}
 .hx-mem .hxm-go:hover{background:#6E2F12}
+/* the permalink on a memory's page: the day it was posted (Nov 25, Toby) */
+.hx-mem .hxm-perma{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 4px;font:600 15px var(--h-ui);color:#7A3312;
+  text-decoration:underline;text-decoration-color:rgba(122,51,18,.35);text-underline-offset:4px}
+.hx-mem .hxm-perma:hover{text-decoration-color:#7A3312}
+.hx-mem .hxm-perma:focus-visible{outline:3px solid var(--btn);outline-offset:2px;border-radius:6px}
+.hx-mem .hxm-perma svg{width:17px;height:17px}
 .hx-mem .hxm-go:focus-visible,.hxm-filters button:focus-visible,.hxm-nav button:focus-visible,.hxm-card:focus-visible{outline:3px solid var(--btn);outline-offset:3px}
 
 /* ---------- filters ---------- */
@@ -173,7 +179,11 @@ a.hxm-pl:hover{text-decoration-color:#424B5E}
   .hxm-pwords{flex:1 1 auto}
 }
 @media (min-width:900px){
-  .hxm-sheet{align-items:stretch}
+  /* big screens (Nov 25, Toby: "on desktop it looks funny"): the page hugs
+     the memory and sits in the middle of the screen, no empty lines around */
+  .hx-mem .hxm-page{justify-content:center}
+  .hxm-page .hxm-sheet{flex:none}
+  .hxm-sheet{align-items:center}
   .hxm-pprint{align-self:center}
   .hxm-pwords{justify-content:center}
   .hxm-pwords .hxm-acts{margin-top:0;padding-top:20px}

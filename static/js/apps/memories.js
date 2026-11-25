@@ -21,6 +21,7 @@
 
     var IC = {
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+      link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
       pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
       l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>'
     };
@@ -125,13 +126,15 @@
         '<div class="hxm-pprint"><span class="hxm-print"><i class="hxm-tape" aria-hidden="true"></i>' +
           (n ? '<span class="hxm-car"' + (n > 1 ? ' role="button" tabindex="0" aria-label="Next photo"' : '') + '>' + shots + '</span>' : '<span class="hxm-blank" aria-hidden="true">' + esc(p.t) + '</span>') +
           '<span class="hxm-hand">' + esc(p.tk || p.dl) + '</span></span>' + dots + (n > 1 ? '<span class="hxm-n hxm-sr" aria-live="polite">1 of ' + n + '</span>' : '') + '</div>' +
-        '<div class="hxm-pwords"><span class="hxm-chip"><i aria-hidden="true"></i>On This Day · <time datetime="' + esc(p.d) + '">' + esc(p.dl) + '</time></span>' +
+        '<div class="hxm-pwords"><span class="hxm-chip"><i aria-hidden="true"></i>On This Day</span>' +
           (p.y ? '<div class="hxm-ago">' + esc(years(p, true)) + '</div>' : '') +
           '<h1 class="hxm-tt">' + esc(p.t) + '</h1>' + place(p, 'hxm-pl') +
           /* his own words with their links, bold and italic (Nov 25, Toby) */
           (p.h ? '<div class="hxm-wd hxm-html">' + p.h + '</div>' : p.x ? '<p class="hxm-wd">' + esc(p.x) + '</p>' : '') +
           /* View the post, Newer and Older share one row (Nov 25: the page fits the screen) */
-          '<div class="hxm-acts">' + viewPost(p) +
+          /* Nov 25 (Toby): the page already shows the whole post, so a permalink
+             with the day it was posted, in place of a big View the post button */
+          '<div class="hxm-acts"><a class="hxm-perma" href="' + esc(p.u) + '" aria-label="' + esc('Permalink, posted ' + p.dl) + '">' + ic('link') + '<time datetime="' + esc(p.d) + '">' + esc(p.dl) + '</time></a>' +
           '<nav class="hxm-nav" aria-label="More memories"><button type="button" data-go="-1" aria-label="Newer memory"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + '<span>Newer</span></button>' +
             '<button type="button" data-go="1" aria-label="Older memory"' + (i === P.length - 1 ? ' disabled' : '') + '><span>Older</span>' + ic('r') + '</button></nav></div></div></div>';
       page.querySelector('.hxm-print').classList.toggle('multi', n > 1);

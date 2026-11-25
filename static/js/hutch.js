@@ -853,7 +853,26 @@
       /* the full word's order (Nov 24, Toby); the ASL pill never folds into "+N" */
       L.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') +
       (n.na ? '<span class="hi">' + hand + (n.na > 1 ? n.na + ' ASL signs' : 'ASL sign') + '</span>' : '') + (n.sp ? '<span>Spotted in</span>' : '') +
-      '<span class="pl" hidden></span></span></div>';
+      '<span class="pl" hidden></span></span></div>' +
+      /* phones (Nov 25, Toby): no room for every pill, but the card still
+         says there's more inside: the ASL pill and "+N more" */
+      ((L.length + (n.sp ? 1 : 0)) || n.na ? '<div class="hh-wph">' + (n.na ? '<span class="hi">' + hand + 'ASL</span>' : '') +
+        ((L.length + (n.sp ? 1 : 0)) ? '<span>+' + (L.length + (n.sp ? 1 : 0)) + ' more</span>' : '') + '</div>' : '');
+  }
+  /* On This Day (Nov 25, Toby, mockup v219): the newest On This Day post as
+     a journal page: the photo as a tilted print, "3 years ago today", the
+     title, the place and its first lines. Tapping it opens the post (the
+     On This Day app comes next). */
+  function otdCard() {
+    var o = HOME.otd; if (!o || !o.u) return '';
+    var d = new Date(), today = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    var ago = o.y ? o.y + (o.y === 1 ? ' year ago ' : ' years ago ') + (o.iso === today ? 'today' : 'on ' + o.d) : (o.iso === today ? 'Today' : o.d);
+    var pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
+    return '<a class="hh-otd" href="' + esc(o.u) + '" aria-label="On This Day: ' + esc(o.t) + '">' +
+      (o.img ? '<span class="pr"><img src="' + esc(hsz(o.img, 400)) + '" alt="" decoding="async"></span>' : '') +
+      '<span class="tx"><span class="lb">On This Day</span><span class="ago">' + esc(ago) + '</span><b>' + esc(o.t) + '</b>' +
+      (o.ln ? '<span class="pl">' + pin + '<span>' + esc(o.ln) + '</span></span>' : '') +
+      (o.x ? '<span class="ex">' + esc(o.x) + '</span>' : '') + '</span></a>';
   }
   function archPick(n) {
     if (!archOrder) { archOrder = ARCH.map(function (x, i) { return i; }); for (var i = archOrder.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = archOrder[i]; archOrder[i] = archOrder[j]; archOrder[j] = t; } }
@@ -1056,9 +1075,16 @@
       '<path fill="var(--r1)" opacity=".45" d="M0 200 L50 176 L100 194 L160 166 L220 188 L280 160 L322 132 L360 96 L384 122 L400 130 L400 260 L0 260Z"/>' +
       '<path fill="var(--r2)" opacity=".8" d="M0 226 L70 202 L130 220 L195 196 L255 216 L320 198 L360 206 L400 196 L400 260 L0 260Z"/></svg>' +
       '<svg class="hh-bunny" viewBox="0 0 20 24"><g fill="var(--r2)" opacity=".8" transform="translate(1 1)"><ellipse cx="9" cy="17" rx="8" ry="6.5"/><circle cx="15" cy="10" r="4.6"/><ellipse cx="13" cy="2" rx="1.6" ry="6"/><ellipse cx="17" cy="2" rx="1.6" ry="6"/><circle cx="2" cy="16" r="2.2"/></g></svg></div>';
-    homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge +
+    /* Nov 25 (Toby, mockups v215-v219): a status bar across the top, like a
+       phone or tablet: the greeting on the left, the date on the right
+       (the day in orange, opens Calendar). The corner where the big date
+       was holds the newest On This Day post as a journal page instead. */
+    var sday = now.toLocaleDateString('en-US', { weekday: 'short' }), smon = now.toLocaleDateString('en-US', { month: 'short' });
+    var status = '<div class="hh-status"><span class="hh-sg">' + greeting().replace(/\.$/, '') + '</span>' +
+      '<a class="hh-sd" href="/calendar/" aria-label="Open Calendar"><span class="dl"><em>' + day + '</em>, ' + mon + ' ' + now.getDate() + '</span><span class="ds"><em>' + sday + '</em>, ' + smon + ' ' + now.getDate() + '</span></a></div>';
+    homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge + status +
       '<div class="hh-area">' +
-        '<div class="hh-hello"><div class="hh-tx"><div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br> <span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div></div>' +
+        '<div class="hh-hello"><div class="hh-tx">' + (otdCard() || '<div class="hh-g">' + greeting() + '</div><a class="hh-s" href="/calendar/" aria-label="Open Calendar">It\'s <em>' + day + '</em>,<br> <span class="nw">' + mon + ' ' + ordinal(now.getDate()) + '.</span></a><div class="hh-p">' + esc(postsThisWeek()) + '</div>') + '</div>' +
         /* phones show QUAD, unfolded and tablets TQUAD (Nov 8): each icon
            says which (q-p, q-t) and its place in each (--po, --to) */
         '<div class="hh-quad" style="--qn:' + TQUAD.length + '">' + QUAD.concat(TQUAD.filter(function (k) { return QUAD.indexOf(k) < 0; })).map(function (k) {
@@ -1199,12 +1225,12 @@
   var DKFULL = false;
   function dkFive() {
     var five = DKMQ.matches && innerWidth < 1200,
-      /* Nov 24 (Toby, mockup v212): the iPad mini sideways (700px tall or
-         less) keeps one row of five by the date; the next five join All apps */
+      /* the iPad mini sideways (700px tall or less, Nov 24, mockup v212;
+         Nov 25, v219: all ten apps again, the date moved to the status bar) */
       fs = five && innerHeight <= 700;
     homeEl.classList.toggle('dk5', five);
     homeEl.classList.toggle('dk5s', fs);
-    homeEl.classList.toggle('dk-full', DKFULL && (!five || DKAPPS.length <= (fs ? TQUAD.length : DK10.length)));
+    homeEl.classList.toggle('dk-full', DKFULL && (!five || DKAPPS.length <= DK10.length));
     de.classList.toggle('hutch-dk5', five);
     de.classList.toggle('hutch-dk5s', fs);
   }
@@ -1612,6 +1638,18 @@
         wi.classList.add('line'); pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
         if (!wok()) { wi.classList.remove('line'); homeEl.classList.add('nowin'); }
       }
+    }
+    /* phones (Nov 25): the ASL pill and "+N more" step aside when the
+       card has no room left for them (a short phone like the iPhone SE) */
+    var wph = homeEl.querySelector('.hh-word .hh-wph');
+    if (wph) {
+      wph.hidden = false;
+      var wpc = wph.closest('.hh-word');
+      if (wph.offsetParent && wph.getBoundingClientRect().bottom > wpc.getBoundingClientRect().bottom - (parseFloat(getComputedStyle(wpc).paddingBottom) || 0) / 2 + 1) wph.hidden = true;
+      /* then "+N more" still shows, beside the part of speech ("Verb +3 more") */
+      var wpos = wpc.querySelector('.pos'), wpm = wpos && wpos.querySelector('.wpm'), wpl = wph.querySelector('span:last-child:not(.hi)');
+      if (wpm) wpm.parentNode.removeChild(wpm);
+      if (wph.hidden && wpos && wpl && !wpos.querySelector('.more')) wpos.insertAdjacentHTML('beforeend', '<span class="more wpm">' + esc(wpl.textContent) + '</span>');
     }
     /* Word Nerd's example sentence shows on every screen where it fits under the meanings without making the
        card taller or cutting anything off (Nov 6, Toby: a one-meaning word

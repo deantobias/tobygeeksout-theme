@@ -21,7 +21,9 @@
 {{/* Nov 3 (Toby): up to 8, not 3. The phone shows 3; bigger screens show
      as many more as fit in the card's empty space (hutch.js fit()). Same
      order and rules as Recent Geekouts. */}}
-{{- range first 8 .pool -}}
+{{/* Nov 25 (Toby, mockup v219): On This Day posts have their own card
+     now ($otd below), so Recent Geekouts skips them */}}
+{{- range first 30 .pool -}}{{- if and (lt (len $recent) 8) (not (hasPrefix (trim .Title " ") "On This Day")) -}}
   {{- $posters := slice -}}
   {{- range findRE `(?s)(?:(?:book|movie)-card-poster|review-top-poster|watch-log-poster)[^>]*>\s*<img[^>]+src="[^"]+"` .Content -}}
     {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
@@ -39,7 +41,7 @@
   {{/* Nov 24 (Toby): the next two get their first lines too (one line on laptops) */}}
   {{- $x := "" -}}{{- if lt (len $recent) 3 -}}{{- if $rg.s -}}{{- $x = $rg.s -}}{{- else -}}{{- $x = partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate (cond (eq (len $recent) 0) 220 160) | htmlUnescape -}}{{- end -}}{{- end -}}
   {{- $recent = $recent | append (dict "t" $rg.t "u" .RelPermalink "d" (.Date.Format "Jan 2") "img" $thumb "x" (trim $x " ")) -}}
-{{- end -}}
+{{- end -}}{{- end -}}
 
 {{- $word := dict -}}
 {{/* Nov 2 fix: the class can sit anywhere in the tag, with either quote
@@ -97,7 +99,8 @@
 {{- range $shots.ByDate.Reverse -}}
   {{- if lt (len $photos6) 10 -}}{{/* up to 10: a shorter strip fits more, each kept near 4:3 (Nov 3) */}}
   {{- $p := . -}}
-  {{- if not (in (lower $p.Content) "credit:") -}}
+  {{/* Nov 25 (Toby): Latest photos is his new photos; On This Day has its own card */}}
+  {{- if and (not (in (lower $p.Content) "credit:")) (not (hasPrefix (trim $p.Title " ") "On This Day")) -}}
     {{- $posters := slice -}}
     {{- range findRE `(?s)(?:book|movie)-card-poster[^>]*>\s*<img[^>]+src="[^"]+"` $p.Content -}}
       {{- $posters = $posters | append (htmlUnescape (replaceRE `(?s)^.*?<img[^>]+src="([^"]+)".*$` "$1" .)) -}}
@@ -113,6 +116,34 @@
       {{- $photos6 = $photos6 | append $one -}}
     {{- end -}}
   {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* otd (Nov 25, Toby, mockup v219): the newest On This Day post, for its
+     own journal-style card in the home screen's corner.
+       t  the title without "On This Day: "    u link
+       d  "Nov 24"    iso  2026-11-24 (the card says "today" on that day)
+       y  how many years ago, from "Took it 3 years ago today" (0 if
+          the post doesn't say)
+       img  his first upload    ln  the check-in place, else the
+          place in "... today in Albuquerque, New Mexico."
+       x  the post's first lines */}}
+{{- $otd := dict -}}
+{{- range (where $site.RegularPages "Type" "post").ByDate.Reverse -}}
+  {{- if and (not $otd) (hasPrefix (trim .Title " ") "On This Day") -}}
+    {{- $img := "" -}}
+    {{- range findRE `<img[^>]+src="[^"]+"` .Content -}}
+      {{- $u := htmlUnescape (replaceRE `(?s)^.*?src="([^"]+)".*$` "$1" .) -}}
+      {{- if and (not $img) (or (in $u "cdn.uploads.micro.blog") (in $u "/uploads/")) -}}{{- $img = $u -}}{{- end -}}
+    {{- end -}}
+    {{- $plain := trim (replaceRE `\s+` " " (.Plain | htmlUnescape)) " " -}}
+    {{- $y := 0 -}}
+    {{- with findRE `(?i)\b(\d{1,3})\s+years?\s+ago` $plain 1 -}}{{- $y = int (replaceRE `(?i)^(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
+    {{- $ln := "" -}}
+    {{- with .Params.location -}}{{- if reflect.IsMap . -}}{{- $ln = trim (string (.name | default "")) " '\"" -}}{{- end -}}{{- end -}}
+    {{- if not $ln -}}{{- with findRE `(?i)\bago today in ([^.!?]+)` $plain 1 -}}{{- $ln = trim (replaceRE `(?i)^ago today in ` "" (index . 0)) " ," -}}{{- end -}}{{- end -}}
+    {{- $x := partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 180 | htmlUnescape -}}
+    {{- $otd = dict "t" (trim (replaceRE `^On This Day\s*[:\-–—]?\s*` "" (trim .Title " ")) " ") "u" .RelPermalink "d" (.Date.Format "Jan 2") "iso" (.Date.Format "2006-01-02") "y" $y "img" $img "ln" $ln "x" (trim $x " ") -}}
   {{- end -}}
 {{- end -}}
 
@@ -490,4 +521,4 @@
 {{/* fx (Nov 14, v141): the email and RSS icons for the Blog's "Follow along" row */}}
 {{- $fx := slice (trim (partial "icon.html" (dict "name" "mail")) " \n") (trim (partial "icon.html" (dict "name" "rss")) " \n") -}}
 {{- $me := dict "n" (.me.n | default $site.Title) "av" (.me.av | default "") "user" (.me.user | default "") "fm" $fm "fx" $fx -}}
-<script type="application/json" id="hutch-home-data">{{ dict "me" $me "recent" $recent "word" $word "photo" $photo "photos" $photos6 "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>
+<script type="application/json" id="hutch-home-data">{{ dict "me" $me "recent" $recent "word" $word "photo" $photo "photos" $photos6 "otd" $otd "arch" $arch "now" $now "dates" $dates "cats" $cats "words" $words "tl" $tl | jsonify | safeJS }}</script>

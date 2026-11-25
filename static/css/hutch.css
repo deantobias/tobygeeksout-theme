@@ -1703,28 +1703,25 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
   #hutch-home .hh-now .hh-nitem .tx{gap:1px}
   #hutch-home .hh-now .hh-nitem .bar{margin-top:4px}
 }
-/* iPad mini sideways (Nov 24, Toby, mockup v212; #hutch-home.dk5s, 700px
-   tall or less, set by hutch.js dkFive): the first column has the date,
-   one row of apps right under it (the next five go to All apps, whose
-   handle shows), Currently, then Word Nerd. Recent Geekouts and From the
-   archive read a little smaller, and a Latest photos card like the
-   desktop's runs under them, six photos across in the desktop's shape. */
-#hutch-home.dk5s .hh-dk2{display:none}
+/* iPad mini sideways (#hutch-home.dk5s, 700px tall or less, set by
+   hutch.js dkFive). Nov 25 (Toby, mockup v219): the top row is the On
+   This Day card with all ten apps under it, Recent Geekouts and From the
+   archive (a little smaller); the bottom row is Currently, Word Nerd and
+   Latest photos (two photos). Room under the cards for the rabbit. */
 .hh-nitem .sn{display:none}
-html.hutch-dk5s #hutch-drawer:not(.q) [data-dk]:not([data-k5]){display:revert !important}
 @media (min-width:1100px) and (max-width:1299px) and (min-height:540px) and (orientation:landscape){
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-area{grid-template-areas:"hello posts arch" "now posts arch" "word strip strip";grid-template-rows:auto minmax(0,1fr) 184px;align-content:stretch;row-gap:12px}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-area{grid-template-areas:"hello posts arch" "now word strip";grid-template-rows:minmax(0,1fr) 196px;align-content:stretch;row-gap:12px;margin-bottom:22px}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-hello .hh-tx{flex:none}
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-hello .hh-s{font-size:30px}
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-dkapps{margin-top:8px}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-dkapps{margin-top:10px;row-gap:4px}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-word{max-height:none;min-height:0}
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-word .w{font-size:22px}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-word .w{font-size:24px}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-word .def,#hutch-home.dk5s.nostrip:not(.nonow) .hh-word .defs li{font-size:15.5px;line-height:1.4}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-photo{grid-area:strip}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-area:has(.hh-strip) .hh-photo{display:none}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-cats{display:none}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-strip{display:flex !important;flex-direction:column;grid-area:strip;min-height:0}
-  #hutch-home.dk5s.nostrip:not(.nonow) .hh-strip .hh-thumbs{flex:1;grid-template-columns:repeat(6,1fr);grid-template-rows:1fr;gap:10px;margin-top:8px;min-height:0}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-strip .hh-thumbs{flex:1;grid-template-columns:repeat(2,1fr);grid-template-rows:1fr;gap:10px;margin-top:8px;min-height:0}
+  #hutch-home.dk5s.nostrip:not(.nonow) .hh-strip .hh-thumbs a:nth-child(n+3){display:none}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-strip .hh-thumbs a{aspect-ratio:auto;height:auto}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-now{min-height:0}
   #hutch-home.dk5s.nostrip:not(.nonow) .hh-now .hh-ntwo{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
@@ -2134,3 +2131,73 @@ html .hh-brand .face{background:#C4622D}
 #hutch-home .hh-word .hh-win.line .ch>span:not(.pl)+span:not(.pl)::before{content:" · "}
 #hutch-home .hh-word .hh-win.line svg{display:none}
 @media (max-width:599px){#hutch-home .hh-word .hh-win{display:none !important}}
+
+/* ---------- Status bar and On This Day (Nov 25, Toby, mockups v215-v219) ----------
+   A status bar across the top of the home screen, like a phone or tablet:
+   the greeting on the left, the date on the right (the day in orange; it
+   opens Calendar). Phones and small tablets say "Wed, Nov 25", wider
+   screens "Wednesday, November 25". The corner where the big date was now
+   holds the newest On This Day post as a journal page: the photo as a
+   tilted print, "3 years ago today", the title, the place and its first
+   lines. Colors are 7:1 or better against their backgrounds. */
+.hh-status{position:relative;z-index:3;flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  height:28px;padding:0 16px;font:500 13px/1 var(--h-ui);color:#1F2433;letter-spacing:.01em;
+  background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(31,36,51,.08)}
+.hh-status .hh-sd{font-weight:600;white-space:nowrap;color:#1F2433}
+.hh-status em{font-style:normal;font-weight:700;color:#7A3312}
+.hh-status .dl{display:none}
+#hutch-home[data-sky="dusk"] .hh-status,#hutch-home[data-sky="night"] .hh-status{background:rgba(8,12,24,.5);color:#F3EEE7;border-bottom-color:rgba(255,255,255,.08)}
+#hutch-home[data-sky="dusk"] .hh-status .hh-sd,#hutch-home[data-sky="night"] .hh-status .hh-sd{color:#F3EEE7}
+#hutch-home[data-sky="dusk"] .hh-status em,#hutch-home[data-sky="night"] .hh-status em{color:#F2A27A}
+@media (min-width:700px){
+  .hh-status{height:30px;padding:0 26px;font-size:14px}
+  .hh-status .dl{display:inline}.hh-status .ds{display:none}
+}
+#hutch-home .hh-otd{display:flex;align-items:center;gap:12px;width:100%;min-width:0;background:#FFFBF3;border:1px solid #EADFCF;border-radius:16px;
+  padding:10px 12px;box-shadow:0 6px 18px rgba(31,36,51,.10);color:#1F2433;-webkit-tap-highlight-color:transparent}
+#hutch-home .hh-otd:active{opacity:.85}
+.hh-otd .pr{flex:none;background:#fff;padding:4px 4px 12px;transform:rotate(-3deg);box-shadow:0 4px 10px rgba(31,36,51,.22);border-radius:2px}
+.hh-otd .pr img{display:block;width:56px;height:50px;object-fit:cover}
+.hh-otd .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hh-otd .lb{font:700 12px/1.1 var(--h-ui);letter-spacing:.12em;text-transform:uppercase;color:#7E3A16}
+.hh-otd .ago{font:italic 600 15px/1.2 Georgia,'Times New Roman',serif;color:#8A3B18}
+.hh-otd b{font:700 14.5px/1.25 var(--h-ui);color:#1F2433;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hh-otd .pl{display:none;align-items:center;gap:4px;font:500 13.5px/1.3 var(--h-ui);color:#4A5468;min-width:0}
+.hh-otd .pl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hh-otd .pl svg{width:14px;height:14px;flex:none;color:#984A20}
+.hh-otd .ex{display:none;font:400 15px/1.4 var(--h-ui);color:#3A4256;margin-top:2px;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* laptops and tablets held sideways: the bigger journal page, with the place and its first lines */
+@media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
+  #hutch-home .hh-hello .hh-tx{flex:none;width:100%}
+  #hutch-home .hh-otd{gap:20px;padding:14px 18px;border-radius:20px}
+  .hh-otd .pr{padding:6px 6px 18px}
+  .hh-otd .pr img{width:130px;height:102px}
+  .hh-otd .tx{gap:4px}
+  .hh-otd .ago{font-size:20px}
+  .hh-otd b{font-size:18px;-webkit-line-clamp:2}
+  .hh-otd .pl{display:flex}
+  .hh-otd .ex{display:-webkit-box}
+  #hutch-home.dk5s .hh-otd{gap:14px;padding:12px 14px}
+  #hutch-home.dk5s .hh-otd .pr img{width:116px;height:92px}
+  #hutch-home.dk5s .hh-otd .ago{font-size:17px}
+  #hutch-home.dk5s .hh-otd b{font-size:15px}
+  #hutch-home.dk5s .hh-otd .ex{font-size:13.5px}
+}
+/* short laptops (650px tall or less, like a 13" Windows): the On This Day
+   card drops its first lines and shrinks its print, so Recent Geekouts
+   keeps its rows and the rabbit stays in view */
+@media (min-width:1100px) and (max-height:650px) and (orientation:landscape){
+  #hutch-home:not(.dk5s) .hh-otd{padding:10px 14px;gap:16px}
+  #hutch-home:not(.dk5s) .hh-otd .pr img{width:100px;height:78px}
+  #hutch-home:not(.dk5s) .hh-otd .ex{display:none}
+}
+/* Word Nerd on phones (Nov 25, Toby): the ASL pill and "+N more", so the card
+   says there's more inside, like the bigger screens' "Also inside" */
+.hh-word .hh-wph{display:none}
+#hutch-home .hh-word .hh-wph[hidden]{display:none !important}
+@media (max-width:599px){
+  #hutch-home .hh-word .hh-wph{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .hh-wph span{display:inline-flex;align-items:center;gap:4px;font:600 12.5px/1 var(--h-ui);padding:6px 10px;border-radius:999px;border:1px solid #E3CFC2;color:#1F2433;background:#fff}
+  .hh-wph span.hi{background:#F6E2D6;border-color:#F6E2D6}
+  .hh-wph svg{width:14px;height:14px}
+}

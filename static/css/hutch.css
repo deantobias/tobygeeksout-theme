@@ -1574,7 +1574,7 @@ html.hx-splash-out::before,html.hx-splash-out::after{opacity:0;transition:opacit
 @media (min-width:520px) and (max-width:1399px) and (min-height:900px) and (orientation:portrait), (min-width:1400px) and (min-height:900px) and (orientation:portrait){
   /* the photo and Word Nerd stop at a comfortable height; any room left
      stays at the bottom (Nov 6, Toby: on a Galaxy Tab upright they got too tall) */
-  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats";grid-template-rows:auto auto minmax(0,320px) auto;align-content:start}
+  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats";grid-template-rows:auto auto minmax(0,270px) auto;align-content:start}
   #hutch-home:not(.nonow) .hh-cats{grid-area:cats;display:flex;flex-direction:column;padding:14px 16px 12px}
   #hutch-home:not(.nonow) .hh-cats .hh-chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;margin-top:10px;max-height:94px;overflow:hidden}
   #hutch-home:not(.nonow) .hh-chips a{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:#F4EEE7;font:600 14px var(--h-ui);color:#1E2D4A}
@@ -2190,6 +2190,102 @@ html .hh-brand .face{background:#C4622D}
   #hutch-home:not(.dk5s) .hh-otd{padding:10px 14px;gap:16px}
   #hutch-home:not(.dk5s) .hh-otd .pr img{width:100px;height:78px}
   #hutch-home:not(.dk5s) .hh-otd .ex{display:none}
+}
+/* tablets held upright (Nov 25, Toby: "the widget is small", "apps need
+   to line up with the cards below", "remove categories like the phone"):
+   the top row splits like the cards under it, the On This Day card filling
+   the left column and the apps spread across the right one, first icon
+   over the card's left text edge and last over its right. Top categories
+   steps aside; tall tablets get the Latest photos strip in its place. */
+@media (min-width:520px) and (min-height:900px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-hello{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--gap);align-items:center;padding-left:0;padding-right:0}
+  #hutch-home:not(.nonow) .hh-hello .hh-tx{width:100%;min-width:0}
+  #hutch-home:not(.nonow) .hh-quad,#hutch-home:not(.nonow) .hh-dkapps{width:100%;max-width:none;min-width:0;flex:none;margin:0;box-sizing:border-box;padding:0 14px;
+    grid-template-columns:repeat(var(--qn,5),auto);justify-content:space-between;justify-items:center}
+  #hutch-home .hh-otd{gap:18px;padding:14px 18px;border-radius:20px}
+  .hh-otd .pr{padding:6px 6px 18px}
+  .hh-otd .pr img{width:118px;height:94px}
+  .hh-otd .tx{gap:4px}
+  .hh-otd .ago{font-size:19px}
+  .hh-otd b{font-size:17.5px}
+  .hh-otd .pl{display:flex}
+  .hh-otd .ex{display:-webkit-box;font-size:14.5px}
+  #hutch-home:not(.nonow) .hh-cats{display:none !important}
+  /* Word Nerd and the photo about as tall as the row above, so the cards
+     look the same size; any room left stays at the bottom, by the rabbit
+     (Nov 25, Toby) */
+  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo";grid-template-rows:auto auto minmax(0,300px);align-content:start}
+  /* Currently's two items the same height, so the poster and the cover match */
+  #hutch-home:not(.nonow) .hh-now .hh-ntwo{grid-auto-rows:1fr}
+  /* all ten apps in two rows beside the card (Nov 25, Toby: "it can have a
+     second line for apps"), so All apps goes away, like on a laptop */
+  #hutch-home .hh-quad,#hutch-home:not(.nonow) .hh-quad{display:none}
+  #hutch-home .hh-dkapps,#hutch-home:not(.nonow) .hh-dkapps{display:grid;grid-template-columns:repeat(5,auto);justify-content:space-between;justify-items:center;gap:10px 0;width:100%;max-width:none;flex:none;margin:0;padding:0 14px;box-sizing:border-box}
+  #hutch-home .hh-dkapps .hh-dk2{display:contents}
+  #hutch-home .hh-dkapps .hh-ic{width:64px;font-size:12px;gap:5px}
+  #hutch-home .hh-dkapps .hh-ic span:last-child{white-space:nowrap;overflow:visible;max-width:none}
+  #hutch-home .hh-dkapps .hh-tile{width:50px;height:50px}
+  #hutch-home .hh-dkapps .hh-tile .hx-ic{width:23px;height:23px}
+  #hutch-home.dk-full .hh-handle{display:none}
+  #hutch-drawer:not(.q) [data-dk]{display:none !important}
+}
+/* tall tablets upright (an iPad Pro, 1050px tall or more; Nov 25, Toby:
+   "identical to the iPad mini, but add categories at the bottom"): the
+   same cards as the iPad mini, with Top categories across the bottom */
+@media (min-width:520px) and (min-height:1050px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats"}
+  #hutch-home:not(.nonow) .hh-arch,#hutch-home:not(.nonow) .hh-strip{display:none !important}
+  #hutch-home:not(.nonow) .hh-cats{display:flex !important;flex-direction:column;grid-area:cats;min-height:0;padding:14px 16px 12px}
+  #hutch-home:not(.nonow) .hh-cats .hh-chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;margin-top:10px;flex:none;max-height:94px;contain:none;overflow:hidden}
+}
+@media (min-width:520px) and (max-width:1099px) and (min-height:1050px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(0,270px) auto;align-content:start}
+}
+/* iPad Pro upright and other wide tablets (Nov 25, Toby: "give On This
+   Day more height"): a bigger print and type, the photo row a little shorter */
+@media (min-width:1000px) and (min-height:1050px) and (orientation:portrait){
+  .hh-otd .pr img{width:150px;height:118px}
+  .hh-otd .ago{font-size:21px}
+  .hh-otd b{font-size:19px}
+  .hh-otd .ex{font-size:15.5px}
+}
+@media (min-width:1000px) and (max-width:1099px) and (min-height:1050px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(0,250px) auto}
+}
+/* phones 740px tall or more (Nov 25, Toby, mockup v220: "the phone looks
+   much better"): On This Day goes full width with the whole title and the
+   place, and five apps sit in a row under it, over the dock's five icons
+   (Follow joins Den, Surprise, Settings and Knowember; All apps lists the
+   rest, like on tablets). Shorter phones like the iPhone SE keep the card
+   beside four apps. */
+@media (max-width:519px) and (min-height:740px){
+  #hutch-home .hh-hello{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin:0}
+  #hutch-home .hh-hello .hh-tx{width:100%;padding-left:0}
+  #hutch-home .hh-hello .hh-quad{align-self:stretch;width:100%;grid-template-columns:repeat(5,1fr);justify-items:center;gap:0}
+  #hutch-home .hh-q.q-t{display:contents}
+  #hutch-home .hh-q.q-p{display:none}
+  #hutch-home .hh-quad .hh-ic{order:var(--to)}
+  #hutch-drawer:not(.q) [data-ph]{display:revert}
+  #hutch-drawer:not(.q) [data-pt]{display:none}
+}
+/* phones (Nov 25, Toby: "the photo is too small to see"): the card is as
+   tall as the four apps beside it, so the print can be bigger */
+@media (max-width:519px){
+  #hutch-home .hh-hello{align-items:stretch}
+  #hutch-home .hh-hello .hh-tx{display:flex;align-items:stretch}
+  #hutch-home .hh-hello .hh-quad{align-self:center}
+  #hutch-home .hh-otd{gap:10px;padding:10px}
+  .hh-otd .pr img{width:74px;height:84px}
+  .hh-otd .ago{font-size:14.5px}
+  .hh-otd b{font-size:14px}
+}
+@media (max-width:519px) and (min-height:740px){
+  #hutch-home .hh-hello .hh-tx{display:block}
+  #hutch-home .hh-otd{padding:12px 14px;gap:14px}
+  .hh-otd .pr img{width:96px;height:80px}
+  .hh-otd .ago{font-size:16px}
+  .hh-otd b{font-size:16px}
+  .hh-otd .pl{display:flex}
 }
 /* Word Nerd on phones (Nov 25, Toby): the ASL pill and "+N more", so the card
    says there's more inside, like the bigger screens' "Also inside" */

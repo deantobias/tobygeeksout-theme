@@ -604,12 +604,14 @@
          on the home screen they are widgets, not icons. Searching still
          finds every app. The Tinkering Log lives in Settings. */
       /* phones and tablets have different apps on the home screen (Nov 8) */
-      var onPh = DOCK.concat(QUAD), onTb = DOCK.concat(TQUAD, DOCK6 ? [DOCK6] : []);
+      var onPh = DOCK.concat(QUAD), onTb = DOCK.concat(TQUAD, DOCK6 ? [DOCK6] : []),
+        /* taller phones show the tablets' five by On This Day (Nov 25, mockup v220) */
+        onPt = DOCK.concat(TQUAD);
       /* on desktop, the apps already by the date don't repeat here */
       var keys = Object.keys(APPS).filter(function (k) { return !NOHOME[k]; }).sort(function (a, b) { return APPS[a][0].localeCompare(APPS[b][0]); });
       drawer = sheet('hutch-drawer',
         '<label class="hx-field"><span class="hs-ic">' + ic('search') + '</span><input type="search" placeholder="Search apps" aria-label="Search apps" autocomplete="off"></label>' +
-        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (DK10.indexOf(k) > -1 ? ' data-k10' : '') + (TQUAD.indexOf(k) > -1 ? ' data-k5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
+        '<div class="hx-lab">All apps</div><div class="hx-scroll"><div class="hx-dgrid">' + keys.map(function (k) { return '<div data-k="' + k + '" data-n="' + APPS[k][0].toLowerCase() + '"' + (onPh.indexOf(k) > -1 ? ' data-ph' : '') + (onTb.indexOf(k) > -1 ? ' data-tb' : '') + (onPt.indexOf(k) > -1 ? ' data-pt' : '') + (DKAPPS.indexOf(k) > -1 ? ' data-dk' : '') + (DK10.indexOf(k) > -1 ? ' data-k10' : '') + (TQUAD.indexOf(k) > -1 ? ' data-k5' : '') + '>' + appIcon(k) + '</div>'; }).join('') + '</div></div>');
       var inp = drawer.querySelector('input');
       inp.addEventListener('input', function () {
         var q = inp.value.trim().toLowerCase();

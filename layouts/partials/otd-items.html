@@ -15,8 +15,13 @@
        taken "Nov 25, 2012" (posted day minus y years; no year when y is 0)
        ty    2012 (0 when y is 0)
        img   his first upload        alt   its alt text, cleaned up
+             (a filename, or Instagram's "View on Instagram", counts
+             as no alt text; the title stands in)
        ln    the check-in place, else the place in "... today in X."
-       x     the post's first lines
+             (no period or comma left on the end)
+       x     the post's first lines, minus any sentence that ends by
+             pointing "below" or "above" (true on the post, where the
+             original photo follows, but not on a card)
        mk    "2026-11" (month it was posted)    mn   "November"
      Same reading rules as the Hutch card in hutch-home-data.html. */}}
 {{- $items := slice -}}
@@ -32,6 +37,7 @@
         {{- with findRE `alt="[^"]*"` $tag 1 -}}{{- $alt = htmlUnescape (replaceRE `^alt="(.*)"$` "$1" (index . 0)) -}}{{- end -}}
         {{- $alt = replaceRE `^Auto-generated description:\s*` "" $alt -}}
         {{- if findRE `(?i)^[\w.\-]+\.(jpe?g|png|webp|gif|heic)$` $alt 1 -}}{{- $alt = "" -}}{{- end -}}
+        {{- if findRE `(?i)^\s*view on instagram` $alt 1 -}}{{- $alt = "" -}}{{- end -}}
       {{- end -}}
     {{- end -}}
     {{- if $img -}}
@@ -47,7 +53,8 @@
       {{- $ln := "" -}}
       {{- with .Params.location -}}{{- if reflect.IsMap . -}}{{- $ln = trim (string (.name | default "")) " '\"" -}}{{- end -}}{{- end -}}
       {{- if not $ln -}}{{- with findRE `(?i)\bago today in ([^.!?]+)` $plain 1 -}}{{- $ln = trim (replaceRE `(?i)^ago today in ` "" (index . 0)) " ," -}}{{- end -}}{{- end -}}
-      {{- $x := partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 220 | htmlUnescape -}}
+      {{- $ln = trim $ln " .,;" -}}
+      {{- $x := partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | replaceRE `(?i)[^.!?]*\b(?:below|above)\s*[.!?]` "" | truncate 220 | htmlUnescape -}}
       {{- $items = $items | append (dict "t" $t "u" .RelPermalink "iso" (.Date.Format "2006-01-02") "y" $y "taken" $taken "ty" $ty "img" $img "alt" $alt "ln" $ln "x" (trim $x " ") "mk" (.Date.Format "2006-01") "mn" (.Date.Format "January")) -}}
     {{- end -}}
   {{- end -}}

@@ -447,6 +447,18 @@
         });
       });
     }
+    /* Nov 25 (Toby): Where to watch and More on Trakt for every show */
+    function tvWatch(tmdb) { return 'https://www.themoviedb.org/tv/' + tmdb + '/watch'; }
+    function trSeason(slug, n) { return 'https://trakt.tv/shows/' + encodeURIComponent(slug) + (n ? '/seasons/' + n : ''); }
+    /* a rated season: just the show's Trakt page and TMDB number (no episodes or pictures) */
+    var TVL = {};
+    function loadTvLinks(x) {
+      if (TVL[x.id]) return Promise.resolve(TVL[x.id]);
+      return findShow(x).then(function (f) {
+        if (f.tmdb) return f;
+        return showInfo(f.slug).then(function (s) { return { slug: f.slug, tmdb: s.tmdb }; }, function () { return f; });
+      }).then(function (f) { TVL[x.id] = f; return f; }, function () { return null; });
+    }
     function showInfo(slug) {
       return cached('tgo_den_show_v1_' + slug, 7 * DAY, function () {
         return tget('/shows/' + encodeURIComponent(slug) + '?extended=full').then(function (s) {
@@ -818,11 +830,13 @@
           h += '<div class="lbl">About the show</div>' + (t.show.ov ? '<p class="summary">' + esc(t.show.ov) + '</p>' : '') + (chips.length ? '<div class="chips">' + chips.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' : '');
         }
         if (p && p.thoughts.length) h += '<div class="lbl">My thoughts</div><div class="thoughts">' + p.thoughts.map(function (s) { return '<p class="summary">' + esc(s) + '</p>'; }).join('') + '</div>';
-        var tb = '';
-        if (t && t.slug) tb += ext('More on Trakt', 'https://trakt.tv/shows/' + encodeURIComponent(t.slug));
+        /* Nov 25 (Toby): a show gets the same buttons as a movie, Where to
+           watch first, then More on Trakt (this season's page) */
+        var tb = '', tw = (p && p.where) || (t && t.show && t.show.tmdb ? tvWatch(t.show.tmdb) : '');
+        if (tw) tb += ext('Where to watch', tw);
+        if (t && t.slug) tb += ext('More on Trakt', trSeason(t.slug, x.season));
         else if (!local(x.url) && x.url) tb += ext('More on Trakt', x.url);
-        if (p && p.where) tb += ext('Where to watch', p.where);
-        if (tb) h += '<div class="btns">' + tb + '</div>';
+        if (tb) h += '<div class="btns">' + tb + '</div>' + (tw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
         if (x.fin) return h + thisPost(x, p) + permaHtml('Finished ' + (x.date || x.d) + ' · Not rated yet', x);
         return h + thisPost(x, p) + permaHtml(x.d ? (local(x.url) ? 'Last posted ' : 'Last watched ') + x.d : '', x);
       }
@@ -886,14 +900,17 @@
          rated yet, Where to watch and More on Trakt, found through Trakt
          when the post itself has no link for them */
       var mv1 = done && x.kind === 'Movie' ? MV[x.url] || null : null;
-      var mw = (p && p.where) || (mv1 && mv1.tmdb ? 'https://www.themoviedb.org/movie/' + mv1.tmdb + '/watch' : '');
+      /* Nov 25 (Toby): a rated season too, found through Trakt the same way */
+      var tv1 = done && x.kind === 'TV' ? TVL[x.id] || null : null;
+      var mw = (p && p.where) || (mv1 && mv1.tmdb ? 'https://www.themoviedb.org/movie/' + mv1.tmdb + '/watch' : '') || (tv1 && tv1.tmdb ? tvWatch(tv1.tmdb) : '');
       if (mw) b += ext('Where to watch', mw);
       if (p && p.trailer) b += ext('Trailer', p.trailer);
       if (p && p.trakt) b += ext('More on Trakt', p.trakt);
       else if (mv1 && mv1.slug) b += ext('More on Trakt', 'https://trakt.tv/movies/' + encodeURIComponent(mv1.slug));
+      else if (tv1 && tv1.slug) b += ext('More on Trakt', trSeason(tv1.slug, x.season));
       else if (p && p.tmdb && !p.where) b += ext('More on TMDB', p.tmdb);
       else if (!local(x.url) && x.url) b += ext('More on Trakt', x.url);
-      if (b) h += '<div class="btns">' + b + '</div>' + (mv1 && mw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
+      if (b) h += '<div class="btns">' + b + '</div>' + ((mv1 || tv1) && mw ? '<p class="hint">Where to watch lists the streaming, rent and buy choices.</p>' : '');
       return h + thisPost(x, p) + permaHtml(x.sec === 'queue' ? 'On the Waiting for list' : done ? (x.wdate ? 'Rated ' : 'Finished ') + (x.date || x.d) : (x.d ? 'Started ' + x.d : ''), x);
     }
     function rateHtml(x, p) {
@@ -936,6 +953,7 @@
       loadPost(x).then(function (p) { if (p) patch(x); if (x.sec === 'queue') loadInfo(x, p).then(function (i) { if (i) patch(x); }); });
       if (x.sec === 'watching' || (x.fin && x.kind === 'TV')) loadShow(x).then(function (t) { if (t) { patch(x); paintCards(); } });
       if (x.fin && x.kind === 'Movie') loadInfo(x, null).then(function (i) { if (i) patch(x); });
+      if (x.kind === 'TV' && x.sec === 'history' && !x.fin) loadTvLinks(x).then(function (v) { if (v) patch(x); });
       /* every movie (Nov 20): the missing rows, then The crowd */
       if (x.kind === 'Movie' && (x.sec === 'history' || x.sec === 'queue')) {
         loadPost(x).then(function (p) { return loadMovie(x, p); }).then(function (mv) {

@@ -2002,8 +2002,8 @@
     var logoImg = '<img class="hbl-logo" src="' + LOGO + '" alt="' + esc(PAGE.site || 'Toby Geeks Out!') + '" width="1500" height="600" decoding="async">';
     var tg = (window.tgoTaglines && window.tgoTaglines[0]) || '';
     /* Nov 24 (Toby, v214): Reel and Remote, his movie and TV posts; the
-       tabs on phones say "Reel & Remote" (the fourth item) */
-    var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures'], ['reel', 'Reel and Remote', 'movies and TV', 'Reel &amp; Remote']];
+       tabs on phones say "Watch" (the fourth item; Nov 25, Toby: shorter) */
+    var TABS = [['all', 'All', 'everything'], ['posts', 'Posts', 'with a title'], ['micro', 'Micros', 'short notes'], ['photos', 'Photos', 'posts with pictures'], ['reel', 'Reel and Remote', 'movies and TV', 'Watch']];
     var I = {
       more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
       reply: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',

@@ -2217,7 +2217,7 @@ html .hh-brand .face{background:#C4622D}
   /* Word Nerd and the photo about as tall as the row above, so the cards
      look the same size; any room left stays at the bottom, by the rabbit
      (Nov 25, Toby) */
-  #hutch-home:not(.nonow) .hh-area{margin-bottom:56px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;grid-template-areas:"hello hello" "posts now" "word photo";grid-template-rows:auto auto minmax(210px,auto);align-content:start}
+  #hutch-home:not(.nonow) .hh-area{margin-bottom:56px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;grid-template-areas:"hello hello" "posts now" "word photo";grid-template-rows:auto auto minmax(0,1fr);align-content:start}
   /* each card as tall as what's in it, no empty space inside (Nov 25,
      Toby, mockup v221: the same on the iPad mini and the iPad Pro) */
   #hutch-home:not(.nonow) .hh-word{justify-content:flex-start}
@@ -2272,8 +2272,10 @@ html .hh-brand .face{background:#C4622D}
   #hutch-home .hh-hello .hh-quad{align-self:center}
   #hutch-home .hh-otd{gap:10px;padding:10px}
   .hh-otd .pr img{width:74px;height:84px}
-  .hh-otd .ago{font-size:14.5px}
-  .hh-otd b{font-size:14px}
+  /* Nov 25 (Toby): "14 years ago today" smaller and on one line, so the
+     title gets the room (three lines) */
+  .hh-otd .ago{font-size:12.5px;white-space:nowrap}
+  .hh-otd b{font-size:14px;-webkit-line-clamp:3}
 }
 @media (max-width:519px) and (min-height:700px){
   #hutch-home .hh-hello .hh-tx{display:block}
@@ -2281,7 +2283,10 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd .pr img{width:96px;height:80px}
   .hh-otd .ago{font-size:16px}
   .hh-otd b{font-size:16px}
-  .hh-otd .pl{display:flex}
+  .hh-otd .pl{display:flex;align-items:flex-start}
+  /* the whole place, on two lines if it needs them (Nov 25, Toby) */
+  .hh-otd .pl span{white-space:normal;overflow:visible;text-overflow:clip}
+  .hh-otd .pl svg{margin-top:2px}
 }
 /* Word Nerd on phones (Nov 25, Toby): the ASL pill and "+N more", so the card
    says there's more inside, like the bigger screens' "Also inside" */
@@ -2319,7 +2324,11 @@ html .hh-brand .face{background:#C4622D}
   #hutch-home:not(.nonow) .hh-word .pos{font-size:17px}
   #hutch-home:not(.nonow) .hh-word .def{font-size:20px;line-height:1.4;margin-top:6px}
   #hutch-home:not(.nonow) .hh-word .wex,#hutch-home.noex:not(.nonow) .hh-word .wex{display:block;font-size:16px;margin-top:10px}
-  /* Currently a little bigger (Nov 25, Toby) */
+  #hutch-home:not(.nonow) .hh-word::after{display:none}
+  /* Currently a little bigger, its two items stacked (Nov 25, Toby: "too
+     much space" side by side on a wider iPad Pro) */
+  #hutch-home:not(.nonow) .hh-now .hh-ntwo{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem{flex-direction:row;align-items:center}
   #hutch-home:not(.nonow) .hh-now .hh-nitem{gap:16px;padding:12px 14px}
   #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:72px !important;height:104px !important}
   #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:12.5px}

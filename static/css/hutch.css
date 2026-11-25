@@ -2198,7 +2198,10 @@ html .hh-brand .face{background:#C4622D}
    over the card's left text edge and last over its right. Top categories
    steps aside; tall tablets get the Latest photos strip in its place. */
 @media (min-width:520px) and (min-height:900px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-hello{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--gap);align-items:center;padding-left:0;padding-right:0}
+  /* the same 14px between every card, across and down (Nov 25, Toby: "the
+     gaps between widgets are different"), and the top row's two halves line
+     up with the cards below */
+  #hutch-home:not(.nonow) .hh-hello{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:14px;align-items:center;padding:0}
   #hutch-home:not(.nonow) .hh-hello .hh-tx{width:100%;min-width:0}
   #hutch-home:not(.nonow) .hh-quad,#hutch-home:not(.nonow) .hh-dkapps{width:100%;max-width:none;min-width:0;flex:none;margin:0;box-sizing:border-box;padding:0 14px;
     grid-template-columns:repeat(var(--qn,5),auto);justify-content:space-between;justify-items:center}
@@ -2210,11 +2213,19 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd b{font-size:17.5px}
   .hh-otd .pl{display:flex}
   .hh-otd .ex{display:-webkit-box;font-size:14.5px}
-  #hutch-home:not(.nonow) .hh-cats{display:none !important}
+  #hutch-home:not(.nonow) .hh-cats,#hutch-home:not(.nonow) .hh-arch,#hutch-home:not(.nonow) .hh-strip{display:none !important}
   /* Word Nerd and the photo about as tall as the row above, so the cards
      look the same size; any room left stays at the bottom, by the rabbit
      (Nov 25, Toby) */
-  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo";grid-template-rows:auto auto minmax(0,300px);align-content:start}
+  #hutch-home:not(.nonow) .hh-area{margin-bottom:56px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;grid-template-areas:"hello hello" "posts now" "word photo";grid-template-rows:auto auto minmax(210px,auto);align-content:start}
+  /* each card as tall as what's in it, no empty space inside (Nov 25,
+     Toby, mockup v221: the same on the iPad mini and the iPad Pro) */
+  #hutch-home:not(.nonow) .hh-word{justify-content:flex-start}
+  #hutch-home:not(.nonow) .hh-word .w{margin-top:6px}
+  /* Recent Geekouts: the first lines of each of the three posts (Nov 25,
+     Toby: "it has some room"), two for the newest, one for the next two */
+  #hutch-home .hh-posts .hh-row.feat .x{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 15px/1.45 var(--h-ui);color:#4A5468;margin-top:4px}
+  #hutch-home .hh-posts .hh-row:not(.feat) .x{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font:400 14px/1.4 var(--h-ui);color:#4A5468;margin-top:2px}
   /* Currently's two items the same height, so the poster and the cover match */
   #hutch-home:not(.nonow) .hh-now .hh-ntwo{grid-auto-rows:1fr}
   /* all ten apps in two rows beside the card (Nov 25, Toby: "it can have a
@@ -2229,18 +2240,6 @@ html .hh-brand .face{background:#C4622D}
   #hutch-home.dk-full .hh-handle{display:none}
   #hutch-drawer:not(.q) [data-dk]{display:none !important}
 }
-/* tall tablets upright (an iPad Pro, 1050px tall or more; Nov 25, Toby:
-   "identical to the iPad mini, but add categories at the bottom"): the
-   same cards as the iPad mini, with Top categories across the bottom */
-@media (min-width:520px) and (min-height:1050px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-area{grid-template-areas:"hello hello" "posts now" "word photo" "cats cats"}
-  #hutch-home:not(.nonow) .hh-arch,#hutch-home:not(.nonow) .hh-strip{display:none !important}
-  #hutch-home:not(.nonow) .hh-cats{display:flex !important;flex-direction:column;grid-area:cats;min-height:0;padding:14px 16px 12px}
-  #hutch-home:not(.nonow) .hh-cats .hh-chips{display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;margin-top:10px;flex:none;max-height:94px;contain:none;overflow:hidden}
-}
-@media (min-width:520px) and (max-width:1099px) and (min-height:1050px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(0,270px) auto;align-content:start}
-}
 /* iPad Pro upright and other wide tablets (Nov 25, Toby: "give On This
    Day more height"): a bigger print and type, the photo row a little shorter */
 @media (min-width:1000px) and (min-height:1050px) and (orientation:portrait){
@@ -2248,9 +2247,6 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd .ago{font-size:21px}
   .hh-otd b{font-size:19px}
   .hh-otd .ex{font-size:15.5px}
-}
-@media (min-width:1000px) and (max-width:1099px) and (min-height:1050px) and (orientation:portrait){
-  #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(0,250px) auto}
 }
 /* phones 700px tall or more (Nov 25, Toby, mockup v220: "the phone looks
    much better"): On This Day goes full width with the whole title and the
@@ -2308,4 +2304,25 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd .ago{font-size:14.5px}
   .hh-otd b{font-size:15px;-webkit-line-clamp:1}
   .hh-otd .pl{font-size:12.5px}
+}
+/* big tablets upright (1150px tall or more, like the iPad Pro; Nov 25,
+   Toby): Word Nerd and the photo as tall as Recent Geekouts and
+   Currently. The grid sizes to its cards, so both card rows match the
+   taller one, and the room that's left stays by the rabbit. */
+@media (min-width:520px) and (min-height:1150px) and (orientation:portrait){
+  #hutch-home:not(.nonow) .hh-area{flex:0 0 auto;grid-template-rows:auto 1fr 1fr;margin-bottom:auto}
+  /* Word Nerd fills its card (Nov 25, Toby, mockup v224): bigger type,
+     the example sentence, the word and meaning in the middle */
+  #hutch-home:not(.nonow) .hh-word{position:relative;justify-content:center;padding-top:40px}
+  #hutch-home:not(.nonow) .hh-word .hh-wtag{position:absolute;top:16px;left:18px;right:18px;margin:0}
+  #hutch-home:not(.nonow) .hh-word .w{font-size:40px;margin-top:0}
+  #hutch-home:not(.nonow) .hh-word .pos{font-size:17px}
+  #hutch-home:not(.nonow) .hh-word .def{font-size:20px;line-height:1.4;margin-top:6px}
+  #hutch-home:not(.nonow) .hh-word .wex,#hutch-home.noex:not(.nonow) .hh-word .wex{display:block;font-size:16px;margin-top:10px}
+  /* Currently a little bigger (Nov 25, Toby) */
+  #hutch-home:not(.nonow) .hh-now .hh-nitem{gap:16px;padding:12px 14px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem img,#hutch-home:not(.nonow) .hh-now .hh-nitem .cv{width:72px !important;height:104px !important}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem small{font-size:12.5px}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem b{font-size:18px;line-height:1.25}
+  #hutch-home:not(.nonow) .hh-now .hh-nitem i,#hutch-home:not(.nonow) .hh-now .hh-nitem em{font-size:15px;line-height:1.35}
 }

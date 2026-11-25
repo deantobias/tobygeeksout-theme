@@ -7,6 +7,11 @@ html.hxm-on{color-scheme:light}
 html.hxm-on body{background:#F3ECE1;padding-bottom:0}
 /* a memory open: nothing floats over its buttons */
 html.hxm-read .hx-top{display:none !important}
+/* a memory open: the page holds still (no Safari bounce on the iPad, Nov 25,
+   Toby); only a long post's words scroll, inside the page */
+html.hxm-read,html.hxm-read body{overflow:hidden;overscroll-behavior:none;height:100%}
+html.hxm-read .hxm-page{touch-action:pan-x pinch-zoom}
+html.hxm-read .hxm-wd,html.hxm-read .hxm-car{touch-action:auto}
 html.hxm-on #hutch-bar{background:#F3ECE1;color:#1F2433}
 html.hxm-on #hutch-bar.scrolled{box-shadow:0 1px 0 #E6DCCD,0 4px 14px rgba(31,36,51,.06)}
 

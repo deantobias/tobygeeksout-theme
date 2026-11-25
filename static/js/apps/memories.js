@@ -63,7 +63,8 @@
         (F.y ? '<div class="hxm-ago">' + esc(years(F, true)) + '</div>' : '') +
         '<h2 class="hxm-tt">' + esc(F.t) + '</h2>' + place(F, 'hxm-pl') +
         (F.x ? '<p class="hxm-wd">' + esc(F.x) + '</p>' : '') +
-        '<div class="hxm-acts"><button type="button" class="hxm-go hxm-read" data-i="0">Read the memory</button></div></div></section>';
+        /* Nov 25 (Toby): the button opens the post itself, like on a memory's page */
+        '<div class="hxm-acts">' + viewPost(F) + '</div></div></section>';
 
     /* filters: only the ones that hold a memory; none when only one would */
     var BANDS = [['all', 'All', function () { return true; }], ['a', '1–5 years ago', function (p) { return p.y >= 1 && p.y <= 5; }],
@@ -123,14 +124,19 @@
       page.innerHTML = '<div class="hxm-sheet">' +
         '<div class="hxm-pprint"><span class="hxm-print"><i class="hxm-tape" aria-hidden="true"></i>' +
           (n ? '<span class="hxm-car"' + (n > 1 ? ' role="button" tabindex="0" aria-label="Next photo"' : '') + '>' + shots + '</span>' : '<span class="hxm-blank" aria-hidden="true">' + esc(p.t) + '</span>') +
-          '<span class="hxm-hand">' + esc(p.tk || p.dl) + '</span></span>' + dots + (n > 1 ? '<span class="hxm-n" aria-live="polite">1 of ' + n + '</span>' : '') + '</div>' +
+          '<span class="hxm-hand">' + esc(p.tk || p.dl) + '</span></span>' + dots + (n > 1 ? '<span class="hxm-n hxm-sr" aria-live="polite">1 of ' + n + '</span>' : '') + '</div>' +
         '<div class="hxm-pwords"><span class="hxm-chip"><i aria-hidden="true"></i>On This Day · <time datetime="' + esc(p.d) + '">' + esc(p.dl) + '</time></span>' +
           (p.y ? '<div class="hxm-ago">' + esc(years(p, true)) + '</div>' : '') +
           '<h1 class="hxm-tt">' + esc(p.t) + '</h1>' + place(p, 'hxm-pl') +
-          (p.x ? '<p class="hxm-wd">' + esc(p.x) + '</p>' : '') +
-          '<div class="hxm-acts">' + viewPost(p) + '</div>' +
-          '<nav class="hxm-nav" aria-label="More memories"><button type="button" data-go="-1"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + 'Newer</button>' +
-            '<button type="button" data-go="1"' + (i === P.length - 1 ? ' disabled' : '') + '>Older' + ic('r') + '</button></nav></div></div>';
+          /* his own words with their links, bold and italic (Nov 25, Toby) */
+          (p.h ? '<div class="hxm-wd hxm-html">' + p.h + '</div>' : p.x ? '<p class="hxm-wd">' + esc(p.x) + '</p>' : '') +
+          /* View the post, Newer and Older share one row (Nov 25: the page fits the screen) */
+          '<div class="hxm-acts">' + viewPost(p) +
+          '<nav class="hxm-nav" aria-label="More memories"><button type="button" data-go="-1" aria-label="Newer memory"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + '<span>Newer</span></button>' +
+            '<button type="button" data-go="1" aria-label="Older memory"' + (i === P.length - 1 ? ' disabled' : '') + '><span>Older</span>' + ic('r') + '</button></nav></div></div></div>';
+      page.querySelector('.hxm-print').classList.toggle('multi', n > 1);
+      [].forEach.call(page.querySelectorAll('.hxm-car img'), function (im) { if (!im.complete) im.addEventListener('load', fitSoon); });
+      fit();
       var car = page.querySelector('.hxm-car');
       if (car && n > 1) {
         var ds = page.querySelectorAll('.hxm-dots i'), lab = page.querySelector('.hxm-n'), last = 0, raf = 0;
@@ -149,6 +155,31 @@
         car.addEventListener('click', function () { car.scrollTo({ left: (at(car) + 1) % n * car.clientWidth, behavior: 'smooth' }); });
       }
     }
+    /* Nov 25 (Toby: "everything in one page without scrolling"): the
+       photo takes only the room the words and buttons leave, so a memory
+       fits on the screen. Very long posts still scroll, with the photo
+       never smaller than about a third of the screen. */
+    var fitT = 0;
+    function fitSoon() { clearTimeout(fitT); fitT = setTimeout(fit, 30); }
+    function fit() {
+      var im = page.querySelector('.hxm-car img'), sheet = page.querySelector('.hxm-sheet');
+      if (!im || !sheet || page.hidden) return;
+      /* offsetHeight: the photo's own height (the print is tilted, so its box is taller) */
+      /* side by side: wide screens, and phones held sideways */
+      var car = im.closest('.hxm-car'), wide = innerWidth >= 900 || (innerWidth > innerHeight && innerWidth >= 560 && innerHeight <= 520);
+      var cw = (car.parentNode.parentNode.clientWidth || car.clientWidth) - 16;
+      var nw = im.naturalWidth, nh = im.naturalHeight;
+      /* the tallest the photo can be at this width */
+      var capW = nw && nh ? Math.floor(cw * nh / nw) : Math.floor(cw * 0.75);
+      var minH = Math.round(innerHeight * (wide ? 0.4 : 0.22));
+      page.style.setProperty('--phh', capW + 'px');
+      /* how far the whole page runs past the screen with the photo at its tallest */
+      var over = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) - innerHeight;
+      var h = Math.max(minH, Math.min(capW, Math.floor(im.offsetHeight - over)));
+      page.style.setProperty('--phh', h + 'px');
+      /* several photos share one frame as wide as the first photo at that height */
+      page.style.setProperty('--phw', (nw && nh ? Math.min(cw, Math.round(h * nw / nh)) : cw) + 16 + 'px');
+    }
     function openPage(i, push) {
       if (!open) homeY = window.scrollY;
       show(i);
@@ -156,15 +187,17 @@
       else if (open) try { history.replaceState({ hxm: 1, i: i, deep: deep ? 1 : 0 }, ''); } catch (e) {}
       open = true;
       home.hidden = true; page.hidden = false;
-      root.classList.add('reading');
+      root.classList.add('reading'); de.classList.add('hxm-read');
       window.scrollTo(0, 0);
+      fit(); setTimeout(fit, 300);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSoon);
       setTimeout(function () { var h = page.querySelector('.hxm-tt'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }, 60);
     }
     function close() {
       if (!open) return;
       open = false;
       page.hidden = true; home.hidden = false; page.innerHTML = '';
-      root.classList.remove('reading');
+      root.classList.remove('reading'); de.classList.remove('hxm-read');
       var t = root.querySelector('.hxm-home [data-i="' + cur + '"]');
       window.scrollTo(0, homeY);
       if (t) {
@@ -219,7 +252,7 @@
     var rz = 0;
     window.addEventListener('resize', function () {
       clearTimeout(rz);
-      rz = setTimeout(function () { var m = mode(); if (m === M) return; M = m; root.setAttribute('data-mode', m); }, 120);
+      rz = setTimeout(function () { fit(); var m = mode(); if (m === M) return; M = m; root.setAttribute('data-mode', m); }, 120);
     });
 
     /* back here after a reload with a page still in history */

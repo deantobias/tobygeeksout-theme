@@ -13,7 +13,8 @@
            photo or a book or movie poster)
        ln / lu  the check-in place and its map link; with no check-in,
            the place in "... ago today in Albuquerque, New Mexico."
-       x   the post's words (up to about 700 characters)
+       x   the post's words (up to about 700 characters), plain
+       h   the post's words with their links, bold and italic (memory page)
        m   true when the post says more than x shows
      Same rules as the home screen's On This Day card (hutch-home-data).
      ============================================================ */}}
@@ -58,6 +59,23 @@
     {{- end -}}{{- end -}}
     {{- if not $ln -}}{{- with findRE `(?i)\bago today in ([^.!?]+)` $plain 1 -}}{{- $ln = trim (replaceRE `(?i)^ago today in ` "" (index . 0)) " ,." -}}{{- end -}}{{- end -}}
     {{- $x := $plain | truncate 700 | htmlUnescape -}}
+    {{/* h (Nov 25, Toby): the post's words with their own formatting for the
+         memory page: paragraphs, links, bold, italic, lists, quotes. Photos,
+         embeds and every other tag or attribute are left out. */}}
+    {{- $h := string $p.Content -}}
+    {{- range slice "script" "style" "iframe" "figure" "video" "audio" "svg" "noscript" "picture" "figcaption" -}}
+      {{- $h = replaceRE (printf `(?is)<%s\b.*?</%s>` . .) "" $h -}}
+    {{- end -}}
+    {{- $h = replaceRE `(?is)<blockquote[^>]*instagram[^>]*>.*?</blockquote>` "" $h -}}
+    {{- $h = replaceRE `(?i)<(img|source|hr|input|embed)\b[^>]*>` "" $h -}}
+    {{- $h = replaceRE `(?i)<a\b[^>]*?\shref="([^"]*)"[^>]*>` "⟪a href=\"$1\"⟫" $h -}}
+    {{- $h = replaceRE `(?i)</a\s*>` "⟪/a⟫" $h -}}
+    {{- $h = replaceRE `(?i)<(/?)(p|strong|em|b|i|br|ul|ol|li|blockquote)\b[^>]*>` "⟪$1$2⟫" $h -}}
+    {{- $h = replaceRE `<[^>]*>` "" $h -}}
+    {{- $h = replace (replace $h "⟪" "<") "⟫" ">" -}}
+    {{- $h = replaceRE `(?i)<a href="[^"]*">\s*</a>` "" $h -}}
+    {{- $h = replaceRE `(?i)<p>(\s|&nbsp;|<br/?>)*</p>` "" $h -}}
+    {{- $h = trim $h " \n\t" -}}
     {{- $item := dict
           "t" (trim (replaceRE `^On This Day\s*[:\-–—]?\s*` "" (trim $p.Title " ")) " ")
           "u" $p.RelPermalink
@@ -67,6 +85,7 @@
           "tk" $tk
           "ph" $ph
           "x" $x
+          "h" $h
           "m" (gt (len $plain) (len $x)) -}}
     {{- with $ln -}}{{- $item = merge $item (dict "ln" . "lu" $lu) -}}{{- end -}}
     {{/* like the Classic page (otd-items.html): no photo of his own, no memory */}}

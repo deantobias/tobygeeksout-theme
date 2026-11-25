@@ -624,7 +624,7 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hh-word.snug .pos.pos{margin-top:1px}
 .hh-word.snug .defs.defs{padding-top:3px;line-height:1.24}
 .hh-word.snug .defs.defs li{margin-bottom:2px}
-@media (max-width:519px) and (min-height:740px){ .hh-word .defs{font-size:14px} }
+@media (max-width:519px) and (min-height:700px){ .hh-word .defs{font-size:14px} }
 @media (min-width:520px) and (min-height:380px){ .hh-word .defs{font-size:15px} }
 /* Word Nerd's example sentence, styled like the quote in the Word Nerd app:
    italic, with the orange line on the left. Every screen; hutch.js fit()
@@ -674,7 +674,7 @@ a.hh-s:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hx-rabimg{position:absolute;left:36%;bottom:-36%;height:140%;width:auto;max-width:none;transform:none;pointer-events:none}
 
 /* ---------- 4. Home layouts ---------- */
-@media (max-width:519px) and (min-height:740px){
+@media (max-width:519px) and (min-height:700px){
   /* Regular phones (Pixel 11 Pro XL), Nov 2: bigger text, tighter spacing,
      so Word Nerd still has room for its definition */
   #hutch-home{--gap:10px}
@@ -1441,7 +1441,7 @@ html:not(.hbl-two) .hbl-right .hx-arr{display:none}
 #hutch-home .hh-posts .hh-row .x{display:none}
 #hutch-home .hh-posts .hh-row.feat .t.t{font-size:1.3em;line-height:1.18;letter-spacing:-.01em;-webkit-line-clamp:2}
 #hutch-home .hh-posts .hh-row.feat{font-size:15px}
-@media (max-width:519px) and (min-height:740px){ #hutch-home .hh-posts .hh-row.feat{font-size:16px} }
+@media (max-width:519px) and (min-height:700px){ #hutch-home .hh-posts .hh-row.feat{font-size:16px} }
 @media (min-width:520px) and (min-height:380px){ #hutch-home .hh-posts .hh-row.feat{font-size:16.5px} }
 @media (min-width:520px) and (min-height:640px) and (orientation:portrait){ #hutch-home .hh-posts .hh-row.feat{font-size:17.5px} }
 @media (min-width:1100px) and (min-height:540px) and (orientation:landscape){
@@ -2111,7 +2111,7 @@ html .hh-brand .face{background:#C4622D}
 /* Nov 24 (Toby): the home Word Nerd card's "Also inside" pills, like the
    Blog's word card; hutch.js shows them only where they fit (one row) */
 #hutch-home .hh-word .hh-win{margin-top:12px;zoom:var(--tz,1)}
-#hutch-home.nowin .hh-word .hh-win{display:none}
+#hutch-home.nowin .hh-word .hh-win{display:none !important}
 #hutch-home .hh-word .hh-win .lbl{display:block;font:700 11px var(--h-ui);letter-spacing:.08em;text-transform:uppercase;color:#984A20;margin:0 0 6px}
 #hutch-home .hh-word .hh-win .ch{display:flex;flex-wrap:wrap;gap:6px}
 #hutch-home .hh-word .hh-win .ch>span{display:inline-flex;align-items:center;gap:4px;font:600 12.5px/1.2 var(--h-ui);color:#1E2D4A;padding:3px 10px;border-radius:999px;border:1.5px solid #E3CFC2;background:#fff;white-space:nowrap}
@@ -2252,13 +2252,13 @@ html .hh-brand .face{background:#C4622D}
 @media (min-width:1000px) and (max-width:1099px) and (min-height:1050px) and (orientation:portrait){
   #hutch-home:not(.nonow) .hh-area{grid-template-rows:auto auto minmax(0,250px) auto}
 }
-/* phones 740px tall or more (Nov 25, Toby, mockup v220: "the phone looks
+/* phones 700px tall or more (Nov 25, Toby, mockup v220: "the phone looks
    much better"): On This Day goes full width with the whole title and the
    place, and five apps sit in a row under it, over the dock's five icons
    (Follow joins Den, Surprise, Settings and Knowember; All apps lists the
    rest, like on tablets). Shorter phones like the iPhone SE keep the card
    beside four apps. */
-@media (max-width:519px) and (min-height:740px){
+@media (max-width:519px) and (min-height:700px){
   #hutch-home .hh-hello{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin:0}
   #hutch-home .hh-hello .hh-tx{width:100%;padding-left:0}
   #hutch-home .hh-hello .hh-quad{align-self:stretch;width:100%;grid-template-columns:repeat(5,1fr);justify-items:center;gap:0}
@@ -2279,7 +2279,7 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd .ago{font-size:14.5px}
   .hh-otd b{font-size:14px}
 }
-@media (max-width:519px) and (min-height:740px){
+@media (max-width:519px) and (min-height:700px){
   #hutch-home .hh-hello .hh-tx{display:block}
   #hutch-home .hh-otd{padding:12px 14px;gap:14px}
   .hh-otd .pr img{width:96px;height:80px}
@@ -2296,4 +2296,16 @@ html .hh-brand .face{background:#C4622D}
   .hh-wph span{display:inline-flex;align-items:center;gap:4px;font:600 12.5px/1 var(--h-ui);padding:6px 10px;border-radius:999px;border:1px solid #E3CFC2;color:#1F2433;background:#fff}
   .hh-wph span.hi{background:#F6E2D6;border-color:#F6E2D6}
   .hh-wph svg{width:14px;height:14px}
+}
+/* phones 700-799px tall (a big iPhone in Safari, with its bars): the On
+   This Day card stays a slim strip, so Word Nerd keeps its meaning */
+@media (max-width:519px) and (min-height:700px) and (max-height:799px){
+  #hutch-home .hh-hello{gap:8px}
+  #hutch-home .hh-otd{padding:8px 12px;gap:12px}
+  .hh-otd .pr{padding:3px 3px 10px}
+  .hh-otd .pr img{width:70px;height:56px}
+  .hh-otd .tx{gap:1px}
+  .hh-otd .ago{font-size:14.5px}
+  .hh-otd b{font-size:15px;-webkit-line-clamp:1}
+  .hh-otd .pl{font-size:12.5px}
 }

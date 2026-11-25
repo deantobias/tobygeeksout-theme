@@ -1610,7 +1610,14 @@
       var wok = function () {
         var wpb0 = parseFloat(getComputedStyle(wc).paddingBottom) || 0, wcr0 = wc.getBoundingClientRect(), abr0 = a.getBoundingClientRect();
         var wcut = [].some.call(a.children, function (c) { return c.getBoundingClientRect().bottom > abr0.bottom + 1; });
-        return !wcut && getComputedStyle(a).gridTemplateRows === wb[0] && Math.abs(abr0.height - wb[1]) <= 1 && wi.getBoundingClientRect().bottom <= wcr0.bottom - wpb0 / 2 + 1;
+        return !wcut && rowsOk(getComputedStyle(a).gridTemplateRows, wb[0]) && Math.abs(abr0.height - wb[1]) <= 1 && wi.getBoundingClientRect().bottom <= wcr0.bottom - wpb0 / 2 + 1;
+      };
+      /* the grid's rows may stay or get shorter (a meaning stepped aside for
+         the pills), never taller (Nov 25) */
+      var rowsOk = function (now, was) {
+        if (now === was) return true;
+        var n = now.split(' ').map(parseFloat), w = was.split(' ').map(parseFloat);
+        return n.length === w.length && n.every(function (v, i) { return !(v > w[i] + 1); });
       };
       var fold = function (p) { p.hidden = true; hid++; pl.hidden = false; pl.textContent = '+' + hid; };
       var tryPills = function () {

@@ -22,6 +22,8 @@
     var IC = {
       open: '<path d="M14 4h6v6 M20 4l-9 9 M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
       link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
+      x: '<path d="M6 6l12 12M18 6L6 18"/>',
       pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
       l: '<path d="M15 6l-6 6 6 6"/>', r: '<path d="M9 6l6 6-6 6"/>'
     };
@@ -121,10 +123,12 @@
       cur = i;
       var p = P[i], n = (p.ph || []).length;
       var shots = n ? p.ph.map(function (ph, k) { return '<figure>' + img(ph, M === 'phone' ? 800 : 1200, ph.a || (n > 1 ? p.t + ', photo ' + (k + 1) + ' of ' + n : p.t), k > 0) + '</figure>'; }).join('') : '';
-      var dots = n > 1 && n <= 10 ? '<span class="hxm-dots" aria-hidden="true">' + p.ph.map(function (x, k) { return '<i' + (k ? '' : ' class="on"') + '></i>'; }).join('') + '</span>' : '';
+      /* the dots row is always there (empty for one photo), so every memory lines up */
+      var dots = '<span class="hxm-dots" aria-hidden="true">' + (n > 1 && n <= 10 ? p.ph.map(function (x, k) { return '<i' + (k ? '' : ' class="on"') + '></i>'; }).join('') : '') + '</span>';
       page.innerHTML = '<div class="hxm-sheet">' +
         '<div class="hxm-pprint"><span class="hxm-print"><i class="hxm-tape" aria-hidden="true"></i>' +
-          (n ? '<span class="hxm-car"' + (n > 1 ? ' role="button" tabindex="0" aria-label="Next photo"' : '') + '>' + shots + '</span>' : '<span class="hxm-blank" aria-hidden="true">' + esc(p.t) + '</span>') +
+          (n ? '<span class="hxm-car" role="button" tabindex="0" aria-label="' + (n > 1 ? 'Next photo' : 'See the photo big') + '">' + shots + '</span>' +
+            '<button type="button" class="hxm-big" aria-label="See the photo big" title="See the photo big">' + ic('big') + '</button>' : '<span class="hxm-blank" aria-hidden="true">' + esc(p.t) + '</span>') +
           '<span class="hxm-hand">' + esc(p.tk || p.dl) + '</span></span>' + dots + (n > 1 ? '<span class="hxm-n hxm-sr" aria-live="polite">1 of ' + n + '</span>' : '') + '</div>' +
         '<div class="hxm-pwords"><span class="hxm-chip"><i aria-hidden="true"></i>On This Day</span>' +
           (p.y ? '<div class="hxm-ago">' + esc(years(p, true)) + '</div>' : '') +
@@ -156,8 +160,30 @@
           });
         }, { passive: true });
         car.addEventListener('click', function () { car.scrollTo({ left: (at(car) + 1) % n * car.clientWidth, behavior: 'smooth' }); });
-      }
+      } else if (car) car.addEventListener('click', function () { bigOpen(0); });
+      var bb = page.querySelector('.hxm-big');
+      if (bb) bb.addEventListener('click', function (e) { e.stopPropagation(); bigOpen(car && n > 1 ? at(car) : 0); });
     }
+    /* ---------- the photo big (Nov 25, Toby): the whole photo on black; tap anywhere to close ---------- */
+    var VW = (function () { var t = Math.max(innerWidth, innerHeight) * Math.min(window.devicePixelRatio || 1, 2); return t <= 900 ? 800 : t <= 1300 ? 1200 : t <= 1700 ? 1600 : 2000; })();
+    var lb = ctx.el('<div class="hxm-lb" role="dialog" aria-modal="true" aria-label="Photo" hidden><button type="button" class="hxm-lbx" aria-label="Close the photo">' + ic('x') + '</button><img alt=""></div>');
+    root.appendChild(lb);
+    var lbBack = null;
+    function bigOpen(k) {
+      var ph = P[cur] && P[cur].ph && P[cur].ph[k]; if (!ph) return;
+      var im = lb.querySelector('img');
+      im.src = sz(ph.s, VW); im.setAttribute('data-o', ph.s); im.alt = ph.a || P[cur].t;
+      lbBack = document.activeElement;
+      lb.hidden = false; de.classList.add('hxm-big-on');
+      lb.querySelector('.hxm-lbx').focus({ preventScroll: true });
+    }
+    function bigClose() {
+      if (lb.hidden) return false;
+      lb.hidden = true; de.classList.remove('hxm-big-on');
+      if (lbBack && lbBack.focus) try { lbBack.focus({ preventScroll: true }); } catch (e) {}
+      return true;
+    }
+    lb.addEventListener('click', bigClose);
     /* Nov 25 (Toby: "everything in one page without scrolling"): the
        photo takes only the room the words and buttons leave, so a memory
        fits on the screen. Very long posts still scroll, with the photo
@@ -166,22 +192,30 @@
     function fitSoon() { clearTimeout(fitT); fitT = setTimeout(fit, 30); }
     function fit() {
       var im = page.querySelector('.hxm-car img'), sheet = page.querySelector('.hxm-sheet');
-      if (!im || !sheet || page.hidden) return;
-      /* offsetHeight: the photo's own height (the print is tilted, so its box is taller) */
+      if (!sheet || page.hidden) return;
       /* side by side: wide screens, and phones held sideways */
-      var car = im.closest('.hxm-car'), wide = innerWidth >= 900 || (innerWidth > innerHeight && innerWidth >= 560 && innerHeight <= 520);
-      var cw = (car.parentNode.parentNode.clientWidth || car.clientWidth) - 16;
-      var nw = im.naturalWidth, nh = im.naturalHeight;
-      /* the tallest the photo can be at this width */
-      var capW = nw && nh ? Math.floor(cw * nh / nw) : Math.floor(cw * 0.75);
-      var minH = Math.round(innerHeight * (wide ? 0.4 : 0.22));
-      page.style.setProperty('--phh', capW + 'px');
-      /* how far the whole page runs past the screen with the photo at its tallest */
-      var over = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) - innerHeight;
-      var h = Math.max(minH, Math.min(capW, Math.floor(im.offsetHeight - over)));
+      var wide = innerWidth >= 900 || (innerWidth > innerHeight && innerWidth >= 560 && innerHeight <= 520);
+      var px = function (el, a, b) { var c = getComputedStyle(el); return (parseFloat(c[a]) || 0) + (parseFloat(c[b]) || 0); };
+      var bar = parseFloat(getComputedStyle(root).paddingTop) || 0;
+      var pgh = innerHeight - bar, inner = pgh - px(page, 'paddingTop', 'paddingBottom') - px(sheet, 'paddingTop', 'paddingBottom');
+      page.style.setProperty('--pgh', pgh + 'px');
+      page.style.setProperty('--wmax', inner + 'px');
+      if (!im) return;
+      /* Nov 25 (Toby: "all photos should look the same regardless how long
+         the body is"): one photo size for every memory on this screen, from
+         the screen alone; a long post scrolls inside its words instead */
+      var pp = page.querySelector('.hxm-pprint'), cw = pp.clientWidth - 16;
+      var frame = 38 + 20 + 10;
+      var lim = Math.floor(cw * 0.75);
+      var h = wide ? inner - frame : Math.round(inner * (innerWidth >= 520 ? 0.56 : 0.5)) - frame;
+      h = Math.max(120, Math.min(lim, h));
       page.style.setProperty('--phh', h + 'px');
+      var nw = im.naturalWidth, nh = im.naturalHeight;
       /* several photos share one frame as wide as the first photo at that height */
       page.style.setProperty('--phw', (nw && nh ? Math.min(cw, Math.round(h * nw / nh)) : cw) + 16 + 'px');
+      /* a long post: a soft fade shows the words keep going */
+      var wd = page.querySelector('.hxm-wd');
+      if (wd) requestAnimationFrame(function () { wd.classList.toggle('scrolls', wd.scrollHeight > wd.clientHeight + 2); });
     }
     function openPage(i, push) {
       if (!open) homeY = window.scrollY;
@@ -235,7 +269,8 @@
     });
     document.addEventListener('keydown', function (e) {
       if (!open || document.querySelector('.hx-sheet.open')) return;
-      if (e.key === 'Escape') back();
+      if (e.key === 'Escape') { if (!bigClose()) back(); }
+      else if (!lb.hidden) return;
       else if (!(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) && /^(ArrowRight|ArrowLeft)$/.test(e.key) && !(e.target.closest && e.target.closest('.hxm-car'))) {
         var j = cur + (e.key === 'ArrowRight' ? 1 : -1); if (j >= 0 && j < P.length) { e.preventDefault(); openPage(j); }
       }

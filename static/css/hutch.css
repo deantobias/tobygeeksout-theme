@@ -2198,6 +2198,11 @@ html .hh-brand .face{background:#C4622D}
   #hutch-home.dk5s .hh-otd .ago{font-size:17px}
   #hutch-home.dk5s .hh-otd b{font-size:15px}
   #hutch-home.dk5s .hh-otd .ex{font-size:13.5px}
+  /* Nov 26 (Toby): a little taller, with even room inside, and the first
+     lines easier to read; the apps sit a bit closer to keep the column height */
+  #hutch-home:not(.dk5s) .hh-otd{padding:18px 20px}
+  #hutch-home:not(.dk5s) .hh-otd .ex{font-size:16px;line-height:1.45}
+  #hutch-home:not(.dk5s) .hh-hello .hh-dkapps{margin-top:10px}
 }
 /* short laptops (650px tall or less, like a 13" Windows): the On This Day
    card drops its first lines and shrinks its print, so Recent Geekouts
@@ -2265,7 +2270,8 @@ html .hh-brand .face{background:#C4622D}
   .hh-otd .pr img{width:150px;height:118px}
   .hh-otd .ago{font-size:21px}
   .hh-otd b{font-size:19px}
-  .hh-otd .ex{font-size:15.5px}
+  .hh-otd .ex{font-size:16.5px;line-height:1.45}
+  #hutch-home .hh-otd{padding:18px 20px}
 }
 /* phones 700px tall or more (Nov 25, Toby, mockup v220: "the phone looks
    much better"): On This Day goes full width with the whole title and the

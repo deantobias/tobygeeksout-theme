@@ -218,7 +218,18 @@
       if (wide) page.style.setProperty('--wmax', Math.min(inner, pp.offsetHeight) + 'px');
       /* a long post: a soft fade shows the words keep going */
       var wd = page.querySelector('.hxm-wd');
-      if (wd) requestAnimationFrame(function () { wd.classList.toggle('scrolls', wd.scrollHeight > wd.clientHeight + 2); });
+      if (wd) requestAnimationFrame(function () { fadeWords(wd); });
+    }
+    /* the fade at the bottom of a long post: shows there's more to scroll,
+       and goes away once the last line is in view (Nov 25, Toby) */
+    function fadeWords(wd) {
+      var more = wd.scrollHeight > wd.clientHeight + 2;
+      wd.classList.toggle('scrolls', more && wd.scrollTop + wd.clientHeight < wd.scrollHeight - 4);
+      if (more && !wd.getAttribute('data-fw')) {
+        wd.setAttribute('data-fw', '1');
+        wd.setAttribute('tabindex', '0');
+        wd.addEventListener('scroll', function () { fadeWords(wd); }, { passive: true });
+      }
     }
     function openPage(i, push) {
       if (!open) homeY = window.scrollY;

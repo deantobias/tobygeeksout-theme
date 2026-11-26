@@ -269,4 +269,10 @@ html.hxm-big-on,html.hxm-big-on body{overflow:hidden}
   .hxm-pwords .hxm-acts{margin-top:auto;padding-top:14px}
   .hxm-car img{max-height:none}
 }
+/* big screens (Nov 25, Toby): a stronger, taller fade, so a long post
+   clearly keeps going; it clears once the last line is in view */
+@media (min-width:900px) and (orientation:landscape){
+  .hxm-wd.scrolls{-webkit-mask-image:linear-gradient(#000 calc(100% - 90px),rgba(0,0,0,.08));mask-image:linear-gradient(#000 calc(100% - 90px),rgba(0,0,0,.08))}
+}
+.hxm-wd[data-fw]:focus-visible{outline:3px solid var(--btn);outline-offset:4px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){.hxm-car{scroll-behavior:auto}}

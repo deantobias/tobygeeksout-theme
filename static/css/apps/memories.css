@@ -275,4 +275,19 @@ html.hxm-big-on,html.hxm-big-on body{overflow:hidden}
   .hxm-wd.scrolls{-webkit-mask-image:linear-gradient(#000 calc(100% - 90px),rgba(0,0,0,.08));mask-image:linear-gradient(#000 calc(100% - 90px),rgba(0,0,0,.08))}
 }
 .hxm-wd[data-fw]:focus-visible{outline:3px solid var(--btn);outline-offset:4px;border-radius:4px}
+/* Nov 26 (Toby): on desktops and tablets the note card is a little taller
+   with even room on every side, and the words are bigger and easier to read */
+@media (min-width:900px) and (orientation:landscape){
+  .hx-mem .hxm-page .hxm-sheet{padding:48px 52px}
+  .hx-mem .hxm-pwords .hxm-wd{font-size:18px;line-height:1.6}
+  .hxm-pwords .hxm-pl{font-size:16px}
+}
+@media (min-width:900px) and (max-height:700px) and (orientation:landscape){
+  .hx-mem .hxm-page .hxm-sheet{padding:30px 40px}
+}
+@media (min-width:520px) and (orientation:portrait){
+  .hx-mem .hxm-page .hxm-sheet{padding:36px 32px}
+  .hx-mem .hxm-pwords .hxm-wd{font-size:17.5px;line-height:1.6}
+  .hxm-pwords .hxm-pl{font-size:15.5px}
+}
 @media (prefers-reduced-motion:reduce){.hxm-car{scroll-behavior:auto}}

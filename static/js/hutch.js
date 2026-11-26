@@ -2134,7 +2134,10 @@
       '<a class="hbl-opt all" href="' + esc(APPS.archive[2] || '/archive/') + '">See all categories' + sv('chev', 2.4) + '</a></div>');
     moreBtn.addEventListener('click', function () { openSheet(moreSheet); });
 
-    var mq2 = window.matchMedia('(min-width: 840px) and (orientation: landscape)');
+    /* Nov 26 (Toby): the big iPad Pro held upright (1000+ wide, 1100+ tall)
+       gets the same two columns as sideways tablets: your column and the
+       feed, Categories and Series in More (hbl-mid, since mq3 is sideways only) */
+    var mq2 = window.matchMedia('(min-width: 840px) and (orientation: landscape), (min-width: 1000px) and (min-height: 1100px) and (orientation: portrait)');
     var mq3 = window.matchMedia('(min-width: 1200px) and (min-height: 600px) and (orientation: landscape)');
     /* Nov 14 (Toby, v144): every sideways screen 840+ wide (Fold, TCL,
        iPads, laptops) uses the laptop layout: your column, the feed, and a

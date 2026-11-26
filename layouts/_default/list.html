@@ -28,7 +28,7 @@
             </div>
           {{ else }}
             <div class="post-card-excerpt">
-              {{ .Content | htmlUnescape | safeHTML }}
+              {{ partial "loc-strip.html" (dict "page" . "html" .Content) | htmlUnescape | safeHTML }}
             </div>
             <p class="post-card-footer">
               <a href="{{ .Permalink }}" class="u-url">

@@ -44,7 +44,7 @@
   {{ $n := len $photos }}
 
   {{/* the post's text, for the 1-2 line excerpt (CSS clamps it) */}}
-  {{ $text := trim (replaceRE `\s+` " " (htmlUnescape $p.Plain)) " " }}
+  {{ $text := trim (replaceRE `\s+` " " (partial "loc-strip.html" (dict "page" $p "html" $p.Content) | plainify | htmlUnescape)) " " }}
   {{ $words := countwords $text }}
   {{ $more := or (gt $n 1) (gt $words 20) (findRE `<(?:iframe|video)\b` $c) }}
 

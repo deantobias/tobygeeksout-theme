@@ -44,7 +44,10 @@
         {{- $ph = $ph | append (dict "s" $u "a" $a) -}}
       {{- end -}}
     {{- end -}}
-    {{- $plain := trim (replaceRE `\s+` " " ($p.Plain | htmlUnescape)) " " -}}
+    {{/* Nov 25, 2026: a check-in post starts with the place name Micro.blog adds;
+         loc-strip drops it so the memory starts with Toby's own words. */}}
+    {{- $pc := partial "loc-strip.html" (dict "page" $p "html" $p.Content) -}}
+    {{- $plain := trim (replaceRE `\s+` " " ($pc | plainify | htmlUnescape)) " " -}}
     {{- $y := 0 -}}
     {{- with findRE `(?i)\b(\d{1,3})\s+years?\s+ago` $plain 1 -}}{{- $y = int (replaceRE `(?i)^(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
     {{- $tk := $p.Date.Format "Jan 2, 2006" -}}
@@ -62,7 +65,7 @@
     {{/* h (Nov 25, Toby): the post's words with their own formatting for the
          memory page: paragraphs, links, bold, italic, lists, quotes. Photos,
          embeds and every other tag or attribute are left out. */}}
-    {{- $h := string $p.Content -}}
+    {{- $h := string $pc -}}
     {{- range slice "script" "style" "iframe" "figure" "video" "audio" "svg" "noscript" "picture" "figcaption" -}}
       {{- $h = replaceRE (printf `(?is)<%s\b.*?</%s>` . .) "" $h -}}
     {{- end -}}

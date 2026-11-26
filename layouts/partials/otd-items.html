@@ -44,7 +44,7 @@
       {{- $t := trim (replaceRE `^On This Day\s*[:\-–—]?\s*` "" $title) " " -}}
       {{- if not $t -}}{{- $t = .Date.Format "January 2" -}}{{- end -}}
       {{- if not $alt -}}{{- $alt = $t -}}{{- end -}}
-      {{- $plain := trim (replaceRE `\s+` " " (.Plain | htmlUnescape)) " " -}}
+      {{- $plain := trim (replaceRE `\s+` " " (partial "loc-strip.html" (dict "page" . "html" .Content) | plainify | htmlUnescape)) " " -}}
       {{- $y := 0 -}}
       {{- with findRE `(?i)\b(\d{1,3})\s+years?\s+ago` $plain 1 -}}{{- $y = int (replaceRE `(?i)^(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
       {{- $ty := 0 -}}

@@ -512,9 +512,9 @@
               {{ if $tagCat }}<span class="related-card-tag">{{ $tagCat }}</span>{{ end }}
               {{ if $p.Title }}
                 <span class="related-card-title">{{ $p.Title }}</span>
-                <span class="related-card-excerpt">{{ $p.Summary | htmlUnescape | plainify | truncate 140 }}</span>
+                <span class="related-card-excerpt">{{ partial "loc-strip.html" (dict "page" $p "html" $p.Summary) | htmlUnescape | plainify | truncate 140 }}</span>
               {{ else }}
-                {{ $plain := $p.Summary | htmlUnescape | plainify }}
+                {{ $plain := partial "loc-strip.html" (dict "page" $p "html" $p.Summary) | htmlUnescape | plainify }}
                 {{ $words := split $plain " " }}
                 <span class="related-card-title">{{ delimit (first 9 $words) " " }}{{ if gt (len $words) 9 }}&hellip;{{ end }}</span>
                 {{ if gt (len $words) 9 }}

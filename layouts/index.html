@@ -562,7 +562,7 @@
         <span class="journal-date-year">{{ .Date.Format "2006" }}</span>
       </span>
       <div class="micro-entry-main">
-        <div class="micro-entry-text e-content">{{ .Content }}</div>
+        <div class="micro-entry-text e-content">{{ partial "loc-strip.html" (dict "page" . "html" .Content) | safeHTML }}</div>
         <a href="{{ .Permalink }}" class="micro-entry-date u-url">{{ .Date.Format "January 2, 2006" }} ∞</a>
       </div>
     </div>

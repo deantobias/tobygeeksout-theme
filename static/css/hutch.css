@@ -2146,6 +2146,12 @@ html .hh-brand .face{background:#C4622D}
 .hh-status .hh-sd{font-weight:600;white-space:nowrap;color:#1F2433}
 .hh-status em{font-style:normal;font-weight:700;color:#7A3312}
 .hh-status .dl{display:none}
+/* a holiday's little picture before its hello (Nov 26, Toby) */
+.hh-status .hh-sg{display:inline-flex;align-items:center;gap:6px;min-width:0}
+.hh-status .hh-sg > span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hh-status .hh-hol{flex:none;display:block;width:17px;height:17px}
+.hh-status .hh-hol svg{display:block;width:100%;height:100%}
+@media (min-width:700px){ .hh-status .hh-hol{width:19px;height:19px} }
 #hutch-home[data-sky="dusk"] .hh-status,#hutch-home[data-sky="night"] .hh-status{background:rgba(8,12,24,.5);color:#F3EEE7;border-bottom-color:rgba(255,255,255,.08)}
 #hutch-home[data-sky="dusk"] .hh-status .hh-sd,#hutch-home[data-sky="night"] .hh-status .hh-sd{color:#F3EEE7}
 #hutch-home[data-sky="dusk"] .hh-status em,#hutch-home[data-sky="night"] .hh-status em{color:#F2A27A}

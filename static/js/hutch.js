@@ -826,7 +826,57 @@
   var homeEl = null;
   var isHome = de.classList.contains('hutch-hs');
   function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  /* Nov 26 (Toby): US holidays say their own hello all day in place of
+     Good morning / afternoon / evening / night. Nothing religious, so the
+     end of December is "Happy Holidays". Holidays that move (Thanksgiving,
+     Memorial Day...) are worked out from the calendar each year. */
+  function holiday(d) {
+    d = d || new Date();
+    var m = d.getMonth() + 1, day = d.getDate(), wd = d.getDay();
+    var nth = Math.ceil(day / 7), last = day + 7 > new Date(d.getFullYear(), m, 0).getDate();
+    if (m === 1 && day === 1) return 'Happy New Year';
+    if (m === 1 && wd === 1 && nth === 3) return 'Happy MLK Day';
+    if (m === 2 && day === 14) return 'Happy Valentine\u2019s Day';
+    if (m === 2 && wd === 1 && nth === 3) return 'Happy Presidents\u2019 Day';
+    if (m === 5 && wd === 1 && last) return 'Remembering on Memorial Day';
+    if (m === 6 && day === 19) return 'Happy Juneteenth';
+    if (m === 7 && day === 4) return 'Happy Fourth of July';
+    if (m === 9 && wd === 1 && nth === 1) return 'Happy Labor Day';
+    if (m === 10 && day === 31) return 'Happy Halloween';
+    if (m === 11 && day === 11) return 'Thank you, veterans';
+    if (m === 11 && wd === 4 && nth === 4) return 'Happy Thanksgiving';
+    if (m === 12 && day >= 24 && day <= 26) return 'Happy Holidays';
+    if (m === 12 && day === 31) return 'Happy New Year\u2019s Eve';
+    return '';
+  }
+  /* a little picture before the holiday hello (Nov 26, Toby: "fun
+     artwork"); drawn, not emoji, so it looks the same on every device */
+  var HOLART = {
+    'New Year': 'fw', 'New Year\u2019s Eve': 'fw', 'Fourth of July': 'fw4', 'Valentine': 'heart', 'Halloween': 'pumpkin',
+    'Thanksgiving': 'leaf', 'Holidays': 'snow', 'Memorial': 'flag', 'veterans': 'flag', 'Presidents': 'flag',
+    'Juneteenth': 'star', 'MLK': 'star', 'Labor': 'hammer'
+  };
+  var ARTS = {
+    fw: '<g stroke-linecap="round" stroke-width="2.2"><path d="M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5" stroke="#E8A317"/><path d="M5.3 5.3l3.4 3.4M15.3 15.3l3.4 3.4M5.3 18.7l3.4-3.4M15.3 8.7l3.4-3.4" stroke="#D2477A"/></g><circle cx="12" cy="12" r="2" fill="#7B5CD6"/>',
+    fw4: '<g stroke-linecap="round" stroke-width="2.2"><path d="M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5" stroke="#C8323C"/><path d="M5.3 5.3l3.4 3.4M15.3 15.3l3.4 3.4M5.3 18.7l3.4-3.4M15.3 8.7l3.4-3.4" stroke="#2E5BB8"/></g><circle cx="12" cy="12" r="2" fill="#C8323C"/>',
+    heart: '<path d="M12 21s-8.5-5.4-8.5-11.3A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8.5 2.7C20.5 15.6 12 21 12 21z" fill="#E0457B"/><path d="M7.2 8.6a2.2 2.2 0 0 1 2.3-1.3" stroke="#fff" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/>',
+    pumpkin: '<ellipse cx="12" cy="14.5" rx="9.5" ry="7" fill="#F28C28"/><path d="M12 8v13.4M7.8 8.6c-1.8 3.2-1.8 8.6 0 11.8M16.2 8.6c1.8 3.2 1.8 8.6 0 11.8" stroke="#D0680C" stroke-width="1.3" fill="none"/><path d="M11.6 8.2c-.2-2.3.6-4 2.8-4.8" stroke="#4E7A2F" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+    /* Thanksgiving: a turkey (Nov 26, Toby) */
+    leaf: '<g>' + [['-64', '#B83A2A'], ['-32', '#E07B24'], ['0', '#F2B233'], ['32', '#E07B24'], ['64', '#B83A2A']].map(function (f) { return '<ellipse cx="12" cy="7.2" rx="2.7" ry="6" fill="' + f[1] + '" transform="rotate(' + f[0] + ' 12 13.5)"/>'; }).join('') + '</g>' +
+      '<path d="M10.4 20.3v1.6M13.6 20.3v1.6" stroke="#E0A030" stroke-width="1.3" stroke-linecap="round"/><circle cx="12" cy="15.6" r="5.2" fill="#8B5A2B"/><circle cx="12" cy="10.6" r="2.7" fill="#A86B34"/>' +
+      '<circle cx="11.1" cy="10.1" r=".55" fill="#1F2433"/><circle cx="12.9" cy="10.1" r=".55" fill="#1F2433"/><path d="M11.2 11.4h1.6L12 12.7z" fill="#F2B233"/><path d="M12.7 11.8c.8.5.8 1.6.1 2.1" stroke="#D63A3A" stroke-width="1.1" fill="none" stroke-linecap="round"/>',
+    snow: '<g stroke="#3C8DD0" stroke-width="2" stroke-linecap="round" fill="none"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6"/><path d="M9.5 4l2.5 2 2.5-2M9.5 20l2.5-2 2.5 2"/></g>',
+    flag: '<path d="M4 3v18.5" stroke="#6B5544" stroke-width="1.8" stroke-linecap="round"/><rect x="4.9" y="4" width="15.6" height="10.5" rx=".6" fill="#fff" stroke="#D5DBE5" stroke-width=".8"/><path d="M4.9 5.6h15.6M4.9 8.6h15.6M4.9 11.6h15.6" stroke="#C8323C" stroke-width="1.4"/><rect x="4.9" y="4" width="6.8" height="5.6" fill="#2E4A8B"/>',
+    star: '<path d="M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.2 6.1L12 16.5l-5.5 3 1.2-6.1L3.2 9.2l6.1-.8z" fill="#E8A317" stroke="#C07A0B" stroke-width=".8"/>',
+    hammer: '<path d="M5 20.5l8.5-8.5" stroke="#9A6634" stroke-width="2.8" stroke-linecap="round"/><path d="M10.6 6.8l3.3-3.3 6.6 6.6-2.4 2.4-2.6-1-3.6-3.6z" fill="#6B7A8F"/>'
+  };
+  function holidayArt(hd) {
+    for (var k in HOLART) if (hd.indexOf(k) >= 0) return '<span class="hh-hol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none">' + ARTS[HOLART[k]] + '</svg></span>';
+    return '';
+  }
   function greeting() {
+    var hd = holiday();
+    if (hd) return hd + (/veterans$/.test(hd) ? '.' : '!');
     var h = Math.floor(clockMins() / 60);
     return h >= 5 && h < 12 ? 'Good morning.' : h >= 12 && h < 17 ? 'Good afternoon.' : h >= 17 && h < 21 ? 'Good evening.' : 'Good night.';
   }
@@ -1099,7 +1149,8 @@
        (the day in orange, opens Calendar). The corner where the big date
        was holds the newest On This Day post as a journal page instead. */
     var sday = now.toLocaleDateString('en-US', { weekday: 'short' }), smon = now.toLocaleDateString('en-US', { month: 'short' });
-    var status = '<div class="hh-status"><span class="hh-sg">' + greeting().replace(/\.$/, '') + '</span>' +
+    var hol = holiday();
+    var status = '<div class="hh-status"><span class="hh-sg">' + (hol ? holidayArt(hol) : '') + '<span>' + greeting().replace(/[.!]$/, '') + '</span></span>' +
       '<a class="hh-sd" href="/calendar/" aria-label="Open Calendar"><span class="dl"><em>' + day + '</em>, ' + mon + ' ' + now.getDate() + '</span><span class="ds"><em>' + sday + '</em>, ' + smon + ' ' + now.getDate() + '</span></a></div>';
     homeEl = el('<div id="hutch-home" data-sky="' + PHASE + '" role="main" aria-label="Hutch home screen"><div class="hh-stars"></div>' + ridge + status +
       '<div class="hh-area">' +

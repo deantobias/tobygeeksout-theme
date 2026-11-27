@@ -11,6 +11,9 @@
      and "14 years ago". The tiny script at the end checks the reader's
      own date: on the day the memory was posted it changes them to
      "Today's memory" and "14 years ago today". */}}
+{{- /* Nov 27, 2026 (Toby): the card only holds the post's first lines,
+       and nothing said so. When the post has more to read, the button
+       says "Keep reading" in place of "View the post". */ -}}
 {{- $i := .item -}}
 <a class="otd-card" href="{{ $i.u }}" data-otd-iso="{{ $i.iso }}">
   <span class="otd-pol">
@@ -30,7 +33,7 @@
     {{- with $i.x }}
     <span class="otd-text">{{ . }}</span>
     {{- end }}
-    <span class="otd-btn">View the post{{ partial "icon.html" (dict "name" "arrow-right" "class" "otd-btn-arrow") }}</span>
+    <span class="otd-btn">{{ if $i.more }}Keep reading{{ else }}View the post{{ end }}{{ partial "icon.html" (dict "name" "arrow-right" "class" "otd-btn-arrow") }}</span>
   </span>
 </a>
 <script>(function(){var c=document.querySelectorAll('.otd-card[data-otd-iso]');if(!c.length)return;var d=new Date(),p=function(n){return(n<10?'0':'')+n;},t=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());for(var i=0;i<c.length;i++){if(c[i].getAttribute('data-otd-iso')!==t)continue;var k=c[i].querySelector('.otd-kick-w');if(k)k.textContent="Today's memory";var a=c[i].querySelector('.otd-today');if(a)a.hidden=false;}})();</script>

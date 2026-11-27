@@ -16351,6 +16351,8 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
    Body of /feeds/ (layouts/shortcodes/feeds.html), modeled on
    shellsharks.com/feeds.
    Colors read the sky tokens (var(--color-*)), so every sky works.
+   Orange text uses --color-terra-dark (dark by day, light at night);
+   the New to feeds box follows the sky too (Nov 27 night fix).
    The Everything card and the copied toast are fixed navy on
    purpose (white text on their own fill).
    Selectors carry .feeds-page so they beat the page-body rules
@@ -16412,13 +16414,13 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .feeds-page .fd-pills { display: flex; gap: .5rem; flex-wrap: wrap; flex: none; }
 .feeds-page .fd-fmt { display: inline-flex; align-items: stretch; border: 1px solid var(--color-terra-btn); border-radius: 999px; overflow: hidden; line-height: 1.2; background: var(--color-bg-card); }
 .feeds-page .fd-link,
-.feeds-page .fd-cp { font: inherit; font-family: var(--font-body); font-size: .8rem; font-weight: 600; letter-spacing: .03em; text-decoration: none; display: inline-flex; align-items: center; border: 0; margin: 0; cursor: pointer; color: var(--color-terra-text); background: transparent; }
-.page-body .feeds-page a.fd-link { color: var(--color-terra-text); text-decoration: none; }
+.feeds-page .fd-cp { font: inherit; font-family: var(--font-body); font-size: .8rem; font-weight: 600; letter-spacing: .03em; text-decoration: none; display: inline-flex; align-items: center; border: 0; margin: 0; cursor: pointer; color: var(--color-terra-dark); background: transparent; }
+.page-body .feeds-page a.fd-link { color: var(--color-terra-dark); text-decoration: none; }
 .feeds-page .fd-link { padding: .4rem .6rem .4rem .8rem; }
 .feeds-page .fd-cp { padding: .4rem .6rem; border-left: 1px solid var(--color-terra-btn); }
 .feeds-page .fd-link:hover,
 .feeds-page .fd-cp:hover { background: var(--color-terra-light); color: var(--color-terra-dark); }
-.feeds-page .fd-cp.is-copied { background: var(--color-navy); color: #FFFFFF; }
+.feeds-page .fd-cp.is-copied { background: #1E2D4A; color: #FFFFFF; }
 .feeds-page .fd-fmt svg { width: 15px; height: 15px; }
 .feeds-page .fd-how .fd-fmt { pointer-events: none; }
 
@@ -16448,7 +16450,7 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .feeds-page .fd-list .fd-txt { flex: 1 1 220px; min-width: 0; }
 .page-body .feeds-page .fd-name { font-family: var(--font-body); font-weight: 600; font-size: 1.1rem; color: var(--color-text); margin: 0; line-height: 1.3; }
 .page-body .feeds-page .fd-desc { font-family: var(--font-body); font-size: .95rem; color: var(--color-text-muted); margin: .1rem 0 0; line-height: 1.45; }
-.page-body .feeds-page .fd-browse { font-size: .875rem; white-space: nowrap; color: var(--color-terra-text); text-decoration: underline !important; text-underline-offset: 2px; }
+.page-body .feeds-page .fd-browse { font-size: .875rem; white-space: nowrap; color: var(--color-terra-dark); text-decoration: underline !important; text-underline-offset: 2px; }
 
 /* Topic groups + chips */
 .feeds-page .fd-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
@@ -16456,8 +16458,8 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .page-body .feeds-page .fd-group-name { font-family: var(--font-display); font-size: 1.05rem; color: var(--color-text); margin: 0 0 .6rem; padding: 0; border: 0; }
 .feeds-page .fd-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .page-body .feeds-page a.fd-chip { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--font-body); font-size: .875rem; line-height: 1.3; text-decoration: none; color: var(--color-text); background: var(--color-bg-warm); border: 1px solid var(--color-border); border-radius: 999px; padding: .25rem .65rem; }
-.page-body .feeds-page a.fd-chip:hover { border-color: var(--color-terra-btn); color: var(--color-terra-text); }
-.feeds-page .fd-chip svg { width: 12px; height: 12px; flex: none; color: var(--color-terra-text); }
+.page-body .feeds-page a.fd-chip:hover { border-color: var(--color-terra-btn); color: var(--color-terra-dark); }
+.feeds-page .fd-chip svg { width: 12px; height: 12px; flex: none; color: var(--color-terra-dark); }
 .feeds-page .fd-all { margin-top: 1rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; padding: .8rem 1.1rem; }
 .feeds-page .fd-all summary { cursor: pointer; font-family: var(--font-body); font-weight: 600; color: var(--color-text); font-size: 1rem; }
 .feeds-page .fd-all .fd-chips { margin-top: .8rem; }
@@ -16478,9 +16480,9 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 
 /* New to feeds */
 .feeds-page .fd-newbie { margin-top: 2.5rem; background: var(--color-terra-light); border-radius: 8px; padding: 1.25rem 1.4rem; }
-.page-body .feeds-page .fd-newbie-title { font-family: var(--font-display); font-size: 1.2rem; color: #1E2D4A; margin: 0 0 .3rem; padding: 0; border: 0; }
-.page-body .feeds-page .fd-newbie p { font-size: 1rem; color: #1A1A18; margin: 0; }
-.page-body .feeds-page .fd-newbie a { color: #8B3E18; font-weight: 600; text-decoration: underline !important; }
+.page-body .feeds-page .fd-newbie-title { font-family: var(--font-display); font-size: 1.2rem; color: var(--color-navy); margin: 0 0 .3rem; padding: 0; border: 0; }
+.page-body .feeds-page .fd-newbie p { font-size: 1rem; color: var(--color-text); margin: 0; }
+.page-body .feeds-page .fd-newbie a { color: var(--color-terra-dark); font-weight: 600; text-decoration: underline !important; }
 .page-body .feeds-page .fd-fine { font-family: var(--font-body); font-size: .875rem; color: var(--color-text-muted); margin: 2rem 0 0; }
 
 /* Phones: pills drop under the text, lined up with it */
@@ -16505,6 +16507,8 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
    shellsharks.com/architecture. Page title "Under the Hood" comes from
    the Micro.blog page.
    Colors read the sky tokens (var(--color-*)), so every sky works.
+   Orange text uses --color-terra-dark (dark by day, light at night);
+   the New to feeds box follows the sky too (Nov 27 night fix).
    Fixed colors on purpose: the five Sky tiles (each painted in its own
    sky with its own ink), the swatch chips, the hero art, the terracotta
    tab/badge fills (#A65326 + white = 5.4:1).
@@ -16684,6 +16688,8 @@ body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 
    page that isn't a blog post. "Slashes" as tiles, "More pages" as
    rows, each with its own little drawing.
    Colors read the sky tokens (var(--color-*)), so every sky works.
+   Orange text uses --color-terra-dark (dark by day, light at night);
+   the New to feeds box follows the sky too (Nov 27 night fix).
    The art tiles are fixed sticker colors on purpose (#F0DDD3 fill,
    navy ink), like /chipotle and /feeds, so the drawings read the
    same in every sky.
@@ -16718,7 +16724,7 @@ body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 
 .dir-page .dr-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; flex-wrap: wrap; margin: 2.5rem 0 .25rem; }
 .dir-page .dr-kick { display: block; font-family: var(--font-body); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-terra-text); }
 .page-body .dir-page h2.dr-h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; line-height: 1.2; color: var(--color-text); margin: 0; padding: 0; border: 0; }
-.page-body .dir-page a.dr-what { font-family: var(--font-body); font-size: .875rem; white-space: nowrap; color: var(--color-terra-text); text-decoration: underline !important; text-underline-offset: 2px; }
+.page-body .dir-page a.dr-what { font-family: var(--font-body); font-size: .875rem; white-space: nowrap; color: var(--color-terra-dark); text-decoration: underline !important; text-underline-offset: 2px; }
 .page-body .dir-page p.dr-sub { font-family: var(--font-body); font-size: 1rem; line-height: 1.5; color: var(--color-text-muted); margin: .25rem 0 1rem; }
 
 /* Art tiles (fixed sticker colors) */

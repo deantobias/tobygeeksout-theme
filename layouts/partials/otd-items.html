@@ -23,6 +23,7 @@
              pointing "below" or "above" (true on the post, where the
              original photo follows, but not on a card)
        mk    "2026-11" (month it was posted)    mn   "November"
+       more  true when the post has more words than x shows
      Same reading rules as the Hutch card in hutch-home-data.html. */}}
 {{- $items := slice -}}
 {{- range (where site.RegularPages "Type" "post").ByDate.Reverse -}}
@@ -55,7 +56,14 @@
       {{- if not $ln -}}{{- with findRE `(?i)\bago today in ([^.!?]+)` $plain 1 -}}{{- $ln = trim (replaceRE `(?i)^ago today in ` "" (index . 0)) " ," -}}{{- end -}}{{- end -}}
       {{- $ln = trim $ln " .,;" -}}
       {{- $x := partial "clean-summary.html" (dict "page" .) | plainify | htmlUnescape | replaceRE `\s+` " " | replaceRE `(?i)[^.!?]*\b(?:below|above)\s*[.!?]` "" | truncate 220 | htmlUnescape -}}
-      {{- $items = $items | append (dict "t" $t "u" .RelPermalink "iso" (.Date.Format "2006-01-02") "y" $y "taken" $taken "ty" $ty "img" $img "alt" $alt "ln" $ln "x" (trim $x " ") "mk" (.Date.Format "2006-01") "mn" (.Date.Format "January")) -}}
+      {{- /* more (Nov 27, 2026, Toby): true when the post says more than
+             the card shows, so the card's button can say "Keep reading".
+             The full text is measured without the venue name Micro.blog
+             adds to a check-in post (loc-strip), so that alone never
+             counts as "more". */ -}}
+      {{- $full := trim (replaceRE `\s+` " " (partial "loc-strip.html" (dict "page" . "html" .Content) | plainify | htmlUnescape)) " " -}}
+      {{- $more := gt (len $full) (add (len (trim $x " ")) 10) -}}
+      {{- $items = $items | append (dict "more" $more "t" $t "u" .RelPermalink "iso" (.Date.Format "2006-01-02") "y" $y "taken" $taken "ty" $ty "img" $img "alt" $alt "ln" $ln "x" (trim $x " ") "mk" (.Date.Format "2006-01") "mn" (.Date.Format "January")) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

@@ -246,14 +246,23 @@
       [].forEach.call(idx.querySelectorAll('[data-i].hxm-row'), function (b) { if (+b.getAttribute('data-i') === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
       ribbon.classList.toggle('off', !(i === TI || !cover.classList.contains('open')));
     }
+    /* turning a page like a real journal (Nov 26, Toby: the old turn showed
+       the page's back, then the same page again): Older lifts the page away
+       to the left, Newer brings the page before back in from the left; only
+       a page's front is ever seen, with a soft shadow as it turns */
     function flip(i) {
       if (CALM) { fill(i); return; }
-      var dir = i > cur ? 1 : -1, f = pg.cloneNode(true);
-      f.className = 'hxm-leaf hxm-pg hxm-flip' + (dir < 0 ? ' back' : '');
-      f.removeAttribute('aria-label'); f.setAttribute('aria-hidden', 'true');
-      book.appendChild(f); fill(i);
-      requestAnimationFrame(function () { requestAnimationFrame(function () { f.classList.add('go'); }); });
-      setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 700);
+      var fwd = i > cur, old = pg.cloneNode(true), oin = pg.querySelector('.hxm-in'), st = oin ? oin.scrollTop : 0;
+      old.removeAttribute('aria-label'); old.setAttribute('aria-hidden', 'true');
+      old.className = 'hxm-leaf hxm-pg hxm-turn ' + (fwd ? 'away' : 'under');
+      book.appendChild(old);
+      var cin = old.querySelector('.hxm-in'); if (cin) cin.scrollTop = st;
+      fill(i);
+      if (!fwd) pg.classList.add('hxm-in-l');
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        old.classList.add('go'); pg.classList.add('go'); if (!fwd) pg.classList.remove('hxm-in-l');
+      }); });
+      setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); pg.classList.remove('go'); }, 650);
     }
 
     /* ---------- where we are: 0 the cover, 1 the Index (one-journal screens), 2 a page ---------- */
@@ -281,7 +290,7 @@
       de.classList.toggle('hxm-read', level > 0);
     }
     function go(i) {
-      if (i < 0 || i >= P.length) return;
+      if (i < 0 || i >= P.length || (level === 2 && i === cur)) return; /* already open: no page turn to the same page */
       if (level === 2) { setLevel(2, i); try { history.replaceState({ hxm: 2, i: i, deep: deep ? 1 : 0 }, ''); } catch (e) {} return; }
       try { history.pushState({ hxm: 2, i: i }, ''); } catch (e) {}
       setLevel(2, i);

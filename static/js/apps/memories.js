@@ -52,7 +52,9 @@
     var now = new Date(), TODAY = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
     var TI = -1; for (var q0 = 0; q0 < P.length; q0++) if (P[q0].d === TODAY) { TI = q0; break; }
     function years(p) { return p.y ? p.y + (p.y === 1 ? ' year' : ' years') + ' ago' : ''; }
-    function place(p) { return p.ln ? String(p.ln).replace(/[\s.,;]+$/, '') : ''; }
+    /* Nov 26 (Toby): just the place, not the city after it ("John Marshall Park",
+       not "John Marshall Park, Washington, DC"); the check-in's name can't be edited */
+    function place(p) { return p.ln ? String(p.ln).split(',')[0].replace(/[\s.;]+$/, '').trim() : ''; }
     /* the spot: from the check-in, or from its OpenStreetMap link */
     function spot(p) {
       var la = parseFloat(p.la), lo = parseFloat(p.lo);
@@ -111,7 +113,8 @@
           var yy = +k.slice(0, 4);
           h += '<h3 class="hxm-mon">' + MON[+k.slice(5, 7) - 1] + (yy !== now.getFullYear() ? ' ' + yy : '') + '</h3>';
         }
-        h += '<button type="button" class="hxm-row" data-i="' + j + '"><span class="hxm-rd">' + (+p.d.slice(8, 10)) + '</span>' +
+        /* Nov 26 (Toby, mockup v284): each day as a little tear-off calendar */
+        h += '<button type="button" class="hxm-row" data-i="' + j + '"><span class="hxm-rd" aria-hidden="true"><b>' + MON[+p.d.slice(5, 7) - 1].slice(0, 3) + '</b><i>' + (+p.d.slice(8, 10)) + '</i></span>' +
           '<span class="hxm-rt">' + esc(p.t) + '</span><span class="hxm-ry">' + (p.y ? p.y + (p.y === 1 ? ' year' : ' years') : '') + '</span></button>';
       });
       return h || '<p class="hxm-none">No memories from then yet.</p>';

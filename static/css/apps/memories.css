@@ -6,6 +6,7 @@
    WCAG: every text color is at least 7:1 on what it sits on (large
    handwriting on the cover at least 4.5:1). Nothing under 12px. */
 @font-face{font-family:'Hutch Caveat';font-weight:500;font-display:swap;src:url(../../fonts/caveat-500.woff2) format('woff2')}
+@font-face{font-family:'Hutch Caveat';font-weight:600;font-display:swap;src:url(../../fonts/caveat-600.woff2) format('woff2')}
 @font-face{font-family:'Hutch Caveat';font-weight:700;font-display:swap;src:url(../../fonts/caveat-700.woff2) format('woff2')}
 
 html.hxm-on{color-scheme:light}
@@ -59,10 +60,14 @@ html.hx-dark .hx-mem{
 .hxm-filters button[aria-pressed="true"]{background:var(--dink);border-color:var(--dink);color:var(--desk)}
 .hxm-toc{overflow:auto;min-height:0;flex:1;padding:0 2px 16px;overscroll-behavior:contain}
 .hxm-mon{margin:18px 0 4px;font:700 28px/1.2 var(--hand);color:var(--dacc)}
-.hxm-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:baseline;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;text-align:left;cursor:pointer;color:var(--dink)}
+.hxm-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:8px 12px;border:0;border-radius:10px;background:none;text-align:left;cursor:pointer;color:var(--dink)}
 .hxm-row:hover{background:var(--selh)}
 .hxm-row[aria-current="true"]{background:var(--sel)}
-.hxm-rd{font:600 17px var(--h-ui);color:var(--dmut);text-align:right;font-variant-numeric:tabular-nums}
+/* the day as a little tear-off calendar (always white paper, in light and dark) */
+.hxm-rd{display:flex;flex-direction:column;width:42px;border-radius:6px;overflow:hidden;background:#fff;text-align:center;transform:rotate(-3deg);
+  box-shadow:0 1px 2px rgba(38,42,54,.22),0 4px 9px -4px rgba(38,42,54,.35)}
+.hxm-rd b{background:#8A3B18;color:#fff;font:700 12px/16px var(--h-ui);letter-spacing:.06em;text-transform:uppercase}
+.hxm-rd i{font:700 19px/24px var(--h-ui);font-style:normal;color:#262A36;font-variant-numeric:tabular-nums}
 .hxm-rt{font:500 17px/1.35 var(--h-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hxm-row[aria-current="true"] .hxm-rt{font-weight:700}
 .hxm-ry{font:500 14px var(--h-ui);color:var(--dmut);white-space:nowrap}
@@ -152,7 +157,9 @@ html.hx-dark .hx-mem{
 .hxm-pin{width:1.45em;height:1.45em;flex:none;transform:translateY(-.18em);margin-left:-2px;overflow:visible}
 .hx-mem .hxm-tt{position:relative;margin:var(--lh) 0 0;font:700 min(calc(var(--lh) * .86),30px)/var(--lh) var(--hand);color:var(--ink);font-size-adjust:.47;letter-spacing:0}
 .hxm-tt:focus{outline:none}
-.hxm-wd{position:relative;font:500 min(calc(var(--lh) * .68),23px)/var(--lh) var(--hand);color:var(--ink2);font-size-adjust:.47}
+.hxm-wd{position:relative;font:600 min(calc(var(--lh) * .68),23px)/var(--lh) var(--hand);color:var(--ink);font-size-adjust:.47}
+/* Nov 26 (Toby): a darker pen everywhere, and bigger on phones (reads like 20px print) */
+.hx-mem[data-mode="one"]:not(.tab) .hxm-wd{font-size:min(calc(var(--lh) * .78),24px)}
 .hxm-wd p,.hxm-wd ul,.hxm-wd ol,.hxm-wd blockquote{margin:0 0 var(--lh)}
 .hxm-wd > :last-child{margin-bottom:0}
 .hxm-wd ul,.hxm-wd ol{padding-left:1.3em}

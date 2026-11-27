@@ -16176,44 +16176,58 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
    Colors read the sky tokens (var(--color-*)), so the sky script and
    contrast guard handle Golden/Sunset/Dusk/Night. Food colors, the
    foil and the 2x tags are fixed on purpose (they sit on their own
-   fills). Selectors carry .chip twice-deep so they beat the page-body
+   fills). Selectors carry .chipotle twice-deep so they beat the page-body
    rules (h2 underline, ul/ol bullets, p margins).
+   Wrapper is .chipotle, NOT .chip: .chip is already the Pulse category
+   pill (section ~9815), which turned the whole page pink on hover.
    ============================================================ */
-.page-body .chip, .chip { max-width: none; }
-.chip{--chip-ink:#1E2D4A;}
-.chip svg{display:block;overflow:visible}
-.chip .sticker{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:10;stroke-linejoin:round}
-.chip .ink{stroke:var(--chip-ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.page-body .chipotle, .chipotle { max-width: none; }
+.chipotle{--chip-ink:#1E2D4A;}
+.chipotle svg{display:block;overflow:visible}
+.chipotle .sticker{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:10;stroke-linejoin:round}
+.chipotle .ink{stroke:var(--chip-ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
 
 /* Hero */
 .chip-hero{display:grid;grid-template-columns:1fr;gap:1rem;align-items:center;margin-bottom:2.5rem}
 @media (min-width:760px){.chip-hero{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:2rem}}
 .chip-art{max-width:460px;width:100%;margin:0 auto}
-.chip .chip-top{display:flex;align-items:center;gap:.7rem;margin:0 0 .6rem}
-.chip .chip-logo{display:block;margin:0;max-width:none;flex:none;width:48px;height:48px;border-radius:12px;background:#FFFFFF;padding:4px;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.chipotle .chip-top{display:flex;align-items:center;gap:.7rem;margin:0 0 .6rem}
+.chipotle .chip-logo{display:block;margin:0;max-width:none;flex:none;width:48px;height:48px;border-radius:12px;background:#FFFFFF;padding:4px;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .chip-kicker{font-size:.875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--color-terra-text)}
-.chip .chip-head{font-family:var(--font-display);font-size:2rem;line-height:1.15;margin:0 0 .8rem;padding:0;border:0}
-.chip .chip-intro{margin:0 0 1rem}
-.chip .chip-line{display:inline-block;margin:0;padding:.45rem 1rem;border-radius:999px;background:var(--color-bg-card);border:2px dashed var(--color-terra);font-size:1rem;font-weight:600}
+.chipotle .chip-head{font-family:var(--font-display);font-size:2rem;line-height:1.15;margin:0 0 .8rem;padding:0;border:0}
+.chipotle .chip-intro{margin:0}
 
 /* Build cards */
-.chip .chip-build-title{font-family:var(--font-display);font-size:1.5rem;margin:0 0 1rem;padding:0;border:0}
-.chip .chip-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;counter-reset:chip}
-@media (min-width:860px){.chip-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.chipotle .chip-build-title{font-family:var(--font-display);font-size:1.5rem;margin:0 0 1rem;padding:0;border:0}
+.chipotle .chip-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;counter-reset:chip}
+@media (min-width:860px){.chipotle .chip-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* Phones (iPhone ~375-430px): two tiles across made names like
+   "Cilantro-lime rice" and the notes wrap badly, so below 560px each
+   tile becomes a row: number, food on the left, name + note beside it.
+   Names never wrap; nothing hyphenates. (chip-phone-rows, Nov 27) */
+@media (max-width:559px){
+  .chipotle .chip-cards{grid-template-columns:1fr;gap:.75rem}
+  .chipotle .chip-card{display:grid;grid-template-columns:76px minmax(0,1fr);column-gap:.9rem;align-items:center;text-align:left;padding:.75rem 1rem .75rem 2.9rem;min-height:96px}
+  .chipotle .chip-card::before{top:50%;left:.75rem;transform:translateY(-50%)}
+  .chipotle .chip-card svg{grid-column:1;grid-row:1 / span 2;width:76px;height:76px;margin:0}
+  .chipotle .chip-name{grid-column:2;grid-row:1;align-self:end}
+  .chipotle .chip-why{grid-column:2;grid-row:2;align-self:start}
+  .chipotle .chip-extra{top:.55rem;right:.6rem;font-size:.85rem}
+}
 .chip-card{position:relative;background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:18px;padding:1rem 1rem 1.1rem;text-align:center;counter-increment:chip}
-.chip-card::before{content:counter(chip);position:absolute;top:.7rem;left:.8rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#A65326;color:#FFFFFF;font-size:.875rem;font-weight:700;line-height:1.7rem}
+.chip-card::before{content:counter(chip);position:absolute;top:.7rem;left:.8rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#A65326;color:#FFFFFF;font-size:.875rem;font-weight:700;line-height:1.7rem;text-align:center}
 .chip-card svg{width:110px;height:110px;margin:.3rem auto .5rem}
-.chip .chip-name{font-family:var(--font-display);font-size:1.25rem;font-weight:700;margin:0;line-height:1.2}
-.chip .chip-why{font-size:1rem;color:var(--color-text-muted);margin:.3rem 0 0;line-height:1.4}
+.chipotle .chip-name{white-space:nowrap;-webkit-hyphens:none;hyphens:none;font-family:var(--font-display);font-size:1.25rem;font-weight:700;margin:0;line-height:1.2}
+.chipotle .chip-why{-webkit-hyphens:none;hyphens:none;font-size:1rem;color:var(--color-text-muted);margin:.3rem 0 0;line-height:1.4}
 .chip-extra{position:absolute;top:.7rem;right:.7rem;background:#F4C542;color:#1E2D4A;border:2px solid #1E2D4A;font-size:.95rem;font-weight:800;letter-spacing:.02em;padding:.15rem .55rem;border-radius:6px;transform:rotate(6deg)}
-.chip .chip-outro{text-align:center;margin:2rem 0 0;font-family:var(--font-display);font-style:italic;color:var(--color-text-muted)}
+.chipotle .chip-outro{text-align:center;margin:2rem 0 0;font-family:var(--font-display);font-style:italic;color:var(--color-text-muted)}
 
 /* Motion */
-.chip .bob{animation:chip-bob 2.6s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
-.chip .pop{transform-box:fill-box;transform-origin:center;opacity:0;animation:chip-pop 6s ease-out infinite;animation-delay:var(--d,0s)}
-.chip .steam{animation:chip-steam 3.2s ease-out infinite;animation-delay:var(--d,0s);stroke:var(--color-text-muted);opacity:0}
-.chip .twinkle{transform-box:fill-box;transform-origin:center;animation:chip-twinkle 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}
-.chip .float{animation:chip-float 4s ease-in-out infinite alternate}
+.chipotle .bob{animation:chip-bob 2.6s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+.chipotle .pop{transform-box:fill-box;transform-origin:center;opacity:0;animation:chip-pop 6s ease-out infinite;animation-delay:var(--d,0s)}
+.chipotle .steam{animation:chip-steam 3.2s ease-out infinite;animation-delay:var(--d,0s);stroke:var(--color-text-muted);opacity:0}
+.chipotle .twinkle{transform-box:fill-box;transform-origin:center;animation:chip-twinkle 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+.chipotle .float{animation:chip-float 4s ease-in-out infinite alternate}
 .chip-card:hover .bob,.chip-card:focus-within .bob{animation:chip-hop .6s ease-out infinite}
 @keyframes chip-bob{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 @keyframes chip-hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}}
@@ -16227,8 +16241,8 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 @keyframes chip-twinkle{0%,100%{transform:scale(.6);opacity:.4}50%{transform:scale(1.1);opacity:1}}
 @keyframes chip-float{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 @media (prefers-reduced-motion:reduce){
-  .chip .bob,.chip .twinkle,.chip .float,.chip-card:hover .bob{animation:none}
-  .chip .pop{animation:none;opacity:0}
-  .chip .steam{animation:none;opacity:.4}
+  .chipotle .bob,.chipotle .twinkle,.chipotle .float,.chip-card:hover .bob{animation:none}
+  .chipotle .pop{animation:none;opacity:0}
+  .chipotle .steam{animation:none;opacity:.4}
 }
 /* end section 134 */

@@ -16805,6 +16805,12 @@ body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 
 /* More pages groups (Nov 27, later): a small heading over each group */
 .page-body .dir-page h3.dr-group { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1.25; color: var(--color-terra-text); margin: 1.6rem 0 .6rem; padding: 0; border: 0; }
 .page-body .dir-page p.dr-sub + h3.dr-group { margin-top: .4rem; }
+/* "Updated" tag (Nov 27, later): outline pill, so it reads differently
+   from the solid "New". Navy ink on the card in light skies, light ink
+   in dark skies (same tokens as the New tag). */
+.dir-page .dr-new--upd { background: transparent; color: var(--color-navy); box-shadow: inset 0 0 0 1.5px var(--color-navy); }
+.dir-page .dr-tile.has-upd .dr-txt { padding-right: 5.2rem; }
+@container dir (min-width: 440px) { .dir-page .dr-tile.has-upd .dr-txt { padding-right: 0; } }
 /* end section 137 */
 
 /* ============================================================

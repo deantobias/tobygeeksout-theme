@@ -21,9 +21,13 @@
   on this Hugo), every card shows with its first slug.
   NAMES come from each page's own title (leading symbols like the ★
   on My Rating Scale are dropped), else the name written below.
-  NEW tag: a page made in the last 30 days. A small script takes it
-  off on day 30 even without a rebuild. If more than half the pages
-  look new, the dates can't be trusted and no tag shows at all.
+  NEW / UPDATED tags (Toby, Nov 27): set by hand with "added" and
+  "updated" dates on an entry below, NOT from the page's own date
+  (Micro.blog moves that when a page is edited, so a page that only
+  got new art looked brand new). "New" shows for 30 days after
+  "added"; otherwise "Updated" shows for 30 days after "updated".
+  A small script takes the tag off on day 30 even without a rebuild.
+  To tag a page: add "added" "2026-12-01" or "updated" "2026-12-01".
   LEFT OUT ON PURPOSE (Toby, Nov 27): the old pages (/about, /now-old,
   /photos, /photos-i-took, /posts, /post-lists, /long-posts, /replies,
   /test, /micro.blog), The Pulse: 2026 (/the-pulse already shows the
@@ -46,11 +50,11 @@
 {{- $slashDefs := slice
   (dict "try" (slice "/about-me/" "/about/") "name" "About Me"              "desc" "Who I am and why I geek out"                   "art" "me")
   (dict "try" (slice "/now/")                "name" "Now"                   "desc" "What I'm up to these days"                     "art" "now")
-  (dict "try" (slice "/uses/")               "name" "Geek Gear"             "desc" "The gear and apps I use"                       "art" "uses")
-  (dict "try" (slice "/feeds/")              "name" "Follow Along Your Way" "desc" "Every RSS and JSON feed, by series and topic"  "art" "feeds")
+  (dict "try" (slice "/uses/")               "name" "Geek Gear"             "desc" "The gear and apps I use"                       "art" "uses" "updated" "2026-11-27")
+  (dict "try" (slice "/feeds/")              "name" "Follow Along Your Way" "desc" "Every RSS and JSON feed, by series and topic"  "art" "feeds" "added" "2026-11-27")
   (dict "try" (slice "/photo/")              "name" "Photo"                 "desc" "Every photo, newest first"                     "art" "photo")
-  (dict "try" (slice "/chipotle/")           "name" "My Chipotle Order"     "desc" "My go-to burrito, in build order"              "art" "chipotle")
-  (dict "try" (slice "/colophon/" "/under-the-hood/") "name" "Under the Hood" "desc" "How this site is built"                    "art" "hood")
+  (dict "try" (slice "/chipotle/")           "name" "My Chipotle Order"     "desc" "My go-to burrito, in build order"              "art" "chipotle" "added" "2026-11-27")
+  (dict "try" (slice "/colophon/" "/under-the-hood/") "name" "Under the Hood" "desc" "How this site is built"                    "art" "hood" "added" "2026-11-27")
   (dict "try" (slice "/ai/")                 "name" "AI"                    "desc" "How I use AI here, and how I don't"            "art" "ai")
   (dict "try" (slice "/changelog/" "/tinkering/") "name" "The Tinkering Log" "desc" "What's changed on the site lately"           "art" "tinker")
   (dict "try" (slice "/archive/")            "name" "Archive"               "desc" "Every post, by month and category"             "art" "archive")
@@ -68,7 +72,7 @@
   (dict "group" "On the Screen & Page" "try" (slice "/the-queue/" "/queue/") "name" "The Queue"         "desc" "What I want to watch next"                    "art" "queue")
   (dict "group" "On the Screen & Page" "try" (slice "/my-rating-scale/")    "name" "My Rating Scale"    "desc" "What my stars mean"                           "art" "stars")
   (dict "group" "On the Screen & Page" "try" (slice "/reading/")            "name" "Reading"            "desc" "My bookshelf and what I'm reading now"        "art" "reading")
-  (dict "group" "Through the Lens"     "try" (slice "/memories/")           "name" "Memories"           "desc" "Old photos brought back on their anniversary" "art" "memories")
+  (dict "group" "Through the Lens"     "try" (slice "/memories/")           "name" "Memories"           "desc" "Old photos brought back on their anniversary" "art" "memories" "added" "2026-11-25")
   (dict "group" "Through the Lens"     "try" (slice "/my-hometown-photos/") "name" "My Hometown Photos" "desc" "Autumn roads, hills and rivers around home"   "art" "hometown")
   (dict "group" "Behind the Blog"      "try" (slice "/the-long-road-here/" "/the-long-road/") "name" "The Long Road Here" "desc" "My blogging story, back to 2004" "art" "road")
   (dict "group" "Behind the Blog"      "try" (slice "/calendar/")           "name" "Calendar"           "desc" "Every post, day by day"                       "art" "calendar")
@@ -92,7 +96,6 @@
 {{- $cut := now.AddDate 0 0 -30 -}}
 {{- /* ---- resolve each group: url, slug, name, desc, art, new */ -}}
 {{- $groups := dict -}}
-{{- $newCount := 0 -}}{{- $pageCount := 0 -}}
 {{- range $g := slice "slash" "more" -}}
   {{- $defs := cond (eq $g "slash") $slashDefs $moreDefs -}}
   {{- $out := slice -}}
@@ -104,22 +107,18 @@
     {{- end -}}
     {{- if and (not $hit) (not $trust) -}}{{- $hit = index $d.try 0 -}}{{- end -}}
     {{- with $hit -}}
-      {{- $name := $d.name -}}{{- $new := false -}}{{- $exp := "" -}}
+      {{- $name := $d.name -}}{{- $tag := "" -}}{{- $exp := "" -}}
       {{- with $p -}}
-        {{- $pageCount = add $pageCount 1 -}}
         {{- $t := trim (replaceRE `^[^\pL\pN]+` "" .Title) " " -}}
         {{- if $t -}}{{- $name = $t -}}{{- end -}}
-        {{- if and (not .Date.IsZero) (.Date.After $cut) -}}
-          {{- $new = true -}}{{- $newCount = add $newCount 1 -}}
-          {{- $exp = (.Date.AddDate 0 0 30).Format "2006-01-02T15:04:05-07:00" -}}
-        {{- end -}}
       {{- end -}}
-      {{- $out = $out | append (dict "url" (. | absURL) "slug" (replaceRE `/+$` "" .) "name" $name "desc" $d.desc "art" $d.art "group" ($d.group | default "") "new" $new "exp" $exp) -}}
+      {{- with $d.added -}}{{- $t := time . -}}{{- if $t.After $cut -}}{{- $tag = "New" -}}{{- $exp = ($t.AddDate 0 0 30).Format "2006-01-02T15:04:05-07:00" -}}{{- end -}}{{- end -}}
+      {{- if not $tag -}}{{- with $d.updated -}}{{- $t := time . -}}{{- if $t.After $cut -}}{{- $tag = "Updated" -}}{{- $exp = ($t.AddDate 0 0 30).Format "2006-01-02T15:04:05-07:00" -}}{{- end -}}{{- end -}}{{- end -}}
+      {{- $out = $out | append (dict "url" (. | absURL) "slug" (replaceRE `/+$` "" .) "name" $name "desc" $d.desc "art" $d.art "group" ($d.group | default "") "tag" $tag "exp" $exp) -}}
     {{- end -}}
   {{- end -}}
   {{- $groups = merge $groups (dict $g $out) -}}
 {{- end -}}
-{{- $showNew := and (gt $newCount 0) (le (mul $newCount 2) $pageCount) -}}
 {{- $slash := index $groups "slash" -}}
 {{- $more := index $groups "more" -}}
 {{- $chev := `<svg class="dr-chev" aria-hidden="true" focusable="false"><use href="#dr-i-chev"/></svg>` -}}
@@ -206,7 +205,7 @@
 <p class="dr-sub">The well-known ones. Add the word after the slash to my address and you'll land right on it.</p>
 <ul class="dr-slashes">
 {{- range $slash }}
-<li><a class="dr-tile{{ if and $showNew .new }} has-new{{ end }}" href="{{ .url }}">{{ if and $showNew .new }}<span class="dr-new" data-exp="{{ .exp }}">New</span>{{ end }}<span class="dr-ico"><svg aria-hidden="true" focusable="false"><use href="#dr-a-{{ .art }}"/></svg></span><span class="dr-txt"><span class="dr-slug">{{ .slug }}</span><span class="dr-name">{{ .name }}</span><span class="dr-desc">{{ .desc }}</span></span></a></li>
+<li><a class="dr-tile{{ if .tag }} has-new{{ if eq .tag "Updated" }} has-upd{{ end }}{{ end }}" href="{{ .url }}">{{ if .tag }}<span class="dr-new{{ if eq .tag "Updated" }} dr-new--upd{{ end }}" data-exp="{{ .exp }}">{{ .tag }}</span>{{ end }}<span class="dr-ico"><svg aria-hidden="true" focusable="false"><use href="#dr-a-{{ .art }}"/></svg></span><span class="dr-txt"><span class="dr-slug">{{ .slug }}</span><span class="dr-name">{{ .name }}</span><span class="dr-desc">{{ .desc }}</span></span></a></li>
 {{- end }}
 </ul>
 </section>
@@ -221,7 +220,7 @@
 <h3 class="dr-group" id="dr-g{{ $gi }}">{{ $gn }}</h3>
 <ul class="dr-more" aria-labelledby="dr-g{{ $gi }}">
 {{- range . }}
-<li><a class="dr-row" href="{{ .url }}"><span class="dr-ico dr-ico--sm"><svg aria-hidden="true" focusable="false"><use href="#dr-a-{{ .art }}"/></svg></span><span class="dr-txt"><span class="dr-name">{{ .name }}</span><span class="dr-desc">{{ .desc }}</span></span>{{ if and $showNew .new }}<span class="dr-new" data-exp="{{ .exp }}">New</span>{{ end }}{{ $chev | safeHTML }}</a></li>
+<li><a class="dr-row" href="{{ .url }}"><span class="dr-ico dr-ico--sm"><svg aria-hidden="true" focusable="false"><use href="#dr-a-{{ .art }}"/></svg></span><span class="dr-txt"><span class="dr-name">{{ .name }}</span><span class="dr-desc">{{ .desc }}</span></span>{{ if .tag }}<span class="dr-new{{ if eq .tag "Updated" }} dr-new--upd{{ end }}" data-exp="{{ .exp }}">{{ .tag }}</span>{{ end }}{{ $chev | safeHTML }}</a></li>
 {{- end }}
 </ul>
 {{- end }}

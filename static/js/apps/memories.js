@@ -176,7 +176,7 @@
     layout();
 
     /* ---------- a page ---------- */
-    var cur = -1, lh = 32;
+    var cur = -1, lh = 32, warmT = 0;
     /* his words without a "View on Instagram" link of their own; the link comes back separately */
     function ig(p) {
       if (!p.h) return { h: '', ig: '' };
@@ -267,6 +267,8 @@
       [].forEach.call(pg.querySelectorAll('img'), function (im) { if (!im.complete) im.addEventListener('load', fitSoon); });
       [].forEach.call(idx.querySelectorAll('[data-i].hxm-row'), function (b) { if (+b.getAttribute('data-i') === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
       ribbon.classList.toggle('off', !(i === TI || !cover.classList.contains('open')));
+      /* fetch the big photo quietly once the page is up, so tapping the polaroid is instant */
+      clearTimeout(warmT); warmT = setTimeout(function () { if (cur === i) warmPage(i); }, 900);
     }
     /* turning a page like a real journal (Nov 26, Toby: the old turn showed
        the page's back, then the same page again): Older lifts the page away
@@ -352,11 +354,29 @@
     });
 
     /* ---------- the whole photo ---------- */
-    var VW = (function () { var t = Math.max(innerWidth, innerHeight) * Math.min(window.devicePixelRatio || 1, 2); return t <= 900 ? 800 : t <= 1300 ? 1200 : t <= 1700 ? 1600 : 2000; })();
+    /* Nov 27 (Toby: "make it load faster"): the size the viewer really
+       needs (its width on this screen), so phones reuse the polaroid's own
+       800px copy and bigger screens fetch only what they show */
+    var VW = (function () { var t = Math.min(innerWidth * 0.92, 1600) * Math.min(window.devicePixelRatio || 1, 2); return t <= 820 ? 800 : t <= 1250 ? 1200 : t <= 1650 ? 1600 : 2000; })();
+    var BIG = {};
+    function warm(s) {
+      var u = sz(s, VW); if (BIG[u]) return BIG[u];
+      var im = new Image(); im.decoding = 'async'; BIG[u] = im;
+      im.onerror = function () { var o = new Image(); o.src = s; BIG[u] = o; };
+      im.src = u; return im;
+    }
+    function warmPage(i) { var ph = (P[i] && P[i].ph) || []; ph.slice(0, 3).forEach(function (x) { warm(x.s); }); }
     var lbI = 0, lbBack = null;
     function lbShow() {
       var p = P[cur], ph = p.ph || [], n = ph.length, x = ph[lbI]; if (!x) return;
-      var im = lb.querySelector('img'); im.src = sz(x.s, VW); im.setAttribute('data-o', x.s); im.alt = x.a || p.t;
+      /* show the polaroid's copy at once, then the sharper one the moment it is in */
+      var im = lb.querySelector('img'), want = sz(x.s, VW), b = warm(x.s), small = sz(x.s, 800);
+      im.setAttribute('data-o', x.s); im.alt = x.a || p.t;
+      if (b.complete && b.naturalWidth) im.src = b.src;
+      else {
+        im.src = small;
+        b.addEventListener('load', function () { if (P[cur] && P[cur].ph && P[cur].ph[lbI] === x && !lb.hidden) im.src = b.src; }, { once: true });
+      }
       lb.querySelector('.hxm-lbc').textContent = p.tk || p.dl;
       lb.querySelector('.hxm-lbk').textContent = n > 1 ? (lbI + 1) + ' of ' + n : '';
       lb.querySelector('.hxm-lbp').hidden = lb.querySelector('.hxm-lbn').hidden = n < 2;
@@ -395,6 +415,7 @@
       if (e.key === 'ArrowLeft' && cur > 0) { e.preventDefault(); go(cur - 1); }
       else if (e.key === 'ArrowRight' && cur < P.length - 1) { e.preventDefault(); go(cur + 1); }
     });
+    pg.addEventListener('pointerdown', function (e) { if (e.target.closest('button.hxm-ph') && P[cur]) warmPage(cur); }, { passive: true });
     var sx = null, sy = 0;
     pg.addEventListener('touchstart', function (e) { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } else sx = null; }, { passive: true });
     pg.addEventListener('touchend', function (e) {

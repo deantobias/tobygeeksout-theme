@@ -16280,6 +16280,14 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .page-body .feeds-page, .feeds-page { max-width: none; }
 .feeds-page { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .feeds-page svg { display: block; }
+/* Whole words only (Nov 27, iPhone): the theme's .page-body a has
+   overflow-wrap:anywhere, which split words like "newsletter" and the
+   handles in two on iPhone Safari. Handles carry a <wbr> instead. */
+.page-body .feeds-page,
+.page-body .feeds-page * { overflow-wrap: normal; word-break: normal; -webkit-hyphens: none; hyphens: none; }
+.page-body .feeds-page a.fd-chip,
+.page-body .feeds-page .fd-fmt,
+.page-body .feeds-page .fd-browse { white-space: nowrap; }
 
 /* Intro */
 .page-body .feeds-page .fd-lede { margin: 0 0 .75rem; }
@@ -16380,7 +16388,7 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .page-body .feeds-page .fd-card-name { font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; color: var(--color-text); margin: 0 0 .25rem; padding: 0; border: 0; }
 .page-body .feeds-page .fd-card .fd-desc { margin: 0 0 .8rem; }
 .feeds-page .fd-handle-row { display: flex; align-items: center; gap: .4rem; margin: .1rem 0 .8rem; }
-.feeds-page .fd-handle { font-family: var(--font-body); font-size: .875rem; font-weight: 500; min-width: 0; background: var(--color-bg-warm); color: var(--color-text); padding: .15rem .4rem; border-radius: 4px; overflow-wrap: anywhere; }
+.feeds-page .fd-handle { font-family: var(--font-body); font-size: .875rem; font-weight: 500; min-width: 0; background: var(--color-bg-warm); color: var(--color-text); padding: .15rem .4rem; border-radius: 4px; }
 .feeds-page .fd-cp--round { flex: none; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--color-terra-btn); border-radius: 999px; background: var(--color-bg-card); }
 .feeds-page .fd-cp--round svg { width: 15px; height: 15px; }
 .page-body .feeds-page a.fd-btn { display: inline-block; font-family: var(--font-body); font-size: .875rem; font-weight: 600; text-decoration: none; background: var(--color-terra-btn); color: var(--color-btn-ink); padding: .5rem .95rem; border-radius: 4px; }

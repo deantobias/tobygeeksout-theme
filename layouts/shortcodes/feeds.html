@@ -24,6 +24,9 @@
   slug, icon = one of the fd-i-* symbols below).
   SVG ids are prefixed fd-i- so they can't clash with anything else.
   No blank lines inside the HTML (Goldmark rule for raw HTML blocks).
+  Words never break mid-word (iPhone Safari split them because the
+  theme's .page-body a uses overflow-wrap:anywhere); the long social
+  handles get a <wbr> so they only wrap before @mastodon / .bsky.
   Copy uses the clipboard API, then the old textarea way (same idea
   as the theme's .tgo-rss-copy).
   Styles: custom.css section 135 (.feeds-page). Classes are fd-*,
@@ -241,14 +244,14 @@
 <a class="fd-btn" href="{{ $base }}subscribe/">Subscribe by email</a>
 </div>
 {{- range slice
-  (dict "name" "Mastodon"   "icon" "fedi" "handle" "@technogeek75@mastodon.social" "url" "https://mastodon.social/@technogeek75")
-  (dict "name" "Bluesky"    "icon" "at"   "handle" "@technogeek75.bsky.social"     "url" "https://bsky.app/profile/technogeek75.bsky.social")
-  (dict "name" "Micro.blog" "icon" "mb"   "handle" "@technogeek75"                 "url" "https://micro.blog/technogeek75")
+  (dict "name" "Mastodon"   "icon" "fedi" "handle" "@technogeek75@mastodon.social" "show" "@technogeek75<wbr>@mastodon.social" "url" "https://mastodon.social/@technogeek75")
+  (dict "name" "Bluesky"    "icon" "at"   "handle" "@technogeek75.bsky.social"     "show" "@technogeek75<wbr>.bsky.social" "url" "https://bsky.app/profile/technogeek75.bsky.social")
+  (dict "name" "Micro.blog" "icon" "mb"   "handle" "@technogeek75"                 "show" "@technogeek75" "url" "https://micro.blog/technogeek75")
 -}}
 <div class="fd-card">
 <div class="fd-ico"><svg width="20" height="20" aria-hidden="true" focusable="false"><use href="#fd-i-{{ .icon }}"/></svg></div>
 <h3 class="fd-card-name">{{ .name }}</h3>
-<div class="fd-handle-row"><span class="fd-handle">{{ .handle }}</span><button type="button" class="fd-cp fd-cp--round" data-copy="{{ .handle }}" data-label="{{ .name }} handle" aria-label="Copy my {{ .name }} handle">{{ $copy | safeHTML }}</button></div>
+<div class="fd-handle-row"><span class="fd-handle">{{ .show | safeHTML }}</span><button type="button" class="fd-cp fd-cp--round" data-copy="{{ .handle }}" data-label="{{ .name }} handle" aria-label="Copy my {{ .name }} handle">{{ $copy | safeHTML }}</button></div>
 <a class="fd-btn" href="{{ .url }}" rel="me">Follow on {{ .name }}</a>
 </div>
 {{- end -}}

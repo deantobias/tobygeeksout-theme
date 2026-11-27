@@ -34,11 +34,11 @@ html.hx-dark .hx-mem{
 .hx-mem :focus-visible{outline:3px solid var(--dacc);outline-offset:3px}
 .hx-mem svg{flex:none}
 
-.hxm-desk{height:100%;display:grid;grid-template-columns:minmax(0,640px) auto;justify-content:center;gap:clamp(32px,4vw,72px);
+.hxm-desk{height:100%;display:grid;grid-template-columns:minmax(0,640px) auto;grid-template-rows:minmax(0,1fr);align-items:start;justify-content:center;gap:clamp(32px,4vw,72px);
   padding:6px max(28px,env(safe-area-inset-right,0px)) 44px max(28px,env(safe-area-inset-left,0px))}
 
 /* ---------- the Index ---------- */
-.hxm-idx{min-height:0;display:flex;flex-direction:column;width:100%;color:var(--dink)}
+.hxm-idx{min-height:0;height:100%;display:flex;flex-direction:column;width:100%;color:var(--dink)}
 .hxm-ih{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 4px}
 .hxm-ih h2{margin:0;font:700 40px/1.1 var(--hand);color:var(--dink)}
 .hxm-ih span{font:500 14px var(--h-ui);color:var(--dmut)}
@@ -69,7 +69,9 @@ html.hx-dark .hx-mem{
 .hxm-none{font:500 15px var(--h-ui);color:var(--dmut);margin:16px 12px}
 
 /* ---------- the journal ---------- */
-.hxm-book{position:relative;height:100%;aspect-ratio:7.5/9.75;max-width:60vw;perspective:2400px}
+/* the journal's size comes from the screen itself (Nov 26: Safari on the iPad drew it far too tall from height:100%) */
+.hxm-book{position:relative;width:min(60vw,calc((100vh - var(--h-bar) - 50px) * 7.5 / 9.75));aspect-ratio:7.5/9.75;perspective:2400px}
+@supports (height:100dvh){.hxm-book{width:min(60vw,calc((100dvh - var(--h-bar) - 50px) * 7.5 / 9.75))}}
 .hxm-leaf{position:absolute;inset:0;border-radius:16px;background:var(--paper);color:var(--ink);overflow:hidden;
   box-shadow:0 1px 2px rgba(38,42,54,.06),0 24px 50px -20px var(--shadow)}
 .hxm-ixp{display:none}
@@ -198,8 +200,13 @@ html.hx-dark .hx-mem{
 /* ---------- phones, and iPads held upright: just the journal; the Index is its first page ---------- */
 .hx-mem[data-mode="one"] .hxm-desk{display:block;padding:4px max(14px,env(safe-area-inset-right,0px)) 40px max(14px,env(safe-area-inset-left,0px))}
 .hx-mem[data-mode="one"] .hxm-book{height:100%;width:100%;max-width:none;aspect-ratio:auto}
-.hx-mem[data-mode="one"] .hxm-ixp{display:flex;flex-direction:column;z-index:3;padding:28px 20px 0;transition:opacity .25s,visibility 0s}
-.hx-mem[data-mode="one"] .hxm-ixp.away{opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
+.hx-mem[data-mode="one"] .hxm-idx{height:auto}
+.hx-mem[data-mode="one"] .hxm-ixp{display:flex;flex-direction:column;z-index:3;padding:28px 20px 0;transform-origin:0 50%;-webkit-backface-visibility:hidden;backface-visibility:hidden;
+  transition:transform .55s cubic-bezier(.55,.06,.45,.95),visibility 0s}
+/* the Index page turns away like the cover when you pick a memory, and turns back in for the list (Nov 26, Toby) */
+.hx-mem[data-mode="one"] .hxm-ixp.away{transform:rotateY(-96deg);visibility:hidden;transition:transform .55s cubic-bezier(.55,.06,.45,.95),visibility 0s .55s}
+.hx-mem[data-mode="one"] .hxm-ixp::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(38,42,54,.28),rgba(38,42,54,.06));opacity:0;transition:opacity .55s;pointer-events:none}
+.hx-mem[data-mode="one"] .hxm-ixp.away::after{opacity:1}
 .hx-mem[data-mode="one"] .hxm-ixp .hxm-idx{--dink:#262A36;--dmut:#424B5E;--dacc:#7A3312;--chip:#FFFFFF;--chipline:#D9C6B3;--sel:#F3E6D7;--selh:#F8EFE4}
 .hx-mem[data-mode="one"] .hxm-ixp .hxm-filters button[aria-pressed="true"]{color:#FFFDF8}
 .hx-mem[data-mode="one"] .hxm-ih h2{font-size:38px}
@@ -225,6 +232,7 @@ html.hx-dark .hx-mem{
 /* iPads held upright: the journal keeps its shape, in the middle */
 .hx-mem.tab .hxm-desk{display:flex;justify-content:center;align-items:flex-start;padding:8px 24px 48px}
 .hx-mem.tab .hxm-book{height:auto;width:min(100%,calc((100vh - 120px) * 7.5 / 9.75));aspect-ratio:7.5/9.75}
+@supports (height:100dvh){.hx-mem.tab .hxm-book{width:min(100%,calc((100dvh - 120px) * 7.5 / 9.75))}}
 .hx-mem.tab .hxm-ixp{padding:36px 32px 0}
 /* phones held sideways: the polaroid on the left, the writing on the right */
 .hx-mem.short .hxm-desk{padding-bottom:12px}
@@ -243,4 +251,6 @@ html.hx-dark .hx-mem{
   .hxm-cover,.hxm-cover:not(.open){transition:opacity .25s,visibility 0s .25s}
   .hxm-cover:hover,.hxm-cover.open{transform:none}
   .hxm-map:hover{transform:rotate(7deg)}
+  .hx-mem[data-mode="one"] .hxm-ixp,.hx-mem[data-mode="one"] .hxm-ixp.away{transform:none;transition:opacity .25s,visibility 0s .25s}
+  .hx-mem[data-mode="one"] .hxm-ixp.away{opacity:0}
 }

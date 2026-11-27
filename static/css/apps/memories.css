@@ -79,6 +79,14 @@ html.hx-dark .hx-mem{
 .hxm-ixp{display:none}
 
 /* the cover: smooth hardcover, a linen grain, an elastic band, a ribbon bookmark */
+/* the closed cover always keeps a journal's shape, in the middle of where the page will be (Nov 26, Toby) */
+.hxm-book{--cw:min(100%,calc(var(--bh) * 7.5 / 9.75))}
+.hx-mem .hxm-cover{inset:0 auto 0 calc((100% - var(--cw)) / 2);width:var(--cw)}
+.hx-mem.tab .hxm-cover{inset:0;width:auto}
+.hx-mem.tab .hxm-book{--cw:100%}
+/* while the journal is shut, only the cover shows; the page fades in behind it as it opens */
+.hxm-pg{transition:opacity .4s .12s}
+.hx-mem.shut .hxm-pg,.hx-mem.shut .hxm-ixp,.hx-mem[data-mode="one"].shut .hxm-ixp{opacity:0;visibility:hidden;transition:opacity .2s,visibility 0s .2s}
 .hxm-cover{z-index:5;border-radius:10px 18px 18px 10px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background-color:var(--cover);cursor:pointer;transform-origin:0 50%;outline-offset:6px;
   background-image:linear-gradient(90deg,rgba(0,0,0,.22) 0,rgba(0,0,0,0) 26px,rgba(255,255,255,.05) 27px,rgba(0,0,0,0) 32px),
     repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);
@@ -91,7 +99,7 @@ html.hx-dark .hx-mem{
 .hxm-band{position:absolute;top:0;bottom:0;right:9%;width:12px;background:linear-gradient(90deg,var(--band),#4B322A 45%,var(--band));box-shadow:-2px 0 4px rgba(0,0,0,.25)}
 .hxm-hint{display:none;position:absolute;left:0;right:0;bottom:16%;justify-content:center;align-items:center;gap:8px;font:600 16px var(--h-ui);color:var(--covtx)}
 .hxm-hint svg{width:20px;height:20px}
-.hxm-ribbon{position:absolute;bottom:-46px;left:26%;width:12px;height:80px;z-index:1;pointer-events:none;
+.hxm-ribbon{position:absolute;bottom:-46px;left:calc((100% - var(--cw,100%)) / 2 + var(--cw,100%) * .26);width:12px;height:80px;z-index:1;pointer-events:none;
   background:linear-gradient(90deg,#B8842E,var(--ribbon) 40%,#B8842E);transform:rotate(7deg);transform-origin:50% 0;
   clip-path:polygon(0 0,100% 0,100% 100%,50% 86%,0 100%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));transition:opacity .3s}
 .hxm-ribbon.off{opacity:0}
@@ -140,7 +148,7 @@ html.hx-dark .hx-mem{
   font:700 min(calc(var(--lh) * 1.2),46px)/var(--lh) var(--hand);color:var(--terra);font-size-adjust:.47}
 .hxm-pl{position:relative;display:flex;align-items:center;gap:4px;height:var(--lh);min-width:0;
   font:500 min(calc(var(--lh) * .56),20px)/var(--lh) var(--hand);color:var(--pmut);font-size-adjust:.47}
-.hxm-pl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hxm-pl .hxm-plt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .hxm-pin{width:1.45em;height:1.45em;flex:none;transform:translateY(-.18em);margin-left:-2px;overflow:visible}
 .hx-mem .hxm-tt{position:relative;margin:var(--lh) 0 0;font:700 min(calc(var(--lh) * .86),30px)/var(--lh) var(--hand);color:var(--ink);font-size-adjust:.47;letter-spacing:0}
 .hxm-tt:focus{outline:none}
@@ -164,6 +172,10 @@ html.hx-dark .hx-mem{
 .hx-mem .hxm-perma:hover{text-decoration:underline;text-underline-offset:4px}
 .hxm-perma svg,.hxm-nv svg,.hxm-back svg{width:16px;height:16px}
 .hxm-nav{display:flex;gap:8px}
+.hx-mem .hxm-ig{flex:none;display:inline-flex;align-items:center;gap:5px;margin-left:auto;padding:0 2px 0 10px;color:var(--terra);font:inherit;text-decoration:none;white-space:nowrap}
+.hx-mem .hxm-ig:hover span{text-decoration:underline;text-underline-offset:3px}
+.hx-mem .hxm-ig svg{width:1.05em;height:1.05em;stroke-width:2}
+.hx-mem .hxm-ig:focus-visible{outline:2px solid var(--terra);outline-offset:2px;border-radius:4px}
 .hxm-nv,.hxm-back{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px 0 12px;border:0;border-radius:999px;background:var(--btn);color:var(--ink) !important;font:600 14.5px var(--h-ui);cursor:pointer}
 .hxm-nv.o{padding:0 12px 0 16px}
 .hxm-nv:hover,.hxm-back:hover{background:var(--btnh)}
@@ -204,9 +216,9 @@ html.hx-dark .hx-mem{
 .hx-mem[data-mode="one"] .hxm-book{height:100%;width:100%;max-width:none;aspect-ratio:auto}
 .hx-mem[data-mode="one"] .hxm-idx{height:auto}
 .hx-mem[data-mode="one"] .hxm-ixp{display:flex;flex-direction:column;z-index:3;padding:28px 20px 0;transform-origin:0 50%;-webkit-backface-visibility:hidden;backface-visibility:hidden;
-  transition:transform .55s cubic-bezier(.55,.06,.45,.95),visibility 0s}
+  transition:transform .55s cubic-bezier(.55,.06,.45,.95),opacity .4s .12s,visibility 0s}
 /* the Index page turns away like the cover when you pick a memory, and turns back in for the list (Nov 26, Toby) */
-.hx-mem[data-mode="one"] .hxm-ixp.away{transform:rotateY(-96deg);visibility:hidden;transition:transform .55s cubic-bezier(.55,.06,.45,.95),visibility 0s .55s}
+.hx-mem[data-mode="one"] .hxm-ixp.away{transform:rotateY(-96deg);visibility:hidden;transition:transform .55s cubic-bezier(.55,.06,.45,.95),opacity .4s,visibility 0s .55s}
 .hx-mem[data-mode="one"] .hxm-ixp::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(38,42,54,.28),rgba(38,42,54,.06));opacity:0;transition:opacity .55s;pointer-events:none}
 .hx-mem[data-mode="one"] .hxm-ixp.away::after{opacity:1}
 .hx-mem[data-mode="one"] .hxm-ixp .hxm-idx{--dink:#262A36;--dmut:#424B5E;--dacc:#7A3312;--chip:#FFFFFF;--chipline:#D9C6B3;--sel:#F3E6D7;--selh:#F8EFE4}

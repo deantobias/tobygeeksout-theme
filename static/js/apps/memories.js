@@ -30,7 +30,8 @@
       l: '<path d="M15 5l-7 7 7 7"/>', r: '<path d="M9 5l7 7-7 7"/>',
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
       stack: '<rect x="7" y="7" width="13" height="13" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/>',
-      book: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5v13"/>'
+      book: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5v13"/>',
+      ig: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6" fill="currentColor"/>'
     };
     function ic(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + '</svg>'; }
     /* the map pin by the place (Nov 26, Toby: "a map pin like on maps") */
@@ -132,6 +133,7 @@
       '<div class="hxm-lb" role="dialog" aria-modal="true" aria-label="Photo" hidden><button type="button" class="hxm-lbx">Close</button>' +
         '<button type="button" class="hxm-lbp" aria-label="Previous photo">' + ic('l') + '</button><img alt=""><button type="button" class="hxm-lbn" aria-label="Next photo">' + ic('r') + '</button>' +
         '<div class="hxm-lbc"></div><div class="hxm-lbk" aria-live="polite"></div></div></div>');
+    root.classList.add('shut');
     var desk = root.querySelector('.hxm-desk'), book = root.querySelector('.hxm-book'), pg = root.querySelector('.hxm-pg'),
       ixp = root.querySelector('.hxm-ixp'), cover = root.querySelector('.hxm-cover'), ribbon = root.querySelector('.hxm-ribbon'), lb = root.querySelector('.hxm-lb');
     document.body.appendChild(root);
@@ -172,6 +174,19 @@
 
     /* ---------- a page ---------- */
     var cur = -1, lh = 32;
+    /* his words without a "View on Instagram" link of their own; the link comes back separately */
+    function ig(p) {
+      if (!p.h) return { h: '', ig: '' };
+      var d = document.createElement('div'), url = '';
+      d.innerHTML = p.h;
+      [].forEach.call(d.querySelectorAll('a[href]'), function (a) {
+        var href = a.getAttribute('href') || '', t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (/instagram\.com/i.test(href) && /^▶?\s*view (this )?(post |photo )?on instagram$/i.test(t)) { if (!url) url = href; a.parentNode.removeChild(a); }
+      });
+      [].forEach.call(d.querySelectorAll('p,li,blockquote'), function (e) { if (!e.textContent.replace(/[\s\u00a0▶]+/g, '') && !e.querySelector('img,a')) e.parentNode.removeChild(e); });
+      var h = d.innerHTML.replace(/(\s|&nbsp;|<br\s*\/?>)+$/i, '').trim();
+      return { h: h, ig: url };
+    }
     function pageHTML(i) {
       var p = P[i], ph = p.ph || [], n = ph.length, s = '', pl = place(p), sp = pl ? spot(p) : null;
       for (var k = Math.min(n, 3) - 1; k >= 1; k--) s += '<span class="hxm-ph hxm-b' + k + '" aria-hidden="true">' + img(ph[k], 800, '', true) + '<span class="hxm-cap">&nbsp;</span></span>';
@@ -180,13 +195,17 @@
         '<span class="hxm-cap">' + esc(p.tk || p.dl) + '</span>' + (n > 1 ? '<span class="hxm-cnt">' + ic('stack') + n + ' photos</span>' : '') + '</button>';
       var chip = pl ? '<a class="hxm-map" href="' + esc(mapUrl(p, sp)) + '" target="_blank" rel="noopener" aria-label="' + esc('Map of ' + pl) + '">' +
         '<span class="hxm-mbox">' + (sp ? tiles(sp) : DRAWN) + MPIN + '</span><span class="hxm-mcap">' + (sp ? '© OpenStreetMap' : 'Map') + '</span></a>' : '';
-      var words = p.h ? '<div class="hxm-wd hxm-html">' + p.h + '</div>' : (p.x ? '<div class="hxm-wd"><p>' + esc(p.x) + '</p></div>' : '<div class="hxm-wd"></div>');
+      /* Nov 26 (Toby): "View on Instagram" goes in the bottom bar, not on its own
+         lines, so a page only scrolls when there are more words to read */
+      var w = ig(p), words = w.h ? '<div class="hxm-wd hxm-html">' + w.h + '</div>' : (p.x ? '<div class="hxm-wd"><p>' + esc(p.x.replace(/\s*▶?\s*view (this )?(post |photo )?on instagram\s*$/i, '')) + '</p></div>' : '<div class="hxm-wd"></div>');
       var nav = '<button type="button" class="hxm-nv" data-go="-1" aria-label="Newer memory"' + (i === 0 ? ' disabled' : '') + '>' + ic('l') + 'Newer</button>' +
         '<button type="button" class="hxm-nv o" data-go="1" aria-label="Older memory"' + (i === P.length - 1 ? ' disabled' : '') + '>Older' + ic('r') + '</button>';
       return '<div class="hxm-in"><button type="button" class="hxm-back" data-a="index">' + ic('l') + 'Index</button>' +
         '<div class="hxm-shot' + (chip ? '' : ' solo') + (n > 1 ? ' multi' : '') + '">' + s + chip + '</div>' +
         '<div class="hxm-ya">' + esc(years(p) || 'On this day') + '</div>' +
-        (pl ? '<div class="hxm-pl">' + PIN + '<span>' + esc(pl) + '</span></div>' : '') +
+        /* Nov 26 (Toby): the Instagram link sits at the end of the place's line */
+        (pl || w.ig ? '<div class="hxm-pl">' + (pl ? PIN + '<span class="hxm-plt">' + esc(pl) + '</span>' : '') +
+          (w.ig ? '<a class="hxm-ig" href="' + esc(w.ig) + '" target="_blank" rel="noopener" aria-label="View on Instagram" title="View on Instagram">' + ic('ig') + '<span>Instagram</span></a>' : '') + '</div>' : '') +
         '<h1 class="hxm-tt" tabindex="-1">' + esc(p.t) + '</h1>' + words + '</div>' +
         '<div class="hxm-tb"><a class="hxm-perma" href="' + esc(p.u) + '" aria-label="' + esc('Permalink, posted ' + p.dl) + '">' + ic('link') + '<time datetime="' + esc(p.d) + '">' + esc(p.dl) + '</time></a>' +
         '<nav class="hxm-nav" aria-label="More memories">' + nav + '</nav></div>';
@@ -288,6 +307,7 @@
         setTimeout(function () { try { cover.focus({ preventScroll: true }); } catch (e) {} }, CALM ? 30 : 500);
       }
       de.classList.toggle('hxm-read', level > 0);
+      root.classList.toggle('shut', level === 0);
     }
     function go(i) {
       if (i < 0 || i >= P.length || (level === 2 && i === cur)) return; /* already open: no page turn to the same page */

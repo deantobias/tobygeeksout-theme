@@ -200,7 +200,7 @@
       if (short) {
         var tb = pg.querySelector('.hxm-tb');
         phl = Math.max(3, Math.floor((h - (tb ? tb.offsetHeight : 64) - lh) / lh - 1.9));
-      } else phl = one && !root.classList.contains('tab') ? (L < 22 ? 4 : 5) : (L < 19 ? 5 : L < 23 ? 6 : 7);
+      } else phl = one && !root.classList.contains('tab') ? (L < 22 ? 4 : 5) : (L < 18 ? 4 : L < 19 ? 5 : L < 23 ? 6 : 7);
       pg.style.setProperty('--phl', phl);
     }
     /* every line of writing sits on a ruled line (Nov 26, Toby) */

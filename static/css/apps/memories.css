@@ -70,8 +70,10 @@ html.hx-dark .hx-mem{
 
 /* ---------- the journal ---------- */
 /* the journal's size comes from the screen itself (Nov 26: Safari on the iPad drew it far too tall from height:100%) */
-.hxm-book{position:relative;width:min(60vw,calc((100vh - var(--h-bar) - 50px) * 7.5 / 9.75));aspect-ratio:7.5/9.75;perspective:2400px}
-@supports (height:100dvh){.hxm-book{width:min(60vw,calc((100dvh - var(--h-bar) - 50px) * 7.5 / 9.75))}}
+.hxm-book{--bh:calc(100vh - var(--h-bar) - 50px);position:relative;height:var(--bh);perspective:2400px;
+  width:min(60vw,max(calc(var(--bh) * 7.5 / 9.75),min(580px,52vw)))}
+@supports (height:100dvh){.hxm-book{--bh:calc(100dvh - var(--h-bar) - 50px)}}
+/* Nov 26 (Toby, iPad in Safari): on short screens the page gets wider than a journal's shape, so the words have room */
 .hxm-leaf{position:absolute;inset:0;border-radius:16px;background:var(--paper);color:var(--ink);overflow:hidden;
   box-shadow:0 1px 2px rgba(38,42,54,.06),0 24px 50px -20px var(--shadow)}
 .hxm-ixp{display:none}
@@ -158,7 +160,7 @@ html.hx-dark .hx-mem{
 
 /* the bottom: permalink, Newer, Older */
 .hxm-tb{position:relative;z-index:1;display:flex;align-items:center;gap:8px;padding:10px calc(var(--pad) - 8px) 20px var(--pad);background:var(--paper)}
-.hx-mem .hxm-perma{margin-right:auto;display:inline-flex;align-items:center;gap:7px;color:var(--terra);font:600 14.5px var(--h-ui);text-decoration:none;min-height:40px}
+.hx-mem .hxm-perma{margin-right:auto;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;color:var(--terra);font:600 14.5px var(--h-ui);text-decoration:none;min-height:40px}
 .hx-mem .hxm-perma:hover{text-decoration:underline;text-underline-offset:4px}
 .hxm-perma svg,.hxm-nv svg,.hxm-back svg{width:16px;height:16px}
 .hxm-nav{display:flex;gap:8px}

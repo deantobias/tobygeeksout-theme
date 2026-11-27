@@ -16278,6 +16278,7 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .chip-kicker{font-size:.875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--color-terra-text)}
 .chipotle .chip-head{font-family:var(--font-display);font-size:2rem;line-height:1.15;margin:0 0 .8rem;padding:0;border:0}
 .chipotle .chip-intro{margin:0}
+.chipotle .chip-story{margin-top:.8rem}
 
 /* Build cards */
 .chipotle .chip-build-title{font-family:var(--font-display);font-size:1.5rem;margin:0 0 1rem;padding:0;border:0}

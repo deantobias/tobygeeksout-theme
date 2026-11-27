@@ -4,6 +4,8 @@
   on the site that isn't a blog post, in one place, in two groups:
     Slashes     the well-known slash pages, as tiles with the slug big
     More pages  Toby's own pages, as rows
+  Nov 27 (later): More pages split into five playful groups, see
+  $moreGroups below.
   Hero: an original illustration of a wooden trail signpost at the
   foot of the mountain, the tiny house behind it, arrow boards for
   /feeds, /now, /uses and Memories that sway a little. Beside the
@@ -55,21 +57,26 @@
   (dict "try" (slice "/search/")             "name" "Search"                "desc" "Find any post I've written"                    "art" "search")
   (dict "try" (slice "/contact/")            "name" "Contact"               "desc" "How to reach me"                               "art" "contact")
 -}}
+{{- /* More pages are shown in groups (Toby, Nov 27; Hutch sends its
+     Directory here too). Order of the groups is $moreGroups; a group
+     with no live pages drops out. 100 Days To Offload goes in "Up for
+     a Challenge" once it's ready. */ -}}
+{{- $moreGroups := slice "On the Screen & Page" "Through the Lens" "Behind the Blog" "Up for a Challenge" "Stick Around" -}}
 {{- $moreDefs := slice
-  (dict "try" (slice "/memories/")           "name" "Memories"              "desc" "Old photos brought back on their anniversary"  "art" "memories")
-  (dict "try" (slice "/the-long-road-here/" "/the-long-road/") "name" "The Long Road Here" "desc" "My blogging story, back to 2004" "art" "road")
-  (dict "try" (slice "/my-hometown-photos/") "name" "My Hometown Photos"    "desc" "Autumn roads, hills and rivers around home"    "art" "hometown")
-  (dict "try" (slice "/surprise-me/")        "name" "Surprise Me!"          "desc" "Takes you to a random post"                    "art" "dice")
-  (dict "try" (slice "/watching/")           "name" "Watching"              "desc" "Shows and movies I'm partway through"          "art" "watching")
-  (dict "try" (slice "/watched/")            "name" "Watched"               "desc" "Everything I've rated, by year"                "art" "watched")
-  (dict "try" (slice "/the-queue/" "/queue/") "name" "The Queue"            "desc" "What I want to watch next"                     "art" "queue")
-  (dict "try" (slice "/my-rating-scale/")    "name" "My Rating Scale"       "desc" "What my stars mean"                            "art" "stars")
-  (dict "try" (slice "/reading/")            "name" "Reading"               "desc" "My bookshelf and what I'm reading now"         "art" "reading")
-  (dict "try" (slice "/calendar/")           "name" "Calendar"              "desc" "Every post, day by day"                        "art" "calendar")
-  (dict "try" (slice "/the-pulse/" "/pulse/") "name" "The Pulse"            "desc" "This year's blog numbers"                      "art" "pulse")
-  (dict "try" (slice "/blaugust/" "/blaugust-2026/") "name" "Blaugust"      "desc" "My 31 days of posting in August"               "art" "blaugust")
-  (dict "try" (slice "/knowember/")          "name" "Knowember"             "desc" "A month of get-to-know-me prompts"             "art" "about")
-  (dict "try" (slice "/subscribe/")          "name" "Subscribe"             "desc" "New posts, right to your inbox"                "art" "mailbox")
+  (dict "group" "On the Screen & Page" "try" (slice "/watching/")           "name" "Watching"           "desc" "Shows and movies I'm partway through"         "art" "watching")
+  (dict "group" "On the Screen & Page" "try" (slice "/watched/")            "name" "Watched"            "desc" "Everything I've rated, by year"               "art" "watched")
+  (dict "group" "On the Screen & Page" "try" (slice "/the-queue/" "/queue/") "name" "The Queue"         "desc" "What I want to watch next"                    "art" "queue")
+  (dict "group" "On the Screen & Page" "try" (slice "/my-rating-scale/")    "name" "My Rating Scale"    "desc" "What my stars mean"                           "art" "stars")
+  (dict "group" "On the Screen & Page" "try" (slice "/reading/")            "name" "Reading"            "desc" "My bookshelf and what I'm reading now"        "art" "reading")
+  (dict "group" "Through the Lens"     "try" (slice "/memories/")           "name" "Memories"           "desc" "Old photos brought back on their anniversary" "art" "memories")
+  (dict "group" "Through the Lens"     "try" (slice "/my-hometown-photos/") "name" "My Hometown Photos" "desc" "Autumn roads, hills and rivers around home"   "art" "hometown")
+  (dict "group" "Behind the Blog"      "try" (slice "/the-long-road-here/" "/the-long-road/") "name" "The Long Road Here" "desc" "My blogging story, back to 2004" "art" "road")
+  (dict "group" "Behind the Blog"      "try" (slice "/calendar/")           "name" "Calendar"           "desc" "Every post, day by day"                       "art" "calendar")
+  (dict "group" "Behind the Blog"      "try" (slice "/the-pulse/" "/pulse/") "name" "The Pulse"         "desc" "This year's blog numbers"                     "art" "pulse")
+  (dict "group" "Up for a Challenge"   "try" (slice "/blaugust/" "/blaugust-2026/") "name" "Blaugust"   "desc" "My 31 days of posting in August"              "art" "blaugust")
+  (dict "group" "Up for a Challenge"   "try" (slice "/knowember/")          "name" "Knowember"          "desc" "A month of get-to-know-me prompts"            "art" "about")
+  (dict "group" "Stick Around"         "try" (slice "/subscribe/")          "name" "Subscribe"          "desc" "New posts, right to your inbox"               "art" "mailbox")
+  (dict "group" "Stick Around"         "try" (slice "/surprise-me/")        "name" "Surprise Me!"       "desc" "Takes you to a random post"                   "art" "dice")
 -}}
 {{- $always := slice "/archive" -}}
 {{- /* ---- find the pages that exist (only the ones listed above) */ -}}
@@ -107,7 +114,7 @@
           {{- $exp = (.Date.AddDate 0 0 30).Format "2006-01-02T15:04:05-07:00" -}}
         {{- end -}}
       {{- end -}}
-      {{- $out = $out | append (dict "url" (. | absURL) "slug" (replaceRE `/+$` "" .) "name" $name "desc" $d.desc "art" $d.art "new" $new "exp" $exp) -}}
+      {{- $out = $out | append (dict "url" (. | absURL) "slug" (replaceRE `/+$` "" .) "name" $name "desc" $d.desc "art" $d.art "group" ($d.group | default "") "new" $new "exp" $exp) -}}
     {{- end -}}
   {{- end -}}
   {{- $groups = merge $groups (dict $g $out) -}}
@@ -208,11 +215,17 @@
 <div><span class="dr-kick">Directory</span><h2 class="dr-h2" id="dr-more-h">More pages</h2></div>
 </div>
 <p class="dr-sub">The ones I made up myself: what I'm watching and reading, old memories, and the story behind the blog.</p>
-<ul class="dr-more">
-{{- range $more }}
+{{- range $gi, $gn := $moreGroups }}
+{{- $items := where $more "group" $gn }}
+{{- with $items }}
+<h3 class="dr-group" id="dr-g{{ $gi }}">{{ $gn }}</h3>
+<ul class="dr-more" aria-labelledby="dr-g{{ $gi }}">
+{{- range . }}
 <li><a class="dr-row" href="{{ .url }}"><span class="dr-ico dr-ico--sm"><svg aria-hidden="true" focusable="false"><use href="#dr-a-{{ .art }}"/></svg></span><span class="dr-txt"><span class="dr-name">{{ .name }}</span><span class="dr-desc">{{ .desc }}</span></span>{{ if and $showNew .new }}<span class="dr-new" data-exp="{{ .exp }}">New</span>{{ end }}{{ $chev | safeHTML }}</a></li>
 {{- end }}
 </ul>
+{{- end }}
+{{- end }}
 </section>
 <p class="dr-fine">Have a site of your own? Make a few <a href="https://slashpages.net">slash pages</a> too. They're one of the most fun corners of the indie web.</p>
 </div>

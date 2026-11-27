@@ -183,6 +183,8 @@
     den: '<path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z" fill="currentColor"/>',
     surprise: '<path d="M3.5 7h3c1.5 0 2.5.8 3.3 2l4.4 6c.8 1.2 1.8 2 3.3 2h3"/><path d="M3.5 17h3c1.5 0 2.5-.8 3.3-2l.8-1.1"/><path d="M13.4 10.1l.8-1.1c.8-1.2 1.8-2 3.3-2h3"/><path d="M18 4.5 20.5 7 18 9.5"/><path d="M18 14.5l2.5 2.5-2.5 2.5"/>',
     uses: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 19h19"/>',
+    /* Nov 27 (Toby): Directory, a signpost ("Find Your Way Around") */
+    directory: '<path d="M12 3v18"/><path d="M5 5.5h11l2.5 2.5L16 10.5H5z"/><path d="M19 13H8l-2.5 2.5L8 18h11z"/>',
     follow: '<path d="M4.5 4.5a15 15 0 0 1 15 15"/><path d="M4.5 10.8a8.7 8.7 0 0 1 8.7 8.7"/><circle cx="5.3" cy="18.7" r="1.6"/>',
     photos: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-8 8"/>',
     /* Nov 25 (Toby, v225): Memories, two snapshots */
@@ -237,6 +239,11 @@
     calendar: '<rect x="8" y="9" width="32" height="31" rx="5" fill="#fff" stroke="#E7DED5" stroke-width="1.5"/><path d="M8 14a5 5 0 0 1 5-5h22a5 5 0 0 1 5 5v5H8z" fill="#CF5C4A"/><path d="M16 6.5v5M32 6.5v5" stroke="#1E2D4A" stroke-width="2.6" stroke-linecap="round"/><text data-live="d" x="24" y="35.5" text-anchor="middle" font-family="Roboto,system-ui,sans-serif" font-weight="700" font-size="15" fill="#1E2D4A"></text>',
     follow: '<rect x="9" y="9" width="30" height="30" rx="8" fill="#E08A3C"/><circle cx="16.5" cy="31.5" r="2.8" fill="#fff"/><path d="M14 23a11 11 0 0 1 11 11M14 15.5a18.5 18.5 0 0 1 18.5 18.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>',
     uses: '<rect x="10" y="11" width="28" height="19" rx="2.5" fill="#5B7A8C"/><rect x="13" y="14" width="22" height="13" rx="1.2" fill="#CFE0EA"/><path d="M16 18h10M16 21.5h14" stroke="#5B7A8C" stroke-width="1.8" stroke-linecap="round"/><path d="M6 32h36l-2.5 4.5a2 2 0 0 1-1.8 1H10.3a2 2 0 0 1-1.8-1z" fill="#3F5664"/>',
+    /* Nov 27 (Toby): Directory, a signpost with two arrow boards */
+    directory: '<rect x="22.5" y="8" width="3" height="32" rx="1.5" fill="#6B4F3A"/><circle cx="24" cy="8" r="2.2" fill="#F2B544"/>' +
+      '<path d="M9.5 11h23l5 5-5 5h-23A1.5 1.5 0 0 1 8 19.5v-7A1.5 1.5 0 0 1 9.5 11z" fill="#2F6F62"/><path d="M12.5 16h15" stroke="#E4F2EE" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M38.5 24h-23l-5 5 5 5h23a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5z" fill="#C4622D"/><path d="M20.5 29h15" stroke="#FFE7D6" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<rect x="16" y="39" width="16" height="3" rx="1.5" fill="#A9C08E"/>',
     pulse: '<rect x="7" y="10" width="34" height="28" rx="6" fill="#C44D58"/><path d="M10.5 25h7l3-7.5 5 14 3-6.5h9" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
     reading: '<path d="M24 15c-4-3.2-9-4.3-16-4.3v25c7 0 12 1 16 4.3z" fill="#6E8B4A"/><path d="M24 15c4-3.2 9-4.3 16-4.3v25c-7 0-12 1-16 4.3z" fill="#89A863"/><path d="M12 17.5c3.5 0 6 .6 8.5 2M12 22.5c3.5 0 6 .6 8.5 2M27.5 19.5c2.5-1.4 5-2 8.5-2M27.5 24.5c2.5-1.4 5-2 8.5-2" stroke="#EEF4E4" stroke-width="1.8" stroke-linecap="round" fill="none"/>',
     /* a galaxy B, like the "BLAUGUST" letters on Toby's 2026 Blaugust
@@ -308,6 +315,9 @@
     den: ['Den', '#7C5A7A', '/watching/'],
     surprise: ['Surprise', '#D9A441', '/surprise-me/'],
     uses: ['Uses', '#5B7A8C', '/uses/'],
+    /* Nov 27 (Toby): his Directory page ("Find Your Way Around"), every
+       Classic page in one place, shown as it is under the Directory bar */
+    directory: ['Directory', '#2F6F62', '/directory/'],
     follow: ['Follow', '#E08A3C', '/subscribe/'],
     photos: ['Photos', '#3F7FA6', '/photo/'],
     /* Nov 25 (Toby, v225): his On This Day posts, journal style, on his Memories page (Classic shows the page as he made it) */
@@ -344,7 +354,8 @@
       ['archive', /^archive/i, /\/archive/i], ['uses', /^(geek gear|uses?|gear)$/i, /\/uses?\//i],
       ['follow', /^(follow|subscribe)/i, /\/(subscribe|follow)/i], ['surprise', /surprise/i, /\/surprise/i],
       ['blaugust', /^blaugust/i, /\/blaugust/i], ['pulse', /pulse/i, /\/(the-)?pulse\//i], ['reading', /^reading$/i, /\/reading\//i],
-      ['tinkering', /tinkering|changelog/i, /\/(changelog|tinkering)\//i], ['memories', /^memories$/i, /\/memories\//i]
+      ['tinkering', /tinkering|changelog/i, /\/(changelog|tinkering)\//i], ['memories', /^memories$/i, /\/memories\//i],
+      ['directory', /^directory$/i, /\/directory\//i]
     ];
     rules.forEach(function (r) {
       var hit = null;
@@ -397,13 +408,13 @@
   /* Nov 25 (Toby): from December 1, Memories takes Knowember's spot
      (Knowember moves into About); in November it waits in All apps */
   var QUAD = (KNOW ? ['den', 'surprise', 'settings', 'knowember', 'follow'] : ['den', 'surprise', 'settings', 'memories', 'follow'])
-    .concat(['photos', 'words', 'calendar', 'uses']).filter(offDock).slice(0, 4);
+    .concat(['photos', 'words', 'calendar', 'directory']).filter(offDock).slice(0, 4);
   /* unfolded and tablets keep five by the date (Nov 8, Toby): Den is in
      the dock, so Micro.blog takes its spot; the fifth is Knowember in
      November and Photos the rest of the year (Nov 9: The Long Road Here
      moved into About). */
   var TQUAD = ['den', 'surprise', 'mb', 'settings', 'follow'].filter(function (k) { return offDock(k) && k !== DOCK6; }).slice(0, 4);
-  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : ['memories']).concat(['photos', 'words', 'calendar', 'uses', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
+  TQUAD = TQUAD.concat((KNOW ? ['knowember'] : ['memories']).concat(['photos', 'words', 'calendar', 'directory', 'pulse']).filter(function (k) { return offDock(k) && TQUAD.indexOf(k) < 0; }).slice(0, 5 - TQUAD.length));
   /* Desktop (Nov 3, Toby): a big screen has room for every app on the
      home screen, so all of them sit by the date, Micro.blog before
      Settings, in place of the four. Up to 18; any beyond that stay in All
@@ -420,13 +431,16 @@
      bar) and can still be found in Search. That leaves ten apps by the date
      in November and nine otherwise: two rows of five, no All apps button
      on tablets held sideways or laptops. */
-  var NOHOME = { tinkering: 1, reading: 1, longroad: 1, blaugust: 1 };
+  /* Nov 27 (Toby): Directory takes Uses' spot everywhere. Uses is one of
+     his slash pages, so it lives in the Directory now; it stays an app for
+     its own page (title and icon in the bar) and can still be searched. */
+  var NOHOME = { tinkering: 1, reading: 1, longroad: 1, blaugust: 1, uses: 1 };
   if (!KNOW) NOHOME.knowember = 1;
   /* laptops (Nov 25): Memories in Knowember's place from December 1. In
      November the ten by the date stay as they are, and Memories opens
      from the On This Day card or Search. */
   var NODK = KNOW ? { memories: 1 } : {};
-  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', KNOW ? 'knowember' : 'memories', 'photos', 'words', 'calendar', 'uses', 'pulse'];
+  var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', KNOW ? 'knowember' : 'memories', 'photos', 'words', 'calendar', 'directory', 'pulse'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
     .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && !NODK[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
@@ -449,7 +463,7 @@
        usual addresses as a fallback */
     for (var k in APPS) { var u = APPS[k][2]; if (u && u !== '/?app=blog' && u.charAt(u.length - 1) === '/' && path.indexOf(u) === 0) return k; }
     var map = [['/archive/', 'archive'], ['/about-me/', 'about'], ['/about/', 'about'], ['/now/', 'now'], ['/contact/', 'contact'], ['/watching/', 'den'],
-      ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/use/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
+      ['/surprise-me/', 'surprise'], ['/uses/', 'uses'], ['/directory/', 'directory'], ['/use/', 'uses'], ['/subscribe/', 'follow'], ['/photo/', 'photos'],
       ['/categories/word-of-the-day/', 'words'], ['/memories/', 'memories'], ['/calendar/', 'calendar'], ['/the-pulse/', 'pulse'], ['/pulse/', 'pulse'],
       ['/reading/', 'reading'], ['/blaugust', 'blaugust'], ['/changelog/', 'tinkering'], ['/tinkering/', 'tinkering']];
     for (var i = 0; i < map.length; i++) if (path.indexOf(map[i][0]) === 0) return map[i][1];
@@ -762,7 +776,7 @@
     }
     var ql = q.toLowerCase(), terms = ql.split(/\s+/).filter(Boolean), html = '';
     /* other words that find an app (Nov 8) */
-    var ALSO = { den: ['watching', 'reading'], mb: ['microblog', 'timeline'], follow: ['subscribe', 'newsletter'], longroad: ['the long road here', 'history', 'blogs'], knowember: ['get to know'], memories: ['on this day', 'journal', 'throwback'] };
+    var ALSO = { den: ['watching', 'reading'], mb: ['microblog', 'timeline'], follow: ['subscribe', 'newsletter'], longroad: ['the long road here', 'history', 'blogs'], knowember: ['get to know'], memories: ['on this day', 'journal', 'throwback'], directory: ['pages', 'slash', 'find your way', 'sitemap'], uses: ['geek gear', 'gear'] };
     var apps = Object.keys(APPS).filter(function (k) { return (k !== 'reading' && (APPS[k][3] || APPS[k][0]).toLowerCase().indexOf(ql) > -1) || (ALSO[k] || []).some(function (w) { return w.indexOf(ql) === 0; }); });
     if (apps.length) html += '<div class="hx-lab">Apps</div><ul class="hx-res">' + apps.map(function (k) {
       var a = APPS[k], inner = tile(k) + '<span><span class="hx-t">' + hi(a[0], terms) + '</span></span>';

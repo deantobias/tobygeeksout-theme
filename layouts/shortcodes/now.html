@@ -37,12 +37,10 @@
                      "LEGO") is under 30 days old: its photo and title.
                      A small script removes it on day 30 even if the
                      site has not rebuilt. Every new post resets the 30.
-       Directory     "Take a look around": the true slash pages as cards,
-                     then every other page as a row of links. A link is
-                     only shown when its page exists on the site, so a
-                     wrong slug drops out instead of leading to a 404.
-                     Pages already linked elsewhere on /now (/watching,
-                     /tinkering) are left out of More pages on purpose.
+       Directory     "Take a look around": one card that opens the
+                     /directory page, where every page lives now (Nov 27,
+                     2026, Toby: the slash pages and More pages moved
+                     there).
 
      No location anywhere on this page (Toby, Oct 19).
      Styles: custom.css section 121.
@@ -185,44 +183,10 @@
   (dict "name" "Focus Mail" "icon" (print $up "icon.svg") "line" "A calmer way to do email." "tint" false)
 -}}
 
-{{/* ---- DIRECTORY. Each entry lists slugs to try, first match wins.
-     Archive is the home page's archive output, not a page, so it is
-     always shown. */}}
+
+{{/* every page's address, so a Building link only points at a page that exists */}}
 {{- $have := slice -}}
 {{- range site.Pages -}}{{- $have = $have | append (replaceRE `(\.html|/)+$` "" .RelPermalink) -}}{{- end -}}
-{{- $slashDefs := slice
-  (dict "try" (slice "/about/") "line" "Who I am and why I geek out")
-  (dict "try" (slice "/photo/") "line" "Every photo, newest first")
-  (dict "try" (slice "/uses/") "line" "The gear and apps I use")
--}}
-{{- $moreDefs := slice
-  (slice "/the-pulse/" "/pulse/") (slice "/the-long-road-here/" "/the-long-road/") (slice "/archive/") (slice "/calendar/")
-  (slice "/blaugust/" "/blaugust-2026/") (slice "/the-queue/" "/queue/")
--}}
-{{/* Nov 16, 2026 (Toby): no Watched (the Now page already shows what
-     I'm watching) and no Newsletter until that page is updated. The Long
-     Road's real address is /the-long-road-here/. */}}
-{{/* Nov 16, 2026 (Toby): /photo's line no longer repeats the Latest photo
-     card ("Every photo, newest first", which is what /photo shows). */}}
-{{- $always := slice "/archive/" -}}
-{{- $found := 0 -}}
-{{- $slash := slice -}}
-{{- range $slashDefs -}}
-  {{- $hit := "" -}}
-  {{- range .try -}}{{- if and (not $hit) (in $have (replaceRE `/+$` "" .)) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
-  {{- if $hit -}}{{- $found = add $found 1 -}}{{- end -}}
-  {{- $slash = $slash | append (dict "url" $hit "first" (index .try 0) "line" .line) -}}
-{{- end -}}
-{{- $more := slice -}}
-{{- range $moreDefs -}}
-  {{- $hit := "" -}}
-  {{- range . -}}{{- if and (not $hit) (or (in $always .) (in $have (replaceRE `/+$` "" .))) -}}{{- $hit = . -}}{{- end -}}{{- end -}}
-  {{- if and $hit (not (in $always $hit)) -}}{{- $found = add $found 1 -}}{{- end -}}
-  {{- $more = $more | append (dict "url" $hit "first" (index . 0)) -}}
-{{- end -}}
-{{/* If nothing at all was found, page detection itself failed on this
-     Hugo version: show every first slug rather than an empty section. */}}
-{{- $trust := gt $found 0 -}}
 
 {{/* ---- UPDATED DATE */}}
 {{- $updText := "" -}}{{- $updISO := "" -}}
@@ -444,26 +408,15 @@
   </section>
   {{- end }}
 
+  {{/* ---- DIRECTORY (Nov 27, 2026, Toby): the slash pages and More
+       pages moved to the /directory page, so this is one card that
+       leads there. Hutch's Now app shows it as the Directory app. */}}
   <section class="tgn-sec" aria-labelledby="tgn-dir-h">
     <div class="tgn-head">
       <div><span class="tgn-kicker">Directory</span><h2 class="tgn-h" id="tgn-dir-h">Take a look around</h2></div>
     </div>
-    <div class="tgn-subrow"><span class="tgn-sub">Slash pages</span><a class="tgn-src" href="https://slashpages.net">what's this? ↗</a></div>
-    <div class="tgn-slashes">
-      {{- range $i, $s := $slash }}
-      {{- $u := cond $trust $s.url $s.first }}
-      {{- with $u }}
-      <a class="tgn-slash" href="{{ . | absURL }}"><code>{{ replaceRE `/+$` "" . }}</code><span>{{ $s.line }}</span></a>
-      {{- end }}
-      {{/* Nov 16, 2026 (Toby): no /now tile here, you are already on it */}}
-      {{- end }}
-    </div>
-    <div class="tgn-subrow"><span class="tgn-sub">More pages</span></div>
-    <div class="tgn-chips">
-      {{- range $more }}
-      {{- $u := cond $trust .url .first }}
-      {{- with $u }}<a class="tgn-chip" href="{{ . | absURL }}">{{ replaceRE `/+$` "" . }}</a>{{ end }}
-      {{- end }}
+    <div class="tgn-slashes tgn-slashes--one">
+      <a class="tgn-slash tgn-dirlink" href="{{ "/directory/" | absURL }}"><code>/directory</code><span>Every page on my blog, all in one place</span></a>
     </div>
   </section>
 

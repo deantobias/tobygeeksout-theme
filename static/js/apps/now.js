@@ -83,6 +83,12 @@
           '<span class="nw-cap"><small>' + esc(s) + '</small><b>' + esc(b) + '</b></span></a></section>';
       },
       dir: function (sec) {
+        /* Nov 27 (Toby): the pages moved to his /directory page, so the
+           card is one row that opens the Directory app */
+        var go = $('.tgn-dirlink', sec);
+        if (go) return '<section class="nw-card nw-full" data-k="dir">' + head(sec) +
+          '<a class="nw-dirgo" href="' + esc(href(go)) + '"><span class="nw-ti hx-full">' + ctx.art('directory') + '</span>' +
+          '<span class="nw-dt"><b>Directory</b><small>' + esc(txt($('span', go))) + '</small></span><span class="nw-chev">' + ctx.ic('fwd') + '</span></a></section>';
         /* Nov 16 (Toby, v159): every page here gets the same full color app
            icon it has on the home screen, More pages included */
         var APP = { about: ['about', 'About'], photo: ['photos', 'Photos'], uses: ['uses', 'Uses'],

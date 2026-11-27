@@ -14742,6 +14742,8 @@ html.season-hal .section.section-newsletters #main-content::before {
 }
 .tg-now .tgn-slashes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); }
 @media (max-width: 420px) { .tg-now .tgn-slashes { grid-template-columns: minmax(0, 1fr); } }
+/* Nov 27, 2026 (Toby): one card that opens /directory, full width */
+.tg-now .tgn-slashes--one { grid-template-columns: minmax(0, 1fr); }
 .tg-now .tgn-slash {
   display: flex;
   flex-direction: column;

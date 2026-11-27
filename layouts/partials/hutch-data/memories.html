@@ -13,6 +13,8 @@
            photo or a book or movie poster)
        ln / lu  the check-in place and its map link; with no check-in,
            the place in "... ago today in Albuquerque, New Mexico."
+       la / lo  the check-in's latitude and longitude, when it has them
+           (Nov 26: the little map beside the polaroid)
        x   the post's words (up to about 700 characters), plain
        h   the post's words with their links, bold and italic (memory page)
        m   true when the post says more than x shows
@@ -52,10 +54,12 @@
     {{- with findRE `(?i)\b(\d{1,3})\s+years?\s+ago` $plain 1 -}}{{- $y = int (replaceRE `(?i)^(\d+).*$` "$1" (index . 0)) -}}{{- end -}}
     {{- $tk := $p.Date.Format "Jan 2, 2006" -}}
     {{- if gt $y 0 -}}{{- $tk = ($p.Date.AddDate (mul -1 $y) 0 0).Format "Jan 2, 2006" -}}{{- end -}}
-    {{- $ln := "" -}}{{- $lu := "" -}}
+    {{- $ln := "" -}}{{- $lu := "" -}}{{- $la := "" -}}{{- $lo := "" -}}
     {{- with $p.Params.location -}}{{- if reflect.IsMap . -}}
       {{- $ln = trim (string (.name | default "")) " '\"" -}}
       {{- $lu = .url | default "" -}}
+      {{/* Nov 26 (Toby, mockup v279): the spot itself, for the little map on the memory page */}}
+      {{- if and .latitude .longitude -}}{{- $la = string .latitude -}}{{- $lo = string .longitude -}}{{- end -}}
       {{- if and (not $lu) .latitude .longitude -}}
         {{- $lu = printf "https://www.openstreetmap.org/?mlat=%v&mlon=%v#map=15/%v/%v" .latitude .longitude .latitude .longitude -}}
       {{- end -}}
@@ -91,6 +95,7 @@
           "h" $h
           "m" (gt (len $plain) (len $x)) -}}
     {{- with $ln -}}{{- $item = merge $item (dict "ln" . "lu" $lu) -}}{{- end -}}
+    {{- if and $la $lo -}}{{- $item = merge $item (dict "la" $la "lo" $lo) -}}{{- end -}}
     {{/* like the Classic page (otd-items.html): no photo of his own, no memory */}}
     {{- if gt (len $ph) 0 -}}{{- $out = $out | append $item -}}{{- end -}}
   {{- end -}}

@@ -144,23 +144,12 @@
 </aside>
 
 <!-- Mobile-only bottom tab bar — replaces the hamburger entirely -->
-{{/* Nov 27, 2026 (Toby): seven icons don't fit the phone bar, so once
-     Directory is in the menu, the phone bar drops About and Contact
-     (both are one tap away on the Directory page). Phone bar only:
-     the top nav and desktop rail keep every menu item. If Directory
-     isn't in the menu, nothing is dropped. */}}
-{{/* The nav label for /directory is always "Directory" (the page itself
-     is titled "Find Your Way Around"), in all three navs. */}}
-{{ $hasDir := false }}
-{{ range .Site.Menus.main }}{{ if in (lower .URL) "/directory" }}{{ $hasDir = true }}{{ end }}{{ end }}
 <nav class="mobile-tab-bar" aria-label="Primary navigation">
   <a href="{{ .Site.BaseURL }}" {{ if .IsHome }}class="active" aria-current="page"{{ end }} aria-label="Home">
     {{ partial "icon.html" (dict "name" "home") }}
   </a>
   {{ range .Site.Menus.main }}
-  {{ $n := lower .Name }}{{ $u := lower .URL }}
-  {{ $tucked := and $hasDir (or (eq $n "about") (eq $n "about me") (in $u "/about") (eq $n "contact") (in $u "/contact")) }}
-  {{ if and (not (in .URL "/stats/")) (not $tucked) }}
+  {{ if not (in .URL "/stats/") }}
   {{ $iconName := partial "nav-icon.html" . }}
   <a href="{{ .URL }}" {{ if eq $.RelPermalink .URL }}class="active" aria-current="page"{{ end }} aria-label="{{ cond (in (lower .URL) "/directory") "Directory" .Name }}">
     {{ partial "icon.html" (dict "name" $iconName) }}

@@ -952,6 +952,11 @@ body:not(.type-post) .site-nav li a .tgo-icon {
 
 .mobile-tab-bar a .tgo-icon { width: 26px; height: 26px; }
 .mobile-tab-bar a.active { color: var(--color-terra-text); }
+/* Nov 27, 2026 (Toby): seven icons (Directory joined the nav). Less side
+   padding so all seven fit a 360px phone; every icon keeps its 48px
+   tap area (min-width/min-height above). Six or fewer: unchanged. */
+.mobile-tab-bar:has(> a:nth-of-type(7)) { padding-left: max(6px, env(safe-area-inset-left)); padding-right: max(6px, env(safe-area-inset-right)); }
+.mobile-tab-bar:has(> a:nth-of-type(7)) a { padding-left: 11px; padding-right: 11px; }
 
 @media (min-width: 768px) {
   .mobile-tab-bar { display: none; }

@@ -214,6 +214,8 @@ html.hx-dark .hx-mem{
 .hxm-lb :focus-visible{outline:3px solid #F0A27A;outline-offset:3px}
 .hxm-lb{--hand:'Hutch Caveat','Caveat','Segoe Print','Bradley Hand',cursive;font-family:var(--h-ui)}
 .hxm-lb[hidden]{display:none !important}
+/* the viewer sits outside .hx-mem, so it needs its own rule: one photo, no arrows (Nov 26, Toby) */
+.hxm-lb [hidden]{display:none !important}
 .hxm-lb,.hxm-lb *{box-sizing:border-box}
 :where(.hxm-lb) button{font:inherit;-webkit-tap-highlight-color:transparent}
 .hxm-lb svg{fill:none;stroke:currentColor}

@@ -443,14 +443,18 @@
     else {
       var hm = location.hash.match(/^#post=(.+)$/);
       if (hm) {
-        var want = decodeURIComponent(hm[1]);
+        var want = decodeURIComponent(hm[1]), found = false;
+        try { want = new URL(want, location.origin).pathname; } catch (e) {}
         for (var q = 0; q < P.length; q++) if (P[q].u === want) {
+          found = true;
           /* from the home screen's On This Day card: straight to the page, no cover */
           deep = true;
           try { history.replaceState({ hxm: 2, i: q, deep: 1 }, '', location.pathname + location.search); } catch (e) {}
           now0(2, q);
           break;
         }
+        /* Nov 27: an On This Day post Memories doesn't have (no photo) opens as the post itself */
+        if (!found && /^\/[^\/]/.test(want)) { location.replace(want); return; }
       }
     }
   };

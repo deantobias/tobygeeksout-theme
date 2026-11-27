@@ -675,17 +675,16 @@
         '<div class="hx-card"><h3>Sky</h3><p>Auto follows the sun where you are. Day and Night stay put. Works in Hutch and ' + esc(ORIGINAL) + ' alike.</p>' +
         '<div class="hx-seg" role="group" aria-label="Sky">' + [['sky', 'Auto'], ['day', 'Day'], ['night', 'Night']].map(function (o) {
           return '<button type="button" data-sky="' + o[0] + '"' + (m === o[0] ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
-        /* Theme, with Look tucked under Classic (Nov 3, Toby): Look only
-           changes the Classic theme's fonts, so it shows only after
-           Classic is tapped, along with a button that goes there. It
-           shares Classic's own setting (tgo-look). */
+        /* Post fonts (Nov 27, Toby): Look used to hide under Theme > Classic,
+           but Hutch shows posts and pages with Classic's fonts too, so it
+           gets its own card. Same setting as Classic's (tgo-look). */
+        '<div class="hx-card"><h3>Post fonts</h3><p>For posts and pages, here and in ' + esc(ORIGINAL) + ': 70s headlines, or clean and modern.</p>' +
+        '<div class="hx-seg" role="group" aria-label="Post fonts">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
+          var on = (o[0] === 'modern') === (ls('tgo-look') === 'modern');
+          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div></div>' +
         '<div class="hx-card hx-theme"><h3>Theme</h3><p>Hutch, or the ' + esc(ORIGINAL) + ' Toby Geeks Out! theme. You can come back to Hutch any time.</p>' +
         '<div class="hx-seg" role="group" aria-label="Theme"><button type="button" class="on" aria-pressed="true" data-theme-pick="hutch">Hutch</button><button type="button" aria-pressed="false" data-theme-pick="classic">' + esc(ORIGINAL) + '</button></div>' +
-        '<div class="hx-classic" hidden><div class="hx-sub">' + esc(ORIGINAL) + ' look</div><p>Fonts for posts and pages: 70s headlines, or clean and modern.</p>' +
-        '<div class="hx-seg" role="group" aria-label="' + esc(ORIGINAL) + ' look">' + [['70s', '70s'], ['modern', 'Modern']].map(function (o) {
-          var on = (o[0] === 'modern') === (ls('tgo-look') === 'modern');
-          return '<button type="button" data-look="' + o[0] + '"' + (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>'; }).join('') + '</div>' +
-        '<button type="button" class="hx-btn hx-go" data-classic>Switch to ' + esc(ORIGINAL) + '</button></div></div>' +
+        '<div class="hx-classic" hidden><button type="button" class="hx-btn hx-go" data-classic>Switch to ' + esc(ORIGINAL) + '</button></div></div>' +
         '<a class="hx-card hx-upd" href="/changelog/">' + tile('tinkering') + '<span><h3>What\'s new</h3><p>The Tinkering Log: every change to this theme, day by day.</p></span></a>' +
         '<div class="hx-card"><h3>Boot screen</h3><p>Shows once a day when the home screen opens on a phone or tablet.</p><button type="button" class="hx-btn ghost" data-replay>Show it again</button></div>' +
         /* Nov 15 (Toby, v151): the devices and browsers Hutch is checked on,
@@ -712,7 +711,7 @@
         var tp = e.target.closest('[data-theme-pick]');
         if (tp) { pick('[data-theme-pick]', tp); settings.querySelector('.hx-classic').hidden = tp.getAttribute('data-theme-pick') !== 'classic'; return; }
         var lk = e.target.closest('[data-look]');
-        if (lk) { ls('tgo-look', lk.getAttribute('data-look') === 'modern' ? 'modern' : null); pick('[data-look]', lk); return; }
+        if (lk) { var mod = lk.getAttribute('data-look') === 'modern'; ls('tgo-look', mod ? 'modern' : null); pick('[data-look]', lk); de.classList.toggle('fonts-70s', !mod); return; }
         if (e.target.closest('[data-classic]')) { location.href = location.pathname + '?hutch=off'; }
       });
     }
@@ -795,7 +794,9 @@
       if (!hits.length) { pbox.innerHTML = '<p class="hx-note">No posts match “' + esc(q) + '”.</p>'; return; }
       pbox.innerHTML = '<ul class="hx-res">' + hits.slice(0, 25).map(function (h) {
         var p = h[1], title = p.t || snippet(p.x, '').slice(0, 70);
-        return '<li><a href="' + esc(p.u) + '"><span><span class="hx-t">' + hi(title, terms) + '</span><span class="hx-sn">' + hi(snippet(p.x, terms[0]), terms) + '</span></span><span class="hx-d">' + esc(fmtDate(p.d)) + '</span></a></li>';
+        /* Nov 27 (Toby): an On This Day post opens on its Memories page */
+        var pu = /^\s*On This Day\b/i.test(p.t || '') ? ((APPS.memories && APPS.memories[2]) || '/memories/') + '#post=' + encodeURIComponent(p.u) : p.u;
+        return '<li><a href="' + esc(pu) + '"><span><span class="hx-t">' + hi(title, terms) + '</span><span class="hx-sn">' + hi(snippet(p.x, terms[0]), terms) + '</span></span><span class="hx-d">' + esc(fmtDate(p.d)) + '</span></a></li>';
       }).join('') + '</ul>';
     });
   }
@@ -2126,6 +2127,7 @@
       big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
       den: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 21h6"/>',
       word: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 9h6"/>',
+      mem: '<rect x="4" y="3.5" width="16" height="17" rx="1.5"/><rect x="7" y="6.5" width="10" height="9" rx=".5"/>',
       chev: '<path d="M9 6l6 6-6 6"/>',
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
       hist: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
@@ -2218,8 +2220,13 @@
        Nerd word belong to an app, so tapping the card opens it there (no
        "Open in..." button). A small label on the card names the app; the
        date opens the original post. */
-    function appOf(x) { return x.k === 'wd' ? 'words' : x.k === 'rv' || (x.k === 'rd' && x.dn && x.dn.kind === 'Book') ? 'den' : ''; }
-    function appLink(x) { var a = appOf(x); return a === 'den' ? denLink(x) : a === 'words' ? wordLink(x) : ''; }
+    /* Nov 27 (Toby): an On This Day post opens on its Memories page, like
+       Den and Word Nerd posts open in their apps (Memories finds it by its
+       address; one Memories doesn't have, with no photo, opens the post) */
+    var memU = (APPS.memories && APPS.memories[2]) || '/memories/';
+    function isOtd(x) { return /^\s*On This Day\b/i.test(x.t || '') || (x.cs || [x.c]).some(function (c) { return /^on this day$/i.test(c || ''); }); }
+    function appOf(x) { return x.k === 'wd' ? 'words' : x.k === 'rv' || (x.k === 'rd' && x.dn && x.dn.kind === 'Book') ? 'den' : isOtd(x) ? 'memories' : ''; }
+    function appLink(x) { var a = appOf(x); return a === 'den' ? denLink(x) : a === 'words' ? wordLink(x) : a === 'memories' ? memU + '#post=' + encodeURIComponent(x.u) : ''; }
     /* a word whose post has more than its card (v179 B+A): the chips */
     function wordIn(x) {
       var w = x.wn || {}, L = (w.more ? ['More meanings'] : []).concat(w.in || []);
@@ -2335,14 +2342,14 @@
       var v = conv[x.u], al = appLink(x);
       /* Nov 22 (Toby): a card whose app has more says how to get to it; the
          same place a tap on the card goes (v190 C, the same box as "Read the post") */
-      var gl = x.k === 'wd' ? (wordIn(x).more ? 'See the full word' : '') : x.k === 'rv' ? 'See the full review' : al ? 'See book details' : '';
+      var gl = x.k === 'wd' ? (wordIn(x).more ? 'See the full word' : '') : x.k === 'rv' ? 'See the full review' : appOf(x) === 'memories' ? 'See the memory' : al ? 'See book details' : '';
       var go = gl ? '<a class="hbl-a go" href="' + esc(al) + '"><span>' + gl + '</span>' + sv('chev', 2.4) + '</a>' : '';
       /* Nov 22 (Toby): "Read the post" moves down into this row too, in the
          same place as the cards' other buttons, above the divider line */
-      if (!go && ((x.k === 'p' && (x.mo || x.cut)) || x.k === 'nw' || (x.k === 'rd' && !al))) go = goLink(x, x.k === 'p' ? (x.min || 1) : 0);
+      if (!go && !(al && appOf(x) === 'memories') && ((x.k === 'p' && (x.mo || x.cut)) || x.k === 'nw' || (x.k === 'rd' && !al))) go = goLink(x, x.k === 'p' ? (x.min || 1) : 0);
       if (!v && !whole(x) && !go) return '';
       /* a Den or Word Nerd post: its conversation opens in the app (Nov 22, Toby) */
-      return '<div class="hbl-act' + (go ? ' wgo' : '') + '">' + go + (v || whole(x) ? '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al || x.u + '#replies') + '"' + (al ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
+      return '<div class="hbl-act' + (go ? ' wgo' : '') + '">' + go + (v || whole(x) ? '<a class="hbl-a rp' + (v ? ' vr' : '') + '" href="' + esc(al && appOf(x) !== 'memories' ? al : x.u + '#replies') + '"' + (al && appOf(x) !== 'memories' ? ' data-rapp="1"' : ' data-rp="1"') + '>' + sv('reply') + '<span>' + rlab(v) + '</span></a>' : '') + '</div>';
     }
     function card(x, i) {
       /* Nov 22 (Toby, mockup v191 B): the category wears a tag in a soft box, so it
@@ -2351,7 +2358,7 @@
       var app = appOf(x);
       return '<article tabindex="0" class="hbl-it k-' + (x.k || (x.m ? 'm' : 'p')) + (app ? ' app' : '') + (x.u === sel ? ' sel' : '') + '" data-i="' + i + '" data-u="' + esc(x.u) + '">' +
         '<div class="hbl-k"><span class="hbl-kl"><a class="hbl-dt" href="' + esc(x.u) + '" data-op="1" title="Open the post">' + sv('link', 2.2) + '<span>' + esc(when(x)) + '</span></a>' + c + '</span>' +
-        (app ? '<span class="hbl-app">' + sv(app === 'den' ? 'den' : 'word', 2.2) + '<span>' + (app === 'den' ? 'Den' : 'Word Nerd') + '</span></span>' : '') + '</div>' + body(x) + actions(x) + '</article>';
+        (app ? '<span class="hbl-app">' + sv(app === 'den' ? 'den' : app === 'memories' ? 'mem' : 'word', 2.2) + '<span>' + (app === 'den' ? 'Den' : app === 'memories' ? 'Memories' : 'Word Nerd') + '</span></span>' : '') + '</div>' + body(x) + actions(x) + '</article>';
     }
     function archCard(x) {
       if (!x) return '';

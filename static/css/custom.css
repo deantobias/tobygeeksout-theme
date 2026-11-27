@@ -199,8 +199,12 @@ blockquote {
   overflow: hidden;
 }
 
+/* Quote font (Nov 27, 2026, Toby): each Look's reading font in italic.
+   Modern = Lora italic (was Georgia), 70s = Fraunces italic via
+   --font-quote (section 104-A). The newsletter preview pane pins
+   --font-quote to Georgia just below, to stay email-true. */
 blockquote p {
-  font-family: Georgia, 'Times New Roman', serif !important;
+  font-family: var(--font-quote, var(--font-reading)) !important;
   font-style: italic;
   color: var(--color-text-muted);
   margin-bottom: var(--space-sm);
@@ -234,6 +238,9 @@ blockquote::before {
 blockquote p:last-child {
   margin-bottom: 0;
 }
+
+/* Newsletter preview pane keeps Georgia quotes in both Looks (email-true) */
+.newsletter-preview-panel { --font-quote: Georgia, 'Times New Roman', serif; }
 
 blockquote.card-quote::before {
   display: none !important;
@@ -12751,7 +12758,8 @@ body.tgo-night .page-body .uses .uses-logo--big img { box-shadow: 0 0 0 1px rgba
      Fraunces   reading text (SOFT 50, WONK 0, weight 400) and the
                 smaller titles that are too small for Caprasimo
                 (SOFT 100, WONK 1).
-     Shrikhand  blockquotes and pull quotes.
+     Fraunces italic  blockquotes and pull quotes (Nov 27, 2026:
+                was Shrikhand, which tired the eye on long quotes).
      Inter      UI, labels, nav, buttons, pills, dates, meta. Untouched.
 
    With the switch on, the header + rail logos also swap to the new
@@ -12805,7 +12813,7 @@ html.fonts-70s {
   --font-display:      'Caprasimo', Georgia, 'Times New Roman', serif;
   --font-reading:      'Fraunces', Georgia, 'Times New Roman', serif;
   --font-display-soft: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-quote:        'Shrikhand', Georgia, 'Times New Roman', serif;
+  --font-quote:        'Fraunces', Georgia, 'Times New Roman', serif;
   /* Inherited everywhere; only Fraunces has these axes, so Caprasimo,
      Shrikhand and Inter ignore them. */
   font-variation-settings: "SOFT" 50, "WONK" 0;
@@ -12930,21 +12938,23 @@ html.fonts-70s body.tgo-night .newsletter-preview-panel .page-body :is(p, li) {
   font-weight: 400;
 }
 
-/* G. Quotes: Shrikhand. Plain blockquotes only; the card quotes
-   (card-quote, reblog, reblog-v3, card-wrap) are UI cards and keep
-   Inter. Shrikhand has no italic, so the theme's italics are turned
-   off rather than faked. */
+/* G. Quotes: Fraunces in its real italic (Nov 27, 2026, Toby; was
+   Shrikhand). Plain blockquotes only; the card quotes (card-quote,
+   reblog, reblog-v3, card-wrap) are UI cards and keep Inter. Weight
+   follows the reading text (400 by day, 450 on dark skies, section F)
+   because quote paragraphs are post-body paragraphs. A touch wonky
+   (WONK 1) so the italic gets Fraunces' curly 70s letterforms. */
 html.fonts-70s :where(blockquote:not(.reblog, .reblog-new, .reblog-v3, .card-wrap, .card-quote)) p:not(.newsletter-preview-panel p),
 html.fonts-70s :where(.post-mentions .post-mention-quote) {
   font-family: var(--font-quote) !important;
-  font-style: normal !important;
-  font-weight: 400;
-  letter-spacing: 0.005em;
+  font-style: italic !important;
+  font-variation-settings: "SOFT" 50, "WONK" 1;
 }
-/* Pages pin quote italics with !important at (0,5,2); out-specify it
-   (newsletter preview pane excluded, it keeps its own quote dress). */
+/* Pages: italic too (was forced upright for Shrikhand). Kept at the
+   same specificity so nothing else shifts (newsletter preview pane
+   excluded, it keeps its own quote dress). */
 html.fonts-70s .page-body blockquote:not(.reblog):not(.reblog-new):not(.reblog-v3):not(.card-wrap) p:not(.newsletter-preview-panel p) {
-  font-style: normal !important;
+  font-style: italic !important;
 }
 
 /* H. Hardcoded stack that bypassed the tokens: the tiny Now Reading
@@ -16480,3 +16490,182 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 .feeds-page .fd-toast svg { width: 16px; height: 16px; flex: none; }
 @media (prefers-reduced-motion: reduce) { .feeds-page .fd-toast { transition: none; } }
 /* end section 135 */
+
+/* ============================================================
+   136. UNDER THE HOOD (COLOPHON) SLASH PAGE  (Nov 27, 2026, Toby - mockup v13)
+   ------------------------------------------------------------
+   Body of /colophon/ (layouts/shortcodes/colophon.html), modeled on
+   shellsharks.com/architecture. Page title "Under the Hood" comes from
+   the Micro.blog page.
+   Colors read the sky tokens (var(--color-*)), so every sky works.
+   Fixed colors on purpose: the five Sky tiles (each painted in its own
+   sky with its own ink), the swatch chips, the hero art, the terracotta
+   tab/badge fills (#A65326 + white = 5.4:1).
+   Dark skies hook on body.tgo-night (set by the sky script whenever the
+   page bg goes dark, i.e. Dusk AND Night).
+   Look cards: each sample line is pinned to its own font so both cards
+   always read right; the page text itself follows the reader's Look.
+   Font names in the cards are <span class="colo-fname">, NOT <b>:
+   strong/b switch to the display face in Modern.
+   Phone + fold (< 640px of page width): the two Look cards become tabs
+   (JS adds .has-tabs). Container queries, so it follows the page column,
+   not the window. Hutch fonts (Roboto / Roboto Flex) get a third tab
+   when Hutch launches.
+   Selectors carry .page-body .colophon-page x3 (tripled on purpose,
+   0,5,0) so they beat the page-body rules: h2 underline, p/li reading
+   font + margins, img styling, AND the 70s night weight rule in
+   section 104-F (html.fonts-70s body.tgo-night :is(... .page-body p ...)
+   scores 0,4,3 because of the longest selector in its list), which
+   otherwise thinned bold samples, titles and labels to 450 after dark.
+   ============================================================ */
+.page-body .colophon-page, .colophon-page { max-width: none; container-type: inline-size; }
+.colophon-page { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.colophon-page svg { display: block; overflow: visible; }
+.page-body .colophon-page.colophon-page.colophon-page :is(h2, h3) { border: 0; padding: 0; }
+.page-body .colophon-page.colophon-page.colophon-page :is(h2, h3)::before,
+.page-body .colophon-page.colophon-page.colophon-page :is(h2, h3)::after { content: none; }
+.page-body .colophon-page.colophon-page.colophon-page :is(ul, ol) { list-style: none; margin: 0; padding: 0; }
+.page-body .colophon-page.colophon-page.colophon-page li { font-family: var(--font-body); margin: 0; }
+.page-body .colophon-page.colophon-page.colophon-page p { margin: 0; font-family: var(--font-body); }
+.page-body .colophon-page.colophon-page.colophon-page a { color: var(--color-terra-text); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-why a { text-decoration: underline !important; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+/* Hero */
+.colo-hero { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: center; margin: 0 0 2.75rem; }
+@container (min-width: 700px) { .colo-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; } }
+.colo-art { max-width: 440px; width: 100%; margin: 0 auto; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-kicker { font-size: .875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-terra-text); margin: 0 0 .5rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-head { font-size: 2rem; line-height: 1.15; margin: 0 0 .8rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-intro { font-family: var(--font-reading); margin: 0; }
+
+/* Sections */
+.colo-section { margin: 0 0 2.75rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-title { font-size: 1.5rem; line-height: 1.2; margin: 0 0 .35rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-sub { color: var(--color-text-muted); font-size: 1rem; line-height: 1.5; margin: 0 0 1rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-mini { font-size: 1.35rem; line-height: 1.2; margin: 1.6rem 0 .3rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-mini:first-of-type { margin-top: .5rem; }
+
+/* Cards (stack, tools, feeds) */
+.page-body .colophon-page.colophon-page.colophon-page .colo-cards { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+@container (min-width: 520px) { .page-body .colophon-page.colophon-page.colophon-page .colo-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } }
+.page-body .colophon-page.colophon-page.colophon-page .colo-card { display: grid; grid-template-columns: 48px minmax(0, 1fr); column-gap: .9rem; align-items: start; align-content: start; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 18px; padding: 1rem 1.1rem; transition: transform .2s, box-shadow .2s; }
+.colo-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(30, 45, 74, .12); }
+.colo-icon { width: 48px; height: 48px; border-radius: 12px; background: #FFFFFF; padding: 6px; box-sizing: border-box; box-shadow: 0 1px 4px rgba(0, 0, 0, .12); display: grid; place-items: center; grid-row: span 2; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-icon img { width: 36px; height: 36px; max-width: none; margin: 0; border-radius: 0; box-shadow: none; object-fit: contain; display: block; }
+.colo-icon svg { width: 36px; height: 36px; }
+body.tgo-night .colo-icon { box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-name { font-family: var(--font-display-soft, var(--font-display)); font-variation-settings: "SOFT" 100, "WONK" 1; font-weight: 700; font-size: 1.2rem; line-height: 1.2; margin: .1rem 0 .2rem; color: var(--color-text); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-why { font-size: 1rem; line-height: 1.45; color: var(--color-text-muted); margin: 0; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-soon { display: inline-flex; align-items: center; gap: .35rem; margin-top: .55rem; font-size: .875rem; font-weight: 700; color: var(--color-text); background: var(--color-bg); border: 2px dashed var(--color-terra); border-radius: 999px; padding: .15rem .7rem .15rem .4rem; }
+.colo-soon svg { width: 20px; height: 20px; }
+
+/* Look cards */
+.colo-looks { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@container (min-width: 640px) { .colo-looks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.colo-look { position: relative; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 18px; padding: 1.1rem 1.1rem .6rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-look-name { font-size: .875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-terra-text); margin: 0 0 .5rem; }
+.colo-look-name small { font-size: inherit; font-weight: 500; letter-spacing: .04em; text-transform: none; color: var(--color-text-muted); }
+.colo-now { display: none; position: absolute; top: .85rem; right: .9rem; background: #A65326; color: #FFFFFF; font-size: .8rem; font-weight: 700; padding: .15rem .6rem; border-radius: 999px; }
+html.fonts-70s .colo-look--70s, html:not(.fonts-70s) .colo-look--modern { border: 2px solid var(--color-terra); }
+html.fonts-70s .colo-look--70s .colo-now, html:not(.fonts-70s) .colo-look--modern .colo-now { display: block; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-look-tip { font-size: .95rem; line-height: 1.5; color: var(--color-text-muted); margin: .75rem 0 0; }
+
+/* Look tabs (phone + fold only) */
+.colo-tabs { display: none; }
+@container (max-width: 639px) {
+  .colo-looks.has-tabs .colo-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 999px; padding: .3rem; margin: 0 0 .9rem; }
+  .colo-looks.has-tabs .colo-look[hidden] { display: none; }
+  .colo-looks.has-tabs .colo-now { display: none !important; }
+  .colo-looks.has-tabs .colo-look { border-width: 1px; }
+}
+.colo-tab { font: inherit; font-family: var(--font-body); font-size: 1rem; font-weight: 700; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--color-text); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .35rem .8rem; -webkit-tap-highlight-color: transparent; }
+.colo-tab[aria-selected="true"] { background: #A65326; color: #FFFFFF; }
+.colo-tab:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-terra-text); }
+.colo-yours { display: none; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .05rem .45rem; border-radius: 999px; border: 1.5px solid currentColor; }
+html.fonts-70s .colo-tab[data-look="70s"] .colo-yours, html:not(.fonts-70s) .colo-tab[data-look="modern"] .colo-yours { display: inline-block; }
+
+/* Type roles inside each Look card */
+.page-body .colophon-page.colophon-page.colophon-page .colo-role { padding: .6rem 0 .65rem; border-top: 1px solid var(--color-border); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-role:first-child { border-top: 0; padding-top: .2rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-role-label { font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); margin: 0 0 .15rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-role-sample { font-size: 1.45rem; line-height: 1.25; margin: 0; color: var(--color-text); overflow-wrap: anywhere; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-role-meta { font-size: .9rem; color: var(--color-text-muted); margin: .2rem 0 0; line-height: 1.4; }
+.colo-fname { color: var(--color-text); font-weight: 700; }
+.colo-role-sample .q-bar { border-left: 4px solid var(--color-terra); padding-left: .65rem; display: block; }
+/* 70s samples (pinned) */
+.page-body .colophon-page.colophon-page.colophon-page .s70-big { font-family: 'Caprasimo', Georgia, serif; font-weight: 400; font-synthesis: none; letter-spacing: -.015em; }
+.page-body .colophon-page.colophon-page.colophon-page .s70-small { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-variation-settings: "SOFT" 100, "WONK" 1; }
+.page-body .colophon-page.colophon-page.colophon-page :is(.s70-text, .s70-bold, .s70-ital, .s70-quote) { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "SOFT" 50, "WONK" 0; font-size: 1.2rem; }
+.page-body .colophon-page.colophon-page.colophon-page .s70-text { font-weight: 400; }
+.page-body .colophon-page.colophon-page.colophon-page .s70-bold { font-weight: 700; }
+.page-body .colophon-page.colophon-page.colophon-page .s70-ital { font-weight: 400; font-style: italic; }
+.page-body .colophon-page.colophon-page.colophon-page .s70-quote { font-weight: 400; font-style: italic; font-variation-settings: "SOFT" 50, "WONK" 1; color: var(--color-text-muted); }
+body.tgo-night .page-body .colophon-page.colophon-page.colophon-page :is(.s70-text, .s70-ital, .s70-quote) { font-weight: 450; }
+/* Modern samples (pinned) */
+.page-body .colophon-page.colophon-page.colophon-page .smod-big { font-family: 'Bricolage Grotesque', Georgia, serif; font-weight: 800; letter-spacing: -.03em; font-variation-settings: normal; }
+.page-body .colophon-page.colophon-page.colophon-page .smod-small { font-family: 'Bricolage Grotesque', Georgia, serif; font-weight: 700; font-variation-settings: normal; }
+.page-body .colophon-page.colophon-page.colophon-page :is(.smod-text, .smod-ital, .smod-quote) { font-family: 'Lora', Georgia, serif; font-size: 1.2rem; font-weight: 500; font-variation-settings: normal; }
+.page-body .colophon-page.colophon-page.colophon-page .smod-quote { font-weight: 400; }
+.page-body .colophon-page.colophon-page.colophon-page :is(.smod-ital, .smod-quote) { font-style: italic; }
+.page-body .colophon-page.colophon-page.colophon-page .smod-quote { color: var(--color-text-muted); }
+body.tgo-night .page-body .colophon-page.colophon-page.colophon-page :is(.smod-text, .smod-ital) { font-weight: 400; }
+.page-body .colophon-page.colophon-page.colophon-page .smod-bold { font-family: 'Bricolage Grotesque', Georgia, serif; font-weight: 700; font-size: 1.2rem; font-variation-settings: normal; }
+/* Shared samples */
+.page-body .colophon-page.colophon-page.colophon-page .s-ui { font-family: 'Inter', system-ui, sans-serif; font-weight: 500; font-size: 1.05rem; font-variation-settings: normal; }
+.page-body .colophon-page.colophon-page.colophon-page .s-code { font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 1.05rem; font-variation-settings: normal; }
+
+/* Color swatches */
+.page-body .colophon-page.colophon-page.colophon-page .colo-swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0 0 1.25rem; }
+@container (min-width: 640px) { .page-body .colophon-page.colophon-page.colophon-page .colo-swatches { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.page-body .colophon-page.colophon-page.colophon-page .colo-swatch { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 18px; padding: .6rem .6rem .8rem; }
+.colo-chip { height: 64px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, .08); margin-bottom: .55rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-swatch .colo-name { font-size: 1rem; margin: 0 .3rem; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-hex { font-size: .875rem; color: var(--color-text-muted); margin: 0 .3rem; font-variant-numeric: tabular-nums; }
+body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 0 0 0 1px rgba(243, 238, 231, .2); }
+
+/* Sky strip: five tiles, each in its own sky colors (fixed on purpose) */
+.page-body .colophon-page.colophon-page.colophon-page .colo-skyline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-radius: 18px; overflow: hidden; border: 1px solid var(--color-border); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-skytile { position: relative; padding: .9rem .4rem 1.6rem; text-align: center; font-size: .95rem; font-weight: 700; line-height: 1.3; }
+.colo-skytile svg { width: 28px; height: 28px; margin: 0 auto .35rem; }
+.colo-skytile em { display: block; font-style: normal; font-weight: 500; font-size: .8rem; opacity: .85; }
+.colophon-page .sky-dawn   { background: #F6E7D2; color: #1E2D4A; }
+.colophon-page .sky-day    { background: #FAF8F5; color: #1E2D4A; }
+.colophon-page .sky-sunset { background: #F0D7B8; color: #1E2D4A; }
+.colophon-page .sky-dusk   { background: #2B3655; color: #F3EEE7; }
+.colophon-page .sky-night  { background: #171E30; color: #F3EEE7; }
+.colo-skytile.is-now { box-shadow: inset 0 0 0 3px #C4622D; }
+.colo-skytile.is-now::after { content: "Right now"; position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%); background: #A65326; color: #FFFFFF; font-size: .7rem; font-weight: 700; padding: .05rem .45rem; border-radius: 6px 6px 0 0; white-space: nowrap; }
+@container (max-width: 460px) {
+  .page-body .colophon-page.colophon-page.colophon-page .colo-skytile { padding: .75rem .15rem 1.45rem; font-size: .8rem; }
+  .colo-skytile em { display: none; }
+  .colo-skytile svg { width: 22px; height: 22px; }
+  .colo-skytile.is-now::after { content: "Now"; }
+}
+.page-body .colophon-page.colophon-page.colophon-page .colo-skyline + .colo-look-tip { margin-top: .6rem; }
+
+/* Short history timeline */
+.page-body .colophon-page.colophon-page.colophon-page .colo-timeline { padding: 0 0 0 1.4rem; border-left: 3px solid var(--color-terra); display: grid; gap: 1.1rem; }
+.colo-step { position: relative; }
+.colo-step::before { content: ""; position: absolute; left: calc(-1.4rem - 9px); top: .45rem; width: 15px; height: 15px; border-radius: 50%; background: var(--color-bg); border: 3px solid var(--color-terra); box-sizing: content-box; }
+.colo-step:last-child::before { background: var(--color-terra); }
+.page-body .colophon-page.colophon-page.colophon-page .colo-year { font-size: .875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-terra-text); margin: 0; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-step .colo-name { font-size: 1.25rem; margin: .1rem 0 .15rem; }
+.page-body .colophon-page.colophon-page.colophon-page a.colo-longroad { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1.25rem; font-family: var(--font-body); font-weight: 700; font-size: 1.05rem; text-decoration: none !important; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 999px; padding: .5rem 1.1rem; min-height: 44px; box-sizing: border-box; transition: transform .2s, border-color .2s; }
+.colo-longroad:hover { transform: translateX(3px); border-color: var(--color-terra); }
+.colo-longroad svg { width: 20px; height: 20px; flex: none; }
+.page-body .colophon-page.colophon-page.colophon-page .colo-outro { text-align: center; margin: 3rem 0 0; font-family: var(--font-reading); font-style: italic; color: var(--color-text-muted); }
+
+/* Motion (hero) */
+.colophon-page .twinkle { transform-box: fill-box; transform-origin: center; animation: colo-twinkle 2.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.colophon-page .float { animation: colo-float 4s ease-in-out infinite alternate; }
+.colophon-page .glow { animation: colo-glow 3s ease-in-out infinite alternate; }
+.colophon-page .type-line { animation: colo-type 5s steps(1) infinite; animation-delay: var(--d, 0s); }
+@keyframes colo-twinkle { 0%, 100% { transform: scale(.6); opacity: .4; } 50% { transform: scale(1.1); opacity: 1; } }
+@keyframes colo-float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+@keyframes colo-glow { from { opacity: .75; } to { opacity: 1; } }
+@keyframes colo-type { 0% { opacity: 0; } 15%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .colophon-page :is(.twinkle, .float, .glow, .type-line) { animation: none; }
+  .colo-card, .colo-card:hover, .colo-longroad, .colo-longroad:hover { transition: none; transform: none; }
+}
+/* end section 136 */

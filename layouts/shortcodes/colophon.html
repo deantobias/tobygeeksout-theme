@@ -1,0 +1,323 @@
+{{- /*
+  colophon.html - "Under the Hood", the /colophon/ slash page.
+  Nov 27, 2026 (Toby): first version (mockup v13 approved). Modeled on
+  shellsharks.com/architecture.
+  The page title ("Under the Hood") comes from the Micro.blog page
+  itself; this shortcode is only the body.
+  Sections: hero (tiny house + floating browser window), Where it lives
+  (Micro.blog, Hugo, Theme: Classic + "Hutch is coming soon", GitHub),
+  The look (Two Looks as cards / phone tabs, Colors, Sky), How I write
+  and build, What feeds the site, A short history (+ link to
+  /the-long-road-here/).
+  Look cards list every text role with its real font/weight/style from
+  custom.css (section 104 for 70s, base + section 4/F for Modern). If a
+  font or weight changes in the theme, update the card here too.
+  When Hutch launches: add a third Look tab + card for Hutch's fonts
+  (Roboto for UI, Roboto Flex for display, see hutch.css --h-ui/--h-flex)
+  and change the Theme card.
+  Sky tiles: the script marks the tile that matches the live page
+  background (sky script tokens), re-checked every 30s; if the page is
+  on a special palette (Halloween) nothing is marked and the tip hides.
+  Logos load from Google's favicon service, same as the Uses page.
+  No blank lines inside the HTML (Goldmark rule for raw HTML blocks).
+  Styles: custom.css section 136 (.colophon-page, colo-*).
+*/ -}}
+<div class="colophon-page" data-colophon>
+<section class="colo-hero">
+<div class="colo-art">
+<svg viewBox="0 0 480 330" role="img" aria-label="A little tiny house at the foot of a mountain, its window glowing, with a browser window floating above the roof showing lines of code">
+  <g fill="#E9A23B">
+    <path class="twinkle" style="--d:0s" d="M60 60 l5 -14 l5 14 l14 5 l-14 5 l-5 14 l-5 -14 l-14 -5z"/>
+    <path class="twinkle" style="--d:1s" d="M420 48 l4 -11 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4z"/>
+  </g>
+  <g fill="#C4622D">
+    <path class="twinkle" style="--d:1.6s" d="M446 190 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3z"/>
+    <path class="twinkle" style="--d:.5s" d="M30 170 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3z"/>
+  </g>
+  <!-- mountain -->
+  <path d="M0 300 L120 120 L170 170 L250 70 L380 230 L420 190 L480 260 L480 300 Z" fill="#2E4470"/>
+  <path d="M250 70 L280 108 L265 104 L252 118 L238 100 L222 106 Z" fill="#F2EDE8"/>
+  <path d="M120 120 L140 150 L128 146 L118 156 L106 140 Z" fill="#F2EDE8"/>
+  <path d="M0 300 L80 210 L150 250 L230 190 L330 260 L400 230 L480 280 L480 300 Z" fill="#1E2D4A"/>
+  <!-- ground -->
+  <ellipse cx="240" cy="306" rx="230" ry="16" fill="#3F6B3A"/>
+  <!-- trees -->
+  <g fill="#2F5A31" stroke="#1E2D4A" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M62 300 L84 236 L106 300 Z"/><path d="M96 302 L112 256 L128 302 Z"/>
+    <path d="M372 302 L392 244 L412 302 Z"/><path d="M404 302 L418 264 L432 302 Z"/>
+  </g>
+  <!-- tiny house -->
+  <g stroke="#1E2D4A" stroke-width="3" stroke-linejoin="round">
+    <rect x="180" y="228" width="130" height="76" rx="3" fill="#C4622D"/>
+    <path d="M168 232 L245 184 L322 232 Z" fill="#8B3E18"/>
+    <rect x="196" y="248" width="44" height="32" rx="3" fill="#F4C542" class="glow"/>
+    <path d="M218 248 V280 M196 264 H240" stroke-width="2.5"/>
+    <rect x="258" y="250" width="34" height="54" rx="3" fill="#1E2D4A"/>
+    <circle cx="285" cy="278" r="2.5" fill="#F4C542" stroke="none"/>
+    <rect x="290" y="196" width="14" height="24" fill="#69635C"/>
+  </g>
+  <!-- floating browser window -->
+  <g class="float">
+    <g stroke="#1E2D4A" stroke-width="3" stroke-linejoin="round">
+      <rect x="150" y="40" width="190" height="118" rx="12" fill="#FFFFFF"/>
+      <path d="M150 64 H340" />
+    </g>
+    <circle cx="166" cy="52" r="4.5" fill="#C4622D"/>
+    <circle cx="180" cy="52" r="4.5" fill="#F4C542"/>
+    <circle cx="194" cy="52" r="4.5" fill="#5FA347"/>
+    <g stroke-linecap="round" stroke-width="6">
+      <path class="type-line" style="--d:0s"   d="M170 84 H222" stroke="#C4622D"/>
+      <path class="type-line" style="--d:.5s"  d="M186 102 H290" stroke="#2E4470"/>
+      <path class="type-line" style="--d:1s"   d="M186 120 H262" stroke="#2E4470"/>
+      <path class="type-line" style="--d:1.5s" d="M170 138 H236" stroke="#C4622D"/>
+    </g>
+    <path d="M300 128 l-10 8 l10 8 M316 128 l10 8 l-10 8 M311 124 l-6 24" fill="none" stroke="#1E2D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
+</div>
+<div class="colo-words">
+<p class="colo-kicker">/colophon</p>
+<h2 class="colo-head">How this site gets made.</h2>
+<p class="colo-intro">Books used to end with a colophon, a little note about the typeface, the paper, and who printed it. This is that page for Toby Geeks Out! Everything behind the scenes, all in one spot.</p>
+</div>
+</section>
+<section class="colo-section">
+<h2 class="colo-title">Where it lives</h2>
+<p class="colo-sub">The foundation everything sits on.</p>
+<ul class="colo-cards">
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=micro.blog&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Micro.blog</p>
+  <p class="colo-why">Home base. Hosting, posting, the timeline, and the newsletter.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=gohugo.io&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Hugo</p>
+  <p class="colo-why">The engine Micro.blog uses to turn my posts into pages.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="6" width="26" height="24" rx="3" fill="#FAF8F5" stroke="#1E2D4A" stroke-width="2.2"/><path d="M5 12 H31" stroke="#1E2D4A" stroke-width="2.2"/><rect x="9" y="16" width="8" height="10" rx="1.5" fill="#C4622D"/><path d="M20 17 H27 M20 21 H27 M20 25 H25" stroke="#2E4470" stroke-width="2" stroke-linecap="round"/></svg></span>
+  <p class="colo-name">Theme: Classic</p>
+  <p class="colo-why">My own custom theme, the one you're looking at. I tinker with it almost every day, and the Tinkering page keeps track.
+  <span class="colo-soon"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M5 17 L18 6 L31 17" fill="none" stroke="#1E2D4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15 V30 H27 V15" fill="#C4622D" stroke="#1E2D4A" stroke-width="2.5" stroke-linejoin="round"/><rect x="15" y="20" width="6" height="10" fill="#1E2D4A"/></svg>Hutch is coming soon</span></p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=github.com&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">GitHub</p>
+  <p class="colo-why">Where the theme's code lives, with every change saved.</p>
+</li>
+</ul>
+</section>
+<section class="colo-section">
+<h2 class="colo-title">The look</h2>
+<p class="colo-sub">Two Looks to pick from, a warm palette, and a Sky that changes through the day.</p>
+<h3 class="colo-mini">Two Looks</h3>
+<p class="colo-sub">Toby Geeks Out! comes in two Looks. The 70s Look is the default, and you can flip to Modern anytime with the Look button.</p>
+<div class="colo-looks" data-looks>
+  <div class="colo-tabs" role="tablist" aria-label="Pick a Look">
+    <button class="colo-tab" role="tab" id="colo-tab-70s" data-look="70s" aria-controls="colo-panel-70s" aria-selected="true">70s <span class="colo-yours">Yours</span></button>
+    <button class="colo-tab" role="tab" id="colo-tab-modern" data-look="modern" aria-controls="colo-panel-modern" aria-selected="false" tabindex="-1">Modern <span class="colo-yours">Yours</span></button>
+  </div>
+  <div class="colo-look colo-look--70s" id="colo-panel-70s" role="tabpanel" aria-labelledby="colo-tab-70s">
+    <span class="colo-now">You're seeing this one</span>
+    <p class="colo-look-name">70s <small>· the default</small></p>
+    <ul class="colo-roles">
+      <li class="colo-role"><p class="colo-role-label">Big titles</p><p class="colo-role-sample s70-big">Geeks Out!</p><p class="colo-role-meta"><span class="colo-fname">Caprasimo</span> · 400, its only weight</p></li>
+      <li class="colo-role"><p class="colo-role-label">Smaller titles</p><p class="colo-role-sample s70-small">Keep reading</p><p class="colo-role-meta"><span class="colo-fname">Fraunces</span> · 700, extra soft and a little wonky</p></li>
+      <li class="colo-role"><p class="colo-role-label">Post text</p><p class="colo-role-sample s70-text">Pull up a chair and stay a while.</p><p class="colo-role-meta"><span class="colo-fname">Fraunces</span> · 400 by day, 450 at Dusk and Night</p></li>
+      <li class="colo-role"><p class="colo-role-label">Bold</p><p class="colo-role-sample s70-bold">This is the good part.</p><p class="colo-role-meta"><span class="colo-fname">Fraunces</span> · 700, stays in the reading font</p></li>
+      <li class="colo-role"><p class="colo-role-label">Italic</p><p class="colo-role-sample s70-ital">Just a little aside.</p><p class="colo-role-meta"><span class="colo-fname">Fraunces</span> · 400, true italic</p></li>
+      <li class="colo-role"><p class="colo-role-label">Quotes</p><p class="colo-role-sample s70-quote"><span class="q-bar">Worth keeping.</span></p><p class="colo-role-meta"><span class="colo-fname">Fraunces</span> · italic, 400 by day, 450 at Dusk and Night, softer text color</p></li>
+      <li class="colo-role"><p class="colo-role-label">Menus and labels</p><p class="colo-role-sample s-ui">Home · Reading · About</p><p class="colo-role-meta"><span class="colo-fname">Inter</span> · 400, 500 and 700</p></li>
+      <li class="colo-role"><p class="colo-role-label">Code</p><p class="colo-role-sample s-code">&lt;p&gt;Hello!&lt;/p&gt;</p><p class="colo-role-meta"><span class="colo-fname">SF Mono</span> · your device's code font</p></li>
+    </ul>
+  </div>
+  <div class="colo-look colo-look--modern" id="colo-panel-modern" role="tabpanel" aria-labelledby="colo-tab-modern">
+    <span class="colo-now">You're seeing this one</span>
+    <p class="colo-look-name">Modern</p>
+    <ul class="colo-roles">
+      <li class="colo-role"><p class="colo-role-label">Big titles</p><p class="colo-role-sample smod-big">Geeks Out!</p><p class="colo-role-meta"><span class="colo-fname">Bricolage Grotesque</span> · 800</p></li>
+      <li class="colo-role"><p class="colo-role-label">Smaller titles</p><p class="colo-role-sample smod-small">Keep reading</p><p class="colo-role-meta"><span class="colo-fname">Bricolage Grotesque</span> · 700</p></li>
+      <li class="colo-role"><p class="colo-role-label">Post text</p><p class="colo-role-sample smod-text">Pull up a chair and stay a while.</p><p class="colo-role-meta"><span class="colo-fname">Lora</span> · 500 by day, 400 at Dusk and Night</p></li>
+      <li class="colo-role"><p class="colo-role-label">Bold</p><p class="colo-role-sample smod-bold">This is the good part.</p><p class="colo-role-meta"><span class="colo-fname">Bricolage Grotesque</span> · 700, switches to the title font</p></li>
+      <li class="colo-role"><p class="colo-role-label">Italic</p><p class="colo-role-sample smod-ital">Just a little aside.</p><p class="colo-role-meta"><span class="colo-fname">Lora</span> · true italic</p></li>
+      <li class="colo-role"><p class="colo-role-label">Quotes</p><p class="colo-role-sample smod-quote"><span class="q-bar">Worth keeping.</span></p><p class="colo-role-meta"><span class="colo-fname">Lora</span> · italic 400, softer text color</p></li>
+      <li class="colo-role"><p class="colo-role-label">Menus and labels</p><p class="colo-role-sample s-ui">Home · Reading · About</p><p class="colo-role-meta"><span class="colo-fname">Inter</span> · 400, 500 and 700</p></li>
+      <li class="colo-role"><p class="colo-role-label">Code</p><p class="colo-role-sample s-code">&lt;p&gt;Hello!&lt;/p&gt;</p><p class="colo-role-meta"><span class="colo-fname">SF Mono</span> · your device's code font</p></li>
+    </ul>
+  </div>
+</div>
+<p class="colo-look-tip">Reading text has a day weight and a night weight. When the Sky goes dark at Dusk, 70s text gets a touch heavier and Modern text gets a touch lighter, so both read comfortably on a dark page. Tap the Sky button until it says Night to see it.</p>
+<h3 class="colo-mini">Colors</h3>
+<p class="colo-sub">Same palette in both Looks.</p>
+<ul class="colo-swatches">
+  <li class="colo-swatch"><div class="colo-chip" style="background:#C4622D"></div><p class="colo-name">Terracotta</p><p class="colo-hex">#C4622D</p></li>
+  <li class="colo-swatch"><div class="colo-chip" style="background:#1E2D4A"></div><p class="colo-name">Navy</p><p class="colo-hex">#1E2D4A</p></li>
+  <li class="colo-swatch"><div class="colo-chip" style="background:#FAF8F5"></div><p class="colo-name">Warm white</p><p class="colo-hex">#FAF8F5</p></li>
+  <li class="colo-swatch"><div class="colo-chip" style="background:#F0DDD3"></div><p class="colo-name">Blush</p><p class="colo-hex">#F0DDD3</p></li>
+</ul>
+<h3 class="colo-mini">Sky</h3>
+<p class="colo-sub">The site's colors follow the sun where you are. I call it the Sky, and it moves through five stages every day. Want it to stay put? The Sky button lets you pin it to Day or Night.</p>
+<ol class="colo-skyline" aria-label="The five Sky stages">
+  <li class="colo-skytile sky-dawn" data-sky="dawn"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="16" r="6" fill="#E9A23B" stroke="#1E2D4A" stroke-width="1.8"/><path d="M3 22H25" stroke="#1E2D4A" stroke-width="1.8" stroke-linecap="round"/><g stroke="#1E2D4A" stroke-width="1.8" stroke-linecap="round"><path d="M14 4v3M5 9l2 2M23 9l-2 2"/></g></svg>Dawn<em>early morning</em></li>
+  <li class="colo-skytile sky-day" data-sky="day"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="6" fill="#F4C542" stroke="#1E2D4A" stroke-width="1.8"/><g stroke="#1E2D4A" stroke-width="1.8" stroke-linecap="round"><path d="M14 2v3M14 23v3M2 14h3M23 14h3M5.5 5.5l2 2M20.5 20.5l2 2M5.5 22.5l2-2M20.5 7.5l2-2"/></g></svg>Day<em>bright and clear</em></li>
+  <li class="colo-skytile sky-sunset" data-sky="sunset"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 20a7 7 0 0 1 14 0Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 20H25M7 24H21" stroke="#1E2D4A" stroke-width="1.8" stroke-linecap="round"/></svg>Sunset<em>golden hour</em></li>
+  <li class="colo-skytile sky-dusk" data-sky="dusk"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M17 5a9 9 0 1 0 6 15A8 8 0 0 1 17 5Z" fill="#F0DDD3" stroke="#F3EEE7" stroke-width="1.5" stroke-linejoin="round"/><circle cx="22" cy="7" r="1.3" fill="#F4C542"/></svg>Dusk<em>first and last light</em></li>
+  <li class="colo-skytile sky-night" data-sky="night"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M17 4a10 10 0 1 0 7 17A9 9 0 0 1 17 4Z" fill="#F4C542" stroke="#F3EEE7" stroke-width="1.5" stroke-linejoin="round"/><circle cx="7" cy="6" r="1.3" fill="#F3EEE7"/><circle cx="23" cy="9" r="1" fill="#F3EEE7"/></svg>Night<em>lights out</em></li>
+</ol>
+<p class="colo-look-tip colo-sky-tip" hidden>The tile with the orange outline is the Sky you're seeing right now.</p>
+</section>
+<section class="colo-section">
+<h2 class="colo-title">How I write and build</h2>
+<p class="colo-sub">Some of these I made myself, for fun.</p>
+<ul class="colo-cards">
+<li class="colo-card">
+  <span class="colo-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 28 H32" stroke="#8B3E18" stroke-width="3" stroke-linecap="round"/><path d="M12 26 C10 18, 15 11, 22 11 C27 11, 29 15, 28 18 L32 19 L28 21 C26 25, 20 27, 12 26 Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="15" r="1.6" fill="#1E2D4A"/><path d="M14 22 C17 20, 20 20, 23 22" fill="none" stroke="#1E2D4A" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+  <p class="colo-name">Perch</p>
+  <p class="colo-why">My own Micro.blog app, built for quick posts.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="4" width="20" height="27" rx="3" fill="#FAF8F5" stroke="#1E2D4A" stroke-width="2.2"/><path d="M10 11 H22 M10 16 H20 M10 21 H16" stroke="#2E4470" stroke-width="2" stroke-linecap="round"/><path d="M30 12 L20 26 L17 29 L18 25 L28 11 Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+  <p class="colo-name">Draft Studio</p>
+  <p class="colo-why">Where the longer posts get drafted, edited, and polished.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=claude.ai&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Claude</p>
+  <p class="colo-why">Helps with drafts, editing, and most of the code. The full story is on my <a href="/ai/">/ai page</a>.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="8" width="28" height="20" rx="4" fill="#FAF8F5" stroke="#1E2D4A" stroke-width="2.2"/><circle cx="18" cy="18" r="6" fill="#2E4470" stroke="#1E2D4A" stroke-width="2"/><circle cx="18" cy="18" r="2.4" fill="#FAF8F5"/><rect x="9" y="5" width="7" height="4" rx="1.5" fill="#1E2D4A"/></svg></span>
+  <p class="colo-name">My camera roll</p>
+  <p class="colo-why">Every photo here is one I took myself.</p>
+</li>
+</ul>
+</section>
+<section class="colo-section">
+<h2 class="colo-title">What feeds the site</h2>
+<p class="colo-sub">The outside helpers that fill in the details.</p>
+<ul class="colo-cards">
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=trakt.tv&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Trakt</p>
+  <p class="colo-why">Keeps track of what I watch for the watch logs.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=themoviedb.org&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">TMDB</p>
+  <p class="colo-why">Movie and show posters.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=micro.blog&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Micro.blog Bookshelves</p>
+  <p class="colo-why">My reading shelves, for the Bookshelf and the Reading page.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=books.google.com&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">Google Books + Open Library</p>
+  <p class="colo-why">Book lookups and covers.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=openstreetmap.org&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">OpenStreetMap</p>
+  <p class="colo-why">The little maps on my check-ins.</p>
+</li>
+<li class="colo-card">
+  <span class="colo-icon"><img src="https://www.google.com/s2/favicons?domain=goatcounter.com&amp;sz=128" alt="" width="36" height="36" loading="lazy"></span>
+  <p class="colo-name">GoatCounter</p>
+  <p class="colo-why">Simple, privacy-friendly visit counts.</p>
+</li>
+</ul>
+</section>
+<section class="colo-section">
+<h2 class="colo-title">A short history</h2>
+<p class="colo-sub">I've been at this a while. Blogging dinosaur, remember?</p>
+<ol class="colo-timeline">
+  <li class="colo-step"><p class="colo-year">2004</p><p class="colo-name">Dean's Cyberspace</p><p class="colo-why">Where it all started, on Blogger.</p></li>
+  <li class="colo-step"><p class="colo-year">2007</p><p class="colo-name">Technogeek Notes</p><p class="colo-why">Moved over to Tumblr. New name, same geek.</p></li>
+  <li class="colo-step"><p class="colo-year">2021</p><p class="colo-name">Toby Geeks Out!</p><p class="colo-why">The comeback, with a name that's here to stay.</p></li>
+  <li class="colo-step"><p class="colo-year">2025</p><p class="colo-name">Home on Micro.blog</p><p class="colo-why">First tried it in 2022 with just a few posts. Came back for good in 2025, and built my own theme to make it feel like home.</p></li>
+</ol>
+<a class="colo-longroad" href="/the-long-road-here/">The long road here: read the full history<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10H15M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</section>
+<p class="colo-outro">Made in a tiny house at the foot of the mountain in Elkhorn City, Kentucky.</p>
+</div>
+<script>
+(function () {
+  var root = document.querySelector('[data-colophon]');
+  if (!root || root.dataset.coloReady) return;
+  root.dataset.coloReady = '1';
+  var de = document.documentElement;
+  /* Look tabs: phone + fold only (CSS shows the tab row below 640px of
+     page width). The reader's own Look opens first. */
+  var box = root.querySelector('[data-looks]');
+  if (box) {
+    var tabs = [].slice.call(box.querySelectorAll('.colo-tab'));
+    var panels = { '70s': box.querySelector('#colo-panel-70s'), 'modern': box.querySelector('#colo-panel-modern') };
+    var row = box.querySelector('.colo-tabs');
+    var current = function () { return de.classList.contains('fonts-70s') ? '70s' : 'modern'; };
+    var chosen = current();
+    var pick = function (look, focus) {
+      var tabMode = getComputedStyle(row).display !== 'none';
+      tabs.forEach(function (t) {
+        var on = t.dataset.look === look;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      Object.keys(panels).forEach(function (k) { panels[k].hidden = tabMode && k !== look; });
+    };
+    box.classList.add('has-tabs');
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { chosen = t.dataset.look; pick(chosen); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        chosen = tabs[(i + 1) % tabs.length].dataset.look;
+        pick(chosen, true);
+      });
+    });
+    /* Width changes only (rotate, unfold). Hiding a card changes the
+       height, so height is ignored and the work waits a frame; that keeps
+       ResizeObserver from looping on itself. */
+    if (window.ResizeObserver) {
+      var lastW = 0, raf = 0;
+      new ResizeObserver(function (entries) {
+        var w = Math.round(entries[0].contentRect.width);
+        if (w === lastW) return;
+        lastW = w;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function () { pick(chosen); });
+      }).observe(box);
+    }
+    /* Reader flips the Look button: the tabs follow */
+    new MutationObserver(function () { var c = current(); if (c !== chosen) { chosen = c; pick(chosen); } })
+      .observe(de, { attributes: true, attributeFilter: ['class'] });
+    pick(chosen);
+  }
+  /* "Right now" Sky tile: match the live page background to the five
+     sky colors (same values as the sky script in custom_footer.html). */
+  var SKIES = { dawn: [246, 231, 210], day: [250, 248, 245], sunset: [240, 215, 184], dusk: [43, 54, 85], night: [23, 30, 48] };
+  var tiles = [].slice.call(root.querySelectorAll('.colo-skytile[data-sky]'));
+  var tip = root.querySelector('.colo-sky-tip');
+  var probe = document.createElement('span');
+  probe.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;background:var(--color-bg)';
+  root.appendChild(probe);
+  var markSky = function () {
+    var m = (getComputedStyle(probe).backgroundColor || '').match(/\d+(\.\d+)?/g);
+    var best = null, bestD = 1e9;
+    if (m && m.length >= 3) {
+      Object.keys(SKIES).forEach(function (k) {
+        var c = SKIES[k], d = Math.abs(c[0] - m[0]) + Math.abs(c[1] - m[1]) + Math.abs(c[2] - m[2]);
+        if (d < bestD) { bestD = d; best = k; }
+      });
+    }
+    if (bestD > 24) best = null;   /* mid-fade or a special palette: mark nothing */
+    tiles.forEach(function (t) { t.classList.toggle('is-now', t.dataset.sky === best); });
+    if (tip) tip.hidden = !best;
+  };
+  markSky();
+  setTimeout(markSky, 2000);       /* after the sky's 1.6s color ease */
+  setInterval(markSky, 30000);
+})();
+</script>

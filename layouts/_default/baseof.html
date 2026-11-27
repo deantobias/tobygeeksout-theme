@@ -79,11 +79,18 @@
     (function () {
       var bar = document.getElementById('scroll-progress');
       if (!bar) return;
-      window.addEventListener('scroll', function () {
+      /* Nov 27, 2026 - once a frame, and only when the figure changed
+         (was every scroll event; Firefox on Android lagged). */
+      var last = '', queued = false;
+      function paint() {
+        queued = false;
         var scrollTop = window.scrollY || document.documentElement.scrollTop;
         var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-        bar.style.width = pct + '%';
+        var w = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0).toFixed(1) + '%';
+        if (w !== last) { bar.style.width = w; last = w; }
+      }
+      window.addEventListener('scroll', function () {
+        if (!queued) { queued = true; window.requestAnimationFrame(paint); }
       }, { passive: true });
     })();
   </script>

@@ -749,16 +749,22 @@
   var bar = document.querySelector('.mobile-tab-bar');
   var root = document.documentElement;
   var until = 0, running = false;
+  /* Nov 27, 2026 - these four values live on <html>, so writing them
+     makes the browser re-style the whole page. They were re-written
+     every frame of every scroll even when nothing had moved (Firefox
+     on Android lagged). Now a value is written only when it changed. */
+  var seen = {};
+  function setVar(k, v) { if (seen[k] !== v) { seen[k] = v; root.style.setProperty(k, v); } }
   function place() {
     var vh = window.innerHeight, y = window.scrollY;
     var b = body.getBoundingClientRect();
-    root.style.setProperty('--post-edge-l', Math.max(0, b.left) + 'px');
-    root.style.setProperty('--post-edge-w', Math.min(b.width, window.innerWidth) + 'px');
+    setVar('--post-edge-l', Math.max(0, b.left) + 'px');
+    setVar('--post-edge-w', Math.min(b.width, window.innerWidth) + 'px');
     var t = hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) : 0;
-    root.style.setProperty('--post-edge-top', t + 'px');
+    setVar('--post-edge-top', t + 'px');
     var off = 0;
     if (bar && getComputedStyle(bar).display !== 'none') off = Math.max(0, vh - bar.getBoundingClientRect().top);
-    root.style.setProperty('--post-edge-bottom', off + 'px');
+    setVar('--post-edge-bottom', off + 'px');
     top.classList.toggle('is-on', y > 10);
     bot.classList.toggle('is-on', root.scrollHeight - vh - y > 40);
   }

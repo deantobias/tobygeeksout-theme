@@ -29,6 +29,7 @@
       link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
       l: '<path d="M15 5l-7 7 7 7"/>', r: '<path d="M9 5l7 7-7 7"/>',
       x: '<path d="M6 6l12 12M18 6L6 18"/>',
+      big: '<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
       stack: '<rect x="7" y="7" width="13" height="13" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/>',
       book: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5v13"/>',
       ig: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6" fill="currentColor"/>'
@@ -195,7 +196,7 @@
       for (var k = Math.min(n, 3) - 1; k >= 1; k--) s += '<span class="hxm-ph hxm-b' + k + '" aria-hidden="true">' + img(ph[k], 800, '', true) + '<span class="hxm-cap">&nbsp;</span></span>';
       s += '<button type="button" class="hxm-ph" data-k="0" aria-label="' + esc('See the whole photo' + (n > 1 ? ', 1 of ' + n : '')) + '"><i class="hxm-tape" aria-hidden="true"></i>' +
         (n ? img(ph[0], 800, ph[0].a || p.t) : '<span class="hxm-blank">' + esc(p.t) + '</span>') +
-        '<span class="hxm-cap">' + esc(p.tk || p.dl) + '</span>' + (n > 1 ? '<span class="hxm-cnt">' + ic('stack') + n + ' photos</span>' : '') + '</button>';
+        '<span class="hxm-cap">' + esc(p.tk || p.dl) + '</span>' + (n ? '<span class="hxm-exp" aria-hidden="true">' + ic('big') + '</span>' : '') + (n > 1 ? '<span class="hxm-cnt">' + ic('stack') + n + ' photos</span>' : '') + '</button>';
       var chip = pl ? '<a class="hxm-map" href="' + esc(mapUrl(p, sp)) + '" target="_blank" rel="noopener" aria-label="' + esc('Map of ' + pl) + '">' +
         '<span class="hxm-mbox">' + (sp ? tiles(sp) : DRAWN) + MPIN + '</span><span class="hxm-mcap">' + (sp ? '© OpenStreetMap' : 'Map') + '</span></a>' : '';
       /* Nov 26 (Toby): "View on Instagram" goes in the bottom bar, not on its own

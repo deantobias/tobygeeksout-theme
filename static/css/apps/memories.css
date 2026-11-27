@@ -135,6 +135,10 @@ html.hx-dark .hx-mem{
 .hxm-b2{transform:rotate(-6deg) translate(-12px,8px)}
 .hxm-cnt{position:absolute;left:16px;top:16px;display:flex;align-items:center;gap:6px;background:rgba(255,253,248,.94);color:#262A36;font:600 12.5px var(--h-ui);padding:3px 10px;border-radius:999px}
 .hxm-cnt svg{width:14px;height:14px}
+/* Nov 27 (Toby): a small, quiet expand mark says the photo opens bigger; bottom left of the photo, clear of the map and the tape */
+.hxm-exp{position:absolute;left:18px;bottom:calc(var(--lh) * 1.1 + 14px);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:rgba(20,22,28,.32);color:#fff;opacity:.8;transition:opacity .2s,background .2s}
+.hxm-exp svg{width:13px;height:13px;stroke-width:2}
+.hxm-ph:hover .hxm-exp,.hxm-ph:focus-visible .hxm-exp{opacity:1;background:rgba(20,22,28,.5)}
 .hx-mem .hxm-ph:focus-visible{outline:3px solid var(--terra);outline-offset:4px}
 /* the little map, tucked beside the polaroid like a second print */
 .hxm-map{position:absolute;right:calc(var(--lh) * -3.4);bottom:calc(var(--lh) * .9);width:calc(var(--lh) * 4.2);z-index:3;display:block;text-decoration:none;

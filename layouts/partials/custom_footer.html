@@ -21,11 +21,21 @@
   // all that's left in the header.
   var FADE_DIST = 90;
 
+  /* Nov 27, 2026 - Firefox on Android showed the whole page lagging up
+     and down while scrolling. This used to run on every scroll event
+     and re-write the same values each time; now it runs at most once a
+     frame and only touches the page when a value really changed. */
+  var lastW = '', lastT = '', queued = false;
   function updateHeader() {
+    queued = false;
     var sy = window.scrollY;
     var dh = document.documentElement.scrollHeight - window.innerHeight;
-    if (scrollBar) scrollBar.style.width = clampFade((sy / dh) * 100, 0, 100) + '%';
+    var w = (dh > 0 ? clampFade((sy / dh) * 100, 0, 100) : 0).toFixed(1) + '%';
+    if (scrollBar && w !== lastW) { scrollBar.style.width = w; lastW = w; }
     var t = clampFade(sy / FADE_DIST, 0, 1);
+    var ts = easeFade(t).toFixed(3);
+    if (ts === lastT) return;
+    lastT = ts;
     if (logo) {
       logo.style.opacity = (1 - easeFade(t)).toFixed(3);
       logo.style.pointerEvents = t >= 1 ? 'none' : 'auto';
@@ -35,9 +45,11 @@
     // over that same scroll distance, so the bar actually gets shorter
     // instead of holding a fixed height forever. Reverses smoothly on
     // the way back up, same as the fade itself.
-    header.style.setProperty('--header-shrink', easeFade(t).toFixed(3));
+    header.style.setProperty('--header-shrink', ts);
   }
-  window.addEventListener('scroll', updateHeader, { passive: true });
+  window.addEventListener('scroll', function () {
+    if (!queued) { queued = true; window.requestAnimationFrame(updateHeader); }
+  }, { passive: true });
   updateHeader();
 })();
 </script>
@@ -61,16 +73,27 @@
   var text = small.querySelector('.hdr-post-title-text');
   if (!big || !header) return;
   var ticking = false;
-  function update() {
+  /* Nov 27, 2026 - the long-title check below flips a class on <body>
+     off and on and measures in between, which makes the browser redo
+     the whole page. It ran every frame of every scroll (Firefox on
+     Android lagged). Now it runs only when the small title appears,
+     once more after the header has settled, and on resize. */
+  var wasOn = null, lastPct = '', settle = 0;
+  function update(force) {
     var hh = header.getBoundingClientRect().height;
     var on = big.getBoundingClientRect().bottom < hh;
-    document.body.classList.toggle('post-title-in-nav', on);
+    var changed = on !== wasOn;
+    if (changed) {
+      document.body.classList.toggle('post-title-in-nav', on);
+      if (on) { clearTimeout(settle); settle = setTimeout(function () { update(true); }, 300); }
+    }
+    wasOn = on;
     /* Long-title fallback: if the two-line clamp still cuts the text,
        body.post-title-long shrinks the type a notch and hides the
        "N min read" text so the title gets the room (CSS section 90).
        Measured with the class off so it can also come back off when
        the window grows. */
-    if (on && text) {
+    if (on && text && (changed || force === true)) {
       document.body.classList.remove('post-title-long');
       if (text.scrollHeight > text.clientHeight + 2) {
         document.body.classList.add('post-title-long');
@@ -79,14 +102,15 @@
     if (pct) {
       var dh = document.documentElement.scrollHeight - window.innerHeight;
       var p = dh > 0 ? Math.round((window.scrollY / dh) * 100) : 0;
-      pct.textContent = Math.min(100, Math.max(0, p)) + '%';
+      var ps = Math.min(100, Math.max(0, p)) + '%';
+      if (ps !== lastPct) { pct.textContent = ps; lastPct = ps; }
     }
     ticking = false;
   }
   window.addEventListener('scroll', function () {
-    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+    if (!ticking) { ticking = true; window.requestAnimationFrame(function () { update(); }); }
   }, { passive: true });
-  window.addEventListener('resize', update);
+  window.addEventListener('resize', function () { update(true); });
   small.addEventListener('click', function (e) {
     e.preventDefault();
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

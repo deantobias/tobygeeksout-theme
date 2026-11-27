@@ -22,6 +22,10 @@
   {{- $icon = "archive" -}}
 {{- else if or (eq $name "about") (in $url "/about") -}}
   {{- $icon = "user" -}}
+{{- else if or (eq $name "directory") (in $url "/directory") -}}
+  {{- /* Nov 27, 2026 (Toby): a trail signpost, same idea as the
+         /directory page art. */ -}}
+  {{- $icon = "signpost" -}}
 {{- else if or (eq $name "search") (in $url "/search") -}}
   {{- $icon = "search" -}}
 {{- else if or (eq $name "contact") (in $url "/contact") -}}

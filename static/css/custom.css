@@ -16182,7 +16182,7 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
    pill (section ~9815), which turned the whole page pink on hover.
    ============================================================ */
 .page-body .chipotle, .chipotle { max-width: none; }
-.chipotle{--chip-ink:#1E2D4A;}
+.chipotle{--chip-ink:#1E2D4A;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .chipotle svg{display:block;overflow:visible}
 .chipotle .sticker{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:10;stroke-linejoin:round}
 .chipotle .ink{stroke:var(--chip-ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
@@ -16200,6 +16200,12 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
 /* Build cards */
 .chipotle .chip-build-title{font-family:var(--font-display);font-size:1.5rem;margin:0 0 1rem;padding:0;border:0}
 .chipotle .chip-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;counter-reset:chip}
+/* Unfolded, tablets and desktop: bigger step numbers (Toby, Nov 27).
+   Phones keep the small circle. (chip-big-numbers) */
+@media (min-width:560px){
+  .chipotle .chip-card::before{top:.85rem;left:.9rem;width:2.4rem;height:2.4rem;line-height:2.4rem;font-size:1.2rem}
+  .chipotle .chip-extra{top:.95rem;right:.85rem}
+}
 /* Phones (iPhone ~375-430px): two tiles across made names like
    "Cilantro-lime rice" and the notes wrap badly, so below 560px each
    tile becomes a row: number, food on the left, name + note beside it.
@@ -16214,6 +16220,15 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
   .chipotle .chip-name{grid-column:2;grid-row:1;align-self:end;font-size:1.1rem;min-width:0;overflow-wrap:normal}
   .chipotle .chip-why{grid-column:2;grid-row:2;align-self:start;min-width:0;font-size:.95rem}
   .chipotle .chip-extra{top:.55rem;right:.6rem;font-size:.85rem}
+}
+/* Narrow phones (iPhone ~375-390px): match the roomier Android look by
+   giving the words more space. (chip-narrow-phones, Nov 27) */
+@media (max-width:399px){
+  .chipotle .chip-card{grid-template-columns:60px minmax(0,1fr);column-gap:.7rem;padding:.7rem .75rem .7rem 2.55rem}
+  .chipotle .chip-card::before{left:.6rem;width:1.5rem;height:1.5rem;line-height:1.5rem;font-size:.8rem}
+  .chipotle .chip-card svg{width:60px;height:60px}
+  .chipotle .chip-name{font-size:1.02rem}
+  .chipotle .chip-why{font-size:.88rem}
 }
 .chip-card{position:relative;background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:18px;padding:1rem 1rem 1.1rem;text-align:center;counter-increment:chip}
 .chip-card::before{content:counter(chip);position:absolute;top:.7rem;left:.8rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#A65326;color:#FFFFFF;font-size:.875rem;font-weight:700;line-height:1.7rem;text-align:center}

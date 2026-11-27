@@ -213,7 +213,6 @@
       ya.style.marginTop = mg + 'px';
       var rt = base + mg + lh;
       pg.style.setProperty('--rt', rt + 'px');
-      pg.style.setProperty('--rh', Math.max(0, Math.round(wd.getBoundingClientRect().top - T - rt)) + 'px');
       els.concat([wd]).forEach(function (e) {
         var t = e === wd ? (wd.querySelector('p,li,blockquote') || wd) : e;
         var pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0';
@@ -223,15 +222,18 @@
         var sh = Math.round(lh - Math.max(3, lh * 0.12) - b);
         if (e === wd) wd.style.paddingTop = Math.max(0, sh) + 'px'; else e.style.top = sh + 'px';
       });
-      var sh0 = pg.querySelector('.hxm-shot'); if (sh0 && root.classList.contains('short')) pg.style.setProperty('--sw', Math.round(wd.getBoundingClientRect().left - pg.getBoundingClientRect().left - 8) + 'px');
+      /* the ruled lines run from under the headline to the end of the words (or the bottom of the page) */
+      pg.style.setProperty('--rh', Math.max(0, Math.max(inn.scrollHeight, inn.clientHeight) - rt) + 'px');
+      if (root.classList.contains('short')) pg.style.setProperty('--sw', Math.round(wd.getBoundingClientRect().left - pg.getBoundingClientRect().left - 8) + 'px');
       fade();
     }
-    /* a long post: the words scroll inside the page, a soft fade shows there's more */
+    /* a long post: the whole page scrolls, the photo and all (Nov 26, Toby);
+       a soft fade over the bottom shows there's more */
     function fade() {
-      var wd = pg.querySelector('.hxm-wd'), inn = pg.querySelector('.hxm-in'); if (!wd || !inn) return;
-      var more = wd.scrollHeight > wd.clientHeight + 4;
-      inn.classList.toggle('more', more && wd.scrollTop + wd.clientHeight < wd.scrollHeight - 4);
-      if (more) wd.setAttribute('tabindex', '0'); else wd.removeAttribute('tabindex');
+      var inn = pg.querySelector('.hxm-in'); if (!inn) return;
+      var more = inn.scrollHeight > inn.clientHeight + 4;
+      pg.classList.toggle('more', more && inn.scrollTop + inn.clientHeight < inn.scrollHeight - 4);
+      if (more) inn.setAttribute('tabindex', '0'); else inn.removeAttribute('tabindex');
     }
     var fitT = 0;
     function fitSoon() { clearTimeout(fitT); fitT = setTimeout(function () { if (cur >= 0) { sizes(); snap(); } }, 40); }
@@ -239,7 +241,7 @@
       cur = i;
       pg.innerHTML = pageHTML(i);
       sizes(); snap();
-      var wd = pg.querySelector('.hxm-wd'); if (wd) wd.addEventListener('scroll', fade, { passive: true });
+      var inn = pg.querySelector('.hxm-in'); if (inn) inn.addEventListener('scroll', fade, { passive: true });
       [].forEach.call(pg.querySelectorAll('img'), function (im) { if (!im.complete) im.addEventListener('load', fitSoon); });
       [].forEach.call(idx.querySelectorAll('[data-i].hxm-row'), function (b) { if (+b.getAttribute('data-i') === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
       ribbon.classList.toggle('off', !(i === TI || !cover.classList.contains('open')));

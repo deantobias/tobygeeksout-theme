@@ -75,7 +75,7 @@ html.hx-dark .hx-mem{
 .hxm-ixp{display:none}
 
 /* the cover: smooth hardcover, a linen grain, an elastic band, a ribbon bookmark */
-.hxm-cover{z-index:5;border-radius:10px 18px 18px 10px;background-color:var(--cover);cursor:pointer;transform-origin:0 50%;outline-offset:6px;
+.hxm-cover{z-index:5;border-radius:10px 18px 18px 10px;-webkit-backface-visibility:hidden;backface-visibility:hidden;background-color:var(--cover);cursor:pointer;transform-origin:0 50%;outline-offset:6px;
   background-image:linear-gradient(90deg,rgba(0,0,0,.22) 0,rgba(0,0,0,0) 26px,rgba(255,255,255,.05) 27px,rgba(0,0,0,0) 32px),
     repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);
   box-shadow:0 2px 3px rgba(0,0,0,.12),0 28px 56px -22px var(--shadow);
@@ -93,14 +93,16 @@ html.hx-dark .hx-mem{
 .hxm-ribbon.off{opacity:0}
 
 /* ---------- a page ---------- */
-.hxm-pg{--lh:32px;--pad:48px;z-index:2;display:flex;flex-direction:column;
+.hxm-pg{--lh:32px;--pad:48px;z-index:2;display:flex;flex-direction:column}
+/* the whole page scrolls (Nov 26, Toby), its ruled lines with it; the bottom bar stays */
+.hxm-in{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:var(--lh) var(--pad) calc(var(--lh) * .5);
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;-webkit-overflow-scrolling:touch;
   background-image:repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px) var(--lh));
-  background-size:calc(100% - 2 * var(--pad)) var(--rh,100%);background-position:var(--pad) var(--rt,200%);background-repeat:no-repeat}
-.hxm-pg:empty{background-image:none}
-.hxm-in{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:var(--lh) var(--pad) 0}
+  background-size:calc(100% - 2 * var(--pad)) var(--rh,100%);background-position:var(--pad) var(--rt,200%);background-repeat:no-repeat;background-attachment:local}
 .hxm-in > *{flex:none}
-.hxm-in > .hxm-wd{flex:1 1 auto}
-.hxm-in.more::after{content:"";position:absolute;left:0;right:0;bottom:0;height:min(64px,22%);background:linear-gradient(rgba(255,253,248,0),var(--paper));pointer-events:none}
+.hx-mem .hxm-in:focus-visible{outline:2px solid var(--terra);outline-offset:-4px}
+.hxm-tb::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:56px;background:linear-gradient(rgba(255,253,248,0),var(--paper));pointer-events:none;opacity:0;transition:opacity .2s}
+.hxm-pg.more .hxm-tb::before{opacity:1}
 .hx-mem .hxm-back{display:none}
 
 .hxm-shot{position:relative;align-self:center;transform:translateX(calc(var(--lh) * -1.6));margin-top:calc(var(--lh) * .3)}
@@ -138,10 +140,7 @@ html.hx-dark .hx-mem{
 .hxm-pin{width:1.45em;height:1.45em;flex:none;transform:translateY(-.18em);margin-left:-2px;overflow:visible}
 .hx-mem .hxm-tt{position:relative;margin:var(--lh) 0 0;font:700 min(calc(var(--lh) * .86),30px)/var(--lh) var(--hand);color:var(--ink);font-size-adjust:.47;letter-spacing:0}
 .hxm-tt:focus{outline:none}
-.hxm-wd{position:relative;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;
-  font:500 min(calc(var(--lh) * .68),23px)/var(--lh) var(--hand);color:var(--ink2);font-size-adjust:.47;padding-bottom:calc(var(--lh) * .5);
-  background:repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px) var(--lh)) 0 0 / 100% auto local}
-.hx-mem .hxm-wd:focus-visible{outline:2px solid var(--terra);outline-offset:4px}
+.hxm-wd{position:relative;font:500 min(calc(var(--lh) * .68),23px)/var(--lh) var(--hand);color:var(--ink2);font-size-adjust:.47}
 .hxm-wd p,.hxm-wd ul,.hxm-wd ol,.hxm-wd blockquote{margin:0 0 var(--lh)}
 .hxm-wd > :last-child{margin-bottom:0}
 .hxm-wd ul,.hxm-wd ol{padding-left:1.3em}
@@ -226,13 +225,13 @@ html.hx-dark .hx-mem{
 .hx-mem.short .hxm-desk{padding-bottom:12px}
 .hx-mem.short .hxm-ribbon{display:none}
 .hx-mem.short .hxm-hint{bottom:10%}
-.hx-mem.short .hxm-in{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr);column-gap:calc(var(--lh) * 2.4);padding-top:calc(var(--lh) * .5)}
+.hx-mem.short .hxm-in{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto 1fr;align-content:start;column-gap:calc(var(--lh) * 2.4);padding-top:calc(var(--lh) * .5)}
 .hx-mem.short .hxm-back{position:absolute;top:8px;left:12px;z-index:4;margin:0}
 .hx-mem.short .hxm-shot{grid-column:1;grid-row:1 / span 4;align-self:start;margin-top:calc(var(--lh) * 1.6);transform:none}
 .hx-mem.short .hxm-map{right:calc(var(--lh) * -2.2);bottom:auto;top:calc(var(--lh) * .4);width:calc(var(--lh) * 4.8)}
-.hx-mem.short .hxm-in.more::after{left:auto;width:calc(100% - var(--sw,45%))}
 .hx-mem.short .hxm-ya,.hx-mem.short .hxm-pl,.hx-mem.short .hxm-tt,.hx-mem.short .hxm-wd{grid-column:2}
 .hx-mem.short .hxm-tt{margin-top:0}
+.hx-mem.short .hxm-tb::before{left:var(--sw,45%)}
 
 /* motion off: the cover and pages just fade */
 @media (prefers-reduced-motion:reduce){

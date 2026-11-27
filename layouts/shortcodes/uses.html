@@ -4,6 +4,9 @@
   Nov 8, 2026 (Toby): redesign. Two columns of cards with real logos
   (left: everyday gear; right: making the blog), then "I built these"
   (Perch, Draft Studio, Focus Mail) and "Off the screen" full width.
+  Nov 27, 2026 (Toby): hero artwork (mockup v10, an original desk
+  scene like /chipotle), Email accounts + Email apps groups, and
+  Handy to have moved to the right column so both columns match.
   The page title ("Geek Gear") comes from the Micro.blog page itself;
   this shortcode is only the body.
   KEEP THE CLASS NAMES: Hutch's Uses app (static/js/apps/small.js)
@@ -18,9 +21,86 @@
   Styles: custom.css section 103 (.uses).
 */ -}}
 <div class="uses">
+<section class="uses-hero">
+<div class="uses-art">
+<svg viewBox="0 0 480 340" role="img" aria-label="An illustrated desk: an open laptop showing a little blog, a phone with an envelope on its screen, a mug of coffee, a toy building brick and colored pencils, with two gears turning behind them">
+  <g fill="#E9A23B">
+    <path class="twinkle" style="--d:0s" d="M40 60 l5 -14 l5 14 l14 5 l-14 5 l-5 14 l-5 -14 l-14 -5z"/>
+    <path class="twinkle" style="--d:.9s" d="M444 40 l4 -11 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4z"/>
+  </g>
+  <g fill="#C4622D">
+    <path class="twinkle" style="--d:1.5s" d="M456 214 l4 -11 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4z"/>
+    <path class="twinkle" style="--d:.5s" d="M210 22 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3z"/>
+  </g>
+  <g class="spin"><path class="sticker" d="M390.0 128.0 L405.6 137.0 L402.7 152.8 L385.0 155.9 L379.3 168.0 L388.3 183.6 L377.9 195.9 L361.0 189.6 L350.0 197.3 L350.0 215.3 L334.8 220.7 L323.3 206.9 L310.0 208.0 L301.0 223.6 L285.2 220.7 L282.1 203.0 L270.0 197.3 L254.4 206.3 L242.1 195.9 L248.4 179.0 L240.7 168.0 L222.7 168.0 L217.3 152.8 L231.1 141.3 L230.0 128.0 L214.4 119.0 L217.3 103.2 L235.0 100.1 L240.7 88.0 L231.7 72.4 L242.1 60.1 L259.0 66.4 L270.0 58.7 L270.0 40.7 L285.2 35.3 L296.7 49.1 L310.0 48.0 L319.0 32.4 L334.8 35.3 L337.9 53.0 L350.0 58.7 L365.6 49.7 L377.9 60.1 L371.6 77.0 L379.3 88.0 L397.3 88.0 L402.7 103.2 L388.9 114.7 Z"/><path d="M390.0 128.0 L405.6 137.0 L402.7 152.8 L385.0 155.9 L379.3 168.0 L388.3 183.6 L377.9 195.9 L361.0 189.6 L350.0 197.3 L350.0 215.3 L334.8 220.7 L323.3 206.9 L310.0 208.0 L301.0 223.6 L285.2 220.7 L282.1 203.0 L270.0 197.3 L254.4 206.3 L242.1 195.9 L248.4 179.0 L240.7 168.0 L222.7 168.0 L217.3 152.8 L231.1 141.3 L230.0 128.0 L214.4 119.0 L217.3 103.2 L235.0 100.1 L240.7 88.0 L231.7 72.4 L242.1 60.1 L259.0 66.4 L270.0 58.7 L270.0 40.7 L285.2 35.3 L296.7 49.1 L310.0 48.0 L319.0 32.4 L334.8 35.3 L337.9 53.0 L350.0 58.7 L365.6 49.7 L377.9 60.1 L371.6 77.0 L379.3 88.0 L397.3 88.0 L402.7 103.2 L388.9 114.7 Z" fill="#F0DDD3" class="ink"/><circle cx="310" cy="128" r="30" fill="#FAF8F5" class="ink"/></g>
+  <g class="spin rev"><path class="sticker" d="M143.0 96.0 L151.7 101.5 L149.3 111.0 L139.1 112.0 L134.8 118.5 L137.9 128.3 L130.0 134.1 L121.6 128.3 L114.1 130.5 L110.1 139.9 L100.4 139.3 L97.7 129.4 L90.5 126.3 L81.4 131.0 L74.3 124.3 L78.6 115.0 L75.1 108.0 L65.1 105.7 L64.0 96.0 L73.3 91.6 L75.1 84.0 L68.9 75.9 L74.3 67.7 L84.2 70.3 L90.5 65.7 L90.9 55.4 L100.4 52.7 L106.3 61.0 L114.1 61.5 L121.0 54.0 L130.0 57.9 L129.2 68.1 L134.8 73.5 L145.0 72.2 L149.3 81.0 L142.1 88.2 Z"/><path d="M143.0 96.0 L151.7 101.5 L149.3 111.0 L139.1 112.0 L134.8 118.5 L137.9 128.3 L130.0 134.1 L121.6 128.3 L114.1 130.5 L110.1 139.9 L100.4 139.3 L97.7 129.4 L90.5 126.3 L81.4 131.0 L74.3 124.3 L78.6 115.0 L75.1 108.0 L65.1 105.7 L64.0 96.0 L73.3 91.6 L75.1 84.0 L68.9 75.9 L74.3 67.7 L84.2 70.3 L90.5 65.7 L90.9 55.4 L100.4 52.7 L106.3 61.0 L114.1 61.5 L121.0 54.0 L130.0 57.9 L129.2 68.1 L134.8 73.5 L145.0 72.2 L149.3 81.0 L142.1 88.2 Z" fill="#E9A23B" class="ink"/><circle cx="108" cy="96" r="13" fill="#FAF8F5" class="ink"/></g>
+  <g class="tag-float"><g transform="rotate(-8 60 182)"><rect class="sticker" x="26" y="164" width="68" height="36" rx="10"/><rect x="26" y="164" width="68" height="36" rx="10" fill="#1F6F78" class="ink"/><text x="60" y="189" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="20" fill="#FFFFFF">&lt;/&gt;</text></g></g>
+  <ellipse cx="240" cy="322" rx="200" ry="10" fill="#000" opacity=".14"/>
+  <g class="float">
+    <rect class="sticker" x="128" y="118" width="224" height="156" rx="12"/>
+    <path class="sticker" d="M110 272 H370 L394 292 Q394 299 386 299 H94 Q86 299 86 292 Z"/>
+    <rect x="128" y="118" width="224" height="156" rx="12" fill="#1E2D4A" class="ink"/>
+    <rect x="139" y="129" width="202" height="134" rx="4" fill="#FAF8F5"/>
+    <rect x="139" y="129" width="202" height="20" rx="4" fill="#C4622D"/>
+    <circle cx="151" cy="139" r="5" fill="#FAF8F5"/>
+    <rect x="161" y="136" width="44" height="6" rx="3" fill="#FAF8F5"/>
+    <rect x="151" y="160" width="96" height="9" rx="4.5" fill="#1E2D4A"/>
+    <rect x="151" y="176" width="120" height="5" rx="2.5" fill="#C9C1B8"/>
+    <rect x="151" y="186" width="104" height="5" rx="2.5" fill="#C9C1B8"/>
+    <rect x="151" y="196" width="112" height="5" rx="2.5" fill="#C9C1B8"/>
+    <rect x="151" y="212" width="80" height="40" rx="6" fill="#F0DDD3"/>
+    <rect x="239" y="212" width="90" height="40" rx="6" fill="#EEF1F6"/>
+    <rect x="159" y="222" width="40" height="5" rx="2.5" fill="#C4622D"/><rect x="159" y="232" width="56" height="4" rx="2" fill="#C9C1B8"/>
+    <rect x="247" y="222" width="44" height="5" rx="2.5" fill="#1E2D4A"/><rect x="247" y="232" width="64" height="4" rx="2" fill="#C9C1B8"/>
+    <path d="M110 272 H370 L394 292 Q394 299 386 299 H94 Q86 299 86 292 Z" fill="#D5DCE6" class="ink"/>
+    <rect x="212" y="272" width="56" height="6" rx="3" fill="#B4BFCE"/>
+  </g>
+  <g class="float" style="animation-delay:-1.6s">
+    <rect class="sticker" x="368" y="170" width="66" height="128" rx="13"/>
+    <rect x="368" y="170" width="66" height="128" rx="13" fill="#1E2D4A" class="ink"/>
+    <rect x="375" y="180" width="52" height="108" rx="7" fill="#E3F0F1"/>
+    <rect x="391" y="186" width="20" height="4" rx="2" fill="#1E2D4A" opacity=".5"/>
+    <g class="bounce"><rect x="384" y="214" width="34" height="24" rx="4" fill="#1F6F78"/><path d="M386 217 L401 229 L416 217" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="418" cy="214" r="6" fill="#C4622D" stroke="#E3F0F1" stroke-width="2"/></g>
+    <rect x="384" y="250" width="34" height="5" rx="2.5" fill="#1F6F78" opacity=".45"/>
+    <rect x="384" y="260" width="26" height="5" rx="2.5" fill="#1F6F78" opacity=".3"/>
+  </g>
+  <g>
+    <path class="steam" style="--d:0s" d="M38 236 C30 226, 46 218, 38 206"/>
+    <path class="steam" style="--d:1.2s" d="M56 234 C48 224, 64 216, 56 204"/>
+    <path class="sticker" d="M22 244 H74 V292 Q74 304 62 304 H34 Q22 304 22 292 Z"/>
+    <path d="M22 258 C6 258, 6 284, 22 284" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+    <path d="M22 258 C8 258, 8 284, 22 284" fill="none" class="ink" stroke-width="7"/>
+    <path d="M22 258 C8 258, 8 284, 22 284" fill="none" stroke="#C4622D" stroke-width="2.5"/>
+    <path d="M22 244 H74 V292 Q74 304 62 304 H34 Q22 304 22 292 Z" fill="#C4622D" class="ink"/>
+    <ellipse cx="48" cy="244" rx="26" ry="5" fill="#6B3A22" class="ink"/>
+    <rect x="22" y="266" width="52" height="8" fill="#FAF8F5"/>
+  </g>
+  <g class="hop">
+    <rect class="sticker" x="140" y="286" width="72" height="26" rx="3"/>
+    <rect x="148" y="279" width="14" height="9" rx="2" fill="#E9A23B" class="ink"/><rect x="167" y="279" width="14" height="9" rx="2" fill="#E9A23B" class="ink"/><rect x="186" y="279" width="14" height="9" rx="2" fill="#E9A23B" class="ink"/>
+    <rect x="140" y="286" width="72" height="26" rx="3" fill="#E9A23B" class="ink"/>
+    <rect x="146" y="291" width="60" height="4" rx="2" fill="#FFFFFF" opacity=".45"/>
+  </g>
+  <g transform="rotate(-6 300 306)">
+    <path class="sticker" d="M246 300 H332 L350 306 L332 312 H246 Z"/>
+    <path d="M246 300 H332 L350 306 L332 312 H246 Z" fill="#1F6F78" class="ink"/>
+    <path d="M332 300 L350 306 L332 312 Z" fill="#F3E3C2" class="ink"/><path d="M344 304 L350 306 L344 308 Z" fill="#1F6F78"/>
+  </g>
+  <g transform="rotate(4 290 318)">
+    <path class="sticker" d="M232 312 H318 L336 318 L318 324 H232 Z"/>
+    <path d="M232 312 H318 L336 318 L318 324 H232 Z" fill="#C4622D" class="ink"/>
+    <path d="M318 312 L336 318 L318 324 Z" fill="#F3E3C2" class="ink"/><path d="M330 316 L336 318 L330 320 Z" fill="#C4622D"/>
+  </g>
+</svg>
+</div>
+<div class="uses-words">
+<p class="uses-top"><span class="uses-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12.00 4.40 L13.56 2.12 L15.83 2.76 L15.97 5.52 L17.37 6.63 L20.09 6.12 L21.24 8.17 L19.39 10.23 L19.60 12.00 L21.88 13.56 L21.24 15.83 L18.48 15.97 L17.37 17.37 L17.88 20.09 L15.83 21.24 L13.77 19.39 L12.00 19.60 L10.44 21.88 L8.17 21.24 L8.03 18.48 L6.63 17.37 L3.91 17.88 L2.76 15.83 L4.61 13.77 L4.40 12.00 L2.12 10.44 L2.76 8.17 L5.52 8.03 L6.63 6.63 L6.12 3.91 L8.17 2.76 L10.23 4.61 Z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="uses-kicker">/uses</span></p>
+<h2 class="uses-hero-head">The stuff I geek out with.</h2>
 <p class="uses-intro">The gear, apps and tools behind Toby Geeks Out!, and how I use them.</p>
 <p class="uses-updated">Last updated November 2026</p>
-<nav class="uses-jump" aria-label="Jump to a section"><a href="#desk">Computers and phone</a><a href="#handy">Handy to have</a><a href="#blog">Making the blog</a><a href="#built">I built these</a><a href="#off">Off the screen</a></nav>
+</div>
+</section>
+<nav class="uses-jump" aria-label="Jump to a section"><a href="#desk">Computers and phone</a><a href="#email">Email</a><a href="#blog">Making the blog</a><a href="#handy">Handy to have</a><a href="#built">I built these</a><a href="#off">Off the screen</a></nav>
 <div class="uses-cols">
 <div class="uses-col">
 <section class="uses-group" id="desk">
@@ -44,11 +124,19 @@
 <li><span class="uses-logo"><img class="uses-appicon" src="https://ipcdn-web.apple.com/assets/v2/web/c6d93db1-d714-47ae-a19b-0ffd7095280e" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Safari</span><span class="uses-why">Sometimes, on the Mac.</span></span></li>
 </ul>
 </section>
-<section class="uses-group" id="handy">
-<h2 class="uses-head">Handy to have</h2>
+<section class="uses-group" id="email">
+<h2 class="uses-head">Email accounts</h2>
 <ul class="uses-list">
-<li><span class="uses-logo"><img class="uses-appicon" src="https://play-lh.googleusercontent.com/OkB5HBj3Tc30dUzYkSTVDjM61lnnIHj8nqc92so2sB7YV7rN2PuDndbL2R_T20ANZj4aw1WV0h6j1W9WpS30=w128" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Live Transcribe</span><span class="uses-why">Real-time captions for when I need to talk with people out and about, like at the store or the pharmacy.</span></span></li>
-<li><span class="uses-logo uses-logo--line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4a1.5 1.5 0 0 1 3 0v7M14 10V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3 16.5a1.5 1.5 0 0 1 2.2-2L8 17"/></svg></span><span class="uses-text"><span class="uses-name">SL2T (sign to text) <span class="uses-tag">Favorite</span></span><span class="uses-why">Google&rsquo;s sign-to-text on my phone. I sign my messages instead of typing them out.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://mail.google.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Gmail <span class="uses-tag">Personal</span></span><span class="uses-why">My personal email. All three of my email apps connect to it.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://outlook.live.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Outlook <span class="uses-tag">Work</span></span><span class="uses-why">My work email.</span></span></li>
+</ul>
+</section>
+<section class="uses-group">
+<h2 class="uses-head">Email apps</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img class="uses-appicon" src="https://tobygeeksout.micro.blog/uploads/2026/icon.svg" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Focus Mail <span class="uses-tag">Default</span></span><span class="uses-why">My go-to, since I built it just for me. More about it under I built these.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://shortwave.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Shortwave</span><span class="uses-why">Another app I use with my Gmail.</span></span></li>
+<li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://talanoa.email" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Talanoa <span class="uses-tag">Testing</span></span><span class="uses-why">Trying it out with my Gmail. It sorts email by person and shows it like a chat.</span></span></li>
 </ul>
 </section>
 </div>
@@ -80,6 +168,13 @@
 <li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://claude.ai" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Claude <span class="uses-tag">Go-to</span></span><span class="uses-why">My AI best friend. Drafts, editing, ideas and coding work.</span></span></li>
 <li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://gemini.google.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Gemini</span><span class="uses-why">Mostly on my phone, sometimes on the Mac.</span></span></li>
 <li><span class="uses-logo"><img src="https://www.google.com/s2/favicons?sz=128&amp;domain_url=https://chatgpt.com" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">ChatGPT</span><span class="uses-why">Now and then to check something, and it&rsquo;s great at making AI images.</span></span></li>
+</ul>
+</section>
+<section class="uses-group" id="handy">
+<h2 class="uses-head">Handy to have</h2>
+<ul class="uses-list">
+<li><span class="uses-logo"><img class="uses-appicon" src="https://play-lh.googleusercontent.com/OkB5HBj3Tc30dUzYkSTVDjM61lnnIHj8nqc92so2sB7YV7rN2PuDndbL2R_T20ANZj4aw1WV0h6j1W9WpS30=w128" alt="" loading="lazy"></span><span class="uses-text"><span class="uses-name">Live Transcribe</span><span class="uses-why">Real-time captions for when I need to talk with people out and about, like at the store or the pharmacy.</span></span></li>
+<li><span class="uses-logo uses-logo--line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4a1.5 1.5 0 0 1 3 0v7M14 10V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3 16.5a1.5 1.5 0 0 1 2.2-2L8 17"/></svg></span><span class="uses-text"><span class="uses-name">SL2T (sign to text) <span class="uses-tag">Favorite</span></span><span class="uses-why">Google&rsquo;s sign-to-text on my phone. I sign my messages instead of typing them out.</span></span></li>
 </ul>
 </section>
 </div>

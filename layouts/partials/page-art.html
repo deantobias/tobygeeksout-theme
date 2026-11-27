@@ -1,0 +1,26 @@
+{{- /*
+  page-art.html (Nov 27, 2026, Toby; mockup v1)
+  Hero for a page: art on the left, slash label and a short summary
+  on the right (stacked on phones). Context is the key string.
+      {{ partial "page-art.html" "watched" }}
+  The /now page builds its own hero (its intro sits beside the art).
+  Styles: custom.css section 138.
+*/ -}}
+{{- $k := . -}}
+{{- $m := dict
+  "about" (dict "label" "/about-me" "sum" "Hey, I'm Toby. Deaf technogeek, blogging dinosaur and tiny house dweller at the foot of the mountain in Elkhorn City, Kentucky.")
+  "road" (dict "label" "/the-long-road-here" "sum" "Twenty-plus years of blogging, every platform I tried, every break I took, and how I ended up here on Micro.blog.")
+  "watching" (dict "label" "/watching" "sum" "The shows and movies I'm in the middle of right now, pulled straight from my Trakt.")
+  "watched" (dict "label" "/watched" "sum" "Everything I've finished, with my star ratings and a look back month by month.")
+  "queue" (dict "label" "/the-queue" "sum" "My to-watch pile, the shows and movies I'm saving for later.")
+  "changelog" (dict "label" "/changelog" "sum" "Every change to this blog's theme that's worth mentioning, day by day. The tiny fixes stay off the list.")
+-}}
+{{- with index $m $k }}
+<section class="pg-art-hero pg-art-hero--{{ $k }}">
+{{ partial "page-art-svg.html" $k }}
+<div class="pg-art-words">
+<p class="pg-art-kicker">{{ .label }}</p>
+<p class="pg-art-sum">{{ .sum }}</p>
+</div>
+</section>
+{{- end }}

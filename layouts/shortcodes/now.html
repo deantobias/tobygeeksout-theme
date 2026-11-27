@@ -234,10 +234,16 @@
 
 <div class="tg-now">
 
+  <section class="pg-art-hero pg-art-hero--now">
+  {{ partial "page-art-svg.html" "now" }}
+  <div class="pg-art-words">
+  <p class="pg-art-kicker">/now</p>
   <div class="tgn-intro">
   <p class="tgn-lede">{{ $intro }}</p>
   <p class="tgn-updated">Updated <time id="tgn-updated" datetime="{{ $updISO }}"{{ if .Get "updated" }} data-pinned="1"{{ end }}>{{ $updText }}</time></p>
   </div>
+  </div>
+  </section>
 
   <section class="tgn-sec" id="tgn-watching" aria-labelledby="tgn-watching-h"{{ if not $nwTop }} hidden{{ end }}>
     <div class="tgn-head">

@@ -1,0 +1,393 @@
+{{- /*
+  page-art-svg.html (Nov 27, 2026, Toby; mockup v1)
+  Original sticker-style hero drawings for pages that had no art:
+  now, about, road (The Long Road Here), watching, watched, queue,
+  changelog (The Tinkering Log). Pass the key as the context:
+      {{ partial "page-art-svg.html" "watching" }}
+  Classes inside the SVGs are scoped under .pg-art (custom.css
+  section 138). Motion stops for Reduce Motion.
+*/ -}}
+{{- if eq . "now" }}
+<div class="pg-art pg-art--now">
+<svg viewBox="0 0 480 320" role="img" aria-label="An illustrated desk: a tear-off calendar showing today's date with a loose page fluttering away, a steaming mug of coffee, a little TV playing a show and an open book">
+  <circle cx="250" cy="176" r="146" fill="#F0DDD3"/>
+  <path class="tw" style="--d:0s" d="M36 60l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.8s" d="M446 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.5s" d="M262 30l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <ellipse cx="248" cy="282" rx="210" ry="9" fill="#000" opacity=".12"/>
+  <g class="fl">
+    <rect class="st" x="56" y="104" width="124" height="164" rx="12"/>
+    <rect x="56" y="104" width="124" height="164" rx="12" fill="#FFFFFF" class="ink"/>
+    <path d="M56 116 Q56 104 68 104 H168 Q180 104 180 116 V146 H56 Z" fill="#C4622D" class="ink"/>
+    <rect x="84" y="94" width="9" height="22" rx="4.5" fill="#1E2D4A"/>
+    <rect x="143" y="94" width="9" height="22" rx="4.5" fill="#1E2D4A"/>
+    <text id="pga-now-mon" x="118" y="133" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="16" letter-spacing="3" fill="#FFFFFF">{{ now.Format "Jan" | upper }}</text>
+    <text id="pga-now-day" x="118" y="222" text-anchor="middle" font-family="Caprasimo,Georgia,serif" font-size="64" fill="#1E2D4A">{{ now.Format "2" }}</text>
+    <text id="pga-now-wk" x="118" y="250" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="12" letter-spacing="2" fill="#69635C">{{ now.Format "Monday" | upper }}</text>
+  </g>
+  <g class="flutter">
+    <rect class="st" x="182" y="52" width="36" height="42" rx="4"/>
+    <rect x="182" y="52" width="36" height="42" rx="4" fill="#FFFFFF" class="ink"/>
+    <rect x="182" y="52" width="36" height="11" rx="4" fill="#E9A23B"/>
+    <rect x="190" y="72" width="20" height="4" rx="2" fill="#C9C1B8"/><rect x="190" y="80" width="14" height="4" rx="2" fill="#C9C1B8"/>
+  </g>
+  <g>
+    <path class="steam" style="--d:0s" d="M210 210 C202 200 218 192 210 180"/>
+    <path class="steam" style="--d:1.2s" d="M228 208 C220 198 236 190 228 178"/>
+    <path class="st" d="M194 218 H246 V258 Q246 270 234 270 H206 Q194 270 194 258 Z"/>
+    <path d="M246 230 C262 230 262 254 246 254" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+    <path d="M246 230 C260 230 260 254 246 254" fill="none" class="ink" stroke-width="7"/>
+    <path d="M246 230 C260 230 260 254 246 254" fill="none" stroke="#1F6F78" stroke-width="2.5"/>
+    <path d="M194 218 H246 V258 Q246 270 234 270 H206 Q194 270 194 258 Z" fill="#1F6F78" class="ink"/>
+    <ellipse cx="220" cy="218" rx="26" ry="5" fill="#6B3A22" class="ink"/>
+    <rect x="194" y="238" width="52" height="7" fill="#FAF8F5"/>
+  </g>
+  <g class="fl" style="--d:-1.8s">
+    <path d="M330 72 L314 46 M350 72 L368 42" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round"/>
+    <path d="M330 72 L314 46 M350 72 L368 42" stroke="#1E2D4A" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="314" cy="44" r="5" fill="#E9A23B" class="ink"/><circle cx="368" cy="40" r="5" fill="#E9A23B" class="ink"/>
+    <rect class="st" x="286" y="70" width="136" height="104" rx="16"/>
+    <rect x="286" y="70" width="136" height="104" rx="16" fill="#1F6F78" class="ink"/>
+    <rect x="298" y="82" width="94" height="80" rx="10" fill="#1E2D4A"/>
+    <rect x="303" y="87" width="84" height="70" rx="7" fill="#FAF8F5"/>
+    <path d="M303 140 L325 118 L340 130 L358 108 L387 140 V150 Q387 157 380 157 H310 Q303 157 303 150 Z" fill="#F0DDD3"/>
+    <g class="pulse"><circle cx="345" cy="118" r="13" fill="#C4622D"/><path d="M341 111 L352 118 L341 125 Z" fill="#FFFFFF"/></g>
+    <circle cx="407" cy="98" r="7" fill="#E9A23B" class="ink"/><circle cx="407" cy="126" r="7" fill="#C4622D" class="ink"/>
+    <circle class="blink" cx="407" cy="152" r="3.5" fill="#E9A23B"/>
+  </g>
+  <g class="bo" style="--d:.6s">
+    <path class="st" d="M360 228 Q326 216 290 226 V276 Q326 268 360 278 Q394 268 430 276 V226 Q394 216 360 228 Z"/>
+    <path d="M360 228 Q326 216 290 226 V276 Q326 268 360 278 Z" fill="#FFFFFF" class="ink"/>
+    <path d="M360 228 Q394 216 430 226 V276 Q394 268 360 278 Z" fill="#FFFFFF" class="ink"/>
+    <path d="M302 238 Q326 232 348 238 M302 248 Q326 242 348 248 M302 258 Q320 253 336 257" stroke="#C9C1B8" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M372 238 Q396 232 418 238 M372 248 Q396 242 418 248 M372 258 Q390 253 406 257" stroke="#C9C1B8" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M396 222 V242 L402 236 L408 242 V221" fill="#C4622D" class="ink" stroke-width="2"/>
+  </g>
+</svg>
+<script>(function(){try{var d=new Date(),m=document.getElementById('pga-now-mon'),y=document.getElementById('pga-now-day'),w=document.getElementById('pga-now-wk');if(m)m.textContent=d.toLocaleString('en-US',{month:'short'}).toUpperCase();if(y)y.textContent=d.getDate();if(w)w.textContent=d.toLocaleString('en-US',{weekday:'long'}).toUpperCase();}catch(e){}})();</script>
+</div>
+{{- else if eq . "about" }}
+<div class="pg-art pg-art--about">
+<svg viewBox="0 0 480 320" role="img" aria-label="An illustrated tiny house at the foot of the mountain, with stickers around it: a name tag that says Hello, I'm Toby, a pair of round glasses, a camera, a book and a toy building brick">
+  <defs>
+    <radialGradient id="pga-ab-g" cx="50%" cy="60%" r="52%"><stop offset=".55" stop-color="#FFFFFF"/><stop offset=".98" stop-color="#000000"/></radialGradient>
+    <mask id="pga-ab-m"><rect x="-10" y="0" width="500" height="330" fill="url(#pga-ab-g)"/></mask>
+  </defs>
+  <g mask="url(#pga-ab-m)">
+    <path d="M-10 250 L90 140 L160 190 L250 70 L380 220 L490 150 L490 330 L-10 330 Z" fill="#F0DDD3"/>
+    <path d="M250 70 L276 104 L262 100 L250 112 L237 99 L223 103 Z" fill="#FFFFFF" opacity=".85"/>
+    <path d="M-10 280 L70 226 L160 252 L250 205 L350 254 L440 220 L490 242 L490 330 L-10 330 Z" fill="#E5DDD5"/>
+    <path d="M-10 290 Q240 276 490 290 L490 330 L-10 330 Z" fill="#D9CFC4"/>
+  </g>
+  <path class="tw" style="--d:0s" d="M206 34l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.9s" d="M300 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.6s" d="M456 150l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#E9A23B"/>
+  <path d="M296 112a12 12 0 0 1 22-5 9 9 0 0 1 14 8 8 8 0 0 1-2 14h-32a9 9 0 0 1-2-17z" fill="#FFFFFF" opacity=".9"/>
+  <g fill="#2E4470"><path d="M130 288 L144 240 L158 288 Z"/><path d="M150 288 L161 256 L172 288 Z"/><path d="M318 288 L330 246 L342 288 Z"/></g>
+  <ellipse cx="240" cy="288" rx="110" ry="7" fill="#1E2D4A" opacity=".14"/>
+  <g transform="translate(176 178) scale(.85)">
+    <path class="st" d="M-4 44 L74 -20 L152 44 L140 44 V124 H8 V44 Z"/>
+    <rect x="96" y="-8" width="20" height="36" fill="#8B3E18" stroke="#1E2D4A" stroke-width="4"/>
+    <rect x="8" y="40" width="132" height="84" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="4.5" stroke-linejoin="round"/>
+    <path d="M-4 44 L74 -20 L152 44 Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="4.5" stroke-linejoin="round"/>
+    <rect x="24" y="60" width="34" height="28" rx="2" fill="#E9A23B" stroke="#1E2D4A" stroke-width="4"/>
+    <path d="M41 60 V88 M24 74 H58" stroke="#1E2D4A" stroke-width="3"/>
+    <rect x="84" y="66" width="30" height="58" rx="2" fill="#1E2D4A"/>
+    <circle cx="107" cy="96" r="3" fill="#E9A23B"/>
+  </g>
+  <g class="fl"><g transform="rotate(-8 100 84)">
+    <rect class="st" x="36" y="40" width="128" height="88" rx="12"/>
+    <rect x="36" y="40" width="128" height="88" rx="12" fill="#C4622D" class="ink"/>
+    <text x="100" y="65" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="3" fill="#FFFFFF">HELLO</text>
+    <rect x="46" y="74" width="108" height="44" rx="6" fill="#FFFFFF"/>
+    <text x="100" y="104" text-anchor="middle" font-family="Caprasimo,Georgia,serif" font-size="22" fill="#1E2D4A">I'm Toby</text>
+  </g></g>
+  <g class="fl" style="--d:-1.4s"><g transform="rotate(6 392 72)">
+    <circle class="st" cx="364" cy="72" r="24"/><circle class="st" cx="420" cy="72" r="24"/>
+    <path class="st" d="M386 70 Q392 62 398 70"/>
+    <circle cx="364" cy="72" r="22" fill="#EEF1F6" stroke="#1A1A18" stroke-width="6"/>
+    <circle cx="420" cy="72" r="22" fill="#EEF1F6" stroke="#1A1A18" stroke-width="6"/>
+    <path d="M386 70 Q392 62 398 70" fill="none" stroke="#1A1A18" stroke-width="5" stroke-linecap="round"/>
+    <path d="M354 62 q6 -6 14 -4 M410 62 q6 -6 14 -4" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  </g></g>
+  <g class="bo"><g transform="rotate(-10 80 252)">
+    <rect class="st" x="44" y="222" width="72" height="58" rx="6"/>
+    <rect x="44" y="222" width="72" height="58" rx="6" fill="#FAF8F5" class="ink"/>
+    <rect x="44" y="222" width="64" height="58" rx="6" fill="#1E2D4A" class="ink"/>
+    <path d="M111 230 V272 M114 230 V272" stroke="#C9C1B8" stroke-width="1.5"/>
+    <rect x="54" y="236" width="44" height="8" rx="4" fill="#E9A23B"/>
+    <rect x="54" y="250" width="30" height="5" rx="2.5" fill="#FAF8F5" opacity=".7"/>
+    <path d="M90 280 V294 L95 289 L100 294 V280 Z" fill="#C4622D"/>
+  </g></g>
+  <g class="hop">
+    <rect class="st" x="310" y="266" width="48" height="18" rx="3"/>
+    <rect x="315" y="259" width="10" height="8" rx="2" fill="#C4622D" class="ink"/><rect x="329" y="259" width="10" height="8" rx="2" fill="#C4622D" class="ink"/><rect x="343" y="259" width="10" height="8" rx="2" fill="#C4622D" class="ink"/>
+    <rect x="310" y="266" width="48" height="18" rx="3" fill="#C4622D" class="ink"/>
+    <rect x="315" y="270" width="38" height="3" rx="1.5" fill="#FFFFFF" opacity=".45"/>
+  </g>
+  <g class="hop">
+    <rect class="st" x="372" y="222" width="92" height="58" rx="10"/><rect class="st" x="390" y="212" width="30" height="14" rx="3"/>
+    <rect x="390" y="212" width="30" height="14" rx="3" fill="#1E2D4A" class="ink"/>
+    <rect x="372" y="222" width="92" height="58" rx="10" fill="#1F6F78" class="ink"/>
+    <circle cx="418" cy="252" r="21" fill="#FAF8F5" class="ink"/>
+    <circle cx="418" cy="252" r="13" fill="#1E2D4A"/>
+    <circle cx="413" cy="247" r="4" fill="#FFFFFF" opacity=".8"/>
+    <rect x="444" y="229" width="12" height="7" rx="2" fill="#E9A23B"/>
+  </g>
+</svg>
+</div>
+{{- else if eq . "road" }}
+<div class="pg-art pg-art--road">
+<svg viewBox="0 0 480 320" role="img" aria-label="An illustrated winding road that starts at a row of city buildings and curves up to a tiny house at the foot of the mountain. A little car drives along it, map pins mark stops on the way, and signs say 2004 at the start and 2026 near the house">
+  <defs>
+    <radialGradient id="pga-lr-g" cx="55%" cy="55%" r="55%"><stop offset=".55" stop-color="#FFFFFF"/><stop offset=".98" stop-color="#000000"/></radialGradient>
+    <mask id="pga-lr-m"><rect x="-10" y="0" width="500" height="330" fill="url(#pga-lr-g)"/></mask>
+  </defs>
+  <g mask="url(#pga-lr-m)">
+    <path d="M150 262 L260 120 L320 170 L400 66 L490 160 L490 330 L150 330 Z" fill="#F0DDD3"/>
+    <path d="M400 66 L424 98 L411 95 L400 106 L388 94 L376 97 Z" fill="#FFFFFF" opacity=".85"/>
+    <path d="M-10 292 L80 270 L200 244 L300 232 L380 202 L490 222 L490 330 L-10 330 Z" fill="#E5DDD5"/>
+    <path d="M-10 302 Q240 292 490 302 L490 330 L-10 330 Z" fill="#D9CFC4"/>
+  </g>
+  <circle cx="452" cy="58" r="18" fill="#E9A23B" opacity=".9"/>
+  <path class="tw" style="--d:.3s" d="M200 50l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:1.2s" d="M300 36l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path d="M220 92a12 12 0 0 1 22-5 9 9 0 0 1 14 8 8 8 0 0 1-2 14h-32a9 9 0 0 1-2-17z" fill="#FFFFFF" opacity=".9"/>
+  <g>
+    <rect class="st" x="14" y="196" width="40" height="104"/><rect class="st" x="54" y="166" width="46" height="134"/><rect class="st" x="100" y="216" width="38" height="84"/>
+    <rect x="14" y="196" width="40" height="104" fill="#EEF1F6" class="ink"/>
+    <rect x="54" y="166" width="46" height="134" fill="#FFFFFF" class="ink"/>
+    <path d="M77 166 V150" stroke="#1E2D4A" stroke-width="3"/><circle class="blink" cx="77" cy="148" r="3" fill="#C4622D"/>
+    <path d="M100 216 L119 200 L138 216 V300 H100 Z" fill="#C4622D" class="ink"/>
+    <g fill="#E9A23B"><rect x="22" y="208" width="8" height="10" rx="1"/><rect x="38" y="208" width="8" height="10" rx="1"/><rect x="22" y="228" width="8" height="10" rx="1"/><rect x="38" y="228" width="8" height="10" rx="1"/><rect x="22" y="248" width="8" height="10" rx="1"/>
+    <rect x="63" y="178" width="9" height="11" rx="1"/><rect x="82" y="178" width="9" height="11" rx="1"/><rect x="63" y="200" width="9" height="11" rx="1"/><rect x="82" y="200" width="9" height="11" rx="1"/><rect x="63" y="222" width="9" height="11" rx="1"/><rect x="82" y="244" width="9" height="11" rx="1"/></g>
+    <g fill="#FAF8F5"><rect x="108" y="228" width="9" height="12" rx="1"/><rect x="121" y="228" width="9" height="12" rx="1"/><rect x="108" y="250" width="9" height="12" rx="1"/><rect x="121" y="250" width="9" height="12" rx="1"/></g>
+  </g>
+  <g transform="translate(398 120) scale(.42)">
+    <path class="st" d="M-4 44 L74 -20 L152 44 L140 44 V124 H8 V44 Z" stroke-width="20"/>
+    <rect x="96" y="-8" width="20" height="36" fill="#8B3E18" stroke="#1E2D4A" stroke-width="6"/>
+    <rect x="8" y="40" width="132" height="84" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="6.5" stroke-linejoin="round"/>
+    <path d="M-4 44 L74 -20 L152 44 Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="6.5" stroke-linejoin="round"/>
+    <rect x="24" y="60" width="34" height="28" rx="2" fill="#E9A23B" stroke="#1E2D4A" stroke-width="6"/>
+    <rect x="84" y="66" width="30" height="58" rx="2" fill="#1E2D4A"/>
+  </g>
+  <g fill="#2E4470"><path d="M462 178 L470 150 L478 178 Z"/><path d="M370 196 L379 168 L388 196 Z"/></g>
+  <path d="M60 306 C140 302 170 280 230 276 S320 268 330 238" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
+  <path d="M330 238 C335 223 360 194 392 190 C414 187 430 182 440 176" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <path d="M60 306 C140 302 170 280 230 276 S320 268 330 238" fill="none" stroke="#1E2D4A" stroke-width="22" stroke-linecap="round"/>
+  <path d="M330 238 C335 223 360 194 392 190 C414 187 430 182 440 176" fill="none" stroke="#1E2D4A" stroke-width="14" stroke-linecap="round"/>
+  <path class="dash" d="M60 306 C140 302 170 280 230 276 S320 268 330 238 C335 223 360 194 392 190 C414 187 430 182 440 176"/>
+  <g class="sw" style="transform-origin:180px 286px">
+    <rect x="177" y="244" width="6" height="40" fill="#8B3E18" class="ink" stroke-width="2.5"/>
+    <rect class="st" x="150" y="230" width="60" height="26" rx="6"/>
+    <rect x="150" y="230" width="60" height="26" rx="6" fill="#FFFFFF" class="ink"/>
+    <text x="180" y="248" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="14" fill="#1E2D4A">2004</text>
+  </g>
+  <g class="sw" style="transform-origin:348px 196px;animation-delay:-2s">
+    <rect x="345" y="156" width="6" height="40" fill="#8B3E18" class="ink" stroke-width="2.5"/>
+    <rect class="st" x="318" y="140" width="60" height="26" rx="6"/>
+    <rect x="318" y="140" width="60" height="26" rx="6" fill="#C4622D" class="ink"/>
+    <text x="348" y="158" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="14" fill="#FFFFFF">2026</text>
+  </g>
+  <g class="bo" style="--d:0s"><path class="st" d="M246 268 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z"/><path d="M246 268 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z" fill="#1F6F78" class="ink" stroke-width="2.5"/><circle cx="246" cy="246" r="4.5" fill="#FFFFFF"/></g>
+  <g class="bo" style="--d:.5s"><path class="st" d="M300 262 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z"/><path d="M300 262 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z" fill="#E9A23B" class="ink" stroke-width="2.5"/><circle cx="300" cy="240" r="4.5" fill="#FFFFFF"/></g>
+  <g class="bo" style="--d:1s"><path class="st" d="M120 304 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z"/><path d="M120 304 c-8 -10 -12 -16 -12 -22 a12 12 0 0 1 24 0 c0 6 -4 12 -12 22z" fill="#C4622D" class="ink" stroke-width="2.5"/><circle cx="120" cy="282" r="4.5" fill="#FFFFFF"/></g>
+  <g class="car">
+    <path d="M-7 -11 L-4 -17 H5 L8 -11Z" fill="#FAF8F5" stroke="#1E2D4A" stroke-width="2"/>
+    <rect x="-13" y="-11" width="26" height="9" rx="3" fill="#E9A23B" stroke="#1E2D4A" stroke-width="2"/>
+    <circle cx="-7" cy="-1.5" r="3.2" fill="#1E2D4A"/><circle cx="7" cy="-1.5" r="3.2" fill="#1E2D4A"/>
+  </g>
+</svg>
+</div>
+{{- else if eq . "watching" }}
+<div class="pg-art pg-art--watching">
+<svg viewBox="0 0 480 320" role="img" aria-label="An illustrated retro TV that is on, showing a mountain scene with a play button and a Now label, next to a striped bucket of popcorn and a remote on the floor">
+  <defs><clipPath id="pga-wa-c"><rect x="134" y="112" width="142" height="124" rx="12"/></clipPath></defs>
+  <path class="tw" style="--d:0s" d="M60 70l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.9s" d="M420 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.6s" d="M380 140l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#E9A23B"/>
+  <ellipse cx="240" cy="296" rx="200" ry="9" fill="#000" opacity=".12"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#1E2D4A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="184" cy="42" r="6" fill="#E9A23B" class="ink"/><circle cx="266" cy="38" r="6" fill="#E9A23B" class="ink"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#1E2D4A" stroke-width="7" stroke-linecap="round"/>
+  <rect class="st" x="110" y="88" width="230" height="172" rx="24"/>
+  <rect x="110" y="88" width="230" height="172" rx="24" fill="#1F6F78" class="ink"/>
+  <rect x="126" y="104" width="158" height="140" rx="18" fill="#1E2D4A"/>
+  <rect x="134" y="112" width="142" height="124" rx="12" fill="#FAF8F5"/>
+  <g clip-path="url(#pga-wa-c)">
+    <path d="M134 210 L170 172 L196 192 L232 150 L276 204 V236 H134 Z" fill="#F0DDD3"/>
+    <path d="M134 224 L180 206 L230 218 L276 202 V236 H134 Z" fill="#E5DDD5"/>
+    <rect x="144" y="224" width="122" height="4" rx="2" fill="#C9C1B8"/><rect x="144" y="224" width="74" height="4" rx="2" fill="#C4622D"/>
+  </g>
+  <rect x="144" y="122" width="46" height="17" rx="8.5" fill="#C4622D"/>
+  <circle class="blink" cx="153" cy="130.5" r="3" fill="#FFFFFF"/>
+  <text x="172" y="134.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="10" letter-spacing="1" fill="#FFFFFF">NOW</text>
+  <g class="pulse"><circle cx="205" cy="172" r="20" fill="#1E2D4A"/><path d="M199 161 L216 172 L199 183 Z" fill="#FFFFFF"/></g>
+  <circle cx="312" cy="136" r="11" fill="#E9A23B" class="ink"/><path d="M312 129 V136" stroke="#1E2D4A" stroke-width="3"/>
+  <circle cx="312" cy="176" r="11" fill="#C4622D" class="ink"/><path d="M312 169 V176" stroke="#1E2D4A" stroke-width="3"/>
+  <circle class="blink" cx="312" cy="220" r="4" fill="#E9A23B"/>
+  <g class="bo" style="--d:.4s">
+    <g fill="#FAF8F5" stroke="#1E2D4A" stroke-width="2.5"><circle cx="370" cy="214" r="10"/><circle cx="388" cy="204" r="10"/><circle cx="406" cy="210" r="10"/><circle cx="422" cy="208" r="9"/><circle cx="396" cy="194" r="9"/><circle cx="414" cy="196" r="8"/><circle cx="378" cy="198" r="8"/></g>
+    <circle cx="390" cy="203" r="3" fill="#E9A23B"/><circle cx="410" cy="196" r="2.5" fill="#E9A23B"/>
+  </g>
+  <path class="st" d="M360 214 H432 L422 292 H370 Z"/>
+  <path d="M360 214 H432 L422 292 H370 Z" fill="#FAF8F5" class="ink"/>
+  <g fill="#C4622D"><path d="M368 214 H380 L384.4 292 H375.8 Z"/><path d="M392 214 H404 L401.8 292 H393.1 Z"/><path d="M416 214 H428 L419.1 292 H410.4 Z"/></g>
+  <path d="M360 214 H432 L422 292 H370 Z" fill="none" class="ink"/>
+  <g class="hop"><g transform="rotate(-14 70 276)">
+    <rect class="st" x="34" y="264" width="74" height="24" rx="10"/>
+    <rect x="34" y="264" width="74" height="24" rx="10" fill="#1E2D4A" class="ink"/>
+    <circle cx="50" cy="276" r="5" fill="#C4622D"/><circle cx="66" cy="276" r="3.5" fill="#E9A23B"/><circle cx="78" cy="276" r="3.5" fill="#E9A23B"/><circle cx="90" cy="276" r="3.5" fill="#FAF8F5"/>
+  </g></g>
+</svg>
+</div>
+{{- else if eq . "watched" }}
+<div class="pg-art pg-art--watched">
+<svg viewBox="0 0 480 320" role="img" aria-label="The same illustrated retro TV, now showing a big check mark and a row of stars, with a ticket stub that says Seen and a film reel on the floor">
+  <path class="tw" style="--d:0s" d="M60 70l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.9s" d="M420 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.6s" d="M400 160l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#E9A23B"/>
+  <ellipse cx="240" cy="296" rx="200" ry="9" fill="#000" opacity=".12"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#1E2D4A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="184" cy="42" r="6" fill="#E9A23B" class="ink"/><circle cx="266" cy="38" r="6" fill="#E9A23B" class="ink"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#1E2D4A" stroke-width="7" stroke-linecap="round"/>
+  <rect class="st" x="110" y="88" width="230" height="172" rx="24"/>
+  <rect x="110" y="88" width="230" height="172" rx="24" fill="#1F6F78" class="ink"/>
+  <rect x="126" y="104" width="158" height="140" rx="18" fill="#1E2D4A"/>
+  <rect x="134" y="112" width="142" height="124" rx="12" fill="#FAF8F5"/>
+  <path class="draw" d="M172 166 L198 192 L242 138" fill="none" stroke="#C4622D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#E9A23B" stroke="#1E2D4A" stroke-width="1.8" stroke-linejoin="round">
+    <path transform="translate(163 220)" d="M0 -9 L2.6 -3.3 L8.6 -2.8 L4.1 1.2 L5.3 7.3 L0 4.2 L-5.3 7.3 L-4.1 1.2 L-8.6 -2.8 L-2.6 -3.3Z"/>
+    <path transform="translate(184 220)" d="M0 -9 L2.6 -3.3 L8.6 -2.8 L4.1 1.2 L5.3 7.3 L0 4.2 L-5.3 7.3 L-4.1 1.2 L-8.6 -2.8 L-2.6 -3.3Z"/>
+    <path transform="translate(205 220)" d="M0 -9 L2.6 -3.3 L8.6 -2.8 L4.1 1.2 L5.3 7.3 L0 4.2 L-5.3 7.3 L-4.1 1.2 L-8.6 -2.8 L-2.6 -3.3Z"/>
+    <path transform="translate(226 220)" d="M0 -9 L2.6 -3.3 L8.6 -2.8 L4.1 1.2 L5.3 7.3 L0 4.2 L-5.3 7.3 L-4.1 1.2 L-8.6 -2.8 L-2.6 -3.3Z" fill="#FAF8F5"/>
+    <path transform="translate(247 220)" d="M0 -9 L2.6 -3.3 L8.6 -2.8 L4.1 1.2 L5.3 7.3 L0 4.2 L-5.3 7.3 L-4.1 1.2 L-8.6 -2.8 L-2.6 -3.3Z" fill="#FAF8F5"/>
+  </g>
+  <circle cx="312" cy="136" r="11" fill="#E9A23B" class="ink"/><path d="M312 129 V136" stroke="#1E2D4A" stroke-width="3"/>
+  <circle cx="312" cy="176" r="11" fill="#C4622D" class="ink"/><path d="M312 169 V176" stroke="#1E2D4A" stroke-width="3"/>
+  <circle cx="312" cy="220" r="4" fill="#C9C1B8"/>
+  <g class="fl"><g transform="rotate(8 403 223)">
+    <path class="st" d="M356 196 H450 V215 a8 8 0 0 0 0 16 V250 H356 V231 a8 8 0 0 0 0 -16 Z"/>
+    <path d="M356 196 H450 V215 a8 8 0 0 0 0 16 V250 H356 V231 a8 8 0 0 0 0 -16 Z" fill="#E9A23B" class="ink"/>
+    <path d="M378 202 V244" stroke="#1E2D4A" stroke-width="2" stroke-dasharray="3 4"/>
+    <text x="414" y="229" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="17" letter-spacing="2" fill="#1E2D4A">SEEN</text>
+  </g></g>
+  <g>
+    <path d="M86 284 C110 296 150 300 186 294" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
+    <path d="M86 284 C110 296 150 300 186 294" fill="none" stroke="#1E2D4A" stroke-width="11" stroke-linecap="round"/>
+    <path d="M90 286 C112 296 150 299 182 294" fill="none" stroke="#FAF8F5" stroke-width="3" stroke-dasharray="4 5"/>
+    <g class="sp">
+      <circle class="st" cx="66" cy="262" r="32"/>
+      <circle cx="66" cy="262" r="31" fill="#1E2D4A" class="ink"/>
+      <g fill="#FAF8F5"><circle cx="66" cy="244" r="7"/><circle cx="83" cy="256" r="7"/><circle cx="77" cy="277" r="7"/><circle cx="55" cy="277" r="7"/><circle cx="49" cy="256" r="7"/></g>
+      <circle cx="66" cy="262" r="5" fill="#E9A23B"/>
+    </g>
+  </g>
+</svg>
+</div>
+{{- else if eq . "queue" }}
+<div class="pg-art pg-art--queue">
+<svg viewBox="0 0 480 320" role="img" aria-label="The same illustrated retro TV, now showing an Up next list numbered 1, 2 and 3, with a fan of movie tickets beside it and an hourglass on the floor">
+  <path class="tw" style="--d:0s" d="M60 70l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.9s" d="M420 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.6s" d="M372 128l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#E9A23B"/>
+  <ellipse cx="240" cy="296" rx="200" ry="9" fill="#000" opacity=".12"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M225 92 L184 44 M225 92 L266 40" stroke="#1E2D4A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="184" cy="42" r="6" fill="#E9A23B" class="ink"/><circle cx="266" cy="38" r="6" fill="#E9A23B" class="ink"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M146 256 L134 292 M304 256 L316 292" stroke="#1E2D4A" stroke-width="7" stroke-linecap="round"/>
+  <rect class="st" x="110" y="88" width="230" height="172" rx="24"/>
+  <rect x="110" y="88" width="230" height="172" rx="24" fill="#1F6F78" class="ink"/>
+  <rect x="126" y="104" width="158" height="140" rx="18" fill="#1E2D4A"/>
+  <rect x="134" y="112" width="142" height="124" rx="12" fill="#FAF8F5"/>
+  <text x="146" y="134" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="11" letter-spacing="2" fill="#A65326">UP NEXT</text>
+  <rect class="pulse" x="142" y="144" width="126" height="26" rx="7" fill="#F0DDD3"/>
+  <circle cx="156" cy="157" r="9" fill="#C4622D"/><text x="156" y="161" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="11" fill="#FFFFFF">1</text>
+  <rect x="172" y="150" width="74" height="6" rx="3" fill="#1E2D4A"/><rect x="172" y="160" width="48" height="4" rx="2" fill="#69635C" opacity=".6"/>
+  <circle cx="156" cy="187" r="9" fill="#1E2D4A"/><text x="156" y="191" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="11" fill="#FFFFFF">2</text>
+  <rect x="172" y="180" width="64" height="6" rx="3" fill="#1E2D4A" opacity=".75"/><rect x="172" y="190" width="40" height="4" rx="2" fill="#69635C" opacity=".5"/>
+  <circle cx="156" cy="215" r="9" fill="#1E2D4A"/><text x="156" y="219" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="11" fill="#FFFFFF">3</text>
+  <rect x="172" y="208" width="70" height="6" rx="3" fill="#1E2D4A" opacity=".75"/><rect x="172" y="218" width="44" height="4" rx="2" fill="#69635C" opacity=".5"/>
+  <circle cx="312" cy="136" r="11" fill="#E9A23B" class="ink"/><path d="M312 129 V136" stroke="#1E2D4A" stroke-width="3"/>
+  <circle cx="312" cy="176" r="11" fill="#C4622D" class="ink"/><path d="M312 169 V176" stroke="#1E2D4A" stroke-width="3"/>
+  <circle class="blink" cx="312" cy="220" r="4" fill="#E9A23B"/>
+  <g transform="translate(350 222)">
+    <g transform="translate(6 -30) rotate(-12 42 22)"><path class="st" d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z"/><path d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z" fill="#EEF1F6" class="ink"/></g>
+    <g transform="translate(2 -14) rotate(-4 42 22)"><path class="st" d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z"/><path d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z" fill="#E9A23B" class="ink"/></g>
+    <g class="fl" style="--d:-.8s"><g transform="rotate(6 42 22)"><path class="st" d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z"/><path d="M0 0 H84 V14 a8 8 0 0 0 0 16 V44 H0 V30 a8 8 0 0 0 0 -16 Z" fill="#C4622D" class="ink"/>
+      <path d="M22 6 V38" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="3 4" opacity=".8"/>
+      <text x="54" y="27" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="14" letter-spacing="1.5" fill="#FFFFFF">NEXT</text></g></g>
+  </g>
+  <g class="flip">
+    <path class="st" d="M44 226 H96 M44 290 H96 M50 226 C50 250 70 252 70 258 C70 264 50 266 50 290 M90 226 C90 250 70 252 70 258 C70 264 90 266 90 290"/>
+    <path d="M50 226 C50 250 70 252 70 258 C70 264 50 266 50 290 H90 C90 266 70 264 70 258 C70 252 90 250 90 226 Z" fill="#EEF1F6" class="ink"/>
+    <path d="M58 236 H82 C80 248 72 250 70 254 C68 250 60 248 58 236 Z" fill="#E9A23B"/>
+    <path d="M56 288 C58 274 68 272 70 266 C72 272 82 274 84 288 Z" fill="#E9A23B"/>
+    <rect x="40" y="220" width="60" height="9" rx="4" fill="#8B3E18" class="ink" stroke-width="2.5"/>
+    <rect x="40" y="287" width="60" height="9" rx="4" fill="#8B3E18" class="ink" stroke-width="2.5"/>
+  </g>
+</svg>
+</div>
+{{- else if eq . "changelog" }}
+<div class="pg-art pg-art--changelog">
+<svg viewBox="0 0 480 320" role="img" aria-label="An illustrated open toolbox with a wrench, a screwdriver and a paintbrush sticking out, a little browser window showing code with a gear turning in its corner, and a fan of color swatches in navy, terracotta, gold and teal">
+  <path class="tw" style="--d:0s" d="M200 30l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E9A23B"/>
+  <path class="tw" style="--d:.8s" d="M290 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <path class="tw" style="--d:1.5s" d="M440 196l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#E9A23B"/>
+  <path class="tw" style="--d:1.1s" d="M38 214l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#C4622D"/>
+  <ellipse cx="240" cy="292" rx="190" ry="9" fill="#000" opacity=".12"/>
+  <g class="sw" style="transform-origin:100px 150px">
+    <g transform="rotate(-36 100 150)"><rect class="st" x="88" y="44" width="24" height="112" rx="7"/><rect x="88" y="44" width="24" height="112" rx="7" fill="#1E2D4A" class="ink"/><rect x="91" y="128" width="18" height="22" rx="4" fill="#FFFFFF"/></g>
+    <g transform="rotate(-12 100 150)"><rect class="st" x="88" y="44" width="24" height="112" rx="7"/><rect x="88" y="44" width="24" height="112" rx="7" fill="#C4622D" class="ink"/><rect x="91" y="128" width="18" height="22" rx="4" fill="#FFFFFF"/></g>
+    <g transform="rotate(12 100 150)"><rect class="st" x="88" y="44" width="24" height="112" rx="7"/><rect x="88" y="44" width="24" height="112" rx="7" fill="#E9A23B" class="ink"/><rect x="91" y="128" width="18" height="22" rx="4" fill="#FFFFFF"/></g>
+    <g transform="rotate(36 100 150)"><rect class="st" x="88" y="44" width="24" height="112" rx="7"/><rect x="88" y="44" width="24" height="112" rx="7" fill="#1F6F78" class="ink"/><rect x="91" y="128" width="18" height="22" rx="4" fill="#FFFFFF"/></g>
+    <circle cx="100" cy="146" r="6" fill="#FAF8F5" class="ink"/>
+  </g>
+  <g class="fl" style="--d:-1.2s"><g transform="rotate(6 382 92)">
+    <rect class="st" x="312" y="40" width="140" height="104" rx="12"/>
+    <rect x="312" y="40" width="140" height="104" rx="12" fill="#FAF8F5" class="ink"/>
+    <path d="M312 52 Q312 40 324 40 H440 Q452 40 452 52 V62 H312 Z" fill="#1E2D4A" class="ink"/>
+    <circle cx="326" cy="51" r="3.5" fill="#C4622D"/><circle cx="338" cy="51" r="3.5" fill="#E9A23B"/><circle cx="350" cy="51" r="3.5" fill="#FAF8F5"/>
+    <text x="382" y="112" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="32" fill="#1F6F78">&lt;/&gt;</text>
+    <rect x="332" y="122" width="56" height="5" rx="2.5" fill="#C9C1B8"/>
+  </g></g>
+  <g class="sp">
+    <circle cx="446" cy="144" r="18" fill="none" stroke="#FFFFFF" stroke-width="18"/>
+    <circle cx="446" cy="144" r="17" fill="none" stroke="#1E2D4A" stroke-width="9" stroke-dasharray="5.34 5.34"/>
+    <circle cx="446" cy="144" r="12" fill="#E9A23B" class="ink"/>
+    <circle cx="446" cy="144" r="4.5" fill="#FAF8F5"/>
+  </g>
+  <path class="st" d="M150 198 L172 164 H308 L330 198 Z"/>
+  <path d="M150 198 L172 164 H308 L330 198 Z" fill="#A65326" class="ink"/>
+  <g class="bo"><g transform="translate(200 156) rotate(-18)">
+    <path class="st" d="M-6 0 V78 H6 V0 Z M-7 -30 V-20 H7 V-30 A15.7 15.7 0 1 1 -7 -30 Z"/>
+    <rect x="-6" y="-4" width="12" height="82" rx="6" fill="#D5DCE6" class="ink"/>
+    <path d="M-7 -30 V-20 H7 V-30 A15.7 15.7 0 1 1 -7 -30 Z" fill="#D5DCE6" class="ink"/>
+  </g></g>
+  <g class="bo" style="--d:.5s"><g transform="translate(250 138) rotate(10)">
+    <path class="st" d="M-2.5 -26 H2.5 V24 H-2.5 Z M-9 20 H9 V66 H-9 Z"/>
+    <rect x="-2.5" y="-26" width="5" height="50" fill="#C9C1B8" class="ink" stroke-width="2.5"/>
+    <path d="M-2.5 -26 L0 -33 L2.5 -26 Z" fill="#1E2D4A"/>
+    <rect x="-9" y="20" width="18" height="46" rx="6" fill="#E9A23B" class="ink"/>
+    <path d="M-3 28 V58 M3 28 V58" stroke="#1E2D4A" stroke-width="1.6" opacity=".5"/>
+  </g></g>
+  <g class="bo" style="--d:1s"><g transform="translate(292 150) rotate(26)">
+    <path class="st" d="M-5 0 H5 V60 H-5 Z M-7 -14 Q-8 -36 0 -42 Q8 -36 7 -14 Z"/>
+    <rect x="-5" y="0" width="10" height="60" rx="5" fill="#1F6F78" class="ink"/>
+    <rect x="-7" y="-14" width="14" height="16" rx="2" fill="#C9C1B8" class="ink"/>
+    <path d="M-7 -14 Q-8 -36 0 -42 Q8 -36 7 -14 Z" fill="#C4622D" class="ink"/>
+  </g></g>
+  <rect class="st" x="140" y="196" width="200" height="90" rx="10"/>
+  <rect x="140" y="196" width="200" height="90" rx="10" fill="#C4622D" class="ink"/>
+  <rect x="141.5" y="214" width="197" height="9" fill="#A65326"/>
+  <rect x="226" y="206" width="28" height="22" rx="4" fill="#E9A23B" class="ink"/>
+  <circle cx="240" cy="217" r="3" fill="#1E2D4A"/>
+  <rect x="158" y="244" width="60" height="6" rx="3" fill="#FFFFFF" opacity=".35"/>
+</svg>
+</div>
+{{- end }}

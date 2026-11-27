@@ -51,6 +51,7 @@
 {{ with .Get "hide" }}{{ range split . "|" }}{{ with trim . " " }}{{ $hide = $hide | append (replaceRE `[^\pL\pN]+` "" (lower .)) }}{{ end }}{{ end }}{{ end }}
 {{ $nw := partial "now-watching.html" (dict "days" $days) }}
 
+{{ partial "page-art.html" "watching" }}
 <div class="watching" id="watching">
   <p class="watching-count" id="watching-count" aria-live="polite">Loading…</p>
   <div class="wr-grid" id="watching-grid"></div>

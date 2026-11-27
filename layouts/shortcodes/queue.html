@@ -51,6 +51,7 @@
 {{/* the list itself is built in partials/queue-items.html (Nov 5, 2026), shared with the Den app */}}
 {{ $items := partial "queue-items.html" .Site }}
 {{ $today := now.Format "2006-01-02" }}
+{{ partial "page-art.html" "queue" }}
 {{ if $items }}
 
 {{/* Distinct group keys, sorted ascending - the "0 / 1- / 2- / 3"

@@ -16262,3 +16262,148 @@ a.otd-week-link:focus .otd-week-title { color: var(--color-terra-text); }
   .chipotle .steam{animation:none;opacity:.4}
 }
 /* end section 134 */
+
+/* ============================================================
+   135. FEEDS SLASH PAGE  (Nov 27, 2026, Toby - mockup v3)
+   ------------------------------------------------------------
+   Body of /feeds/ (layouts/shortcodes/feeds.html), modeled on
+   shellsharks.com/feeds.
+   Colors read the sky tokens (var(--color-*)), so every sky works.
+   The Everything card and the copied toast are fixed navy on
+   purpose (white text on their own fill).
+   Selectors carry .feeds-page so they beat the page-body rules
+   (h2 underline, ul/li reading font, p margins).
+   Classes are fd-*, NOT .chip (that's the Pulse pill).
+   Each feed is a split pill [ RSS | copy ] [ JSON | copy ] so it's
+   always clear which link the copy icon copies.
+   ============================================================ */
+.page-body .feeds-page, .feeds-page { max-width: none; }
+.feeds-page { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.feeds-page svg { display: block; }
+
+/* Intro */
+.page-body .feeds-page .fd-lede { margin: 0 0 .75rem; }
+.page-body .feeds-page .fd-note { font-family: var(--font-body); font-size: 1rem; color: var(--color-text-muted); margin: 0 0 1rem; line-height: 1.5; }
+.feeds-page .fd-how > span:last-child { flex: 1 1 220px; }
+.feeds-page .fd-how { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-size: .95rem; color: var(--color-text-muted); margin: 0 0 1.5rem; line-height: 1.45; }
+
+/* Bold words in the notes stay in the UI font */
+.page-body .feeds-page .fd-note strong,
+.feeds-page .fd-how strong { font-family: inherit; font-weight: 600; color: var(--color-text); }
+
+/* Hero illustration: beside the intro from 760px up, small banner on phones */
+.feeds-page .fd-intro { display: grid; grid-template-columns: 1fr; gap: .75rem; align-items: center; margin: 0 0 1.5rem; }
+.feeds-page .fd-art { width: 100%; max-width: 280px; margin: 0 auto; }
+.feeds-page .fd-art svg { display: block; width: 100%; height: auto; overflow: visible; }
+@media (min-width: 760px) {
+  .feeds-page .fd-intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 2rem; }
+  .feeds-page .fd-art { order: 2; max-width: 420px; }
+  .feeds-page .fd-intro-text { order: 1; }
+}
+.feeds-page .fd-intro-text .fd-note:last-child { margin-bottom: 0; }
+.feeds-page .fd-wave { animation: fd-wave 2.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.feeds-page .fd-card-f { animation: fd-drift 4.2s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+.feeds-page .fd-bob { animation: fd-bob 3s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+.feeds-page .fd-twinkle { transform-box: fill-box; transform-origin: center; animation: fd-twinkle 2.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.feeds-page .fd-new { animation: fd-new 4s ease-in-out infinite; }
+@keyframes fd-wave { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes fd-drift { from { transform: translate(0, 0); } to { transform: translate(6px, -7px); } }
+@keyframes fd-bob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+@keyframes fd-twinkle { 0%, 100% { transform: scale(.6); opacity: .4; } 50% { transform: scale(1.1); opacity: 1; } }
+@keyframes fd-new { 0%, 60%, 100% { opacity: 1; } 75% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) {
+  .feeds-page .fd-wave, .feeds-page .fd-card-f, .feeds-page .fd-bob, .feeds-page .fd-twinkle, .feeds-page .fd-new { animation: none; }
+}
+
+/* Headings */
+.page-body .feeds-page .fd-h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; color: var(--color-text); margin: 2.5rem 0 .25rem; padding: 0; border: 0; }
+
+/* Split pills */
+.feeds-page .fd-pills { display: flex; gap: .5rem; flex-wrap: wrap; flex: none; }
+.feeds-page .fd-fmt { display: inline-flex; align-items: stretch; border: 1px solid var(--color-terra-btn); border-radius: 999px; overflow: hidden; line-height: 1.2; background: var(--color-bg-card); }
+.feeds-page .fd-link,
+.feeds-page .fd-cp { font: inherit; font-family: var(--font-body); font-size: .8rem; font-weight: 600; letter-spacing: .03em; text-decoration: none; display: inline-flex; align-items: center; border: 0; margin: 0; cursor: pointer; color: var(--color-terra-text); background: transparent; }
+.page-body .feeds-page a.fd-link { color: var(--color-terra-text); text-decoration: none; }
+.feeds-page .fd-link { padding: .4rem .6rem .4rem .8rem; }
+.feeds-page .fd-cp { padding: .4rem .6rem; border-left: 1px solid var(--color-terra-btn); }
+.feeds-page .fd-link:hover,
+.feeds-page .fd-cp:hover { background: var(--color-terra-light); color: var(--color-terra-dark); }
+.feeds-page .fd-cp.is-copied { background: var(--color-navy); color: #FFFFFF; }
+.feeds-page .fd-fmt svg { width: 15px; height: 15px; }
+.feeds-page .fd-how .fd-fmt { pointer-events: none; }
+
+/* Everything card (fixed navy) */
+.feeds-page .fd-hero { background: #1E2D4A; color: #FFFFFF; border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+.feeds-page .fd-hero .fd-txt { flex: 1 1 220px; min-width: 0; }
+.page-body .feeds-page .fd-hero-name { font-family: var(--font-display); font-size: 1.3rem; color: #FFFFFF; margin: 0; padding: 0; border: 0; }
+.page-body .feeds-page .fd-hero .fd-desc { color: #E4E8F0; }
+.feeds-page .fd-hero .fd-fmt { border-color: #FFFFFF; background: #FFFFFF; }
+.page-body .feeds-page .fd-hero a.fd-link,
+.feeds-page .fd-hero .fd-link { color: #1E2D4A; }
+.feeds-page .fd-hero .fd-link:hover { background: #F0DDD3; color: #1E2D4A; }
+.feeds-page .fd-hero .fd-cp { background: #1E2D4A; color: #FFFFFF; border-left-color: #FFFFFF; }
+.feeds-page .fd-hero .fd-cp:hover { background: #2E4470; color: #FFFFFF; }
+.feeds-page .fd-hero .fd-cp.is-copied { background: #FFFFFF; color: #1E2D4A; }
+
+/* Icon squares */
+.feeds-page .fd-ico { width: 38px; height: 38px; flex: none; border-radius: 10px; background: var(--color-terra-light); color: var(--color-terra-dark); display: grid; place-items: center; }
+.feeds-page .fd-ico--hero { width: 52px; height: 52px; border-radius: 12px; background: #B85C2A; color: #FFFFFF; }
+
+/* Series list */
+.page-body .feeds-page .fd-list { list-style: none; margin: 0; padding: 0; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; }
+.page-body .feeds-page .fd-list li { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding: .9rem 1.1rem; margin: 0; border-top: 1px solid var(--color-border-light); font-family: var(--font-body); }
+.page-body .feeds-page .fd-list li:first-child { border-top: 0; }
+.page-body .feeds-page .fd-list li::before,
+.page-body .feeds-page .fd-list li::marker { content: none; }
+.feeds-page .fd-list .fd-txt { flex: 1 1 220px; min-width: 0; }
+.page-body .feeds-page .fd-name { font-family: var(--font-body); font-weight: 600; font-size: 1.1rem; color: var(--color-text); margin: 0; line-height: 1.3; }
+.page-body .feeds-page .fd-desc { font-family: var(--font-body); font-size: .95rem; color: var(--color-text-muted); margin: .1rem 0 0; line-height: 1.45; }
+.page-body .feeds-page .fd-browse { font-size: .875rem; white-space: nowrap; color: var(--color-terra-text); text-decoration: underline !important; text-underline-offset: 2px; }
+
+/* Topic groups + chips */
+.feeds-page .fd-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+.feeds-page .fd-group { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem 1.1rem; }
+.page-body .feeds-page .fd-group-name { font-family: var(--font-display); font-size: 1.05rem; color: var(--color-text); margin: 0 0 .6rem; padding: 0; border: 0; }
+.feeds-page .fd-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.page-body .feeds-page a.fd-chip { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--font-body); font-size: .875rem; line-height: 1.3; text-decoration: none; color: var(--color-text); background: var(--color-bg-warm); border: 1px solid var(--color-border); border-radius: 999px; padding: .25rem .65rem; }
+.page-body .feeds-page a.fd-chip:hover { border-color: var(--color-terra-btn); color: var(--color-terra-text); }
+.feeds-page .fd-chip svg { width: 12px; height: 12px; flex: none; color: var(--color-terra-text); }
+.feeds-page .fd-all { margin-top: 1rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; padding: .8rem 1.1rem; }
+.feeds-page .fd-all summary { cursor: pointer; font-family: var(--font-body); font-weight: 600; color: var(--color-text); font-size: 1rem; }
+.feeds-page .fd-all .fd-chips { margin-top: .8rem; }
+
+/* Other ways to follow */
+.feeds-page .fd-follow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 559px) { .feeds-page .fd-follow { grid-template-columns: 1fr; } }
+.feeds-page .fd-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.1rem; }
+.feeds-page .fd-card .fd-ico { margin-bottom: .6rem; }
+.page-body .feeds-page .fd-card-name { font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; color: var(--color-text); margin: 0 0 .25rem; padding: 0; border: 0; }
+.page-body .feeds-page .fd-card .fd-desc { margin: 0 0 .8rem; }
+.feeds-page .fd-handle-row { display: flex; align-items: center; gap: .4rem; margin: .1rem 0 .8rem; }
+.feeds-page .fd-handle { font-family: var(--font-body); font-size: .875rem; font-weight: 500; min-width: 0; background: var(--color-bg-warm); color: var(--color-text); padding: .15rem .4rem; border-radius: 4px; overflow-wrap: anywhere; }
+.feeds-page .fd-cp--round { flex: none; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--color-terra-btn); border-radius: 999px; background: var(--color-bg-card); }
+.feeds-page .fd-cp--round svg { width: 15px; height: 15px; }
+.page-body .feeds-page a.fd-btn { display: inline-block; font-family: var(--font-body); font-size: .875rem; font-weight: 600; text-decoration: none; background: var(--color-terra-btn); color: var(--color-btn-ink); padding: .5rem .95rem; border-radius: 4px; }
+.page-body .feeds-page a.fd-btn:hover { background: var(--color-terra-dark); color: #FFFFFF; }
+
+/* New to feeds */
+.feeds-page .fd-newbie { margin-top: 2.5rem; background: var(--color-terra-light); border-radius: 8px; padding: 1.25rem 1.4rem; }
+.page-body .feeds-page .fd-newbie-title { font-family: var(--font-display); font-size: 1.2rem; color: #1E2D4A; margin: 0 0 .3rem; padding: 0; border: 0; }
+.page-body .feeds-page .fd-newbie p { font-size: 1rem; color: #1A1A18; margin: 0; }
+.page-body .feeds-page .fd-newbie a { color: #8B3E18; font-weight: 600; text-decoration: underline !important; }
+.page-body .feeds-page .fd-fine { font-family: var(--font-body); font-size: .875rem; color: var(--color-text-muted); margin: 2rem 0 0; }
+
+/* Phones: pills drop under the text, lined up with it */
+@media (max-width: 559px) {
+  .page-body .feeds-page .fd-list li { padding: .8rem .9rem; }
+  .feeds-page .fd-list .fd-pills { width: 100%; padding-left: calc(38px + 1rem); }
+  .feeds-page .fd-hero { padding: 1.25rem; }
+  .feeds-page .fd-hero .fd-pills { width: 100%; }
+}
+
+/* Copied toast (fixed navy) */
+.feeds-page .fd-toast { position: fixed; left: 50%; bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 1rem); background: #1E2D4A; color: #FFFFFF; font-family: var(--font-body); font-size: .95rem; font-weight: 500; padding: .6rem 1rem; border-radius: 999px; display: flex; align-items: center; gap: .5rem; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 1000; max-width: calc(100vw - 2rem); }
+.feeds-page .fd-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.feeds-page .fd-toast svg { width: 16px; height: 16px; flex: none; }
+@media (prefers-reduced-motion: reduce) { .feeds-page .fd-toast { transition: none; } }
+/* end section 135 */

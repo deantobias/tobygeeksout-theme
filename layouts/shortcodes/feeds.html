@@ -1,0 +1,300 @@
+{{- /*
+  feeds.html - "Follow Along Your Way", the /feeds/ slash page.
+  Nov 27, 2026 (Toby): first version (mockup v3 approved). Modeled on
+  shellsharks.com/feeds.
+  Hero: an original illustration of the tiny house at the foot of the
+  mountain with feed waves rising from the chimney; cards (book, film,
+  quote, camera) drift along a dotted trail to a phone and an envelope.
+  Beside the intro from 760px up, a small banner above it on phones.
+  Motion stops for Reduce Motion.
+  The page title ("Follow Along Your Way") comes from the Micro.blog
+  page itself; this shortcode is only the body.
+  Sections: Everything (main RSS + JSON), By series (one row per
+  series), By topic (hand-picked groups), See all categories (built
+  from site.Taxonomies.categories, so new categories show up on their
+  own), Other ways to follow (email, Mastodon, Bluesky, Micro.blog),
+  New to feeds.
+  Every feed is a split pill: [ RSS | copy ] [ JSON | copy ], so it is
+  always clear which link gets copied. Micro.blog makes feed.xml and
+  feed.json for every category on its own (checked Nov 27).
+  Series rows and topic chips look each category up with
+  site.GetPage, so a renamed or missing category just drops out
+  instead of linking to a 404.
+  To add a series row: add a dict to $series (slug = category URL
+  slug, icon = one of the fd-i-* symbols below).
+  SVG ids are prefixed fd-i- so they can't clash with anything else.
+  No blank lines inside the HTML (Goldmark rule for raw HTML blocks).
+  Copy uses the clipboard API, then the old textarea way (same idea
+  as the theme's .tgo-rss-copy).
+  Styles: custom.css section 135 (.feeds-page). Classes are fd-*,
+  NOT .chip (that's the Pulse pill).
+*/ -}}
+{{- $base := site.BaseURL -}}
+{{- $series := slice
+  (dict "slug" "word-of-the-day"     "name" "Word Nerd Alert" "icon" "book"   "desc" "A new word almost every day, with what it means and how to use it.")
+  (dict "slug" "reel-and-remote"     "name" "Reel and Remote" "icon" "film"   "desc" "Movies and TV: what I'm watching, what I thought, and what's next.")
+  (dict "slug" "movie-reviews"       "name" "Movie Reviews"   "icon" "star"   "desc" "Just my movie ratings, nothing else.")
+  (dict "slug" "tv-reviews"          "name" "TV Reviews"      "icon" "star"   "desc" "Just my TV show ratings.")
+  (dict "slug" "book-reviews"        "name" "Book Reviews"    "icon" "star"   "desc" "What I thought of the books I finished.")
+  (dict "slug" "watch-log"           "name" "Watch Log"       "icon" "tv"     "desc" "My weekly rundown of everything I watched.")
+  (dict "slug" "tab-dump"            "name" "Tab Dump"        "icon" "tabs"   "desc" "Whatever links were piling up in my open browser tabs.")
+  (dict "slug" "the-deep-end-series" "name" "The Deep End"    "icon" "deep"   "desc" "Long, thoughtful dives when something's on my mind.")
+  (dict "slug" "on-this-day"         "name" "On This Day"     "icon" "cal"    "desc" "Old photos brought back out on their anniversary." "browse" "/memories/" "browseLabel" "See Memories")
+  (dict "slug" "photos"              "name" "Photos"          "icon" "cam"    "desc" "Hobbyist shots from the holler and wherever else I end up." "browse" "/photo/" "browseLabel" "See /photo")
+  (dict "slug" "worth-keeping"       "name" "Worth Keeping"   "icon" "quote"  "desc" "Quotes I screenshotted because I didn't want to forget them.")
+  (dict "slug" "micro"               "name" "Micros"          "icon" "bubble" "desc" "Short, quick thoughts. No titles, no fuss.")
+-}}
+{{- $groups := slice
+  (dict "name" "Tech" "slugs" (slice "technology" "ai" "ios" "android" "gadgets" "digital-wellness" "productivity"))
+  (dict "name" "Deaf &amp; neurodivergent life" "slugs" (slice "deaf-community" "advocacy" "neurodivergence" "autism" "adhd" "learning-disabilities" "mental-health"))
+  (dict "name" "Home &amp; holler" "slugs" (slice "tiny-house-life" "tiny-house-problems" "home-decor" "applachian-life" "gardening" "nature" "analog-living"))
+  (dict "name" "Food" "slugs" (slice "food" "recipes" "kitchen-tips"))
+  (dict "name" "Books &amp; hobbies" "slugs" (slice "reading" "currently-reading" "bookshelf" "lego" "hobbies" "art" "writing" "blogging"))
+  (dict "name" "Bigger picture" "slugs" (slice "politics" "social-issues" "worldview" "culture" "health" "science" "history"))
+-}}
+{{- $copy := `<svg aria-hidden="true" focusable="false"><use href="#fd-i-copy"/></svg>` -}}
+<div class="feeds-page">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="fd-i-rss" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="fd-i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="fd-i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="fd-i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7M8 11h5"/></symbol>
+  <symbol id="fd-i-film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+  <symbol id="fd-i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+  <symbol id="fd-i-tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 2l4 4 4-4M8 21h8"/></symbol>
+  <symbol id="fd-i-tabs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M7 7V4h6v3"/></symbol>
+  <symbol id="fd-i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="fd-i-cam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="fd-i-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M2 13c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M12 15v6M9 18l3 3 3-3"/></symbol>
+  <symbol id="fd-i-quote" viewBox="0 0 24 24" fill="currentColor"><path d="M5 18c-1-1-2-3-2-5 0-4 3-7 6-8l1 2c-2 1-3 2-3 4h3v7zM14 18c-1-1-2-3-2-5 0-4 3-7 6-8l1 2c-2 1-3 2-3 4h3v7z"/></symbol>
+  <symbol id="fd-i-bubble" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="fd-i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="fd-i-fedi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="17" r="2.2"/><circle cx="19" cy="17" r="2.2"/><path d="M11 7l-5 8M13 7l5 8M7.2 17h9.6"/></symbol>
+  <symbol id="fd-i-at" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+  <symbol id="fd-i-mb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c5 0 9 3.4 9 7.5S17 19 12 19c-1 0-2-.1-2.8-.4L5 20l1-3.3C4.2 15.3 3 13.5 3 11.5 3 7.4 7 4 12 4z"/><path d="M9 12h.01M12 12h.01M15 12h.01"/></symbol>
+</svg>
+<section class="fd-intro">
+<div class="fd-art">
+<svg viewBox="0 0 480 330" role="img" aria-label="An illustrated tiny house at the foot of a mountain. Instead of smoke, curved feed waves rise from its chimney, and little cards with a book, a film strip, a camera and a quote mark float out of them toward a phone and an envelope.">
+  <defs>
+    <radialGradient id="fd-fade-g" cx="50%" cy="60%" r="52%">
+      <stop offset=".55" stop-color="#FFFFFF"/><stop offset=".98" stop-color="#000000"/>
+    </radialGradient>
+    <mask id="fd-fade"><rect x="-10" y="0" width="500" height="330" fill="url(#fd-fade-g)"/></mask>
+  </defs>
+  <g mask="url(#fd-fade)">
+  <path d="M-10 250 L95 120 L150 175 L235 70 L360 230 L490 150 L490 330 L-10 330 Z" fill="#F0DDD3"/>
+  <path d="M235 70 L262 104 L248 100 L236 112 L222 99 L210 102 Z" fill="#FFFFFF" opacity=".85"/>
+  <path d="M-10 280 L70 215 L140 250 L230 190 L330 255 L420 215 L490 245 L490 330 L-10 330 Z" fill="#E5DDD5"/>
+  <path d="M-10 296 Q240 280 490 296 L490 330 L-10 330 Z" fill="#D9CFC4"/>
+  </g>
+  <ellipse cx="128" cy="300" rx="92" ry="7" fill="#1E2D4A" opacity=".12"/>
+  <g fill="#2E4470">
+    <path d="M22 298 L36 248 L50 298 Z"/><path d="M40 298 L52 262 L64 298 Z"/>
+    <path d="M222 298 L234 258 L246 298 Z"/>
+  </g>
+  <g fill="none" stroke="#C4622D" stroke-width="7" stroke-linecap="round">
+    <path class="fd-wave" style="--d:0s"   d="M171 140 A26 26 0 0 1 197 114"/>
+    <path class="fd-wave" style="--d:.35s" d="M171 122 A44 44 0 0 1 215 78"/>
+    <path class="fd-wave" style="--d:.7s"  d="M171 104 A62 62 0 0 1 233 42"/>
+  </g>
+  <circle cx="176" cy="135" r="6" fill="#C4622D"/>
+  <g class="fd-house">
+    <rect x="158" y="150" width="22" height="40" fill="#8B3E18" stroke="#1E2D4A" stroke-width="3"/>
+    <rect x="154" y="144" width="30" height="9" rx="2" fill="#1E2D4A"/>
+    <rect x="62" y="212" width="132" height="84" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M50 216 L128 152 L206 216 Z" fill="#C4622D" stroke="#1E2D4A" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M70 209 L128 162 L186 209" fill="none" stroke="#8B3E18" stroke-width="2" opacity=".5"/>
+    <rect x="80" y="232" width="34" height="28" rx="2" fill="#E9A23B" stroke="#1E2D4A" stroke-width="3"/>
+    <path d="M97 232 V260 M80 246 H114" stroke="#1E2D4A" stroke-width="2.5"/>
+    <rect x="138" y="238" width="30" height="58" rx="2" fill="#1E2D4A"/>
+    <circle cx="161" cy="268" r="2.6" fill="#E9A23B"/>
+    <rect x="194" y="252" width="34" height="5" fill="#1E2D4A"/>
+    <path d="M226 257 V296" stroke="#1E2D4A" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M194 296 H232" stroke="#1E2D4A" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <path d="M240 60 C320 40 400 70 412 170" fill="none" stroke="#1E2D4A" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round" opacity=".45"/>
+  <g class="fd-card-f" style="--d:0s">
+    <g transform="translate(250 22) rotate(-8)">
+      <rect width="46" height="46" rx="10" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3"/>
+      <g transform="translate(11 11)" fill="none" stroke="#C4622D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3a2 2 0 0 1 2-2h18v20H4a2 2 0 0 0-2 2z"/><path d="M7 6h10M7 11h7"/></g>
+    </g>
+  </g>
+  <g class="fd-card-f" style="--d:.9s">
+    <g transform="translate(316 50) rotate(7)">
+      <rect width="46" height="46" rx="10" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3"/>
+      <g transform="translate(10 11)" fill="none" stroke="#C4622D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="24" height="22" rx="2"/><path d="M7 1v22M19 1v22M1 8h6M1 16h6M19 8h6M19 16h6"/></g>
+    </g>
+  </g>
+  <g class="fd-card-f" style="--d:1.7s">
+    <g transform="translate(378 22) rotate(-5)">
+      <rect width="46" height="46" rx="10" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3"/>
+      <g transform="translate(10 11)" fill="none" stroke="#C4622D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h5l3-4h8l3 4h5v15H1z"/><circle cx="13" cy="14" r="4.5"/></g>
+    </g>
+  </g>
+  <g class="fd-card-f" style="--d:.5s">
+    <g transform="translate(272 108) rotate(9)">
+      <rect width="42" height="42" rx="10" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3"/>
+      <g transform="translate(10 11)" fill="#C4622D"><path d="M2 20c-1-1-2-3-2-5 0-5 3-8 7-9l1 2.5C6 9.5 5 11 5 13h4v7zM13 20c-1-1-2-3-2-5 0-5 3-8 7-9l1 2.5c-2 1-3 2.5-3 4.5h4v7z"/></g>
+    </g>
+  </g>
+  <g class="fd-bob" style="--d:.4s">
+    <g transform="translate(300 214) rotate(-6)">
+      <rect width="70" height="48" rx="6" fill="#FFFFFF" stroke="#1E2D4A" stroke-width="3"/>
+      <path d="M4 6 L35 28 L66 6" fill="none" stroke="#1E2D4A" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="58" cy="38" r="6" fill="#C4622D"/>
+    </g>
+  </g>
+  <g class="fd-bob" style="--d:1.1s">
+    <g transform="translate(386 166) rotate(5)">
+      <rect width="66" height="122" rx="13" fill="#1E2D4A"/>
+      <rect x="6" y="12" width="54" height="96" rx="5" fill="#FAF8F5"/>
+      <rect x="25" y="5" width="16" height="3" rx="1.5" fill="#2E4470"/>
+      <g transform="translate(12 20)">
+        <rect width="42" height="20" rx="4" fill="#F0DDD3"/><circle cx="9" cy="10" r="4" fill="#C4622D"/><path d="M17 7h19M17 13h13" stroke="#1E2D4A" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(12 46)">
+        <rect width="42" height="20" rx="4" fill="#F0DDD3"/><circle cx="9" cy="10" r="4" fill="#C4622D"/><path d="M17 7h19M17 13h11" stroke="#1E2D4A" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+      <g class="fd-new" transform="translate(12 72)">
+        <rect width="42" height="20" rx="4" fill="#C4622D"/><circle cx="9" cy="10" r="4" fill="#FFFFFF"/><path d="M17 7h19M17 13h14" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+  <g fill="#E9A23B">
+    <path class="fd-twinkle" style="--d:0s"  d="M58 92 l4 -11 l4 11 l11 4 l-11 4 l-4 11 l-4 -11 l-11 -4z"/>
+    <path class="fd-twinkle" style="--d:1s"  d="M448 112 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3z"/>
+    <path class="fd-twinkle" style="--d:1.6s" d="M352 150 l3 -8 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3z"/>
+  </g>
+</svg>
+</div>
+<div class="fd-intro-text">
+<p class="fd-lede">Almost everything I post here has its own feed. Grab the whole firehose, or just pick the parts you actually care about. Only here for the Word Nerd Alerts? I won't take it personally.</p>
+<p class="fd-note">Most feed readers let you paste <strong>tobygeeksout.micro.blog</strong> and they'll find the feeds for you. If yours doesn't, here's how the buttons work:</p>
+</div>
+</section>
+<div class="fd-how" aria-hidden="true"><span class="fd-fmt"><span class="fd-link">RSS</span><span class="fd-cp">{{ $copy | safeHTML }}</span></span><span>Tap <strong>RSS</strong> or <strong>JSON</strong> to open the feed. Tap the copy icon right next to it to copy that link.</span></div>
+<div class="fd-hero">
+<div class="fd-ico fd-ico--hero"><svg width="26" height="26" aria-hidden="true" focusable="false"><use href="#fd-i-rss"/></svg></div>
+<div class="fd-txt"><h2 class="fd-hero-name">Everything</h2><p class="fd-desc">Every post: long reads, micros, check-ins, watching updates, all of it.</p></div>
+<div class="fd-pills">
+{{- range slice (dict "l" "RSS" "f" "feed.xml") (dict "l" "JSON" "f" "feed.json") -}}
+{{- $u := printf "%s%s" $base .f -}}
+<span class="fd-fmt"><a class="fd-link" href="{{ $u }}">{{ .l }}</a><button type="button" class="fd-cp" data-copy="{{ $u }}" data-label="Everything {{ .l }} link" aria-label="Copy the Everything {{ .l }} link">{{ $copy | safeHTML }}</button></span>
+{{- end -}}
+</div>
+</div>
+<h2 class="fd-h2">By series</h2>
+<p class="fd-note">The regular stuff. Each one is its own little feed.</p>
+<ul class="fd-list">
+{{- range $series -}}
+{{- $s := . -}}
+{{- with site.GetPage (printf "/categories/%s" $s.slug) -}}
+{{- $cat := .Permalink -}}
+<li>
+<div class="fd-ico"><svg width="20" height="20" aria-hidden="true" focusable="false"><use href="#fd-i-{{ $s.icon }}"/></svg></div>
+<div class="fd-txt"><p class="fd-name">{{ $s.name }}</p><p class="fd-desc">{{ $s.desc }} <a class="fd-browse" href="{{ $s.browse | default .RelPermalink }}">{{ $s.browseLabel | default "See posts" }}</a></p></div>
+<div class="fd-pills">
+{{- range slice (dict "l" "RSS" "f" "feed.xml") (dict "l" "JSON" "f" "feed.json") -}}
+{{- $u := printf "%s%s" $cat .f -}}
+<span class="fd-fmt"><a class="fd-link" href="{{ $u }}">{{ .l }}</a><button type="button" class="fd-cp" data-copy="{{ $u }}" data-label="{{ $s.name }} {{ .l }} link" aria-label="Copy the {{ $s.name }} {{ .l }} link">{{ $copy | safeHTML }}</button></span>
+{{- end -}}
+</div>
+</li>
+{{- end -}}
+{{- end -}}
+</ul>
+<h2 class="fd-h2">By topic</h2>
+<p class="fd-note">Every category has its own RSS feed. Tap a topic to grab its feed.</p>
+<div class="fd-groups">
+{{- range $groups -}}
+{{- $g := . -}}
+{{- $chips := "" -}}
+{{- range .slugs -}}
+{{- with site.GetPage (printf "/categories/%s" .) -}}
+{{- $chips = printf `%s<a class="fd-chip" href="%sfeed.xml"><svg aria-hidden="true" focusable="false"><use href="#fd-i-rss"/></svg>%s</a>` $chips .Permalink .Title -}}
+{{- end -}}
+{{- end -}}
+{{- with $chips -}}
+<div class="fd-group"><h3 class="fd-group-name">{{ $g.name | safeHTML }}</h3><div class="fd-chips">{{ . | safeHTML }}</div></div>
+{{- end -}}
+{{- end -}}
+</div>
+{{- $all := site.Taxonomies.categories.Alphabetical -}}
+<details class="fd-all">
+<summary>See all {{ len $all }} categories</summary>
+<div class="fd-chips">
+{{- range $all -}}
+{{- with .Page -}}
+<a class="fd-chip" href="{{ .Permalink }}feed.xml"><svg aria-hidden="true" focusable="false"><use href="#fd-i-rss"/></svg>{{ .Title }}</a>
+{{- end -}}
+{{- end -}}
+</div>
+</details>
+<h2 class="fd-h2">Other ways to follow</h2>
+<p class="fd-note">Not a feed reader person? That's fine too.</p>
+<div class="fd-follow">
+<div class="fd-card">
+<div class="fd-ico"><svg width="20" height="20" aria-hidden="true" focusable="false"><use href="#fd-i-mail"/></svg></div>
+<h3 class="fd-card-name">Email newsletter</h3>
+<p class="fd-desc">New posts land right in your inbox.</p>
+<a class="fd-btn" href="{{ $base }}subscribe/">Subscribe by email</a>
+</div>
+{{- range slice
+  (dict "name" "Mastodon"   "icon" "fedi" "handle" "@technogeek75@mastodon.social" "url" "https://mastodon.social/@technogeek75")
+  (dict "name" "Bluesky"    "icon" "at"   "handle" "@technogeek75.bsky.social"     "url" "https://bsky.app/profile/technogeek75.bsky.social")
+  (dict "name" "Micro.blog" "icon" "mb"   "handle" "@technogeek75"                 "url" "https://micro.blog/technogeek75")
+-}}
+<div class="fd-card">
+<div class="fd-ico"><svg width="20" height="20" aria-hidden="true" focusable="false"><use href="#fd-i-{{ .icon }}"/></svg></div>
+<h3 class="fd-card-name">{{ .name }}</h3>
+<div class="fd-handle-row"><span class="fd-handle">{{ .handle }}</span><button type="button" class="fd-cp fd-cp--round" data-copy="{{ .handle }}" data-label="{{ .name }} handle" aria-label="Copy my {{ .name }} handle">{{ $copy | safeHTML }}</button></div>
+<a class="fd-btn" href="{{ .url }}" rel="me">Follow on {{ .name }}</a>
+</div>
+{{- end -}}
+</div>
+<div class="fd-newbie">
+<h2 class="fd-newbie-title">New to feeds?</h2>
+<p>A feed lets you follow a bunch of sites in one app, with no algorithm and no ads deciding what you see. <a href="https://aboutfeeds.com">About Feeds</a> explains it better than I can, and it only takes a couple of minutes.</p>
+</div>
+<p class="fd-fine">RSS works in pretty much every reader. JSON is a newer format some readers like better. Pick either one, they have the same posts.</p>
+<div class="fd-toast" role="status" aria-live="polite"><svg aria-hidden="true" focusable="false"><use href="#fd-i-check"/></svg><span class="fd-toast-text"></span></div>
+</div>
+<script>
+(function () {
+  var root = document.querySelector('.feeds-page');
+  if (!root || root.dataset.fdReady) return;
+  root.dataset.fdReady = '1';
+  var toast = root.querySelector('.fd-toast'), toastText = root.querySelector('.fd-toast-text'), timer;
+  function copyOld(t) {
+    var ta = document.createElement('textarea'), ok = false;
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:-99px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove(); return ok;
+  }
+  function copyText(t) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t).catch(function () { if (!copyOld(t)) throw new Error('copy'); });
+    return copyOld(t) ? Promise.resolve() : Promise.reject(new Error('copy'));
+  }
+  var COPY = '<svg aria-hidden="true" focusable="false"><use href="#fd-i-copy"/></svg>';
+  var CHECK = '<svg aria-hidden="true" focusable="false"><use href="#fd-i-check"/></svg>';
+  root.addEventListener('click', function (e) {
+    var b = e.target.closest('.fd-cp[data-copy]');
+    if (!b) return;
+    copyText(b.dataset.copy).then(function () {
+      b.classList.add('is-copied'); b.innerHTML = CHECK;
+      toastText.textContent = b.dataset.label + ' copied';
+      toast.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(function () { toast.classList.remove('is-on'); }, 1800);
+      setTimeout(function () { b.classList.remove('is-copied'); b.innerHTML = COPY; }, 1800);
+    }, function () {
+      toastText.textContent = 'Could not copy. Press and hold the link instead.';
+      toast.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
+    });
+  });
+})();
+</script>

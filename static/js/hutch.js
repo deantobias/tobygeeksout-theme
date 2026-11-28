@@ -396,7 +396,9 @@
      Knowember is every November). In November it sits by the date; the
      rest of the year it waits in All apps (laptops keep it by the date
      all year, they have room for every app). The reader's own month. */
-  var KNOW = new Date().getMonth() === 10;
+  /* Nov 27 (Toby): Knowember moves into About for good, November too,
+     so Memories takes its spot on the home screen now. */
+  var KNOW = false;
   /* Nov 8 (Toby): Den joins the dock as a sixth app, next to Blog, on
      the unfolded Fold, tablets and laptops. Phones keep five, like a Pixel. */
   /* Nov 12 (Toby: "I am used to seeing Den on the home screen"): Den goes
@@ -436,14 +438,18 @@
      its own page (title and icon in the bar) and can still be searched. */
   var NOHOME = { tinkering: 1, reading: 1, longroad: 1, blaugust: 1, uses: 1 };
   if (!KNOW) NOHOME.knowember = 1;
-  /* laptops (Nov 25): Memories in Knowember's place from December 1. In
-     November the ten by the date stay as they are, and Memories opens
-     from the On This Day card or Search. */
+  /* laptops (Nov 25): Memories in Knowember's place from December 1.
+     Nov 27 (Toby): from today, since Knowember moved into About. */
   var NODK = KNOW ? { memories: 1 } : {};
   var DK_ORDER = ['den', 'surprise', 'mb', 'settings', 'follow', KNOW ? 'knowember' : 'memories', 'photos', 'words', 'calendar', 'directory', 'pulse'];
   var DKAPPS = DK_ORDER.concat(Object.keys(APPS).filter(function (k) { return DK_ORDER.indexOf(k) < 0; }))
     .filter(function (k, i, all) { return APPS[k] && !NOHOME[k] && !NODK[k] && k !== 'blog' && DOCK.indexOf(k) < 0 && k !== DOCK6 && all.indexOf(k) === i; }).slice(0, 18);
   var DKMQ = window.matchMedia ? matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)') : { matches: false };
+  /* Nov 27 (Toby): on laptops and big screens (Windows and Mac) Word Nerd
+     lists two meanings at most, "+N more" for the rest, so its row stays
+     short and Currently and Top categories don't sit around empty space.
+     Taller cards (the Fold, iPads upright) still list as many as fit. */
+  function WMAX() { return DKMQ.matches ? 2 : 99; }
   function tile(k) { return '<span class="hh-tile hx-full">' + art(k) + '</span>'; }
   /* the ten apps by the date on the iPad mini sideways: the unfolded
      Fold's five, then the next five in the laptop order */
@@ -1147,8 +1153,9 @@
       ? '<a class="hh-wg hh-word' + (w.ms && w.ms.length > 1 ? ' multi' : '') + '" href="' + APPS.words[2] + '" aria-label="Word Nerd: ' + esc(w.w) + '"><div class="hh-wtag">Word Nerd Alert<span class="wsee" aria-hidden="true"><span class="wl">Word Nerd </span>›</span></div><div class="w">' + esc(w.w) + '</div>' +
         '<div class="pos"><span class="pt">' + esc(w.pos || '') + '</span>' + (w.n > 1 ? '<span class="more">+' + (w.n - 1) + ' more</span>' : '') + '</div><div class="def">' + esc(w.def || '') + '</div>' +
         (w.ms && w.ms.length > 1 ? '<ol class="defs">' + w.ms.map(function (m, i) { return '<li><b>' + (i + 1) + '</b>' + esc(m) + '</li>'; }).join('') + '</ol>' : '') +
-        /* big desktop: the example and a way in, so the card never ends in empty space */
-        (w.ex ? '<p class="wex"><span class="rt">“' + esc(w.ex.replace(/^[\s"“”„'‘’]+|[\s"“”„'‘’]+$/g, '')) + '”</span></p>' : '') + wInside(w) + '</a>'
+        /* Nov 27 (Toby): no example quote on the card any more; the
+           "Also inside" pills say there's an example in the post */
+        wInside(w) + '</a>'
       : '<a class="hh-wg hh-word" href="' + APPS.words[2] + '"><div class="hh-wtag">Word Nerd Alert</div><div class="hh-empty">Open Word Nerd</div></a>';
     /* the ridge stretches to any screen; the rabbit sits on the tall right peak on its own, so it never stretches */
     var ridge = '<div class="hh-ridgebox" aria-hidden="true"><svg class="hh-ridge hh-ridge-phone" viewBox="0 0 400 260" preserveAspectRatio="none">' +
@@ -1492,15 +1499,33 @@
        650 tall, like a 13" Windows): there it would squeeze the top row. */
     var wcard = homeEl.querySelector('.hh-area .hh-word');
     if (wcard) wcard.style.minHeight = '';
-    if (wcard && DKMQ.matches && innerHeight >= 650) {
+    /* measured again once the cards are shrunk (Nov 27): the words stay
+       full size (--tz), so the card needs a little more room then */
+    function wMeasure(zz) {
+      wcard.style.minHeight = '';
       homeEl.classList.remove('noex');
-      [].forEach.call(wcard.querySelectorAll('.defs li'), function (li) { li.style.display = ''; li.style.webkitLineClamp = ''; });
+      /* two meanings at most here (Nov 27, Toby) */
+      [].forEach.call(wcard.querySelectorAll('.defs li'), function (li, i) { li.style.display = i < WMAX() ? '' : 'none'; li.style.webkitLineClamp = ''; });
       wcard.style.alignSelf = 'start';
-      var wneed = wcard.getBoundingClientRect().height;
+      var wneed = wcard.getBoundingClientRect().height / zz;
+      /* Nov 27 (Toby): room for one row of "Also inside" pills too, so the
+         two meanings and the pills both show (the pills used to push a
+         meaning out, because they were left out of this measure) */
+      var wim = wcard.querySelector('.hh-win');
+      if (wim) {
+        var wnw = homeEl.classList.contains('nowin'), wps = [].slice.call(wim.querySelectorAll('.ch > span'));
+        homeEl.classList.remove('nowin'); wim.classList.remove('line'); wim.classList.add('side');
+        wps.forEach(function (sp, i) { sp.hidden = i > 0; });
+        wneed = wcard.getBoundingClientRect().height / zz;
+        wps.forEach(function (sp) { sp.hidden = sp.classList.contains('pl'); });
+        wim.classList.remove('side'); if (wnw) homeEl.classList.add('nowin');
+      }
       wcard.style.alignSelf = '';
       homeEl.classList.add('noex');
       wcard.style.minHeight = Math.ceil(Math.min(wneed, 340)) + 'px';
     }
+    var wMeas = wcard && DKMQ.matches && innerHeight >= 650;
+    if (wMeas) wMeasure(1);
     var z = 1;
     if (strip && window.matchMedia && matchMedia('(min-width: 1100px) and (min-height: 540px) and (orientation: landscape)').matches) {
       strip.style.removeProperty('--sth');
@@ -1519,6 +1544,7 @@
         a.style.zoom = z; a.style.setProperty('--tz', (1 / z).toFixed(3));
       }
     }
+    if (wMeas && z < 1) wMeasure(z);
     /* the strip's photos shrink to the room left under the cards (Nov 3,
        Toby: on his Mac there wasn't room for full-size ones, and the
        Photos widget went missing); too little room, no strip */
@@ -1636,7 +1662,7 @@
       var over = function () { return defs.getBoundingClientRect().bottom > cbot(); };
       var vis;
       var place = function () {
-        for (vis = lis.length; vis >= 1; vis--) {
+        for (vis = Math.min(lis.length, WMAX()); vis >= 1; vis--) {
           lis.forEach(function (li, i) { li.style.display = i < vis ? '' : 'none'; li.style.webkitLineClamp = ''; });
           var last = lis[vis - 1], ok = !over();
           /* the last one may go down to 1 line (…) so a little room still shows it (Nov 3) */
@@ -1657,7 +1683,7 @@
         return n;
       };
       wc.classList.remove('snug'); place();
-      var fullAll = vis === lis.length && !lis[vis - 1].style.webkitLineClamp;
+      var fullAll = vis === Math.min(lis.length, WMAX()) && !lis[vis - 1].style.webkitLineClamp;
       if (!fullAll) {
         var n0 = shown(); wc.classList.add('snug'); place();
         if (shown() <= n0) { wc.classList.remove('snug'); place(); }
@@ -1729,6 +1755,12 @@
            Cousins · Roots · ASL sign", cut with … if long) */
         wi.classList.add('line'); pills.forEach(function (p) { p.hidden = false; }); pl.hidden = true;
         if (!wok()) { wi.classList.remove('line'); homeEl.classList.add('nowin'); }
+      }
+      /* Nov 27 (Toby): "+N more" counts any meaning the pills stepped in for */
+      var wmo = wc.querySelector('.pos .more');
+      if (wmo && wc.classList.contains('multi')) {
+        var wtot = (HOME.word && HOME.word.n) || 0, wvis = [].filter.call(wc.querySelectorAll('.defs li'), function (li) { return li.style.display !== 'none'; }).length;
+        wmo.textContent = '+' + (wtot - wvis) + ' more'; wmo.style.display = wtot - wvis > 0 ? '' : 'none';
       }
     }
     /* phones (Nov 25): the ASL pill and "+N more" step aside when the

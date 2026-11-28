@@ -162,7 +162,8 @@
        so does Knowember outside November (in November it's on the home
        screen), with the badge from the Classic rail */
     var gtk = '<a class="hx-sm-gtk-row" href="/the-long-road-here/"><span class="tx"><b>The Long Road Here</b><small>Every blog I\'ve kept since 2004</small></span><i aria-hidden="true">›</i></a>';
-    if (new Date().getMonth() !== 10) gtk += '<a class="hx-sm-gtk-row" href="/knowember/"><img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="" width="99" height="35" loading="lazy" decoding="async"><span class="tx"><b>Knowember</b><small>One photo, three questions</small></span><i aria-hidden="true">›</i></a>';
+    /* Nov 27 (Toby): Knowember lives here all year now, November too */
+    gtk += '<a class="hx-sm-gtk-row" href="/knowember/"><img src="https://tobygeeksout.micro.blog/uploads/2026/knowember-paper-red.png" alt="" width="99" height="35" loading="lazy" decoding="async"><span class="tx"><b>Knowember</b><small>One photo, three questions</small></span><i aria-hidden="true">›</i></a>';
     root.side.innerHTML = '<div class="hx-sm-hero">' + logo + face + (name ? '<h2>' + ctx.esc(name) + '</h2>' : '') + '</div>' +
       (facts.length ? '<div class="hx-sm-facts">' + facts.join('') + '</div>' : '') +
       '<div class="hx-sm-gtk"><h3>Get to know me</h3>' + gtk + '</div>';

@@ -5,7 +5,7 @@
   #list_loading + #list_results. page.html spots that and calls this
   partial, which wraps the new design around Micro.blog's content:
   art + title + post count, the round box (Micro.blog's form inside),
-  then the empty-box extras (moved right under the form by the script
+  then the empty-box extras (Popular topics + three ways in) (moved right under the form by the script
   below). layouts/search/search.html is NOT used by Micro.blog.
   Styles: custom.css section 139.
 */ -}}
@@ -69,15 +69,6 @@
 {{ .Content }}
 </div>
 <div class="sr-extras">
-<h2 class="sr-h">Try searching for</h2>
-<ul class="sr-chips">
-<li><button type="button" class="sr-try" data-q="LEGO"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>LEGO</button></li>
-<li><button type="button" class="sr-try" data-q="Tiny house"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Tiny house</button></li>
-<li><button type="button" class="sr-try" data-q="Elkhorn City"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Elkhorn City</button></li>
-<li><button type="button" class="sr-try" data-q="Deaf"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Deaf</button></li>
-<li><button type="button" class="sr-try" data-q="AI"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>AI</button></li>
-<li><button type="button" class="sr-try" data-q="Chipotle"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Chipotle</button></li>
-</ul>
 {{ with $topics }}
 <h2 class="sr-h">Popular topics</h2>
 <ul class="sr-chips">
@@ -106,15 +97,6 @@
   f.addEventListener('input', sync);
   f.addEventListener('keyup', sync);
   sync();
-  document.querySelectorAll('.sr-try').forEach(function (b) {
-    b.addEventListener('click', function () {
-      f.value = b.getAttribute('data-q');
-      sync();
-      if (typeof submitSearch === 'function') submitSearch(f.value);
-      else f.dispatchEvent(new Event('input', { bubbles: true }));
-      f.focus();
-    });
-  });
   if (form) form.addEventListener('submit', function (e) { e.preventDefault(); });
 })();
 </script>

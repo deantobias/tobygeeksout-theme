@@ -34,6 +34,9 @@
   current year), OULDHH, The Bookmark (for now), and two that aren't
   ready yet: 100 Days To Offload (/days-to-offload) and The 2026
   Issue (/the-2026-issue).
+  Nov 28 (Toby): Archive and Search moved from Slashes to More pages
+  (neither is on slashpages.net). Calendar stays in More pages: the
+  slashpages /calendar is for dates you observe; Toby's is his posts.
   Under the Hood shows as /colophon (its real address; /under-the-hood
   is only a fallback). Blaugust's drawing is the Blaugust logo's
   gradient italic B, same art as Hutch's Blaugust icon. Knowember
@@ -57,8 +60,6 @@
   (dict "try" (slice "/colophon/" "/under-the-hood/") "name" "Under the Hood" "desc" "How this site is built"                    "art" "hood" "added" "2026-11-27")
   (dict "try" (slice "/ai/")                 "name" "AI"                    "desc" "How I use AI here, and how I don't"            "art" "ai")
   (dict "try" (slice "/changelog/" "/tinkering/") "name" "The Tinkering Log" "desc" "What's changed on the site lately"           "art" "tinker")
-  (dict "try" (slice "/archive/")            "name" "Archive"               "desc" "Every post, by month and category"             "art" "archive")
-  (dict "try" (slice "/search/")             "name" "Search"                "desc" "Find any post I've written"                    "art" "search")
   (dict "try" (slice "/contact/")            "name" "Contact"               "desc" "How to reach me"                               "art" "contact")
 -}}
 {{- /* More pages are shown in groups (Toby, Nov 27; Hutch sends its
@@ -75,10 +76,12 @@
   (dict "group" "Through the Lens"     "try" (slice "/memories/")           "name" "Memories"           "desc" "Old photos brought back on their anniversary" "art" "memories" "added" "2026-11-25")
   (dict "group" "Through the Lens"     "try" (slice "/my-hometown-photos/") "name" "My Hometown Photos" "desc" "Autumn roads, hills and rivers around home"   "art" "hometown")
   (dict "group" "Behind the Blog"      "try" (slice "/the-long-road-here/" "/the-long-road/") "name" "The Long Road Here" "desc" "My blogging story, back to 2004" "art" "road")
+  (dict "group" "Behind the Blog"      "try" (slice "/archive/")            "name" "Archive"            "desc" "Every post, by month and category"            "art" "archive")
   (dict "group" "Behind the Blog"      "try" (slice "/calendar/")           "name" "Calendar"           "desc" "Every post, day by day"                       "art" "calendar")
   (dict "group" "Behind the Blog"      "try" (slice "/the-pulse/" "/pulse/") "name" "The Pulse"         "desc" "This year's blog numbers"                     "art" "pulse")
   (dict "group" "Up for a Challenge"   "try" (slice "/blaugust/" "/blaugust-2026/") "name" "Blaugust"   "desc" "My 31 days of posting in August"              "art" "blaugust")
   (dict "group" "Up for a Challenge"   "try" (slice "/knowember/")          "name" "Knowember"          "desc" "A month of get-to-know-me prompts"            "art" "about")
+  (dict "group" "Stick Around"         "try" (slice "/search/")             "name" "Search"             "desc" "Find any post I've written"                   "art" "search")
   (dict "group" "Stick Around"         "try" (slice "/subscribe/")          "name" "Subscribe"          "desc" "New posts, right to your inbox"               "art" "mailbox")
   (dict "group" "Stick Around"         "try" (slice "/surprise-me/")        "name" "Surprise Me!"       "desc" "Takes you to a random post"                   "art" "dice")
 -}}

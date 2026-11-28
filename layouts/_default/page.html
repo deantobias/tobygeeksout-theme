@@ -1,4 +1,9 @@
 {{ define "main" }}
+  {{/* Nov 27, 2026: Micro.blog's own /search/ page (its content carries
+       #input_search) gets the fuller search design. partials/search-page.html */}}
+  {{ if or (eq .RelPermalink "/search/") (in (string .Content) "input_search") }}
+  {{ partial "search-page.html" . }}
+  {{ else }}
   <article class="page-wrapper">
     <header class="page-header">
       {{ if .Title }}
@@ -9,4 +14,5 @@
       {{ .Content }}
     </div>
   </article>
+  {{ end }}
 {{ end }}

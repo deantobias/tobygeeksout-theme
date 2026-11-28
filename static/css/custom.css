@@ -16907,8 +16907,9 @@ body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 
    v1-search-page-mockup). Card-catalog art beside the title, post
    count, round search box, then (only while the box is empty) Try
    searching for chips, Popular topics and three ways in. The extras
-   hide while there is a query (html.sr-has-q, set in search.html).
-   Markup: layouts/search/search.html. Motion stops for Reduce Motion.
+   hide while there is a query (html.sr-has-q).
+   Markup: layouts/partials/search-page.html, called from page.html
+   on Micro.blog's own /search/ page. Motion stops for Reduce Motion.
    ============================================================ */
 .sr-page { max-width: 860px; margin: 0 auto; }
 @media (max-width: 767px) {
@@ -16946,30 +16947,34 @@ body.tgo-night .colo-chip { border-color: rgba(243, 238, 231, .45); box-shadow: 
   color: var(--color-text-light);
 }
 .sr-page .sr-count b { color: var(--color-terra-text); }
-/* the box */
+/* the box: Micro.blog's own form + #input_search.field sit inside .sr-box.
+   Its inline <style> (form centered, .field 270px) and section 27's
+   .field !important rules are overridden here. */
 .sr-page .sr-box { position: relative; margin: 1.75rem 0 0; }
-.sr-page .sr-box > svg {
-  position: absolute; left: 18px; top: 50%; width: 22px; height: 22px; transform: translateY(-50%);
+.sr-page .sr-box > .sr-icon {
+  position: absolute; left: 18px; top: 29px; width: 22px; height: 22px; transform: translateY(-50%); z-index: 1;
   fill: none; stroke: var(--color-text-light); stroke-width: 2.2; stroke-linecap: round; pointer-events: none;
 }
-.sr-page input.sr-field {
+.sr-page .sr-box form { display: block !important; max-width: none !important; margin: 0 !important; }
+.sr-page .sr-box .field {
   display: block;
-  width: 100%;
-  font: 500 1.15rem var(--font-body);
+  width: 100% !important;
+  height: 58px !important;
+  font: 500 1.15rem var(--font-body) !important;
   color: var(--color-text);
   background: var(--color-bg-card, #FFFFFF);
-  border: 2px solid var(--color-border);
-  border-radius: 999px;
-  padding: 16px 20px 16px 52px;
-  margin: 0;
+  border: 2px solid var(--color-border) !important;
+  border-radius: 999px !important;
+  padding: 0 20px 0 52px !important;
+  margin: 0 !important;
   outline: none;
-  -webkit-appearance: none;
+  -webkit-appearance: none !important;
   appearance: none;
   transition: border-color .2s, box-shadow .2s;
 }
-.sr-page input.sr-field:focus { border-color: var(--color-terra); box-shadow: 0 0 0 3px var(--color-terra-light); }
-.sr-page input.sr-field::placeholder { color: var(--color-text-light); opacity: 1; }
-.sr-page .sr-loading { font-size: .875rem; color: var(--color-text-light); padding: 1rem 0; }
+.sr-page .sr-box .field:focus { border-color: var(--color-terra) !important; box-shadow: 0 0 0 3px var(--color-terra-light) !important; }
+.sr-page .sr-box .field::placeholder { color: var(--color-text-light); opacity: 1; }
+.sr-page #list_loading { font-size: .875rem; color: var(--color-text-light); padding: 1rem 0; justify-content: flex-start; }
 .sr-page #list_results:not(:empty) { margin-top: 1.25rem; }
 /* extras (empty box only) */
 .sr-page .sr-extras { margin: 1.9rem 0 0; }
